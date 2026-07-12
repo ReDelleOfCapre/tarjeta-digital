@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Términos y Privacidad - TarjetaDigital</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    .legal-header { padding: 24px 0 16px; }
+    .legal-header h1 { font-size: var(--font-size-xl); }
+
+    .legal-tabs {
+      display: flex; gap: 0; margin-bottom: 24px;
+      background: var(--color-glass-bg); border-radius: var(--radius-lg); padding: 4px;
+      border: 1px solid var(--color-glass-border);
+    }
+    .legal-tab {
+      flex: 1; padding: 10px 16px; border-radius: var(--radius-md); text-align: center;
+      cursor: pointer; font-size: var(--font-size-sm); font-weight: 500;
+      transition: all var(--transition-fast); color: var(--color-text-secondary);
+      border: none; background: none; font-family: inherit;
+    }
+    .legal-tab.active { background: var(--color-accent); color: #fff; }
+
+    .legal-content { display: none; }
+    .legal-content.active { display: block; }
+
+    .legal-content h2 {
+      font-size: var(--font-size-lg); margin-bottom: 12px; margin-top: 24px;
+      color: var(--color-text-primary);
+    }
+    .legal-content h2:first-child { margin-top: 0; }
+    .legal-content p, .legal-content li {
+      font-size: var(--font-size-sm); color: var(--color-text-secondary);
+      line-height: 1.7; margin-bottom: 12px;
+    }
+    .legal-content ul { padding-left: 20px; margin-bottom: 16px; }
+    .legal-content li { margin-bottom: 6px; }
+    .legal-content strong { color: var(--color-text-primary); }
+
+    .last-updated {
+      text-align: center; font-size: var(--font-size-xs);
+      color: var(--color-text-muted); padding: 24px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="legal-header">
+      <a href="javascript:history.back()" class="btn btn-icon" style="margin-bottom:12px">←</a>
+      <h1>Legal</h1>
+    </div>
+
+    <div class="legal-tabs">
+      <button class="legal-tab active" onclick="showTab('terminos')">Términos de uso</button>
+      <button class="legal-tab" id="tab-privacidad" onclick="showTab('privacidad')">Privacidad</button>
+    </div>
+
+    <!-- TÉRMINOS DE USO -->
+    <div class="legal-content active" id="content-terminos">
+      <h2>1. Descripción del servicio</h2>
+      <p>TarjetaDigital es una plataforma web que permite crear perfiles de contacto digitales y compartirlos mediante código QR o enlace directo. El servicio está diseñado para funcionar en cualquier dispositivo móvil sin necesidad de instalar aplicaciones.</p>
+
+      <h2>2. Registro y cuenta</h2>
+      <p>Para usar TarjetaDigital necesitas crear una cuenta proporcionando tu número de teléfono, nombre y una contraseña. Eres responsable de mantener la confidencialidad de tu contraseña y de todas las actividades que ocurran en tu cuenta.</p>
+
+      <h2>3. Planes y facturación</h2>
+      <p>TarjetaDigital ofrece un plan gratuito con funcionalidades básicas y un plan Pro con funcionalidades avanzadas. Los precios están en Pesos Mexicanos (MXN) y pueden cambiar con aviso previo de 30 días.</p>
+      <ul>
+        <li><strong>Plan Gratis:</strong> 1 perfil, 3 campos de contacto, 1 archivo adjunto.</li>
+        <li><strong>Plan Pro:</strong> Perfiles, campos y archivos ilimitados, estadísticas avanzadas y soporte prioritario.</li>
+      </ul>
+
+      <h2>4. Uso aceptable</h2>
+      <p>Te comprometes a NO usar TarjetaDigital para:</p>
+      <ul>
+        <li>Publicar contenido ilegal, difamatorio, amenazante u ofensivo</li>
+        <li>Suplantar la identidad de otra persona</li>
+        <li>Distribuir spam, malware o contenido malicioso</li>
+        <li>Violar derechos de propiedad intelectual de terceros</li>
+        <li>Intentar acceder a cuentas o datos de otros usuarios</li>
+        <li>Usar el servicio para actividades fraudulentas</li>
+      </ul>
+
+      <h2>5. Propiedad intelectual</h2>
+      <p>El contenido que subas a TarjetaDigital (fotos, textos, archivos) sigue siendo de tu propiedad. Nos otorgas una licencia limitada para almacenar, mostrar y distribuir ese contenido como parte del servicio.</p>
+      <p>La marca TarjetaDigital, su diseño, código y funcionalidades son propiedad exclusiva de sus creadores.</p>
+
+      <h2>6. Limitación de responsabilidad</h2>
+      <p>TarjetaDigital se proporciona "tal cual". No garantizamos disponibilidad ininterrumpida del servicio. No somos responsables por pérdida de datos, daños indirectos o consecuentes derivados del uso del servicio.</p>
+
+      <h2>7. Terminación</h2>
+      <p>Puedes eliminar tu cuenta en cualquier momento. Nos reservamos el derecho de suspender o cancelar cuentas que violen estos términos, con notificación previa cuando sea posible.</p>
+
+      <h2>8. Modificaciones</h2>
+      <p>Podemos modificar estos términos en cualquier momento. Los cambios significativos serán notificados por email o dentro de la plataforma con al menos 30 días de anticipación.</p>
+    </div>
+
+    <!-- PRIVACIDAD -->
+    <div class="legal-content" id="content-privacidad">
+      <h2>1. Datos que recolectamos</h2>
+      <p>Recolectamos la información mínima necesaria para el funcionamiento del servicio:</p>
+      <ul>
+        <li><strong>Datos de cuenta:</strong> Número de teléfono, nombre y contraseña (almacenada como hash, nunca en texto plano).</li>
+        <li><strong>Datos de perfil:</strong> Nombre del perfil, tipo, foto, campos de contacto y archivos que tú decides agregar.</li>
+        <li><strong>Estadísticas anónimas:</strong> Número de visitas, clicks en botones de acción. Las IPs se almacenan como hash irreversible (SHA-256 truncado).</li>
+        <li><strong>Datos técnicos:</strong> User-agent del navegador para estadísticas de dispositivo.</li>
+      </ul>
+
+      <h2>2. Cómo usamos los datos</h2>
+      <ul>
+        <li>Autenticación y acceso a tu cuenta</li>
+        <li>Mostrar tu perfil público a quienes compartas el enlace o QR</li>
+        <li>Generar estadísticas de visitas para tu dashboard</li>
+        <li>Mejorar el servicio y la experiencia de usuario</li>
+      </ul>
+      <p><strong>NO vendemos, alquilamos ni compartimos tus datos personales con terceros</strong> para fines de marketing o publicidad.</p>
+
+      <h2>3. Almacenamiento y seguridad</h2>
+      <ul>
+        <li>Las contraseñas se almacenan usando <strong>bcrypt</strong> con salt de 10 rondas</li>
+        <li>Las comunicaciones se realizan sobre HTTPS</li>
+        <li>Los tokens de sesión (JWT) expiran a los 7 días</li>
+        <li>Las IPs de visitantes se almacenan como hash SHA-256 truncado (irreversible)</li>
+        <li>Los archivos subidos se almacenan en el servidor con nombres aleatorios</li>
+      </ul>
+
+      <h2>4. Tus derechos</h2>
+      <p>Tienes derecho a:</p>
+      <ul>
+        <li><strong>Acceso:</strong> Ver todos los datos que tenemos sobre ti</li>
+        <li><strong>Rectificación:</strong> Corregir datos incorrectos desde tu dashboard</li>
+        <li><strong>Eliminación:</strong> Borrar tu cuenta y todos los datos asociados</li>
+        <li><strong>Portabilidad:</strong> Descargar tus datos de contacto en formato vCard</li>
+      </ul>
+
+      <h2>5. Cookies</h2>
+      <p>TarjetaDigital <strong>no usa cookies de rastreo</strong>. Solo utilizamos almacenamiento local del navegador (localStorage) para mantener tu sesión activa. No usamos cookies de terceros ni herramientas de tracking.</p>
+
+      <h2>6. Contacto</h2>
+      <p>Para consultas sobre privacidad o para ejercer tus derechos, contáctanos:</p>
+      <ul>
+        <li>WhatsApp: <a href="https://wa.me/521234567890" style="color:var(--color-accent)">+52 1234567890</a></li>
+        <li>Email: <a href="mailto:privacidad@tarjetadigital.com" style="color:var(--color-accent)">privacidad@tarjetadigital.com</a></li>
+      </ul>
+    </div>
+
+    <div class="last-updated">Última actualización: Julio 2026</div>
+  </div>
+
+  <script>
+    function showTab(tab) {
+      document.querySelectorAll('.legal-content').forEach(function(c) { c.classList.remove('active'); });
+      document.querySelectorAll('.legal-tab').forEach(function(t) { t.classList.remove('active'); });
+      document.getElementById('content-' + tab).classList.add('active');
+      event.target.classList.add('active');
+    }
+
+    // Handle hash navigation
+    if (window.location.hash === '#privacidad') {
+      showTab('privacidad');
+      document.querySelector('.legal-tab').classList.remove('active');
+      document.getElementById('tab-privacidad').classList.add('active');
+    }
+  </script>
+</body>
+</html>

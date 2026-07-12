@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Editor - TarjetaDigital</title>
+  <meta name="description" content="Crea o edita tu tarjeta de contacto digital.">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#6C63FF">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="editor-page">
+  <div class="editor-header">
+    <button class="btn-icon back-btn" onclick="history.back()" aria-label="Volver">←</button>
+    <h2 id="editor-title">Nueva tarjeta</h2>
+  </div>
+
+  <div class="steps-indicator" id="steps">
+    <span class="step-dot active" data-step="1"></span>
+    <span class="step-dot" data-step="2"></span>
+    <span class="step-dot" data-step="3"></span>
+    <span class="step-dot" data-step="4"></span>
+  </div>
+
+  <div class="container">
+    <!-- Step 1: Perfil -->
+    <div class="step-content" id="step-1">
+      <h3>Información del perfil</h3>
+      <div class="input-group">
+        <label for="inp-nombre">Nombre de la tarjeta *</label>
+        <input type="text" id="inp-nombre" class="input" placeholder="Ej: Mi Negocio" required>
+      </div>
+      <div class="input-group">
+        <label for="inp-tipo">Tipo</label>
+        <select id="inp-tipo" class="select">
+          <option value="personal">Personal</option>
+          <option value="negocio">Negocio</option>
+          <option value="profesional">Profesional</option>
+          <option value="freelancer">Freelancer</option>
+          <option value="otro">Otro</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label>Color del tema</label>
+        <div class="color-picker" id="color-picker"></div>
+      </div>
+      <div class="input-group">
+        <label>Foto (opcional, máx 2MB)</label>
+        <div class="foto-upload" id="foto-upload">
+          <p>📷 Toca para subir foto</p>
+          <p class="text-muted text-xs">JPG, PNG. Se recomienda 800×800px</p>
+        </div>
+        <input type="file" id="inp-foto" accept="image/jpeg,image/png,image/webp" class="hidden">
+        <div id="foto-preview" class="hidden" style="text-align:center;margin-top:12px">
+          <img id="foto-preview-img" style="max-width:120px;border-radius:50%" alt="Vista previa de foto">
+          <br>
+          <button type="button" class="btn btn-sm btn-danger" style="margin-top:8px" id="btn-remove-foto">Quitar foto</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Campos contacto -->
+    <div class="step-content hidden" id="step-2">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h3>Campos de contacto</h3>
+        <span class="limit-counter" id="campo-limit"></span>
+      </div>
+      <div class="campo-list" id="campo-list"></div>
+      <button class="btn btn-secondary btn-block" id="btn-add-campo" style="margin-top:12px">+ Agregar campo</button>
+      <div class="card hidden" id="campo-form" style="margin-top:12px">
+        <div class="input-group">
+          <label for="campo-tipo">Tipo</label>
+          <select id="campo-tipo" class="select">
+            <option value="whatsapp">WhatsApp</option>
+            <option value="telefono">Teléfono</option>
+            <option value="email">Email</option>
+            <option value="direccion">Dirección</option>
+            <option value="facebook">Facebook</option>
+            <option value="instagram">Instagram</option>
+            <option value="tiktok">TikTok</option>
+            <option value="linkedin">LinkedIn</option>
+            <option value="twitter">Twitter/X</option>
+            <option value="web">Sitio web</option>
+            <option value="otro">Otro</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label for="campo-valor">Valor *</label>
+          <input type="text" id="campo-valor" class="input" placeholder="">
+        </div>
+        <div class="input-group">
+          <label for="campo-etiqueta">Etiqueta (opcional)</label>
+          <input type="text" id="campo-etiqueta" class="input" placeholder="Ej: Personal, Trabajo">
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-primary btn-sm" id="btn-save-campo">Guardar</button>
+          <button class="btn btn-secondary btn-sm" id="btn-cancel-campo">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Archivos -->
+    <div class="step-content hidden" id="step-3">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h3>Archivos adjuntos</h3>
+        <span class="limit-counter" id="archivo-limit"></span>
+      </div>
+      <div class="file-upload-zone" id="file-upload-zone">
+        <p>📎 Toca para subir archivo</p>
+        <p class="text-muted text-xs">PDF (máx 5MB) o imagen (máx 2MB)</p>
+      </div>
+      <input type="file" id="inp-archivo" accept=".pdf,.jpg,.jpeg,.png,.webp" class="hidden">
+      <div class="campo-list" id="archivo-list" style="margin-top:12px"></div>
+    </div>
+
+    <!-- Step 4: Preview -->
+    <div class="step-content hidden" id="step-4">
+      <h3>Vista previa</h3>
+      <div id="preview-container" class="card" style="padding:0;overflow:hidden"></div>
+    </div>
+  </div>
+
+  <div class="step-nav">
+    <button class="btn btn-secondary" id="btn-prev" disabled>← Anterior</button>
+    <button class="btn btn-primary" id="btn-next">Siguiente →</button>
+  </div>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="/js/app.js"></script>
+  <script src="/js/editor.js"></script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TarjetaDigital - Tu tarjeta de contacto digital</title>
+  <meta name="description" content="Crea y comparte tu tarjeta de contacto digital fácilmente. Comparte tu información por QR o enlace.">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#6C63FF">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="auth-page">
+  <div class="auth-card card">
+    <div class="auth-header">
+      <div class="logo">📇</div>
+      <h1>TarjetaDigital</h1>
+      <p>Tu tarjeta de contacto digital</p>
+    </div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" data-tab="login">Iniciar Sesión</button>
+      <button class="auth-tab" data-tab="registro">Registrarse</button>
+    </div>
+    <form id="login-form">
+      <div class="input-group">
+        <label for="login-tel">Teléfono</label>
+        <input type="tel" id="login-tel" class="input" placeholder="+52 1234567890" required>
+      </div>
+      <div class="input-group">
+        <label for="login-pass">Contraseña</label>
+        <input type="password" id="login-pass" class="input" placeholder="••••••" required minlength="6">
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Entrar</button>
+    </form>
+    <form id="registro-form" class="hidden">
+      <div class="input-group">
+        <label for="reg-nombre">Nombre</label>
+        <input type="text" id="reg-nombre" class="input" placeholder="Tu nombre" required minlength="2" maxlength="50">
+      </div>
+      <div class="input-group">
+        <label for="reg-tel">Teléfono</label>
+        <input type="tel" id="reg-tel" class="input" placeholder="+52 1234567890" required>
+      </div>
+      <div class="input-group">
+        <label for="reg-pass">Contraseña</label>
+        <input type="password" id="reg-pass" class="input" placeholder="Mínimo 6 caracteres" required minlength="6">
+      </div>
+      <div class="input-group">
+        <label for="reg-pass2">Confirmar contraseña</label>
+        <input type="password" id="reg-pass2" class="input" placeholder="Repetir contraseña" required minlength="6">
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Crear cuenta</button>
+    </form>
+  </div>
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="/js/app.js"></script>
+  <script src="/js/auth.js"></script>
+  <p style="text-align:center;font-size:0.75rem;color:rgba(255,255,255,0.3);padding:16px 0">
+    <a href="/legal.html" style="color:rgba(255,255,255,0.4);text-decoration:none">Términos de uso</a>
+    &nbsp;·&nbsp;
+    <a href="/legal.html#privacidad" style="color:rgba(255,255,255,0.4);text-decoration:none">Privacidad</a>
+  </p>
+</body>
+</html>

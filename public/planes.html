@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Planes - TarjetaDigital</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    .plans-header { padding: 24px 0 16px; }
+    .plans-header h1 { font-size: var(--font-size-xl); }
+    .plans-header p { color: var(--color-text-secondary); margin-top: 4px; font-size: var(--font-size-sm); }
+
+    .current-plan-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--color-glass-bg); border: 1px solid var(--color-glass-border);
+      padding: 6px 14px; border-radius: 50px; font-size: var(--font-size-sm); margin-bottom: 20px;
+    }
+    .current-plan-badge .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--color-success); }
+
+    .billing-toggle {
+      display: flex; justify-content: center; gap: 0; margin-bottom: 24px;
+      background: var(--color-glass-bg); border-radius: var(--radius-lg); padding: 4px; border: 1px solid var(--color-glass-border);
+    }
+    .billing-option {
+      flex: 1; padding: 10px 16px; border-radius: var(--radius-md); text-align: center; cursor: pointer;
+      font-size: var(--font-size-sm); font-weight: 500; transition: all var(--transition-fast); color: var(--color-text-secondary);
+      border: none; background: none; font-family: inherit;
+    }
+    .billing-option.active { background: var(--color-accent); color: #fff; }
+
+    .plan-card {
+      background: var(--color-glass-bg); border: 1px solid var(--color-glass-border);
+      border-radius: var(--radius-lg); padding: 24px; margin-bottom: 16px; position: relative;
+    }
+    .plan-card.pro {
+      border-color: var(--color-accent);
+      background: linear-gradient(135deg, rgba(108,99,255,0.08), rgba(139,131,255,0.04));
+    }
+    .popular-badge {
+      position: absolute; top: -10px; right: 16px;
+      background: linear-gradient(135deg, var(--color-accent), var(--color-accent-light));
+      color: #fff; font-size: 0.7rem; font-weight: 700; padding: 4px 12px;
+      border-radius: 50px; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .plan-name { font-size: var(--font-size-lg); font-weight: 700; margin-bottom: 4px; }
+    .plan-price { font-size: var(--font-size-2xl); font-weight: 700; color: var(--color-accent); }
+    .plan-price .period { font-size: var(--font-size-sm); font-weight: 400; color: var(--color-text-muted); }
+    .plan-price .original { text-decoration: line-through; color: var(--color-text-muted); font-size: var(--font-size-base); margin-right: 4px; }
+    .plan-features { list-style: none; padding: 0; margin: 20px 0; }
+    .plan-features li {
+      display: flex; align-items: center; gap: 10px; padding: 8px 0;
+      font-size: var(--font-size-sm); color: var(--color-text-secondary);
+    }
+    .plan-features li::before { content: '✓'; color: var(--color-success); font-weight: 700; font-size: 1rem; }
+    .plan-features li.disabled { color: var(--color-text-muted); }
+    .plan-features li.disabled::before { content: '✕'; color: var(--color-text-muted); }
+
+    .trial-text {
+      text-align: center; font-size: var(--font-size-xs); color: var(--color-text-muted);
+      margin-top: 8px;
+    }
+
+    .faq-section { margin-top: 32px; }
+    .faq-item { border-bottom: 1px solid var(--color-glass-border); padding: 16px 0; }
+    .faq-q { font-weight: 600; font-size: var(--font-size-sm); margin-bottom: 6px; }
+    .faq-a { font-size: var(--font-size-sm); color: var(--color-text-secondary); line-height: 1.6; }
+
+    .contact-support {
+      text-align: center; padding: 24px 0;
+      font-size: var(--font-size-sm); color: var(--color-text-muted);
+    }
+    .contact-support a { color: var(--color-accent); text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="plans-header">
+      <a href="/dashboard.html" class="btn btn-icon" style="margin-bottom:12px">←</a>
+      <h1>Planes y Precios</h1>
+      <p>Elige el plan que mejor se adapte a tu negocio</p>
+    </div>
+
+    <!-- Current plan -->
+    <div class="current-plan-badge">
+      <span class="dot"></span>
+      <span>Tu plan actual: <strong id="current-plan-text">Gratis</strong></span>
+    </div>
+
+    <!-- Billing toggle -->
+    <div class="billing-toggle">
+      <button class="billing-option active" id="btn-monthly" onclick="setBilling('monthly')">Mensual</button>
+      <button class="billing-option" id="btn-annual" onclick="setBilling('annual')">Anual <span style="color:var(--color-success);font-weight:700">-40%</span></button>
+    </div>
+
+    <!-- FREE Plan -->
+    <div class="plan-card">
+      <div class="plan-name">Gratis</div>
+      <div class="plan-price">$0 <span class="period">/ siempre</span></div>
+      <ul class="plan-features">
+        <li>1 tarjeta digital</li>
+        <li>3 campos de contacto</li>
+        <li>1 archivo adjunto</li>
+        <li>Código QR</li>
+        <li>Descarga vCard</li>
+        <li class="disabled">Tarjetas ilimitadas</li>
+        <li class="disabled">Campos ilimitados</li>
+        <li class="disabled">Sin marca de agua</li>
+      </ul>
+      <button class="btn btn-secondary btn-block" disabled id="btn-free">Plan actual</button>
+    </div>
+
+    <!-- PRO Plan -->
+    <div class="plan-card pro">
+      <span class="popular-badge">Más popular</span>
+      <div class="plan-name">Pro</div>
+      <div class="plan-price">
+        <span class="original" id="price-original" style="display:none">$99</span>
+        <span id="price-amount">$99</span>
+        <span class="period" id="price-period">MXN / mes</span>
+      </div>
+      <ul class="plan-features">
+        <li>Tarjetas ilimitadas</li>
+        <li>Campos ilimitados</li>
+        <li>Archivos ilimitados</li>
+        <li>Código QR personalizado</li>
+        <li>Estadísticas avanzadas</li>
+        <li>Sin marca de agua</li>
+        <li>Soporte prioritario</li>
+        <li>Dominio personalizado (próximamente)</li>
+      </ul>
+      <button class="btn btn-primary btn-block" id="btn-pro" onclick="activarPro()">
+        ⚡ Comenzar Pro
+      </button>
+      <p class="trial-text">7 días de prueba gratis · Cancela cuando quieras</p>
+    </div>
+
+    <!-- FAQ -->
+    <div class="faq-section">
+      <h3 style="margin-bottom:16px">Preguntas frecuentes</h3>
+      <div class="faq-item">
+        <div class="faq-q">¿Puedo cancelar en cualquier momento?</div>
+        <div class="faq-a">Sí, puedes cancelar tu suscripción en cualquier momento. Tu plan Pro seguirá activo hasta el final del período de facturación.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">¿Qué métodos de pago aceptan?</div>
+        <div class="faq-a">Actualmente aceptamos pagos vía WhatsApp con transferencia bancaria, OXXO, o tarjeta de débito/crédito.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">¿Mis tarjetas se borran si bajo de plan?</div>
+        <div class="faq-a">No, tus tarjetas se mantienen pero solo podrás editar la primera. Las demás seguirán activas y visibles.</div>
+      </div>
+    </div>
+
+    <!-- Support -->
+    <div class="contact-support">
+      <p>¿Tienes dudas? <a href="https://wa.me/521234567890" target="_blank">Escríbenos por WhatsApp</a></p>
+      <p style="margin-top:8px"><a href="/legal.html">Términos de uso</a> · <a href="/legal.html#privacidad">Privacidad</a></p>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-overlay hidden" id="modal-pro">
+    <div class="modal" style="max-width:360px;padding:24px">
+      <h3 style="margin-bottom:8px">🎉 ¡Activa tu Plan Pro!</h3>
+      <p style="color:var(--color-text-secondary);font-size:var(--font-size-sm);margin-bottom:20px;line-height:1.6">
+        Para activar tu plan Pro, escríbenos por WhatsApp y te activamos en minutos.
+      </p>
+      <div style="background:var(--color-glass-bg);border:1px solid var(--color-glass-border);border-radius:var(--radius-md);padding:16px;margin-bottom:16px">
+        <div style="font-size:var(--font-size-sm);color:var(--color-text-muted);margin-bottom:4px">Plan seleccionado</div>
+        <div style="font-weight:700" id="modal-plan-detail">Pro Mensual · $99 MXN/mes</div>
+      </div>
+      <a href="https://wa.me/521234567890?text=Hola%2C%20quiero%20activar%20el%20Plan%20Pro%20de%20TarjetaDigital" target="_blank"
+         class="btn btn-primary btn-block" style="background:#25D366;margin-bottom:8px">
+        💬 Activar por WhatsApp
+      </a>
+      <button class="btn btn-secondary btn-block" onclick="cerrarModal()">Cancelar</button>
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script>
+    (function(){
+      var user = getUser();
+      if (user) {
+        var planText = user.plan === 'paid' ? 'Pro' : 'Gratis';
+        document.getElementById('current-plan-text').textContent = planText;
+        if (user.plan === 'paid') {
+          document.getElementById('btn-free').textContent = 'Plan anterior';
+          document.getElementById('btn-free').disabled = false;
+          document.getElementById('btn-pro').textContent = '✓ Plan actual';
+          document.getElementById('btn-pro').disabled = true;
+          document.getElementById('btn-pro').classList.remove('btn-primary');
+          document.getElementById('btn-pro').classList.add('btn-secondary');
+          document.querySelector('.current-plan-badge .dot').style.background = 'var(--color-accent)';
+        }
+      }
+    })();
+
+    var billing = 'monthly';
+    function setBilling(type) {
+      billing = type;
+      document.getElementById('btn-monthly').classList.toggle('active', type === 'monthly');
+      document.getElementById('btn-annual').classList.toggle('active', type === 'annual');
+      if (type === 'annual') {
+        document.getElementById('price-amount').textContent = '$59';
+        document.getElementById('price-period').textContent = 'MXN / mes';
+        document.getElementById('price-original').style.display = 'inline';
+      } else {
+        document.getElementById('price-amount').textContent = '$99';
+        document.getElementById('price-period').textContent = 'MXN / mes';
+        document.getElementById('price-original').style.display = 'none';
+      }
+    }
+
+    function activarPro() {
+      var detail = billing === 'annual' ? 'Pro Anual · $59 MXN/mes (facturado anualmente)' : 'Pro Mensual · $99 MXN/mes';
+      document.getElementById('modal-plan-detail').textContent = detail;
+      document.getElementById('modal-pro').classList.remove('hidden');
+    }
+
+    function cerrarModal() {
+      document.getElementById('modal-pro').classList.add('hidden');
+    }
+
+    document.getElementById('modal-pro').addEventListener('click', function(e) {
+      if (e.target === this) cerrarModal();
+    });
+  </script>
+</body>
+</html>

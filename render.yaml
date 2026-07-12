@@ -1,0 +1,21 @@
+# Build Command: npm install
+# Start Command: node server.js
+
+services:
+  - type: web
+    name: tarjeta-digital
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ADMIN_KEY
+        generateValue: true
+      - key: BASE_URL
+        sync: false

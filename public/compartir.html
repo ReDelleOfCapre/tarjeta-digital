@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Compartir Tarjeta - TarjetaDigital</title>
+  <meta name="description" content="Comparte tu tarjeta de contacto digital por QR o enlace.">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#6C63FF">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="share-page">
+  <div class="container" style="text-align:center;padding-top:24px">
+    <button class="btn-icon back-btn" onclick="location.href='dashboard.html'" style="position:absolute;left:16px;top:16px" aria-label="Volver">←</button>
+
+    <h2 id="share-nombre" style="margin-bottom:4px"></h2>
+    <span class="badge" id="share-tipo"></span>
+
+    <div class="qr-card" style="margin:24px auto">
+      <img id="qr-img" alt="Código QR" style="width:100%;max-width:280px">
+    </div>
+
+    <div class="share-url card" style="margin-bottom:24px">
+      <span id="share-url" style="flex:1"></span>
+      <button class="btn btn-sm btn-secondary" id="btn-copy">Copiar</button>
+    </div>
+
+    <div class="share-buttons">
+      <button class="btn btn-success btn-block btn-whatsapp" id="btn-wa">📱 Compartir por WhatsApp</button>
+      <button class="btn btn-primary btn-block" id="btn-copy-link">🔗 Copiar enlace</button>
+      <button class="btn btn-secondary btn-block" id="btn-download-qr">⬇️ Descargar QR</button>
+      <a class="btn btn-secondary btn-block" id="btn-view" target="_blank" style="text-decoration:none">👁️ Ver mi tarjeta</a>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="/js/app.js"></script>
+  <script src="/js/compartir.js"></script>
+</body>
+</html>
