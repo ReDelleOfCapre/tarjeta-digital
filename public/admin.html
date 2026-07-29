@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Admin — My ID</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div style="display:flex;align-items:center;gap:8px">
+      <a href="/dashboard.html" class="btn btn-icon btn-sm">←</a>
+      <span class="logo">Panel Admin</span>
+    </div>
+    <span id="admin-name" style="font-size:var(--font-sm);color:var(--text-tertiary)"></span>
+  </nav>
+
+  <div class="container">
+    <!-- Stats -->
+    <div class="stats-bar" style="grid-template-columns:repeat(3,1fr);margin:16px 0">
+      <div class="stat-card card">
+        <div class="stat-value" id="stat-usuarios">-</div>
+        <div class="stat-label">Usuarios</div>
+      </div>
+      <div class="stat-card card">
+        <div class="stat-value" id="stat-tarjetas">-</div>
+        <div class="stat-label">Tarjetas</div>
+      </div>
+      <div class="stat-card card">
+        <div class="stat-value" id="stat-visitas">-</div>
+        <div class="stat-label">Visitas</div>
+      </div>
+    </div>
+
+    <!-- Plans breakdown -->
+    <div class="card p-16 mb-16">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:var(--font-sm);color:var(--text-tertiary)">Free</span>
+        <span class="font-bold" id="stat-free">0</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+        <span style="font-size:var(--font-sm);color:var(--accent)">Pro</span>
+        <span class="font-bold" id="stat-paid">0</span>
+      </div>
+    </div>
+
+    <!-- Search -->
+    <input type="search" class="form-input" id="search-usuarios" placeholder="Buscar usuario por nombre o teléfono..." style="margin-bottom:16px">
+
+    <!-- User list -->
+    <div id="users-list"></div>
+
+    <!-- Pagination -->
+    <div style="display:flex;justify-content:center;gap:8px;padding:16px 0" id="pagination"></div>
+  </div>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="/js/app.js"></script>
+  <script>
+    (function(){
+      var user = getUser();
+      if (!user || user.role !== 'admin') {
+        location.href = '/dashboard.html';
+        return;
+      }
+      document.getElementById('admin-name').textContent = user.nombre;
+
+      var currentPage = 1;
+      var searchTimeout;
+
+      loadStats();
+      loadUsers(1);
+
+      document.getElementById('search-usuarios').addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(function() { loadUsers(1); }, 300);
+      });
+
+      function loadStats() {
+        apiFetch('/api/admin/stats').then(function(data) {
+          document.getElementById('stat-usuarios').textContent = data.usuarios.total;
+          document.getElementById('stat-tarjetas').textContent = data.perfiles;
+          document.getElementById('stat-visitas').textContent = data.visitas;
+          document.getElementById('stat-free').textContent = data.usuarios.free;
+          document.getElementById('stat-paid').textContent = data.usuarios.paid;
+        }).catch(function(err) { showToast(err.message, 'error'); });
+      }
+
+      function loadUsers(page) {
+        currentPage = page;
+        var q = document.getElementById('search-usuarios').value;
+        var url = '/api/admin/usuarios?page=' + page;
+        if (q) url += '&q=' + encodeURIComponent(q);
+
+        apiFetch(url).then(function(data) {
+          var list = document.getElementById('users-list');
+          if (data.usuarios.length === 0) {
+            list.innerHTML = '<div class="empty-state"><p class="text-muted">No se encontraron usuarios</p></div>';
+            document.getElementById('pagination').innerHTML = '';
+            return;
+          }
+
+          list.innerHTML = '<div class="ios-group">' + data.usuarios.map(function(u) {
+            var planBadge = u.plan === 'paid'
+              ? '<span style="background:var(--accent);color:#fff;font-size:var(--font-xs);padding:2px 8px;border-radius:50px">Pro</span>'
+              : '<span style="background:var(--bg-tertiary);font-size:var(--font-xs);padding:2px 8px;border-radius:50px;color:var(--text-tertiary)">Free</span>';
+            var roleBadge = u.role === 'admin' ? ' <span style="color:var(--orange);font-size:var(--font-xs)">👑</span>' : '';
+            var initials = u.nombre.split(' ').map(function(w){return w[0]}).slice(0,2).join('').toUpperCase();
+
+            return '<div class="ios-group-item" style="cursor:default">' +
+              '<div class="avatar avatar-sm" style="background:var(--accent)">' + initials + '</div>' +
+              '<div class="item-content">' +
+                '<div class="item-title">' + escapeHtml(u.nombre) + roleBadge + '</div>' +
+                '<div class="item-subtitle">' + escapeHtml(u.telefono) + ' · ' + u.total_perfiles + ' tarjetas · ' + u.total_visitas + ' visitas</div>' +
+              '</div>' +
+              planBadge +
+              '<button class="btn btn-sm" style="font-size:var(--font-xs);padding:4px 10px" onclick="togglePlan(' + u.id + ',\'' + (u.plan === 'paid' ? 'free' : 'paid') + '\')">' +
+                (u.plan === 'paid' ? 'Quitar Pro' : 'Dar Pro') +
+              '</button>' +
+            '</div>';
+          }).join('') + '</div>';
+
+          // Pagination
+          var pag = document.getElementById('pagination');
+          if (data.pages <= 1) { pag.innerHTML = ''; return; }
+          var html = '';
+          for (var i = 1; i <= data.pages; i++) {
+            html += '<button class="btn btn-sm ' + (i === page ? 'btn-primary' : 'btn-secondary') + '" onclick="loadUsersPage(' + i + ')">' + i + '</button>';
+          }
+          pag.innerHTML = html;
+        }).catch(function(err) { showToast(err.message, 'error'); });
+      }
+
+      function escapeHtml(t) {
+        var d = document.createElement('div');
+        d.textContent = t;
+        return d.innerHTML;
+      }
+
+      // Expose globally
+      window.togglePlan = function(userId, newPlan) {
+        apiFetch('/api/admin/usuarios/' + userId + '/plan', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({plan: newPlan})
+        }).then(function(data) {
+          showToast(data.usuario.nombre + ' ahora es ' + (newPlan === 'paid' ? 'Pro' : 'Free'), 'success');
+          loadUsers(currentPage);
+          loadStats();
+        }).catch(function(err) { showToast(err.message, 'error'); });
+      };
+
+      window.loadUsersPage = function(page) { loadUsers(page); };
+    })();
+  </script>
+</body>
+</html>

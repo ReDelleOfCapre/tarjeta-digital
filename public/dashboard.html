@@ -2,27 +2,26 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Mis Tarjetas - TarjetaDigital</title>
-  <meta name="description" content="Gestiona tus tarjetas de contacto digitales.">
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#6C63FF">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Mis Tarjetas — My ID</title>
+  <meta name="theme-color" content="#007AFF" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0A84FF" media="(prefers-color-scheme: dark)">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body class="dashboard-page">
   <nav class="navbar">
-    <div class="logo">📇 TarjetaDigital</div>
+    <div class="logo">🪪 My ID</div>
     <div class="user-info">
       <span id="user-name"></span>
-      <a href="/planes.html" class="btn btn-sm btn-secondary" title="Planes">⚡ Pro</a>
-      <button class="btn btn-sm btn-secondary" id="btn-logout">Salir</button>
+      <a href="/planes.html" class="btn btn-sm btn-ghost" id="btn-plan" title="Ver planes">Pro</a>
+      <a href="/admin.html" class="btn btn-sm btn-ghost hidden" id="btn-admin" title="Admin">⚙</a>
+      <button class="btn btn-sm btn-ghost" id="btn-logout" style="color:var(--red)">Salir</button>
     </div>
   </nav>
 
   <div class="container">
+    <!-- Stats -->
     <div class="stats-bar" id="stats-bar">
       <div class="stat-card card">
         <div class="stat-value" id="total-perfiles">0</div>
@@ -30,33 +29,36 @@
       </div>
       <div class="stat-card card">
         <div class="stat-value" id="total-visitas">0</div>
-        <div class="stat-label">Visitas totales</div>
+        <div class="stat-label">Visitas</div>
       </div>
     </div>
 
-    <a href="/planes.html" class="upgrade-banner hidden" id="upgrade-banner" style="text-decoration:none;color:inherit;display:block">
-      <h3>🚀 Actualiza a Pro</h3>
-      <p>Crea tarjetas ilimitadas, más campos y archivos</p>
-      <span style="color:var(--color-accent);font-weight:600;font-size:var(--font-size-sm)">Ver planes →</span>
+    <!-- Upgrade banner (free users only) -->
+    <a href="/planes.html" class="upgrade-banner hidden" id="upgrade-banner" style="text-decoration:none;color:#fff;display:block">
+      <h3>⚡ Desbloquea My ID Pro</h3>
+      <p>Tarjetas ilimitadas, GIFs, NFC y más</p>
+      <span style="font-weight:600;font-size:var(--font-sm);opacity:0.9">Ver planes →</span>
     </a>
 
+    <!-- Profile Grid -->
     <div class="profile-grid" id="profile-grid"></div>
 
+    <!-- Empty State -->
     <div class="empty-state hidden" id="empty-state">
-      <p style="font-size:3rem">📇</p>
-      <h3>Crea tu primera tarjeta digital</h3>
-      <p class="text-muted">Comparte tu información de contacto fácilmente</p>
-      <button class="btn btn-primary" style="margin-top:16px" onclick="location.href='editor.html'">Crear tarjeta</button>
+      <p style="font-size:3rem">🪪</p>
+      <h3>Crea tu primera tarjeta</h3>
+      <p class="text-muted" style="margin-bottom:16px">Comparte tu info de contacto al instante</p>
+      <button class="btn btn-primary btn-pill" onclick="location.href='editor.html'">Crear tarjeta</button>
     </div>
   </div>
 
-  <button class="fab" id="fab-new" title="Crear nueva tarjeta">+</button>
+  <button class="fab" id="fab-new" title="Nueva tarjeta">+</button>
 
-  <!-- Modal de eliminación -->
+  <!-- Delete Modal -->
   <div class="modal-overlay hidden" id="modal-delete">
-    <div class="modal card">
+    <div class="modal">
       <h3>¿Eliminar tarjeta?</h3>
-      <p class="text-muted" style="margin:12px 0">Esta acción no se puede deshacer</p>
+      <p class="text-muted" style="margin:8px 0 16px">Esta acción no se puede deshacer</p>
       <div class="modal-actions">
         <button class="btn btn-secondary" id="btn-cancel-delete">Cancelar</button>
         <button class="btn btn-danger" id="btn-confirm-delete">Eliminar</button>
@@ -66,7 +68,7 @@
 
   <div class="toast-container" id="toast-container"></div>
 
-  <script src="js/app.js"></script>
-  <script src="js/dashboard.js"></script>
+  <script src="/js/app.js"></script>
+  <script src="/js/dashboard.js"></script>
 </body>
 </html>

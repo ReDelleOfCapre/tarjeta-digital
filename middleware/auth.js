@@ -30,7 +30,8 @@ function authMiddleware(req, res, next) {
       id: decoded.id,
       telefono: decoded.telefono,
       plan: decoded.plan,
-      nombre: decoded.nombre
+      nombre: decoded.nombre,
+      role: decoded.role || 'user'
     };
     next();
   } catch (err) {

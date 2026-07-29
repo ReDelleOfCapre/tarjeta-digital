@@ -1,87 +1,76 @@
-const db = require('../database/db');
+// ============================================
+// My ID — Plan Limits Middleware
+// ============================================
+const { dbReady } = require('../database/db');
 
-/**
- * Límites del plan gratuito por tipo de recurso.
- */
-const FREE_LIMITS = {
-  perfil: 1,
-  campo: 3,
-  archivo: 1
+const LIMITS = {
+  free: { perfil: 3, campo: 5, archivo: 2 },
+  paid: { perfil: 999, campo: 999, archivo: 999 }
 };
 
-/**
- * Fábrica de middleware para verificar límites del plan.
- *
- * @param {'perfil'|'campo'|'archivo'} resourceType - Tipo de recurso a verificar
- * @returns {Function} Middleware Express
- */
 function checkPlanLimit(resourceType) {
-  return function (req, res, next) {
-    const user = req.user;
+  return async (req, res, next) => {
+    try {
+      const db = await dbReady;
+      const plan = req.user.plan || 'free';
+      const limit = LIMITS[plan] ? LIMITS[plan][resourceType] : LIMITS.free[resourceType];
 
-    // Plan de pago no tiene límites
-    if (user.plan === 'paid') {
-      return next();
-    }
+      if (plan === 'paid') return next();
 
-    const limit = FREE_LIMITS[resourceType];
-    if (limit === undefined) {
-      return next();
-    }
+      let count = 0;
 
-    let currentCount = 0;
-
-    switch (resourceType) {
-      case 'perfil': {
-        const row = db.prepare(
-          'SELECT COUNT(*) as total FROM perfiles WHERE usuario_id = ?'
-        ).get(user.id);
-        currentCount = row.total;
-        break;
-      }
-
-      case 'campo': {
-        const perfilId = parseInt(req.params.id, 10);
-        if (isNaN(perfilId)) {
-          return res.status(400).json({ error: 'ID de perfil inválido.' });
+      switch (resourceType) {
+        case 'perfil': {
+          const row = db.prepare(
+            'SELECT COUNT(*) as total FROM perfiles WHERE usuario_id = ?'
+          ).get(req.user.id);
+          count = row.total;
+          break;
         }
-        const row = db.prepare(
-          'SELECT COUNT(*) as total FROM campos_contacto WHERE perfil_id = ?'
-        ).get(perfilId);
-        currentCount = row.total;
-        break;
-      }
-
-      case 'archivo': {
-        const perfilId = parseInt(req.params.id, 10);
-        if (isNaN(perfilId)) {
-          return res.status(400).json({ error: 'ID de perfil inválido.' });
+        case 'campo': {
+          const perfilId = req.params.id;
+          const perfil = db.prepare('SELECT id, usuario_id FROM perfiles WHERE id = ?').get(perfilId);
+          if (!perfil || perfil.usuario_id !== req.user.id) {
+            return res.status(403).json({ error: 'No autorizado' });
+          }
+          const row = db.prepare(
+            'SELECT COUNT(*) as total FROM campos_contacto WHERE perfil_id = ?'
+          ).get(perfilId);
+          count = row.total;
+          break;
         }
-        const row = db.prepare(
-          'SELECT COUNT(*) as total FROM archivos WHERE perfil_id = ?'
-        ).get(perfilId);
-        currentCount = row.total;
-        break;
+        case 'archivo': {
+          const perfilId = req.params.id;
+          const perfil = db.prepare('SELECT id, usuario_id FROM perfiles WHERE id = ?').get(perfilId);
+          if (!perfil || perfil.usuario_id !== req.user.id) {
+            return res.status(403).json({ error: 'No autorizado' });
+          }
+          const row = db.prepare(
+            'SELECT COUNT(*) as total FROM archivos WHERE perfil_id = ?'
+          ).get(perfilId);
+          count = row.total;
+          break;
+        }
       }
+
+      if (count >= limit) {
+        const resourceNames = { perfil: 'tarjetas', campo: 'campos', archivo: 'archivos' };
+        return res.status(403).json({
+          error: 'Límite alcanzado',
+          limite: true,
+          plan: 'free',
+          actual: count,
+          maximo: limit,
+          mensaje: `Has alcanzado el límite de ${limit} ${resourceNames[resourceType]} en el plan gratuito. ¡Actualiza a Pro para crear sin límites!`,
+          upgrade: true
+        });
+      }
+
+      next();
+    } catch (err) {
+      console.error('Error en planLimits:', err);
+      next(err);
     }
-
-    if (currentCount >= limit) {
-      const resourceNames = {
-        perfil: 'perfiles',
-        campo: 'campos de contacto',
-        archivo: 'archivos'
-      };
-
-      return res.status(403).json({
-        error: 'Límite alcanzado',
-        limite: true,
-        plan: 'free',
-        mensaje: `Actualiza a Pro para crear más ${resourceNames[resourceType]}`,
-        upgrade: true
-      });
-    }
-
-    next();
   };
 }
 

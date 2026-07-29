@@ -1,151 +1,113 @@
 // ============================================
-// TarjetaDigital — Dashboard (dashboard.js)
+// My ID — Dashboard Logic
 // ============================================
-
-(function () {
-  'use strict';
-
+(function() {
   if (!checkAuth()) return;
 
-  // --- User info ---
-  const user = getUser();
-  const userNameEl = document.getElementById('user-name');
-  if (user && userNameEl) {
-    userNameEl.textContent = user.nombre || '';
-  }
+  var user = getUser();
+  if (!user) { logout(); return; }
 
-  // --- Logout ---
+  // UI Setup
+  document.getElementById('user-name').textContent = user.nombre;
   document.getElementById('btn-logout').addEventListener('click', logout);
-
-  // --- FAB ---
-  document.getElementById('fab-new').addEventListener('click', () => {
-    location.href = 'editor.html';
+  document.getElementById('fab-new').addEventListener('click', function() {
+    location.href = '/editor.html';
   });
 
-  // --- Delete modal ---
-  let deletePerfilId = null;
-  const modalDelete = document.getElementById('modal-delete');
-  const btnCancelDelete = document.getElementById('btn-cancel-delete');
-  const btnConfirmDelete = document.getElementById('btn-confirm-delete');
-
-  function showDeleteModal(id) {
-    deletePerfilId = id;
-    modalDelete.classList.remove('hidden');
+  // Show admin button if admin
+  if (user.role === 'admin') {
+    document.getElementById('btn-admin').classList.remove('hidden');
   }
 
-  function hideDeleteModal() {
-    deletePerfilId = null;
-    modalDelete.classList.add('hidden');
+  // Show Pro badge or upgrade banner
+  if (user.plan === 'paid') {
+    document.getElementById('btn-plan').textContent = '✓ Pro';
+    document.getElementById('btn-plan').style.color = 'var(--green)';
+  } else {
+    document.getElementById('upgrade-banner').classList.remove('hidden');
   }
 
-  btnCancelDelete.addEventListener('click', hideDeleteModal);
+  // Load profiles
+  loadProfiles();
 
-  // Close modal on overlay click
-  modalDelete.addEventListener('click', (e) => {
-    if (e.target === modalDelete) hideDeleteModal();
-  });
-
-  btnConfirmDelete.addEventListener('click', async () => {
-    if (!deletePerfilId) return;
-
-    btnConfirmDelete.classList.add('loading');
-    btnConfirmDelete.disabled = true;
-
-    const data = await api('/perfiles/' + deletePerfilId, { method: 'DELETE' });
-
-    btnConfirmDelete.classList.remove('loading');
-    btnConfirmDelete.disabled = false;
-
-    if (data && !data.error) {
-      showToast('Tarjeta eliminada', 'success');
-      hideDeleteModal();
-      loadPerfiles();
+  // Delete modal
+  var deleteId = null;
+  document.getElementById('btn-cancel-delete').addEventListener('click', closeDeleteModal);
+  document.getElementById('btn-confirm-delete').addEventListener('click', function() {
+    if (deleteId) {
+      api('/perfiles/' + deleteId, { method: 'DELETE' })
+        .then(function() {
+          showToast('Tarjeta eliminada', 'success');
+          loadProfiles();
+          closeDeleteModal();
+        })
+        .catch(function(err) { showToast(err.error || 'Error', 'error'); });
     }
   });
 
-  // --- Load profiles ---
-  async function loadPerfiles() {
-    const grid = document.getElementById('profile-grid');
-    const emptyState = document.getElementById('empty-state');
-    const totalPerfiles = document.getElementById('total-perfiles');
-    const totalVisitas = document.getElementById('total-visitas');
-    const upgradeBanner = document.getElementById('upgrade-banner');
-
-    const data = await api('/perfiles', { method: 'GET' });
-
-    if (!data || data.error) return;
-
-    const perfiles = data.perfiles || data || [];
-
-    // Update stats
-    totalPerfiles.textContent = perfiles.length;
-    const visitas = perfiles.reduce((sum, p) => sum + (p.visitas || 0), 0);
-    totalVisitas.textContent = visitas;
-
-    // Empty state
-    if (perfiles.length === 0) {
-      grid.classList.add('hidden');
-      emptyState.classList.remove('hidden');
-      upgradeBanner.classList.add('hidden');
-      return;
-    }
-
-    grid.classList.remove('hidden');
-    emptyState.classList.add('hidden');
-
-    // Upgrade banner (free plan with 1+ profiles)
-    if (user && user.plan === 'free' && perfiles.length >= 1) {
-      upgradeBanner.classList.remove('hidden');
-    } else {
-      upgradeBanner.classList.add('hidden');
-    }
-
-    // Render profile cards
-    grid.innerHTML = perfiles.map(perfil => {
-      const color = perfil.color || '#6C63FF';
-      const initials = getInitials(perfil.nombre_perfil);
-      const avatarHTML = perfil.foto_url
-        ? `<div class="avatar avatar-md"><img src="${perfil.foto_url}" alt="${perfil.nombre_perfil}"></div>`
-        : `<div class="avatar avatar-md" style="background:${color}">${initials}</div>`;
-
-      return `
-        <div class="profile-card card" data-id="${perfil.id}">
-          <div class="color-stripe" style="background:${color}"></div>
-          <div class="profile-info">
-            ${avatarHTML}
-            <div class="info-text">
-              <h4>${escapeHTML(perfil.nombre_perfil)}</h4>
-              <span class="badge">${perfil.tipo || 'personal'}</span>
-            </div>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <span class="text-muted text-sm">👁️ ${perfil.visitas || 0} visitas</span>
-            <div class="profile-actions">
-              <button class="btn btn-sm btn-secondary" onclick="location.href='editor.html?id=${perfil.id}'" title="Editar">✏️</button>
-              <button class="btn btn-sm btn-primary" onclick="location.href='compartir.html?slug=${perfil.slug}'" title="Compartir">🔗</button>
-              <button class="btn btn-sm btn-danger" onclick="window._deletePerfil(${perfil.id})" title="Eliminar">🗑️</button>
-            </div>
-          </div>
-        </div>
-      `;
-    }).join('');
+  function closeDeleteModal() {
+    document.getElementById('modal-delete').classList.add('hidden');
+    deleteId = null;
   }
 
-  // Expose delete function
-  window._deletePerfil = showDeleteModal;
+  window.confirmDelete = function(id) {
+    deleteId = id;
+    document.getElementById('modal-delete').classList.remove('hidden');
+  };
 
-  // --- Helpers ---
-  function getInitials(name) {
-    if (!name) return '?';
-    return name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+  function loadProfiles() {
+    api('/perfiles').then(function(data) {
+      if (!data || data.error) return;
+
+      var perfiles = Array.isArray(data) ? data : (data.perfiles || []);
+      var grid = document.getElementById('profile-grid');
+      var empty = document.getElementById('empty-state');
+
+      // Stats
+      document.getElementById('total-perfiles').textContent = perfiles.length;
+      var totalVisitas = perfiles.reduce(function(sum, p) { return sum + (p.visitas || 0); }, 0);
+      document.getElementById('total-visitas').textContent = totalVisitas;
+
+      if (perfiles.length === 0) {
+        grid.innerHTML = '';
+        empty.classList.remove('hidden');
+        return;
+      }
+
+      empty.classList.add('hidden');
+      grid.innerHTML = perfiles.map(function(p) {
+        var initials = p.nombre_perfil.split(' ').map(function(w){ return w[0]; }).slice(0,2).join('').toUpperCase();
+        var color = p.color || 'var(--accent)';
+        var avatarHtml = p.foto_url
+          ? '<div class="avatar avatar-md" style="border:2px solid ' + color + '"><img src="' + p.foto_url + '" alt=""></div>'
+          : '<div class="avatar avatar-md" style="background:' + color + '">' + initials + '</div>';
+
+        return '<div class="profile-card" onclick="location.href=\'/editor.html?id=' + p.id + '\'">' +
+          avatarHtml +
+          '<div class="card-info">' +
+            '<div class="card-name">' + escapeHtml(p.nombre_perfil) + '</div>' +
+            '<div class="card-meta">' +
+              '<span>' + (p.tipo || 'personal') + '</span>' +
+              '<span>·</span>' +
+              '<span>' + (p.visitas || 0) + ' visitas</span>' +
+              '<span>·</span>' +
+              '<span>' + (p.total_campos || 0) + ' campos</span>' +
+            '</div>' +
+          '</div>' +
+          '<div class="card-actions">' +
+            '<a href="/compartir.html?id=' + p.id + '&slug=' + p.slug + '" class="btn btn-icon btn-sm" onclick="event.stopPropagation()" title="Compartir">↗</a>' +
+            '<button class="btn btn-icon btn-sm" onclick="event.stopPropagation();confirmDelete(' + p.id + ')" title="Eliminar" style="color:var(--red)">✕</button>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    }).catch(function(err) {
+      showToast('Error cargando tarjetas', 'error');
+    });
   }
 
-  function escapeHTML(str) {
-    const div = document.createElement('div');
-    div.textContent = str;
+  function escapeHtml(text) {
+    var div = document.createElement('div');
+    div.textContent = text;
     return div.innerHTML;
   }
-
-  // --- Init ---
-  loadPerfiles();
 })();

@@ -2,43 +2,164 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Compartir Tarjeta - TarjetaDigital</title>
-  <meta name="description" content="Comparte tu tarjeta de contacto digital por QR o enlace.">
-  <link rel="manifest" href="/manifest.json">
-  <meta name="theme-color" content="#6C63FF">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Compartir — My ID</title>
   <link rel="stylesheet" href="/css/styles.css">
 </head>
-<body class="share-page">
-  <div class="container" style="text-align:center;padding-top:24px">
-    <button class="btn-icon back-btn" onclick="location.href='dashboard.html'" style="position:absolute;left:16px;top:16px" aria-label="Volver">←</button>
+<body>
+  <nav class="navbar">
+    <div style="display:flex;align-items:center;gap:8px">
+      <a href="/dashboard.html" class="btn btn-icon btn-sm">←</a>
+      <span class="logo">Compartir</span>
+    </div>
+  </nav>
 
-    <h2 id="share-nombre" style="margin-bottom:4px"></h2>
-    <span class="badge" id="share-tipo"></span>
+  <div class="container">
+    <div class="share-card">
+      <h2 id="share-name" style="font-size:var(--font-xl);font-weight:700">Mi Tarjeta</h2>
+      <p style="font-size:var(--font-sm);color:var(--text-tertiary)" id="share-url"></p>
 
-    <div class="qr-card" style="margin:24px auto">
-      <img id="qr-img" alt="Código QR" style="width:100%;max-width:280px">
+      <!-- QR Code -->
+      <div class="qr-container" id="qr-container">
+        <img id="qr-img" alt="QR Code" style="width:200px;height:200px">
+      </div>
     </div>
 
-    <div class="share-url card" style="margin-bottom:24px">
-      <span id="share-url" style="flex:1"></span>
-      <button class="btn btn-sm btn-secondary" id="btn-copy">Copiar</button>
+    <!-- Actions -->
+    <div class="share-actions" style="margin-top:20px">
+      <!-- NFC (auto-hidden if not supported) -->
+      <button class="btn btn-primary btn-block hidden" id="btn-nfc" onclick="writeNFC()">
+        📱 Compartir con NFC
+      </button>
+
+      <button class="btn btn-secondary btn-block" onclick="copyLink()">
+        📋 Copiar enlace
+      </button>
+
+      <a class="btn btn-secondary btn-block" id="btn-vcard" href="#">
+        👤 Descargar contacto (.vcf)
+      </a>
+
+      <button class="btn btn-secondary btn-block" onclick="shareNative()">
+        ↗ Compartir vía...
+      </button>
+
+      <a class="btn btn-secondary btn-block" id="btn-qr-download" download="mi-tarjeta-qr.png" href="#">
+        📥 Descargar QR
+      </a>
     </div>
 
-    <div class="share-buttons">
-      <button class="btn btn-success btn-block btn-whatsapp" id="btn-wa">📱 Compartir por WhatsApp</button>
-      <button class="btn btn-primary btn-block" id="btn-copy-link">🔗 Copiar enlace</button>
-      <button class="btn btn-secondary btn-block" id="btn-download-qr">⬇️ Descargar QR</button>
-      <a class="btn btn-secondary btn-block" id="btn-view" target="_blank" style="text-decoration:none">👁️ Ver mi tarjeta</a>
+    <!-- NFC Status -->
+    <div class="card p-16 mt-16 hidden" id="nfc-status">
+      <p style="text-align:center;font-size:var(--font-sm);color:var(--text-secondary)" id="nfc-message">
+        Acerca tu celular a un tag NFC o al celular del receptor...
+      </p>
     </div>
+
+    <p style="text-align:center;padding:24px 0;font-size:var(--font-xs);color:var(--text-muted)">
+      El receptor no necesita instalar ninguna app
+    </p>
   </div>
 
   <div class="toast-container" id="toast-container"></div>
 
   <script src="/js/app.js"></script>
-  <script src="/js/compartir.js"></script>
+  <script>
+    (function(){
+      if (!checkAuth()) return;
+
+      var params = new URLSearchParams(location.search);
+      var id = params.get('id');
+      var slug = params.get('slug');
+
+      if (!id || !slug) { location.href = '/dashboard.html'; return; }
+
+      var baseUrl = location.origin;
+      var profileUrl = baseUrl + '/u/' + slug;
+
+      // Load profile info
+      api('/perfiles').then(function(data) {
+        var perfiles = Array.isArray(data) ? data : (data.perfiles || []);
+        var perfil = perfiles.find(function(p) { return p.id == id; });
+        if (perfil) {
+          document.getElementById('share-name').textContent = perfil.nombre_perfil;
+        }
+      });
+
+      document.getElementById('share-url').textContent = profileUrl;
+      document.getElementById('btn-vcard').href = '/api/perfiles/' + slug + '/vcard';
+
+      // QR Code
+      var qrImg = document.getElementById('qr-img');
+      qrImg.src = '/api/perfiles/' + slug + '/qr';
+      document.getElementById('btn-qr-download').href = '/api/perfiles/' + slug + '/qr';
+
+      // NFC detection
+      if ('NDEFReader' in window) {
+        document.getElementById('btn-nfc').classList.remove('hidden');
+      }
+
+      // Copy link
+      window.copyLink = function() {
+        navigator.clipboard.writeText(profileUrl).then(function() {
+          showToast('Enlace copiado', 'success');
+        }).catch(function() {
+          // Fallback
+          var input = document.createElement('input');
+          input.value = profileUrl;
+          document.body.appendChild(input);
+          input.select();
+          document.execCommand('copy');
+          document.body.removeChild(input);
+          showToast('Enlace copiado', 'success');
+        });
+      };
+
+      // Native share
+      window.shareNative = function() {
+        if (navigator.share) {
+          navigator.share({
+            title: 'My ID — ' + (document.getElementById('share-name').textContent),
+            text: 'Mira mi tarjeta digital',
+            url: profileUrl
+          });
+        } else {
+          window.copyLink();
+        }
+      };
+
+      // NFC Write
+      window.writeNFC = function() {
+        if (!('NDEFReader' in window)) {
+          showToast('NFC no disponible en este dispositivo', 'error');
+          return;
+        }
+
+        var statusEl = document.getElementById('nfc-status');
+        var msgEl = document.getElementById('nfc-message');
+        statusEl.classList.remove('hidden');
+        msgEl.textContent = '📱 Acerca tu celular al tag NFC o al otro dispositivo...';
+
+        var ndef = new NDEFReader();
+        ndef.write({
+          records: [{
+            recordType: 'url',
+            data: profileUrl
+          }]
+        }).then(function() {
+          msgEl.textContent = '✅ ¡Tarjeta escrita en NFC! El receptor solo necesita acercar su celular.';
+          msgEl.style.color = 'var(--green)';
+          showToast('NFC escrito exitosamente', 'success');
+        }).catch(function(err) {
+          if (err.name === 'NotAllowedError') {
+            msgEl.textContent = '⚠️ Permite el acceso a NFC en tu navegador';
+          } else {
+            msgEl.textContent = '❌ Error: ' + err.message;
+          }
+          msgEl.style.color = 'var(--red)';
+        });
+      };
+    })();
+  </script>
 </body>
 </html>

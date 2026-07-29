@@ -1,73 +1,51 @@
+// ============================================
+// My ID — File Upload Middleware
+// ============================================
 const multer = require('multer');
 const path = require('path');
 const crypto = require('crypto');
 
 const UPLOAD_DIR = process.env.UPLOAD_DIR || './uploads';
 
-// Extensiones y MIME types permitidos
-const IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
-const IMAGE_MIMETYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-const DOC_EXTENSIONS = ['.pdf'];
-const DOC_MIMETYPES = ['application/pdf'];
-
-const ALL_EXTENSIONS = [...IMAGE_EXTENSIONS, ...DOC_EXTENSIONS];
-const ALL_MIMETYPES = [...IMAGE_MIMETYPES, ...DOC_MIMETYPES];
-
-/**
- * Almacenamiento en disco con nombre único: timestamp-randomhex.ext
- */
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, UPLOAD_DIR);
-  },
-  filename: function (req, file, cb) {
+  destination: (req, file, cb) => cb(null, UPLOAD_DIR),
+  filename: (req, file, cb) => {
     const ext = path.extname(file.originalname).toLowerCase();
-    const randomHex = crypto.randomBytes(8).toString('hex');
-    const filename = `${Date.now()}-${randomHex}${ext}`;
-    cb(null, filename);
+    const name = Date.now() + '-' + crypto.randomBytes(6).toString('hex') + ext;
+    cb(null, name);
   }
 });
 
-/**
- * Filtro de archivos para imágenes solamente
- */
-function imageFileFilter(req, file, cb) {
-  const ext = path.extname(file.originalname).toLowerCase();
-  if (IMAGE_EXTENSIONS.includes(ext) && IMAGE_MIMETYPES.includes(file.mimetype)) {
-    cb(null, true);
-  } else {
-    cb(new Error('Formato de imagen no válido. Formatos permitidos: JPG, PNG, GIF, WebP.'), false);
-  }
+// Allowed file types
+const imageExts = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+const docExts = ['.pdf'];
+const imageMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+const docMimes = ['application/pdf'];
+
+function fileFilter(allowedExts, allowedMimes) {
+  return (req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase();
+    const mime = file.mimetype;
+    if (allowedExts.includes(ext) && allowedMimes.includes(mime)) {
+      cb(null, true);
+    } else {
+      cb(new Error(`Tipo de archivo no permitido. Formatos aceptados: ${allowedExts.join(', ')}`));
+    }
+  };
 }
 
-/**
- * Filtro de archivos para imágenes y documentos
- */
-function allFileFilter(req, file, cb) {
-  const ext = path.extname(file.originalname).toLowerCase();
-  if (ALL_EXTENSIONS.includes(ext) && ALL_MIMETYPES.includes(file.mimetype)) {
-    cb(null, true);
-  } else {
-    cb(new Error('Formato de archivo no válido. Formatos permitidos: JPG, PNG, GIF, WebP, PDF.'), false);
-  }
-}
-
-/**
- * Instancia multer para subir imágenes (máx 2MB)
- */
+// Image upload (photos + GIFs) — 5MB for GIFs, 2MB for static images
 const uploadImage = multer({
   storage,
-  fileFilter: imageFileFilter,
-  limits: { fileSize: 2 * 1024 * 1024 } // 2MB
+  fileFilter: fileFilter(imageExts, imageMimes),
+  limits: { fileSize: 5 * 1024 * 1024 } // 5MB (GIF support)
 }).single('foto');
 
-/**
- * Instancia multer para subir archivos (máx 5MB)
- */
+// File upload (documents) — 5MB
 const uploadFile = multer({
   storage,
-  fileFilter: allFileFilter,
-  limits: { fileSize: 5 * 1024 * 1024 } // 5MB
+  fileFilter: fileFilter([...imageExts, ...docExts], [...imageMimes, ...docMimes]),
+  limits: { fileSize: 5 * 1024 * 1024 }
 }).single('archivo');
 
 module.exports = { uploadImage, uploadFile };

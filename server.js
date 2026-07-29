@@ -111,7 +111,7 @@ async function start() {
     app.listen(PORT, () => {
       console.log('');
       console.log('╔════════════════════════════════════════════╗');
-      console.log('║       📇 TarjetaDigital - Backend          ║');
+      console.log('║           🪪 My ID — Backend               ║');
       console.log('╠════════════════════════════════════════════╣');
       console.log(`║  🌐 Servidor: http://localhost:${PORT}        ║`);
       console.log(`║  📁 Uploads:  ${path.resolve(UPLOAD_DIR)}`);

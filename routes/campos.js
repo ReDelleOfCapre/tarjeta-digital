@@ -6,10 +6,35 @@ const auth = require('../middleware/auth');
 const checkPlanLimit = require('../middleware/planLimits');
 
 const TIPOS_VALIDOS = [
+  // Contacto
   'whatsapp', 'telefono', 'email', 'direccion',
-  'facebook', 'instagram', 'tiktok', 'linkedin',
-  'twitter', 'web', 'otro'
+  // Redes sociales principales
+  'facebook', 'instagram', 'tiktok', 'linkedin', 'twitter', 'youtube', 'threads',
+  // Mensajería
+  'telegram', 'snapchat', 'discord',
+  // Streaming / Gaming
+  'twitch', 'kick', 'spotify', 'apple_music', 'steam', 'xbox', 'psn',
+  // Compras / Listas
+  'amazon_wishlist', 'pinterest', 'reddit', 'bereal',
+  // Profesional
+  'web', 'github', 'behance', 'dribbble', 'portafolio',
+  // Otro
+  'otro'
 ];
+
+/**
+ * GET /api/perfiles/:id/campos
+ * Listar campos de contacto de un perfil.
+ */
+router.get('/perfiles/:id/campos', auth, (req, res) => {
+  const perfilId = parseInt(req.params.id, 10);
+  const perfil = db.prepare('SELECT * FROM perfiles WHERE id = ?').get(perfilId);
+  if (!perfil) return res.status(404).json({ error: 'Perfil no encontrado.' });
+  if (perfil.usuario_id !== req.user.id) return res.status(403).json({ error: 'No autorizado.' });
+
+  const campos = db.prepare('SELECT * FROM campos_contacto WHERE perfil_id = ? ORDER BY orden ASC').all(perfilId);
+  res.json(campos);
+});
 
 /**
  * POST /api/perfiles/:id/campos

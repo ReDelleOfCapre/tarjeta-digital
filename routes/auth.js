@@ -1,133 +1,119 @@
+// ============================================
+// My ID — Auth Routes
+// ============================================
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
-const db = require('../database/db');
-const createRateLimit = require('../middleware/rateLimit');
+const { dbReady } = require('../database/db');
+const rateLimit = require('../middleware/rateLimit');
 
-const JWT_SECRET = process.env.JWT_SECRET;
-const JWT_EXPIRY = '7d';
+const JWT_SECRET = process.env.JWT_SECRET || 'myid-default-secret';
+const OWNER_PHONE = (process.env.OWNER_PHONE || '').replace(/[^0-9]/g, '');
 
-/**
- * POST /api/auth/registro
- * Registrar un nuevo usuario.
- */
-router.post(
-  '/registro',
-  [
-    body('telefono')
-      .notEmpty().withMessage('El teléfono es obligatorio.')
-      .isLength({ min: 10, max: 15 }).withMessage('El teléfono debe tener entre 10 y 15 caracteres.'),
-    body('nombre')
-      .notEmpty().withMessage('El nombre es obligatorio.')
-      .trim()
-      .isLength({ min: 2, max: 50 }).withMessage('El nombre debe tener entre 2 y 50 caracteres.'),
-    body('password')
-      .isLength({ min: 6 }).withMessage('La contraseña debe tener al menos 6 caracteres.')
-  ],
-  (req, res) => {
+function normalizePhone(phone) {
+  return phone.replace(/[^0-9]/g, '');
+}
+
+function isOwner(telefono) {
+  if (!OWNER_PHONE) return false;
+  return normalizePhone(telefono) === OWNER_PHONE;
+}
+
+function signToken(user) {
+  return jwt.sign(
+    { id: user.id, telefono: user.telefono, plan: user.plan, nombre: user.nombre, role: user.role },
+    JWT_SECRET,
+    { expiresIn: '7d' }
+  );
+}
+
+// POST /api/auth/registro
+router.post('/registro', [
+  body('telefono').notEmpty().isLength({ min: 7, max: 15 }).withMessage('Teléfono inválido'),
+  body('nombre').notEmpty().trim().isLength({ min: 2, max: 50 }).withMessage('Nombre requerido (2-50 caracteres)'),
+  body('password').isLength({ min: 6 }).withMessage('La contraseña debe tener al menos 6 caracteres')
+], async (req, res) => {
+  try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({
-        error: 'Datos de registro inválidos.',
-        detalles: errors.array().map(e => e.msg)
-      });
+      return res.status(400).json({ error: errors.array()[0].msg });
     }
 
+    const db = await dbReady;
     const { telefono, nombre, password } = req.body;
+    const telefonoNorm = normalizePhone(telefono);
 
-    // Verificar si el teléfono ya está registrado
-    const existingUser = db.prepare('SELECT id FROM usuarios WHERE telefono = ?').get(telefono);
-    if (existingUser) {
-      return res.status(409).json({
-        error: 'Este número de teléfono ya está registrado.'
-      });
+    // Check if already registered
+    const existing = db.prepare('SELECT id FROM usuarios WHERE telefono = ?').get(telefonoNorm);
+    if (existing) {
+      return res.status(409).json({ error: 'Este teléfono ya está registrado' });
     }
 
-    // Hashear contraseña
-    const password_hash = bcrypt.hashSync(password, 10);
+    const password_hash = await bcrypt.hash(password, 10);
 
-    // Insertar usuario
+    // Auto-detect owner
+    const ownerDetected = isOwner(telefonoNorm);
+    const plan = ownerDetected ? 'paid' : 'free';
+    const role = ownerDetected ? 'admin' : 'user';
+
     const result = db.prepare(
-      'INSERT INTO usuarios (telefono, nombre, password_hash) VALUES (?, ?, ?)'
-    ).run(telefono, nombre, password_hash);
+      'INSERT INTO usuarios (telefono, nombre, password_hash, plan, role) VALUES (?, ?, ?, ?, ?)'
+    ).run(telefonoNorm, nombre.trim(), password_hash, plan, role);
 
-    const usuario = {
-      id: result.lastInsertRowid,
-      nombre,
-      telefono,
-      plan: 'free'
-    };
+    const user = { id: result.lastInsertRowid, telefono: telefonoNorm, nombre: nombre.trim(), plan, role };
+    const token = signToken(user);
 
-    // Generar JWT
-    const token = jwt.sign(
-      { id: usuario.id, telefono: usuario.telefono, plan: usuario.plan, nombre: usuario.nombre },
-      JWT_SECRET,
-      { expiresIn: JWT_EXPIRY }
-    );
-
-    res.status(201).json({ token, usuario });
+    res.status(201).json({ token, usuario: user });
+  } catch (err) {
+    console.error('Error en registro:', err);
+    res.status(500).json({ error: 'Error interno del servidor' });
   }
-);
+});
 
-/**
- * POST /api/auth/login
- * Iniciar sesión con teléfono y contraseña.
- */
-router.post(
-  '/login',
-  createRateLimit(5, 15 * 60 * 1000),
-  [
-    body('telefono').notEmpty().withMessage('El teléfono es obligatorio.'),
-    body('password').notEmpty().withMessage('La contraseña es obligatoria.')
-  ],
-  (req, res) => {
+// POST /api/auth/login
+router.post('/login', rateLimit(10, 15 * 60 * 1000), [
+  body('telefono').notEmpty().withMessage('Teléfono requerido'),
+  body('password').notEmpty().withMessage('Contraseña requerida')
+], async (req, res) => {
+  try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({
-        error: 'Datos de inicio de sesión inválidos.',
-        detalles: errors.array().map(e => e.msg)
-      });
+      return res.status(400).json({ error: errors.array()[0].msg });
     }
 
+    const db = await dbReady;
     const { telefono, password } = req.body;
+    const telefonoNorm = normalizePhone(telefono);
 
-    // Buscar usuario por teléfono
-    const user = db.prepare(
-      'SELECT id, telefono, nombre, password_hash, plan FROM usuarios WHERE telefono = ?'
-    ).get(telefono);
-
+    const user = db.prepare('SELECT * FROM usuarios WHERE telefono = ?').get(telefonoNorm);
     if (!user) {
-      return res.status(401).json({
-        error: 'Teléfono o contraseña incorrectos.'
-      });
+      return res.status(401).json({ error: 'Teléfono o contraseña incorrectos' });
     }
 
-    // Verificar contraseña
-    const isValid = bcrypt.compareSync(password, user.password_hash);
-    if (!isValid) {
-      return res.status(401).json({
-        error: 'Teléfono o contraseña incorrectos.'
-      });
+    const valid = await bcrypt.compare(password, user.password_hash);
+    if (!valid) {
+      return res.status(401).json({ error: 'Teléfono o contraseña incorrectos' });
     }
 
-    const usuario = {
-      id: user.id,
-      nombre: user.nombre,
-      telefono: user.telefono,
-      plan: user.plan
-    };
+    // Auto-upgrade owner if needed
+    if (isOwner(telefonoNorm) && (user.plan !== 'paid' || user.role !== 'admin')) {
+      db.prepare('UPDATE usuarios SET plan = ?, role = ? WHERE id = ?').run('paid', 'admin', user.id);
+      user.plan = 'paid';
+      user.role = 'admin';
+    }
 
-    // Generar JWT
-    const token = jwt.sign(
-      { id: usuario.id, telefono: usuario.telefono, plan: usuario.plan, nombre: usuario.nombre },
-      JWT_SECRET,
-      { expiresIn: JWT_EXPIRY }
-    );
+    const token = signToken({ id: user.id, telefono: user.telefono, plan: user.plan, nombre: user.nombre, role: user.role });
 
-    res.json({ token, usuario });
+    res.json({
+      token,
+      usuario: { id: user.id, nombre: user.nombre, telefono: user.telefono, plan: user.plan, role: user.role }
+    });
+  } catch (err) {
+    console.error('Error en login:', err);
+    res.status(500).json({ error: 'Error interno del servidor' });
   }
-);
+});
 
 module.exports = router;

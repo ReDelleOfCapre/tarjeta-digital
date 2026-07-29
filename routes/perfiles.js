@@ -50,7 +50,7 @@ router.post('/', auth, checkPlanLimit('perfil'), (req, res) => {
       return res.status(400).json({ error: err.message });
     }
 
-    const { nombre_perfil, tipo, color } = req.body;
+    const { nombre_perfil, tipo, color, bio, cumpleanos, lugar_estudio, pronombres } = req.body;
 
     if (!nombre_perfil || !nombre_perfil.trim()) {
       return res.status(400).json({ error: 'El nombre del perfil es obligatorio.' });
@@ -58,12 +58,13 @@ router.post('/', auth, checkPlanLimit('perfil'), (req, res) => {
 
     const slug = generateUniqueSlug(nombre_perfil);
     const foto_url = req.file ? `/uploads/${req.file.filename}` : null;
-    const perfilColor = color || '#6C63FF';
+    const perfilColor = color || '#007AFF';
 
     const result = db.prepare(
-      `INSERT INTO perfiles (usuario_id, slug, nombre_perfil, tipo, foto_url, color)
-       VALUES (?, ?, ?, ?, ?, ?)`
-    ).run(req.user.id, slug, nombre_perfil.trim(), tipo || null, foto_url, perfilColor);
+      `INSERT INTO perfiles (usuario_id, slug, nombre_perfil, tipo, foto_url, color, bio, cumpleanos, lugar_estudio, pronombres)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    ).run(req.user.id, slug, nombre_perfil.trim(), tipo || null, foto_url, perfilColor,
+          bio || null, cumpleanos || null, lugar_estudio || null, pronombres || null);
 
     const perfil = db.prepare('SELECT * FROM perfiles WHERE id = ?').get(result.lastInsertRowid);
 
@@ -92,7 +93,7 @@ router.put('/:id', auth, (req, res) => {
       return res.status(403).json({ error: 'No tienes permiso para editar este perfil.' });
     }
 
-    const { nombre_perfil, tipo, color } = req.body;
+    const { nombre_perfil, tipo, color, bio, cumpleanos, lugar_estudio, pronombres } = req.body;
     let foto_url = perfil.foto_url;
 
     // Si se sube una nueva foto, eliminar la anterior
@@ -115,13 +116,21 @@ router.put('/:id', auth, (req, res) => {
        SET nombre_perfil = COALESCE(?, nombre_perfil),
            tipo = COALESCE(?, tipo),
            color = COALESCE(?, color),
-           foto_url = ?
+           foto_url = ?,
+           bio = ?,
+           cumpleanos = ?,
+           lugar_estudio = ?,
+           pronombres = ?
        WHERE id = ?`
     ).run(
       nombre_perfil || null,
       tipo || null,
       color || null,
       foto_url,
+      bio !== undefined ? (bio || null) : perfil.bio,
+      cumpleanos !== undefined ? (cumpleanos || null) : perfil.cumpleanos,
+      lugar_estudio !== undefined ? (lugar_estudio || null) : perfil.lugar_estudio,
+      pronombres !== undefined ? (pronombres || null) : perfil.pronombres,
       perfilId
     );
 
@@ -251,43 +260,64 @@ function perfilPublicoHandler(req, res) {
     'SELECT * FROM archivos WHERE perfil_id = ? ORDER BY fecha_subida DESC'
   ).all(perfil.id);
 
-  const color = escapeHtml(perfil.color || '#6C63FF');
+  const color = escapeHtml(perfil.color || '#007AFF');
 
-  // --- Avatar HTML (server-side conditional) ---
+  // --- Avatar HTML ---
   let avatar_html;
   if (perfil.foto_url) {
-    avatar_html = `<div class="avatar avatar-xl profile-foto">
+    avatar_html = `<div class="avatar" style="width:110px;height:110px;border:3px solid ${color}">
       <img src="${BASE_URL}${perfil.foto_url}" alt="${escapeHtml(perfil.nombre_perfil)}">
     </div>`;
   } else {
     const initials = perfil.nombre_perfil
       .split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
-    avatar_html = `<div class="avatar avatar-xl profile-foto profile-initials" style="background:${color}">
-      ${initials}
-    </div>`;
+    avatar_html = `<div class="avatar" style="width:110px;height:110px;background:${color};font-size:2.5rem">${initials}</div>`;
   }
+
+  // --- Bio HTML ---
+  let bio_html = '';
+  if (perfil.bio) {
+    bio_html = `<p class="bio">${escapeHtml(perfil.bio)}</p>`;
+  }
+
+  // --- Tags HTML ---
+  let tags_parts = [];
+  if (perfil.tipo) tags_parts.push(escapeHtml(perfil.tipo));
+  if (perfil.pronombres) tags_parts.push(escapeHtml(perfil.pronombres));
+  if (perfil.lugar_estudio) tags_parts.push('📚 ' + escapeHtml(perfil.lugar_estudio));
+  if (perfil.cumpleanos) tags_parts.push('🎂 ' + escapeHtml(perfil.cumpleanos));
+
+  const tags_html = tags_parts.length > 0
+    ? `<div class="tags">${tags_parts.map(t => `<span class="tag">${t}</span>`).join('')}</div>`
+    : '';
 
   // --- Campos de contacto HTML ---
   const campos_html = campos.map(campo => {
     const icon = getFieldIcon(campo.tipo);
+    const iconColor = getFieldColor(campo.tipo);
     const link = getFieldLink(campo);
     const label = campo.etiqueta || getFieldLabel(campo.tipo);
+    const eventType = campo.tipo === 'whatsapp' ? 'click_whatsapp'
+      : campo.tipo === 'telefono' ? 'click_llamar'
+      : campo.tipo === 'email' ? 'click_email'
+      : campo.tipo === 'direccion' ? 'click_mapa'
+      : 'click_red_social';
 
     return `
-      <a href="${escapeHtml(link)}" class="contact-item" target="_blank" rel="noopener">
-        <span class="contact-icon">${icon}</span>
-        <div class="contact-info">
-          <span class="contact-label">${escapeHtml(label)}</span>
-          <span class="contact-value">${escapeHtml(campo.valor)}</span>
+      <a href="${escapeHtml(link)}" class="item" target="_blank" rel="noopener" data-action="${eventType}">
+        <span class="item-ico" style="background:${iconColor}">${icon}</span>
+        <div class="item-info">
+          <span class="item-label">${escapeHtml(label)}</span>
+          <span class="item-val">${escapeHtml(campo.valor)}</span>
         </div>
-        <span class="contact-arrow">›</span>
+        <span class="item-arrow">›</span>
       </a>`;
   }).join('\n');
 
-  // --- Campos section (only if there are campos) ---
+  // --- Campos section ---
   const campos_section_html = campos.length > 0
     ? `<div class="section">
-        <h2 class="section-title">Contacto</h2>
+        <h2 class="sec-title">Contacto</h2>
         ${campos_html}
        </div>`
     : '';
@@ -299,17 +329,20 @@ function perfilPublicoHandler(req, res) {
       ? archivo.nombre.substring(0, 32) + '...'
       : archivo.nombre;
     return `
-      <a href="${escapeHtml(archivo.url)}" class="file-item" target="_blank" rel="noopener">
-        <span class="file-icon">${icon}</span>
-        <span class="file-name">${escapeHtml(displayName)}</span>
-        <span class="file-download" style="color:${color}">Ver ↗</span>
+      <a href="${escapeHtml(archivo.url)}" class="file" target="_blank" rel="noopener" data-action="ver_archivo">
+        <span class="item-ico" style="background:var(--accent)">${icon}</span>
+        <div class="item-info">
+          <span class="item-label">Archivo</span>
+          <span class="item-val">${escapeHtml(displayName)}</span>
+        </div>
+        <span class="item-arrow">↗</span>
       </a>`;
   }).join('\n');
 
-  // --- Archivos section (only if there are archivos) ---
+  // --- Archivos section ---
   const archivos_section_html = archivos.length > 0
     ? `<div class="section">
-        <h2 class="section-title">Archivos</h2>
+        <h2 class="sec-title">Archivos</h2>
         ${archivos_html}
        </div>`
     : '';
@@ -341,6 +374,8 @@ function perfilPublicoHandler(req, res) {
     .replace(/\{\{base_url\}\}/g, BASE_URL)
     .replace(/\{\{visitas\}\}/g, String(perfil.visitas + 1))
     .replace(/\{\{avatar_html\}\}/g, avatar_html)
+    .replace(/\{\{bio_html\}\}/g, bio_html)
+    .replace(/\{\{tags_html\}\}/g, tags_html)
     .replace(/\{\{campos_section_html\}\}/g, campos_section_html)
     .replace(/\{\{archivos_section_html\}\}/g, archivos_section_html)
     .replace(/\{\{action_buttons_html\}\}/g, action_buttons_html)
@@ -367,79 +402,82 @@ function escapeHtml(str) {
 
 function getFieldIcon(tipo) {
   const icons = {
-    whatsapp: '💬',
-    telefono: '📞',
-    email: '✉️',
-    direccion: '📍',
-    facebook: '👤',
-    instagram: '📷',
-    tiktok: '🎵',
-    linkedin: '💼',
-    twitter: '🐦',
-    web: '🌐',
-    otro: '📌'
+    whatsapp: '💬', telefono: '📞', email: '✉️', direccion: '📍',
+    facebook: 'f', instagram: '📷', tiktok: '♪', linkedin: 'in',
+    twitter: '𝕏', youtube: '▶', threads: '@', telegram: '✈',
+    snapchat: '👻', discord: '🎮', twitch: '🎬', kick: 'K',
+    spotify: '🎵', apple_music: '♫', steam: '🎮', xbox: '🎯', psn: '🎯',
+    amazon_wishlist: '🛒', pinterest: '📌', reddit: '🔴', bereal: '👁',
+    web: '🌐', github: '⌨', behance: 'Bē', dribbble: '🏀', portafolio: '💼',
+    otro: '•'
   };
-  return icons[tipo] || '📌';
+  return icons[tipo] || '•';
+}
+
+function getFieldColor(tipo) {
+  const colors = {
+    whatsapp: '#25D366', telefono: '#34C759', email: '#FF9500', direccion: '#FF3B30',
+    facebook: '#1877F2', instagram: '#E4405F', tiktok: '#000000', linkedin: '#0A66C2',
+    twitter: '#1DA1F2', youtube: '#FF0000', threads: '#000000', telegram: '#26A5E4',
+    snapchat: '#FFFC00', discord: '#5865F2', twitch: '#9146FF', kick: '#53FC18',
+    spotify: '#1DB954', apple_music: '#FC3C44', steam: '#1B2838', xbox: '#107C10', psn: '#003087',
+    amazon_wishlist: '#FF9900', pinterest: '#E60023', reddit: '#FF4500', bereal: '#000000',
+    web: '#007AFF', github: '#333333', behance: '#1769FF', dribbble: '#EA4C89', portafolio: '#AF52DE',
+    otro: '#8E8E93'
+  };
+  return colors[tipo] || '#8E8E93';
 }
 
 function getFieldLabel(tipo) {
   const labels = {
-    whatsapp: 'WhatsApp',
-    telefono: 'Teléfono',
-    email: 'Correo electrónico',
-    direccion: 'Dirección',
-    facebook: 'Facebook',
-    instagram: 'Instagram',
-    tiktok: 'TikTok',
-    linkedin: 'LinkedIn',
-    twitter: 'Twitter / X',
-    web: 'Sitio web',
+    whatsapp: 'WhatsApp', telefono: 'Teléfono', email: 'Email', direccion: 'Dirección',
+    facebook: 'Facebook', instagram: 'Instagram', tiktok: 'TikTok', linkedin: 'LinkedIn',
+    twitter: 'X (Twitter)', youtube: 'YouTube', threads: 'Threads', telegram: 'Telegram',
+    snapchat: 'Snapchat', discord: 'Discord', twitch: 'Twitch', kick: 'Kick',
+    spotify: 'Spotify', apple_music: 'Apple Music', steam: 'Steam', xbox: 'Xbox', psn: 'PlayStation',
+    amazon_wishlist: 'Amazon Wishlist', pinterest: 'Pinterest', reddit: 'Reddit', bereal: 'BeReal',
+    web: 'Sitio web', github: 'GitHub', behance: 'Behance', dribbble: 'Dribbble', portafolio: 'Portafolio',
     otro: 'Otro'
   };
   return labels[tipo] || tipo;
 }
 
 function getFieldLink(campo) {
+  const v = campo.valor;
+  const isUrl = v.startsWith('http');
   switch (campo.tipo) {
-    case 'whatsapp':
-      return `https://wa.me/${campo.valor.replace(/[^0-9]/g, '')}`;
-    case 'telefono':
-      return `tel:${campo.valor}`;
-    case 'email':
-      return `mailto:${campo.valor}`;
-    case 'direccion':
-      return `https://maps.google.com/?q=${encodeURIComponent(campo.valor)}`;
-    case 'facebook':
-      return campo.valor.startsWith('http') ? campo.valor : `https://facebook.com/${campo.valor}`;
-    case 'instagram':
-      return campo.valor.startsWith('http') ? campo.valor : `https://instagram.com/${campo.valor}`;
-    case 'tiktok':
-      return campo.valor.startsWith('http') ? campo.valor : `https://tiktok.com/@${campo.valor}`;
-    case 'linkedin':
-      return campo.valor.startsWith('http') ? campo.valor : `https://linkedin.com/in/${campo.valor}`;
-    case 'twitter':
-      return campo.valor.startsWith('http') ? campo.valor : `https://twitter.com/${campo.valor}`;
-    case 'web':
-      return campo.valor.startsWith('http') ? campo.valor : `https://${campo.valor}`;
-    default:
-      return '#';
+    case 'whatsapp': return `https://wa.me/${v.replace(/[^0-9]/g, '')}`;
+    case 'telefono': return `tel:${v}`;
+    case 'email': return `mailto:${v}`;
+    case 'direccion': return `https://maps.google.com/?q=${encodeURIComponent(v)}`;
+    case 'facebook': return isUrl ? v : `https://facebook.com/${v}`;
+    case 'instagram': return isUrl ? v : `https://instagram.com/${v}`;
+    case 'tiktok': return isUrl ? v : `https://tiktok.com/@${v}`;
+    case 'linkedin': return isUrl ? v : `https://linkedin.com/in/${v}`;
+    case 'twitter': return isUrl ? v : `https://x.com/${v}`;
+    case 'youtube': return isUrl ? v : `https://youtube.com/@${v}`;
+    case 'threads': return isUrl ? v : `https://threads.net/@${v}`;
+    case 'telegram': return isUrl ? v : `https://t.me/${v}`;
+    case 'snapchat': return isUrl ? v : `https://snapchat.com/add/${v}`;
+    case 'discord': return isUrl ? v : `https://discord.gg/${v}`;
+    case 'twitch': return isUrl ? v : `https://twitch.tv/${v}`;
+    case 'kick': return isUrl ? v : `https://kick.com/${v}`;
+    case 'spotify': return isUrl ? v : `https://open.spotify.com/user/${v}`;
+    case 'apple_music': return isUrl ? v : v;
+    case 'steam': return isUrl ? v : `https://steamcommunity.com/id/${v}`;
+    case 'xbox': return isUrl ? v : `https://www.xbox.com/play/user/${v}`;
+    case 'psn': return isUrl ? v : v;
+    case 'amazon_wishlist': return isUrl ? v : v;
+    case 'pinterest': return isUrl ? v : `https://pinterest.com/${v}`;
+    case 'reddit': return isUrl ? v : `https://reddit.com/user/${v}`;
+    case 'bereal': return isUrl ? v : v;
+    case 'web': return isUrl ? v : `https://${v}`;
+    case 'github': return isUrl ? v : `https://github.com/${v}`;
+    case 'behance': return isUrl ? v : `https://behance.net/${v}`;
+    case 'dribbble': return isUrl ? v : `https://dribbble.com/${v}`;
+    case 'portafolio': return isUrl ? v : `https://${v}`;
+    default: return isUrl ? v : '#';
   }
-}
-
-function getEventType(tipo) {
-  const events = {
-    whatsapp: 'click_whatsapp',
-    telefono: 'click_llamar',
-    email: 'click_email',
-    direccion: 'click_mapa',
-    facebook: 'click_red_social',
-    instagram: 'click_red_social',
-    tiktok: 'click_red_social',
-    linkedin: 'click_red_social',
-    twitter: 'click_red_social',
-    web: 'click_red_social'
-  };
-  return events[tipo] || 'click_red_social';
 }
 
 function generateActionButtons(perfil, campos) {

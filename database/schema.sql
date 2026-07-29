@@ -1,33 +1,39 @@
--- =============================================
--- TarjetaDigital - Schema DDL
--- =============================================
+-- ============================================
+-- My ID — Database Schema
+-- ============================================
 
 PRAGMA foreign_keys = ON;
 
--- Tabla de usuarios
+-- Usuarios
 CREATE TABLE IF NOT EXISTS usuarios (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   telefono TEXT UNIQUE NOT NULL,
   nombre TEXT NOT NULL,
   password_hash TEXT NOT NULL,
-  plan TEXT DEFAULT 'free' CHECK(plan IN ('free', 'paid')),
+  plan TEXT DEFAULT 'free' CHECK(plan IN ('free','paid')),
+  role TEXT DEFAULT 'user' CHECK(role IN ('user','admin')),
   fecha_registro TEXT DEFAULT (datetime('now'))
 );
 
--- Tabla de perfiles (tarjetas digitales)
+-- Perfiles (tarjetas)
 CREATE TABLE IF NOT EXISTS perfiles (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   usuario_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
   slug TEXT UNIQUE NOT NULL,
   nombre_perfil TEXT NOT NULL,
-  tipo TEXT,
+  tipo TEXT DEFAULT 'personal',
   foto_url TEXT,
-  color TEXT DEFAULT '#6C63FF',
+  color TEXT DEFAULT '#007AFF',
+  tema TEXT DEFAULT 'auto',
+  bio TEXT,
+  cumpleanos TEXT,
+  lugar_estudio TEXT,
+  pronombres TEXT,
   visitas INTEGER DEFAULT 0,
   fecha_creacion TEXT DEFAULT (datetime('now'))
 );
 
--- Tabla de campos de contacto
+-- Campos de contacto (expandido a 30+ tipos)
 CREATE TABLE IF NOT EXISTS campos_contacto (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   perfil_id INTEGER NOT NULL REFERENCES perfiles(id) ON DELETE CASCADE,
@@ -37,18 +43,18 @@ CREATE TABLE IF NOT EXISTS campos_contacto (
   orden INTEGER DEFAULT 0
 );
 
--- Tabla de archivos adjuntos
+-- Archivos
 CREATE TABLE IF NOT EXISTS archivos (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   perfil_id INTEGER NOT NULL REFERENCES perfiles(id) ON DELETE CASCADE,
   tipo TEXT NOT NULL,
   nombre TEXT NOT NULL,
   url TEXT NOT NULL,
-  tamaño INTEGER DEFAULT 0,
+  tamano INTEGER DEFAULT 0,
   fecha_subida TEXT DEFAULT (datetime('now'))
 );
 
--- Tabla de estadísticas de eventos
+-- Estadísticas
 CREATE TABLE IF NOT EXISTS estadisticas (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   perfil_id INTEGER NOT NULL REFERENCES perfiles(id) ON DELETE CASCADE,
@@ -58,14 +64,24 @@ CREATE TABLE IF NOT EXISTS estadisticas (
   fecha TEXT DEFAULT (datetime('now'))
 );
 
--- =============================================
--- Índices
--- =============================================
+-- Tarjetas de revendedor (Pro crea tarjetas para clientes)
+CREATE TABLE IF NOT EXISTS tarjetas_revendedor (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  revendedor_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+  perfil_id INTEGER NOT NULL REFERENCES perfiles(id) ON DELETE CASCADE,
+  cliente_telefono TEXT,
+  cliente_nombre TEXT,
+  codigo_activacion TEXT UNIQUE,
+  estado TEXT DEFAULT 'pendiente' CHECK(estado IN ('pendiente','activada','cancelada')),
+  fecha_creacion TEXT DEFAULT (datetime('now'))
+);
 
+-- Índices
 CREATE INDEX IF NOT EXISTS idx_perfiles_slug ON perfiles(slug);
-CREATE INDEX IF NOT EXISTS idx_perfiles_usuario_id ON perfiles(usuario_id);
-CREATE INDEX IF NOT EXISTS idx_campos_contacto_perfil_id ON campos_contacto(perfil_id);
-CREATE INDEX IF NOT EXISTS idx_archivos_perfil_id ON archivos(perfil_id);
-CREATE INDEX IF NOT EXISTS idx_estadisticas_perfil_id ON estadisticas(perfil_id);
+CREATE INDEX IF NOT EXISTS idx_perfiles_usuario ON perfiles(usuario_id);
+CREATE INDEX IF NOT EXISTS idx_campos_perfil ON campos_contacto(perfil_id);
+CREATE INDEX IF NOT EXISTS idx_archivos_perfil ON archivos(perfil_id);
+CREATE INDEX IF NOT EXISTS idx_estadisticas_perfil ON estadisticas(perfil_id);
 CREATE INDEX IF NOT EXISTS idx_estadisticas_fecha ON estadisticas(fecha);
 CREATE INDEX IF NOT EXISTS idx_usuarios_telefono ON usuarios(telefono);
+CREATE INDEX IF NOT EXISTS idx_revendedor_codigo ON tarjetas_revendedor(codigo_activacion);
