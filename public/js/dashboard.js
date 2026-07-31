@@ -95,6 +95,7 @@
             '</div>' +
           '</div>' +
           '<div class="card-actions">' +
+            '<a href="/u/' + p.slug + '" class="btn btn-icon btn-sm" onclick="event.stopPropagation()" target="_blank" title="Ver perfil">👁</a>' +
             '<a href="/compartir.html?id=' + p.id + '&slug=' + p.slug + '" class="btn btn-icon btn-sm" onclick="event.stopPropagation()" title="Compartir">↗</a>' +
             '<button class="btn btn-icon btn-sm" onclick="event.stopPropagation();confirmDelete(' + p.id + ')" title="Eliminar" style="color:var(--red)">✕</button>' +
           '</div>' +

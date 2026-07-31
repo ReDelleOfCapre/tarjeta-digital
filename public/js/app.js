@@ -8,15 +8,13 @@
  */
 async function api(endpoint, options = {}) {
   const token = localStorage.getItem('token');
-  const config = {
-    headers: { 'Content-Type': 'application/json', ...options.headers },
-    ...options,
-  };
-  if (token) config.headers['Authorization'] = 'Bearer ' + token;
+  const isFormData = options.body instanceof FormData;
+  const headers = isFormData ? {} : { 'Content-Type': 'application/json' };
+  if (options.headers) Object.assign(headers, options.headers);
+  if (token) headers['Authorization'] = 'Bearer ' + token;
+  if (isFormData) delete headers['Content-Type'];
 
-  if (options.body instanceof FormData) {
-    delete config.headers['Content-Type'];
-  }
+  const config = { ...options, headers };
 
   try {
     const url = endpoint.startsWith('/api') ? endpoint : '/api' + endpoint;
