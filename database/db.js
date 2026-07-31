@@ -111,6 +111,125 @@ class DatabaseWrapper {
       this.db.run("UPDATE usuarios SET plan = 'paid', role = 'admin' WHERE telefono = ?", [OWNER_PHONE]);
     }
 
+    // Create bloques table
+    try {
+      this.db.exec("SELECT id FROM bloques LIMIT 1");
+    } catch (e) {
+      this.db.exec(`
+        CREATE TABLE IF NOT EXISTS bloques (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          perfil_id INTEGER NOT NULL REFERENCES perfiles(id) ON DELETE CASCADE,
+          tipo TEXT NOT NULL,
+          contenido TEXT NOT NULL DEFAULT '{}',
+          orden INTEGER DEFAULT 0,
+          visible INTEGER DEFAULT 1,
+          fecha_creacion TEXT DEFAULT (datetime('now'))
+        )
+      `);
+      this.db.exec("CREATE INDEX IF NOT EXISTS idx_bloques_perfil ON bloques(perfil_id)");
+      console.log('✅ Migración: tabla bloques creada');
+    }
+
+    // Create suscriptores table
+    try {
+      this.db.exec("SELECT id FROM suscriptores LIMIT 1");
+    } catch (e) {
+      this.db.exec(`
+        CREATE TABLE IF NOT EXISTS suscriptores (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          perfil_id INTEGER NOT NULL REFERENCES perfiles(id) ON DELETE CASCADE,
+          email TEXT NOT NULL,
+          nombre TEXT,
+          fecha TEXT DEFAULT (datetime('now')),
+          UNIQUE(perfil_id, email)
+        )
+      `);
+      console.log('✅ Migración: tabla suscriptores creada');
+    }
+
+    // Create temas table
+    try {
+      this.db.exec("SELECT id FROM temas LIMIT 1");
+    } catch (e) {
+      this.db.exec(`
+        CREATE TABLE IF NOT EXISTS temas (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          nombre TEXT NOT NULL,
+          tipo TEXT DEFAULT 'preset',
+          config TEXT NOT NULL DEFAULT '{}',
+          premium INTEGER DEFAULT 0
+        )
+      `);
+      console.log('✅ Migración: tabla temas creada');
+    }
+
+    // Add tema_id to perfiles
+    try {
+      this.db.exec("SELECT tema_id FROM perfiles LIMIT 1");
+    } catch (e) {
+      this.db.exec("ALTER TABLE perfiles ADD COLUMN tema_id INTEGER DEFAULT NULL");
+      console.log('✅ Migración: columna tema_id agregada a perfiles');
+    }
+
+    // Auto-migrate campos_contacto to bloques
+    try {
+      const perfilesToMigrate = this.prepare(`
+        SELECT p.id 
+        FROM perfiles p
+        LEFT JOIN bloques b ON p.id = b.perfil_id
+        WHERE b.id IS NULL
+        AND EXISTS (SELECT 1 FROM campos_contacto c WHERE c.perfil_id = p.id)
+      `).all();
+      
+      if (perfilesToMigrate.length > 0) {
+        console.log('🔄 Iniciando migración de campos de contacto a bloques...');
+        
+        for (const { id: perfilId } of perfilesToMigrate) {
+          const campos = this.prepare(
+            'SELECT id, tipo, valor, etiqueta, orden FROM campos_contacto WHERE perfil_id = ? ORDER BY orden ASC'
+          ).all(perfilId);
+          
+          if (campos.length > 0) {
+            let socialRedes = [];
+            let currentOrden = 0;
+            
+            const insertBloque = this.prepare(
+              'INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, ?, ?, ?)'
+            );
+            
+            for (const c of campos) {
+              const socialTypes = ['facebook', 'instagram', 'tiktok', 'linkedin', 'twitter', 'youtube', 'threads', 'telegram', 'snapchat', 'discord', 'twitch', 'kick', 'spotify', 'apple_music', 'steam', 'xbox', 'psn', 'pinterest', 'reddit', 'bereal', 'github', 'behance', 'dribbble'];
+              
+              if (socialTypes.includes(c.tipo)) {
+                socialRedes.push({ tipo: c.tipo, url: c.valor });
+              } else {
+                let bloqueTipo = 'link';
+                let contenido = { url: c.valor, titulo: c.etiqueta || c.tipo, subtitulo: '', icono: '', color: '' };
+                
+                if (c.tipo === 'whatsapp') {
+                  bloqueTipo = 'whatsapp';
+                  contenido = { numero: c.valor, mensaje_default: '' };
+                } else if (c.tipo === 'email' || c.tipo === 'telefono' || c.tipo === 'direccion') {
+                  contenido.titulo = c.etiqueta || c.tipo;
+                }
+                
+                insertBloque.run(perfilId, bloqueTipo, JSON.stringify(contenido), currentOrden);
+                currentOrden++;
+              }
+            }
+            
+            if (socialRedes.length > 0) {
+              const contenido = JSON.stringify({ redes: socialRedes });
+              insertBloque.run(perfilId, 'social_icons', contenido, currentOrden);
+            }
+          }
+        }
+        console.log('✅ Migración de campos_contacto a bloques completada');
+      }
+    } catch (e) {
+      console.error('Error durante migración de campos:', e);
+    }
+
     this._saveToDisk();
   }
 

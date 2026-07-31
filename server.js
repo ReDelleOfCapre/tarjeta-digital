@@ -17,6 +17,8 @@ const camposRoutes = require('./routes/campos');
 const archivosRoutes = require('./routes/archivos');
 const estadisticasRoutes = require('./routes/estadisticas');
 const adminRoutes = require('./routes/admin');
+const bloquesRoutes = require('./routes/bloques');
+const suscriptoresRoutes = require('./routes/suscriptores');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -58,6 +60,8 @@ app.use('/api', camposRoutes);
 app.use('/api', archivosRoutes);
 app.use('/api/estadisticas', estadisticasRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api', bloquesRoutes);
+app.use('/api', suscriptoresRoutes);
 
 // =============================================
 // Ruta pública de perfiles

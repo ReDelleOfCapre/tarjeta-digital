@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS perfiles (
   foto_url TEXT,
   color TEXT DEFAULT '#007AFF',
   tema TEXT DEFAULT 'auto',
+  tema_id INTEGER DEFAULT NULL,
   bio TEXT,
   cumpleanos TEXT,
   lugar_estudio TEXT,
@@ -41,6 +42,36 @@ CREATE TABLE IF NOT EXISTS campos_contacto (
   valor TEXT NOT NULL,
   etiqueta TEXT,
   orden INTEGER DEFAULT 0
+);
+
+-- Bloques (v3 block editor)
+CREATE TABLE IF NOT EXISTS bloques (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  perfil_id INTEGER NOT NULL REFERENCES perfiles(id) ON DELETE CASCADE,
+  tipo TEXT NOT NULL,
+  contenido TEXT NOT NULL DEFAULT '{}',
+  orden INTEGER DEFAULT 0,
+  visible INTEGER DEFAULT 1,
+  fecha_creacion TEXT DEFAULT (datetime('now'))
+);
+
+-- Suscriptores (email capture)
+CREATE TABLE IF NOT EXISTS suscriptores (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  perfil_id INTEGER NOT NULL REFERENCES perfiles(id) ON DELETE CASCADE,
+  email TEXT NOT NULL,
+  nombre TEXT,
+  fecha TEXT DEFAULT (datetime('now')),
+  UNIQUE(perfil_id, email)
+);
+
+-- Temas
+CREATE TABLE IF NOT EXISTS temas (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  nombre TEXT NOT NULL,
+  tipo TEXT DEFAULT 'preset',
+  config TEXT NOT NULL DEFAULT '{}',
+  premium INTEGER DEFAULT 0
 );
 
 -- Archivos
@@ -80,8 +111,10 @@ CREATE TABLE IF NOT EXISTS tarjetas_revendedor (
 CREATE INDEX IF NOT EXISTS idx_perfiles_slug ON perfiles(slug);
 CREATE INDEX IF NOT EXISTS idx_perfiles_usuario ON perfiles(usuario_id);
 CREATE INDEX IF NOT EXISTS idx_campos_perfil ON campos_contacto(perfil_id);
+CREATE INDEX IF NOT EXISTS idx_bloques_perfil ON bloques(perfil_id);
 CREATE INDEX IF NOT EXISTS idx_archivos_perfil ON archivos(perfil_id);
 CREATE INDEX IF NOT EXISTS idx_estadisticas_perfil ON estadisticas(perfil_id);
 CREATE INDEX IF NOT EXISTS idx_estadisticas_fecha ON estadisticas(fecha);
 CREATE INDEX IF NOT EXISTS idx_usuarios_telefono ON usuarios(telefono);
 CREATE INDEX IF NOT EXISTS idx_revendedor_codigo ON tarjetas_revendedor(codigo_activacion);
+

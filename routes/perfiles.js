@@ -261,6 +261,11 @@ function perfilPublicoHandler(req, res) {
   ).all(perfil.id);
 
   const color = escapeHtml(perfil.color || '#007AFF');
+  const themeCss = `
+    :root {
+      --primary: ${color};
+    }
+  `;
 
   // --- Avatar HTML ---
   let avatar_html;
@@ -291,36 +296,154 @@ function perfilPublicoHandler(req, res) {
     ? `<div class="tags">${tags_parts.map(t => `<span class="tag">${t}</span>`).join('')}</div>`
     : '';
 
-  // --- Campos de contacto HTML ---
-  const campos_html = campos.map(campo => {
-    const icon = getFieldIcon(campo.tipo);
-    const iconColor = getFieldColor(campo.tipo);
-    const link = getFieldLink(campo);
-    const label = campo.etiqueta || getFieldLabel(campo.tipo);
-    const eventType = campo.tipo === 'whatsapp' ? 'click_whatsapp'
-      : campo.tipo === 'telefono' ? 'click_llamar'
-      : campo.tipo === 'email' ? 'click_email'
-      : campo.tipo === 'direccion' ? 'click_mapa'
-      : 'click_red_social';
+  // --- Bloques & Campos de contacto HTML ---
+  const bloques = db.prepare('SELECT * FROM bloques WHERE perfil_id = ? AND visible = 1 ORDER BY orden ASC').all(perfil.id);
+  
+  let bloques_html = '';
+  
+  if (bloques.length > 0) {
+    bloques_html = bloques.map(bloque => {
+      const bId = bloque.id;
+      const bContent = typeof bloque.contenido === 'string' ? JSON.parse(bloque.contenido) : bloque.contenido;
+      let html = `<div class="bloque-wrapper bloque-${bloque.tipo}" data-bloque-id="${bId}" style="margin-bottom: 1rem; border-radius: 12px; overflow: hidden; background: rgba(255,255,255,0.05); box-shadow: 0 4px 6px rgba(0,0,0,0.1);">`;
+      
+      switch (bloque.tipo) {
+        case 'link':
+          html += `<a href="${escapeHtml(bContent.url)}" target="_blank" rel="noopener" style="display: flex; align-items: center; padding: 1rem; text-decoration: none; color: inherit;">
+            ${bContent.icono ? `<span style="font-size: 1.5rem; margin-right: 1rem; color: ${escapeHtml(bContent.color || '#fff')}">${escapeHtml(bContent.icono)}</span>` : ''}
+            <div style="flex: 1;">
+              <div style="font-weight: 600; font-size: 1rem;">${escapeHtml(bContent.titulo)}</div>
+              ${bContent.subtitulo ? `<div style="font-size: 0.8rem; opacity: 0.7; margin-top: 0.25rem;">${escapeHtml(bContent.subtitulo)}</div>` : ''}
+            </div>
+            <span style="opacity: 0.5;">›</span>
+          </a>`;
+          break;
+        case 'spotify':
+        case 'youtube':
+        case 'tweet':
+        case 'tiktok':
+          html += bContent.embed_html || '';
+          break;
+        case 'texto':
+          const tTag = bContent.estilo === 'titulo' ? 'h3' : bContent.estilo === 'cita' ? 'blockquote' : 'p';
+          const tStyle = bContent.estilo === 'cita' ? 'font-style: italic; border-left: 4px solid var(--primary); padding-left: 1rem;' : bContent.estilo === 'titulo' ? 'font-weight: bold; font-size: 1.25rem;' : '';
+          html += `<${tTag} style="padding: 1rem; margin: 0; ${tStyle}">${escapeHtml(bContent.texto)}</${tTag}>`;
+          break;
+        case 'whatsapp':
+          const waLink = `https://wa.me/${(bContent.numero || '').replace(/[^0-9]/g, '')}${bContent.mensaje_default ? `?text=${encodeURIComponent(bContent.mensaje_default)}` : ''}`;
+          html += `<a href="${escapeHtml(waLink)}" target="_blank" rel="noopener" style="display: flex; align-items: center; justify-content: center; padding: 1rem; text-decoration: none; background: #25D366; color: white; font-weight: bold;">
+            <span style="margin-right: 0.5rem; font-size: 1.2rem;">💬</span> WhatsApp
+          </a>`;
+          break;
+        case 'social_icons':
+          html += `<div style="display: flex; justify-content: center; gap: 1rem; padding: 1rem; flex-wrap: wrap;">`;
+          (bContent.redes || []).forEach(red => {
+            const icon = getFieldIcon(red.tipo);
+            const color = getFieldColor(red.tipo);
+            const link = getFieldLink({ tipo: red.tipo, valor: red.url });
+            html += `<a href="${escapeHtml(link)}" target="_blank" rel="noopener" style="width: 40px; height: 40px; border-radius: 50%; background: ${color}; display: flex; align-items: center; justify-content: center; color: white; text-decoration: none; font-size: 1.2rem; transition: transform 0.2s;">
+              ${icon}
+            </a>`;
+          });
+          html += `</div>`;
+          break;
+        case 'email_capture':
+          html += `<form action="/api/perfiles/${perfil.id}/suscribir" method="POST" style="padding: 1.5rem;" onsubmit="event.preventDefault(); fetch(this.action, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({email: this.email.value})}).then(res => res.json()).then(data => { if(data.ok) { this.innerHTML = '<div style=\\'text-align:center;color:#4caf50;\\'>¡Gracias por suscribirte!</div>' } else { alert(data.error || 'Error al suscribirse') } })">
+            ${bContent.titulo ? `<h3 style="margin-bottom: 1rem; font-size: 1.1rem; text-align: center;">${escapeHtml(bContent.titulo)}</h3>` : ''}
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="email" name="email" placeholder="${escapeHtml(bContent.placeholder || 'Tu email')}" required style="flex: 1; padding: 0.75rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.2); color: white;">
+              <button type="submit" style="padding: 0.75rem 1.25rem; border-radius: 8px; border: none; background: var(--primary); color: white; font-weight: bold; cursor: pointer;">${escapeHtml(bContent.boton_texto || 'Suscribirse')}</button>
+            </div>
+          </form>`;
+          break;
+        case 'galeria':
+          html += `<div style="display: flex; overflow-x: auto; scroll-snap-type: x mandatory; padding: 1rem; gap: 1rem;">`;
+          (bContent.imagenes || []).forEach(img => {
+            html += `<div style="flex: 0 0 80%; scroll-snap-align: center; border-radius: 8px; overflow: hidden; position: relative;">
+              <img src="${escapeHtml(img.url)}" style="width: 100%; height: 200px; object-fit: cover; display: block;">
+              ${img.caption ? `<div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 0.5rem; background: rgba(0,0,0,0.7); color: white; font-size: 0.8rem; text-align: center;">${escapeHtml(img.caption)}</div>` : ''}
+            </div>`;
+          });
+          html += `</div>`;
+          break;
+        case 'countdown':
+          const targetDate = new Date(bContent.fecha_fin).getTime();
+          html += `<div style="padding: 1.5rem; text-align: center;" data-countdown="${targetDate}">
+            ${bContent.titulo ? `<div style="margin-bottom: 1rem; font-weight: bold; opacity: 0.9;">${escapeHtml(bContent.titulo)}</div>` : ''}
+            <div class="countdown-timer" style="display: flex; justify-content: center; gap: 1rem; font-size: 1.5rem; font-weight: bold;">
+              <div style="display: flex; flex-direction: column;"><span class="days">00</span><span style="font-size: 0.6rem; text-transform: uppercase; opacity: 0.7;">Días</span></div>
+              <span>:</span>
+              <div style="display: flex; flex-direction: column;"><span class="hours">00</span><span style="font-size: 0.6rem; text-transform: uppercase; opacity: 0.7;">Hrs</span></div>
+              <span>:</span>
+              <div style="display: flex; flex-direction: column;"><span class="minutes">00</span><span style="font-size: 0.6rem; text-transform: uppercase; opacity: 0.7;">Min</span></div>
+              <span>:</span>
+              <div style="display: flex; flex-direction: column;"><span class="seconds">00</span><span style="font-size: 0.6rem; text-transform: uppercase; opacity: 0.7;">Seg</span></div>
+            </div>
+            <script>
+              (function(){
+                const wrapper = document.currentScript.parentElement;
+                const target = parseInt(wrapper.getAttribute('data-countdown'));
+                const daysEl = wrapper.querySelector('.days');
+                const hoursEl = wrapper.querySelector('.hours');
+                const minutesEl = wrapper.querySelector('.minutes');
+                const secondsEl = wrapper.querySelector('.seconds');
+                
+                function update() {
+                  const now = new Date().getTime();
+                  const diff = target - now;
+                  if (diff < 0) {
+                    wrapper.querySelector('.countdown-timer').innerHTML = '<div style="font-size:1.2rem; color:var(--primary);">¡Finalizado!</div>';
+                    return;
+                  }
+                  daysEl.innerText = Math.floor(diff / (1000 * 60 * 60 * 24)).toString().padStart(2, '0');
+                  hoursEl.innerText = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)).toString().padStart(2, '0');
+                  minutesEl.innerText = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
+                  secondsEl.innerText = Math.floor((diff % (1000 * 60)) / 1000).toString().padStart(2, '0');
+                  requestAnimationFrame(update);
+                }
+                update();
+              })();
+            </script>
+          </div>`;
+          break;
+        default:
+          html += `<div style="padding: 1rem;">Bloque no soportado: ${escapeHtml(bloque.tipo)}</div>`;
+      }
+      
+      html += `</div>`;
+      return html;
+    }).join('\n');
+  } else {
+    // Fallback to campos_contacto if no blocks
+    const campos_html = campos.map(campo => {
+      const icon = getFieldIcon(campo.tipo);
+      const iconColor = getFieldColor(campo.tipo);
+      const link = getFieldLink(campo);
+      const label = campo.etiqueta || getFieldLabel(campo.tipo);
+      const eventType = campo.tipo === 'whatsapp' ? 'click_whatsapp'
+        : campo.tipo === 'telefono' ? 'click_llamar'
+        : campo.tipo === 'email' ? 'click_email'
+        : campo.tipo === 'direccion' ? 'click_mapa'
+        : 'click_red_social';
 
-    return `
-      <a href="${escapeHtml(link)}" class="item" target="_blank" rel="noopener" data-action="${eventType}">
-        <span class="item-ico" style="background:${iconColor}">${icon}</span>
-        <div class="item-info">
-          <span class="item-label">${escapeHtml(label)}</span>
-          <span class="item-val">${escapeHtml(campo.valor)}</span>
-        </div>
-        <span class="item-arrow">›</span>
-      </a>`;
-  }).join('\n');
+      return `
+        <a href="${escapeHtml(link)}" class="item contact-item" target="_blank" rel="noopener" data-action="${eventType}" style="display: flex; align-items: center; padding: 0.75rem; border-radius: 8px; text-decoration: none; color: #e0e0e0; transition: background 0.2s; margin-bottom: 0.25rem;">
+          <span class="item-ico contact-icon" style="background:${iconColor}; font-size: 1.3rem; margin-right: 0.75rem; width: 32px; text-align: center; border-radius: 50%; display: flex; align-items: center; justify-content: center; height: 32px; color: white;">${icon}</span>
+          <div class="item-info contact-info" style="flex: 1;">
+            <span class="item-label contact-label" style="display: block; font-size: 0.7rem; color: #888; text-transform: uppercase; letter-spacing: 0.5px;">${escapeHtml(label)}</span>
+            <span class="item-val contact-value" style="display: block; font-size: 0.9rem; margin-top: 0.15rem;">${escapeHtml(campo.valor)}</span>
+          </div>
+          <span class="item-arrow contact-arrow" style="color: #555; font-size: 1.2rem;">›</span>
+        </a>`;
+    }).join('\n');
 
-  // --- Campos section ---
-  const campos_section_html = campos.length > 0
-    ? `<div class="section">
-        <h2 class="sec-title">Contacto</h2>
-        ${campos_html}
-       </div>`
-    : '';
+    bloques_html = campos.length > 0
+      ? `<div class="section" style="background: #1a1a2e; border-radius: 12px; padding: 1rem; margin-bottom: 1rem;">
+          <h2 class="sec-title section-title" style="font-size: 0.75rem; text-transform: uppercase; color: #888; margin-bottom: 0.75rem; letter-spacing: 1px;">Contacto</h2>
+          ${campos_html}
+         </div>`
+      : '';
+  }
 
   // --- Archivos HTML ---
   const archivos_html = archivos.map(archivo => {
@@ -329,20 +452,20 @@ function perfilPublicoHandler(req, res) {
       ? archivo.nombre.substring(0, 32) + '...'
       : archivo.nombre;
     return `
-      <a href="${escapeHtml(archivo.url)}" class="file" target="_blank" rel="noopener" data-action="ver_archivo">
-        <span class="item-ico" style="background:var(--accent)">${icon}</span>
-        <div class="item-info">
-          <span class="item-label">Archivo</span>
-          <span class="item-val">${escapeHtml(displayName)}</span>
+      <a href="${escapeHtml(archivo.url)}" class="file file-item" target="_blank" rel="noopener" data-action="ver_archivo" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; border-radius: 8px; text-decoration: none; color: #e0e0e0; transition: background 0.2s;">
+        <span class="item-ico file-icon" style="background:var(--primary); font-size: 1.3rem; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 8px; color: white;">${icon}</span>
+        <div class="item-info" style="flex: 1;">
+          <span class="item-label" style="display: block; font-size: 0.7rem; color: #888; text-transform: uppercase;">Archivo</span>
+          <span class="item-val file-name" style="display: block; font-size: 0.9rem;">${escapeHtml(displayName)}</span>
         </div>
-        <span class="item-arrow">↗</span>
+        <span class="item-arrow file-download" style="color: var(--primary);">↗</span>
       </a>`;
   }).join('\n');
 
   // --- Archivos section ---
   const archivos_section_html = archivos.length > 0
-    ? `<div class="section">
-        <h2 class="sec-title">Archivos</h2>
+    ? `<div class="section" style="background: #1a1a2e; border-radius: 12px; padding: 1rem; margin-bottom: 1rem;">
+        <h2 class="sec-title section-title" style="font-size: 0.75rem; text-transform: uppercase; color: #888; margin-bottom: 0.75rem; letter-spacing: 1px;">Archivos</h2>
         ${archivos_html}
        </div>`
     : '';
@@ -365,7 +488,13 @@ function perfilPublicoHandler(req, res) {
   }
 
   // --- Replace ALL placeholders ---
+  const bio_text = perfil.bio ? escapeHtml(perfil.bio) : 'Tarjeta digital de contacto';
+  const tema = perfil.tema || 'ios';
+
   html = html
+    .replace(/\{\{tema_css\}\}/g, themeCss)
+    .replace(/\{\{tema\}\}/g, tema)
+    .replace(/\{\{bio_text\}\}/g, bio_text)
     .replace(/\{\{nombre_perfil\}\}/g, escapeHtml(perfil.nombre_perfil))
     .replace(/\{\{tipo\}\}/g, escapeHtml(perfil.tipo || ''))
     .replace(/\{\{slug\}\}/g, escapeHtml(perfil.slug))
@@ -376,7 +505,8 @@ function perfilPublicoHandler(req, res) {
     .replace(/\{\{avatar_html\}\}/g, avatar_html)
     .replace(/\{\{bio_html\}\}/g, bio_html)
     .replace(/\{\{tags_html\}\}/g, tags_html)
-    .replace(/\{\{campos_section_html\}\}/g, campos_section_html)
+    .replace(/\{\{bloques_html\}\}/g, bloques_html)
+    .replace(/\{\{campos_section_html\}\}/g, '')
     .replace(/\{\{archivos_section_html\}\}/g, archivos_section_html)
     .replace(/\{\{action_buttons_html\}\}/g, action_buttons_html)
     .replace(/\{\{perfil_id\}\}/g, String(perfil.id))
@@ -585,6 +715,7 @@ function generateFallbackHTML() {
       color: #e0e0e0;
       min-height: 100vh;
     }
+    {{tema_css}}
     .card-header {
       background: linear-gradient(135deg, {{color}}, {{color}}99);
       padding: 3rem 1.5rem 4rem;
@@ -660,8 +791,7 @@ function generateFallbackHTML() {
     </div>
 
     <div class="section">
-      <div class="section-title">Contacto</div>
-      {{campos_html}}
+      {{bloques_html}}
     </div>
 
     <div class="section" id="archivos-section" style="{{archivos_html}}display:none">
