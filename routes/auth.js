@@ -23,7 +23,7 @@ function isOwner(telefono) {
 
 function signToken(user) {
   return jwt.sign(
-    { id: user.id, telefono: user.telefono, plan: user.plan, nombre: user.nombre, role: user.role },
+    { id: user.id, telefono: user.telefono, plan: user.plan, plan_expira: user.plan_expira, nombre: user.nombre, role: user.role },
     JWT_SECRET,
     { expiresIn: '7d' }
   );
@@ -57,13 +57,14 @@ router.post('/registro', [
     // Todos los usuarios nuevos obtienen 30 días de prueba Pro
     const ownerDetected = isOwner(telefonoNorm);
     const plan = 'paid';
+    const plan_expira = ownerDetected ? null : new Date(Date.now() + 30*24*60*60*1000).toISOString();
     const role = ownerDetected ? 'admin' : 'user';
 
     const result = db.prepare(
-      "INSERT INTO usuarios (telefono, nombre, password_hash, plan, plan_expira, role, email) VALUES (?, ?, ?, ?, datetime('now', '+30 days'), ?, ?)"
-    ).run(telefonoNorm, nombre.trim(), password_hash, plan, role, email || null);
+      "INSERT INTO usuarios (telefono, nombre, password_hash, plan, plan_expira, role, email) VALUES (?, ?, ?, ?, ?, ?, ?)"
+    ).run(telefonoNorm, nombre.trim(), password_hash, plan, plan_expira, role, email || null);
 
-    const user = { id: result.lastInsertRowid, telefono: telefonoNorm, nombre: nombre.trim(), plan, role };
+    const user = { id: result.lastInsertRowid, telefono: telefonoNorm, nombre: nombre.trim(), plan, plan_expira, role };
     const token = signToken(user);
 
     res.status(201).json({ token, usuario: user });
@@ -105,11 +106,11 @@ router.post('/login', rateLimit(10, 15 * 60 * 1000), [
       user.role = 'admin';
     }
 
-    const token = signToken({ id: user.id, telefono: user.telefono, plan: user.plan, nombre: user.nombre, role: user.role });
+    const token = signToken({ id: user.id, telefono: user.telefono, plan: user.plan, plan_expira: user.plan_expira, nombre: user.nombre, role: user.role });
 
     res.json({
       token,
-      usuario: { id: user.id, nombre: user.nombre, telefono: user.telefono, plan: user.plan, role: user.role }
+      usuario: { id: user.id, nombre: user.nombre, telefono: user.telefono, plan: user.plan, plan_expira: user.plan_expira, role: user.role }
     });
   } catch (err) {
     console.error('Error en login:', err);

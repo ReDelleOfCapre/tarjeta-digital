@@ -322,7 +322,7 @@ function perfilPublicoHandler(req, res) {
       switch (bloque.tipo) {
         case 'link':
           html += `<a href="${escapeHtml(bContent.url)}" target="_blank" rel="noopener" class="block-link">
-            ${bContent.icono ? `<div class="bl-icon" style="color: ${escapeHtml(bContent.color || 'var(--text)')}">${escapeHtml(bContent.icono)}</div>` : ''}
+            ${bContent.icono ? `<div class="bl-icon" style="color: ${escapeHtml(bContent.color || 'var(--text-primary)')}">${escapeHtml(bContent.icono)}</div>` : ''}
             <div class="bl-text">
               <div class="bl-title">${escapeHtml(bContent.titulo)}</div>
               ${bContent.subtitulo ? `<div class="bl-sub">${escapeHtml(bContent.subtitulo)}</div>` : ''}
@@ -343,11 +343,11 @@ function perfilPublicoHandler(req, res) {
         case 'whatsapp':
           const waLink = `https://wa.me/${(bContent.numero || '').replace(/[^0-9]/g, '')}${bContent.mensaje_default ? `?text=${encodeURIComponent(bContent.mensaje_default)}` : ''}`;
           html += `<a href="${escapeHtml(waLink)}" target="_blank" rel="noopener" class="block-wa">
-            <i class="fab fa-whatsapp"></i> WhatsApp
+            <i class="fab fa-whatsapp"></i> ${escapeHtml(bContent.texto || 'WhatsApp')}
           </a>`;
           break;
         case 'social_icons':
-          html += `<div class="block-social">`;
+          html += `<div class="block-socials">`;
           (bContent.redes || []).forEach(red => {
             const icon = getFieldIcon(red.tipo);
             const color = getFieldColor(red.tipo);
@@ -360,7 +360,7 @@ function perfilPublicoHandler(req, res) {
           break;
         case 'email_capture':
           html += `<div class="block-email">
-            <form action="/api/perfiles/${perfil.id}/suscribir" method="POST" onsubmit="event.preventDefault(); fetch(this.action, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({email: this.email.value})}).then(res => res.json()).then(data => { if(data.ok) { this.innerHTML = '<div class=\\'email-success\\'>¡Gracias por suscribirte!</div>' } else { alert(data.error || 'Error al suscribirse') } })">
+            <form data-perfil="${perfil.id}">
               ${bContent.titulo ? `<h3>${escapeHtml(bContent.titulo)}</h3>` : ''}
               <div class="email-form-group">
                 <input type="email" name="email" placeholder="${escapeHtml(bContent.placeholder || 'Tu email')}" required>
@@ -381,7 +381,7 @@ function perfilPublicoHandler(req, res) {
           break;
         case 'countdown':
           const targetDate = new Date(bContent.fecha_fin).getTime();
-          html += `<div class="block-cd" data-countdown="${targetDate}">
+          html += `<div class="block-countdown" data-countdown="${targetDate}">
             ${bContent.titulo ? `<h3>${escapeHtml(bContent.titulo)}</h3>` : ''}
             <div class="cd-digits">
               <div class="cd-unit"><div class="cd-num days">00</div><div class="cd-lbl">Días</div></div>

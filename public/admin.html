@@ -188,12 +188,13 @@
             <th>Nombre</th>
             <th>Teléfono</th>
             <th>Plan</th>
+            <th>Expira</th>
             <th>Perfiles</th>
             <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
-          <tr><td colspan="6">Cargando usuarios...</td></tr>
+          <tr><td colspan="7">Cargando usuarios...</td></tr>
         </tbody>
       </table>
     </div>
@@ -236,8 +237,7 @@
         if (statsRes.usuarios) {
           document.getElementById('stat-users').textContent = statsRes.usuarios.total;
           document.getElementById('stat-pro').textContent = statsRes.usuarios.paid;
-          // Placeholder para revenue, se podría calcular real desde la bd
-          document.getElementById('stat-revenue').textContent = '$' + (statsRes.usuarios.paid * 149);
+          document.getElementById('stat-revenue').textContent = '$' + (statsRes.ingresos || 0);
         }
 
         // Load pending payments
@@ -273,6 +273,7 @@
               <td>${u.nombre}</td>
               <td>${u.telefono}</td>
               <td><span class="badge ${u.plan}">${u.plan.toUpperCase()}</span></td>
+              <td>${u.plan_expira ? new Date(u.plan_expira).toLocaleDateString() : '-'}</td>
               <td>${u.total_perfiles}</td>
               <td>
                 <button class="btn-sm btn-view" onclick="verPerfiles(${u.id}, '${u.nombre}')">Ver Tarjetas</button>

@@ -23,6 +23,9 @@ router.get('/stats', async (req, res) => {
     const totalVisitas = db.prepare('SELECT COALESCE(SUM(visitas), 0) as total FROM perfiles').get().total;
     const totalCampos = db.prepare('SELECT COUNT(*) as total FROM campos_contacto').get().total;
 
+    // Ingresos totales (pagos aprobados)
+    const ingresosTotal = db.prepare("SELECT COALESCE(SUM(monto), 0) as total FROM pagos WHERE estado = 'aprobado'").get().total;
+
     // Últimos 7 días de registros
     const registrosRecientes = db.prepare(`
       SELECT DATE(fecha_registro) as fecha, COUNT(*) as total
@@ -37,6 +40,7 @@ router.get('/stats', async (req, res) => {
       perfiles: totalPerfiles,
       visitas: totalVisitas,
       campos: totalCampos,
+      ingresos: ingresosTotal,
       registros_recientes: registrosRecientes
     });
   } catch (err) {
@@ -58,7 +62,7 @@ router.get('/usuarios', async (req, res) => {
     if (search) {
       const searchPattern = `%${search}%`;
       usuarios = db.prepare(`
-        SELECT u.id, u.telefono, u.nombre, u.plan, u.role, u.fecha_registro,
+        SELECT u.id, u.telefono, u.nombre, u.plan, u.plan_expira, u.role, u.fecha_registro,
                (SELECT COUNT(*) FROM perfiles WHERE usuario_id = u.id) as total_perfiles,
                (SELECT COALESCE(SUM(visitas), 0) FROM perfiles WHERE usuario_id = u.id) as total_visitas
         FROM usuarios u
@@ -70,7 +74,7 @@ router.get('/usuarios', async (req, res) => {
         .get(searchPattern, searchPattern).total;
     } else {
       usuarios = db.prepare(`
-        SELECT u.id, u.telefono, u.nombre, u.plan, u.role, u.fecha_registro,
+        SELECT u.id, u.telefono, u.nombre, u.plan, u.plan_expira, u.role, u.fecha_registro,
                (SELECT COUNT(*) FROM perfiles WHERE usuario_id = u.id) as total_perfiles,
                (SELECT COALESCE(SUM(visitas), 0) FROM perfiles WHERE usuario_id = u.id) as total_visitas
         FROM usuarios u

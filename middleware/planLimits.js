@@ -4,7 +4,7 @@
 const { dbReady } = require('../database/db');
 
 const LIMITS = {
-  free: { perfil: 3, campo: 5, archivo: 2 },
+  free: { perfil: 3, campo: 6, archivo: 1 },
   paid: { perfil: 999, campo: 999, archivo: 999 }
 };
 
