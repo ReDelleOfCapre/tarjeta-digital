@@ -1,7 +1,7 @@
 services:
   - type: web
-    name: vynk
-    runtime: node
+    name: tarjeta-digital
+    env: node
     buildCommand: npm install
     startCommand: node server.js
     envVars:
@@ -9,17 +9,7 @@ services:
         value: production
       - key: PORT
         value: "3000"
-      - key: DB_PATH
-        value: /var/data/tarjeta.db
-      - key: UPLOAD_DIR
-        value: /var/data/uploads
       - key: OWNER_PHONE
-        value: "2311556138"
+        value: "522311556138"
       - key: JWT_SECRET
         generateValue: true
-      - key: BASE_URL
-        value: https://vynk.onrender.com
-    disk:
-      name: sqlite-data
-      mountPath: /var/data
-      sizeGB: 1
