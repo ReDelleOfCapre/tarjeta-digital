@@ -2,157 +2,317 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Admin — My ID</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - VYNK</title>
   <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    :root {
+      --primary: #7C3AED;
+      --secondary: #FF6B6B;
+      --bg-dark: #0F0B1E;
+      --text-light: #F3F4F6;
+      --card-bg: rgba(255, 255, 255, 0.05);
+    }
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-light);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background: rgba(15, 11, 30, 0.9);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .brand {
+      font-size: 1.5rem;
+      font-weight: 800;
+      background: linear-gradient(to right, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+    
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 1.5rem;
+      text-align: center;
+    }
+    .stat-value {
+      font-size: 2rem;
+      font-weight: bold;
+      color: var(--primary);
+    }
+    .stat-label {
+      color: #9CA3AF;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Sections */
+    .section-title {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      border-bottom: 2px solid var(--primary);
+      display: inline-block;
+      padding-bottom: 0.5rem;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      overflow-x: auto;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    th {
+      color: #9CA3AF;
+      font-weight: 600;
+    }
+    .btn-sm {
+      padding: 0.4rem 0.8rem;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.8rem;
+      margin-right: 0.5rem;
+    }
+    .btn-approve { background: #10B981; color: white; }
+    .btn-reject { background: #EF4444; color: white; }
+    .btn-view { background: #3B82F6; color: white; }
+    .btn-toggle { background: var(--primary); color: white; }
+
+    .badge {
+      padding: 0.2rem 0.6rem;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      background: rgba(255,255,255,0.1);
+    }
+    .badge.paid { background: rgba(16, 185, 129, 0.2); color: #10B981; }
+    .badge.free { background: rgba(156, 163, 175, 0.2); color: #9CA3AF; }
+    
+  </style>
 </head>
 <body>
   <nav class="navbar">
-    <div style="display:flex;align-items:center;gap:8px">
-      <a href="/dashboard.html" class="btn btn-icon btn-sm">←</a>
-      <span class="logo">Panel Admin</span>
+    <div class="brand">VYNK Admin</div>
+    <div>
+      <a href="/dashboard.html" style="color:white; text-decoration:none; margin-right: 15px;">Ir a mi panel</a>
+      <button onclick="Auth.logout()" class="btn-sm" style="background:rgba(255,255,255,0.1); color:white">Salir</button>
     </div>
-    <span id="admin-name" style="font-size:var(--font-sm);color:var(--text-tertiary)"></span>
   </nav>
 
   <div class="container">
-    <!-- Stats -->
-    <div class="stats-bar" style="grid-template-columns:repeat(3,1fr);margin:16px 0">
-      <div class="stat-card card">
-        <div class="stat-value" id="stat-usuarios">-</div>
-        <div class="stat-label">Usuarios</div>
+    <!-- Stats Overview -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value" id="stat-users">0</div>
+        <div class="stat-label">Total Usuarios</div>
       </div>
-      <div class="stat-card card">
-        <div class="stat-value" id="stat-tarjetas">-</div>
-        <div class="stat-label">Tarjetas</div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-pro">0</div>
+        <div class="stat-label">Usuarios Pro</div>
       </div>
-      <div class="stat-card card">
-        <div class="stat-value" id="stat-visitas">-</div>
-        <div class="stat-label">Visitas</div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-revenue">$0</div>
+        <div class="stat-label">Ingresos Mensuales</div>
       </div>
-    </div>
-
-    <!-- Plans breakdown -->
-    <div class="card p-16 mb-16">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:var(--font-sm);color:var(--text-tertiary)">Free</span>
-        <span class="font-bold" id="stat-free">0</span>
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
-        <span style="font-size:var(--font-sm);color:var(--accent)">Pro</span>
-        <span class="font-bold" id="stat-paid">0</span>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-pending">0</div>
+        <div class="stat-label">Pagos Pendientes</div>
       </div>
     </div>
 
-    <!-- Search -->
-    <input type="search" class="form-input" id="search-usuarios" placeholder="Buscar usuario por nombre o teléfono..." style="margin-bottom:16px">
+    <!-- Pending Payments Queue -->
+    <h2 class="section-title">Cola de Pagos Pendientes</h2>
+    <div class="card">
+      <table id="payments-table">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Usuario</th>
+            <th>Teléfono</th>
+            <th>Plan</th>
+            <th>Monto</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td colspan="6">Cargando pagos...</td></tr>
+        </tbody>
+      </table>
+    </div>
 
-    <!-- User list -->
-    <div id="users-list"></div>
-
-    <!-- Pagination -->
-    <div style="display:flex;justify-content:center;gap:8px;padding:16px 0" id="pagination"></div>
+    <!-- User Management -->
+    <h2 class="section-title">Gestión de Usuarios</h2>
+    <div class="card">
+      <table id="users-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Teléfono</th>
+            <th>Plan</th>
+            <th>Perfiles</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td colspan="6">Cargando usuarios...</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
-
-  <div class="toast-container" id="toast-container"></div>
 
   <script src="/js/app.js"></script>
   <script>
-    (function(){
-      var user = getUser();
-      if (!user || user.role !== 'admin') {
-        location.href = '/dashboard.html';
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!Auth.getToken()) {
+        window.location.href = '/login.html';
         return;
       }
-      document.getElementById('admin-name').textContent = user.nombre;
 
-      var currentPage = 1;
-      var searchTimeout;
-
-      loadStats();
-      loadUsers(1);
-
-      document.getElementById('search-usuarios').addEventListener('input', function() {
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(function() { loadUsers(1); }, 300);
-      });
-
-      function loadStats() {
-        apiFetch('/api/admin/stats').then(function(data) {
-          document.getElementById('stat-usuarios').textContent = data.usuarios.total;
-          document.getElementById('stat-tarjetas').textContent = data.perfiles;
-          document.getElementById('stat-visitas').textContent = data.visitas;
-          document.getElementById('stat-free').textContent = data.usuarios.free;
-          document.getElementById('stat-paid').textContent = data.usuarios.paid;
-        }).catch(function(err) { showToast(err.message, 'error'); });
+      // Check admin role
+      const user = Auth.getUser();
+      if (!user || user.role !== 'admin') {
+        alert('Acceso denegado. No eres administrador.');
+        window.location.href = '/dashboard.html';
+        return;
       }
 
-      function loadUsers(page) {
-        currentPage = page;
-        var q = document.getElementById('search-usuarios').value;
-        var url = '/api/admin/usuarios?page=' + page;
-        if (q) url += '&q=' + encodeURIComponent(q);
+      await loadDashboardData();
+    });
 
-        apiFetch(url).then(function(data) {
-          var list = document.getElementById('users-list');
-          if (data.usuarios.length === 0) {
-            list.innerHTML = '<div class="empty-state"><p class="text-muted">No se encontraron usuarios</p></div>';
-            document.getElementById('pagination').innerHTML = '';
-            return;
-          }
+    async function loadDashboardData() {
+      try {
+        // Load stats
+        const statsRes = await API.get('/api/admin/stats');
+        if (statsRes.usuarios) {
+          document.getElementById('stat-users').textContent = statsRes.usuarios.total;
+          document.getElementById('stat-pro').textContent = statsRes.usuarios.paid;
+          // Placeholder para revenue, se podría calcular real desde la bd
+          document.getElementById('stat-revenue').textContent = '$' + (statsRes.usuarios.paid * 149);
+        }
 
-          list.innerHTML = '<div class="ios-group">' + data.usuarios.map(function(u) {
-            var planBadge = u.plan === 'paid'
-              ? '<span style="background:var(--accent);color:#fff;font-size:var(--font-xs);padding:2px 8px;border-radius:50px">Pro</span>'
-              : '<span style="background:var(--bg-tertiary);font-size:var(--font-xs);padding:2px 8px;border-radius:50px;color:var(--text-tertiary)">Free</span>';
-            var roleBadge = u.role === 'admin' ? ' <span style="color:var(--orange);font-size:var(--font-xs)">👑</span>' : '';
-            var initials = u.nombre.split(' ').map(function(w){return w[0]}).slice(0,2).join('').toUpperCase();
+        // Load pending payments
+        const paymentsRes = await API.get('/api/admin/pagos');
+        const tbodyPayments = document.querySelector('#payments-table tbody');
+        if (paymentsRes.pagos) {
+          document.getElementById('stat-pending').textContent = paymentsRes.pagos.length;
+          tbodyPayments.innerHTML = paymentsRes.pagos.length === 0 
+            ? '<tr><td colspan="6">No hay pagos pendientes</td></tr>' 
+            : paymentsRes.pagos.map(p => `
+              <tr>
+                <td>${new Date(p.fecha_solicitud).toLocaleDateString()}</td>
+                <td>${p.usuario_nombre}</td>
+                <td>${p.usuario_telefono}</td>
+                <td>${p.plan.toUpperCase()}</td>
+                <td>$${p.monto}</td>
+                <td>
+                  <button class="btn-sm btn-view" onclick="window.open('${p.comprobante_url}', '_blank')">Ver Recibo</button>
+                  <button class="btn-sm btn-approve" onclick="approvePayment(${p.id}, '${p.plan}')">Aprobar</button>
+                  <button class="btn-sm btn-reject" onclick="rejectPayment(${p.id})">Rechazar</button>
+                </td>
+              </tr>
+            `).join('');
+        }
 
-            return '<div class="ios-group-item" style="cursor:default">' +
-              '<div class="avatar avatar-sm" style="background:var(--accent)">' + initials + '</div>' +
-              '<div class="item-content">' +
-                '<div class="item-title">' + escapeHtml(u.nombre) + roleBadge + '</div>' +
-                '<div class="item-subtitle">' + escapeHtml(u.telefono) + ' · ' + u.total_perfiles + ' tarjetas · ' + u.total_visitas + ' visitas</div>' +
-              '</div>' +
-              planBadge +
-              '<button class="btn btn-sm" style="font-size:var(--font-xs);padding:4px 10px" onclick="togglePlan(' + u.id + ',\'' + (u.plan === 'paid' ? 'free' : 'paid') + '\')">' +
-                (u.plan === 'paid' ? 'Quitar Pro' : 'Dar Pro') +
-              '</button>' +
-            '</div>';
-          }).join('') + '</div>';
+        // Load users
+        const usersRes = await API.get('/api/admin/usuarios');
+        const tbodyUsers = document.querySelector('#users-table tbody');
+        if (usersRes.usuarios) {
+          tbodyUsers.innerHTML = usersRes.usuarios.map(u => `
+            <tr>
+              <td>${u.id}</td>
+              <td>${u.nombre}</td>
+              <td>${u.telefono}</td>
+              <td><span class="badge ${u.plan}">${u.plan.toUpperCase()}</span></td>
+              <td>${u.total_perfiles}</td>
+              <td>
+                <button class="btn-sm btn-toggle" onclick="togglePlan(${u.id}, '${u.plan === 'paid' ? 'free' : 'paid'}')">
+                  Hacer ${u.plan === 'paid' ? 'Free' : 'Pro'}
+                </button>
+              </td>
+            </tr>
+          `).join('');
+        }
 
-          // Pagination
-          var pag = document.getElementById('pagination');
-          if (data.pages <= 1) { pag.innerHTML = ''; return; }
-          var html = '';
-          for (var i = 1; i <= data.pages; i++) {
-            html += '<button class="btn btn-sm ' + (i === page ? 'btn-primary' : 'btn-secondary') + '" onclick="loadUsersPage(' + i + ')">' + i + '</button>';
-          }
-          pag.innerHTML = html;
-        }).catch(function(err) { showToast(err.message, 'error'); });
+      } catch (err) {
+        console.error('Error al cargar dashboard', err);
       }
+    }
 
-      function escapeHtml(t) {
-        var d = document.createElement('div');
-        d.textContent = t;
-        return d.innerHTML;
-      }
+    async function approvePayment(id, planStr) {
+      if (!confirm('¿Seguro que deseas aprobar este pago?')) return;
+      const dias = planStr === 'anual' ? 365 : 30;
+      
+      try {
+        const res = await API.put(`/api/admin/pagos/${id}/aprobar`, { duracion_dias: dias });
+        if (res.ok) {
+          alert('Pago aprobado y cuenta actualizada a Pro');
+          loadDashboardData();
+        } else {
+          alert('Error: ' + res.error);
+        }
+      } catch (e) { alert('Error de conexión'); }
+    }
 
-      // Expose globally
-      window.togglePlan = function(userId, newPlan) {
-        apiFetch('/api/admin/usuarios/' + userId + '/plan', {
-          method: 'POST',
-          headers: {'Content-Type':'application/json'},
-          body: JSON.stringify({plan: newPlan})
-        }).then(function(data) {
-          showToast(data.usuario.nombre + ' ahora es ' + (newPlan === 'paid' ? 'Pro' : 'Free'), 'success');
-          loadUsers(currentPage);
-          loadStats();
-        }).catch(function(err) { showToast(err.message, 'error'); });
-      };
+    async function rejectPayment(id) {
+      const motivo = prompt('Motivo del rechazo (opcional):');
+      if (motivo === null) return;
+      
+      try {
+        const res = await API.put(`/api/admin/pagos/${id}/rechazar`, { motivo });
+        if (res.ok) {
+          alert('Pago rechazado');
+          loadDashboardData();
+        } else {
+          alert('Error: ' + res.error);
+        }
+      } catch (e) { alert('Error de conexión'); }
+    }
 
-      window.loadUsersPage = function(page) { loadUsers(page); };
-    })();
+    async function togglePlan(userId, newPlan) {
+      if (!confirm(`¿Cambiar el plan del usuario a ${newPlan.toUpperCase()}?`)) return;
+      
+      try {
+        const res = await API.put(`/api/admin/usuarios/${userId}/plan`, { plan: newPlan });
+        if (res.ok) {
+          loadDashboardData();
+        } else {
+          alert('Error: ' + res.error);
+        }
+      } catch (e) { alert('Error de conexión'); }
+    }
   </script>
 </body>
 </html>

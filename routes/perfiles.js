@@ -50,20 +50,21 @@ router.post('/', auth, checkPlanLimit('perfil'), (req, res) => {
       return res.status(400).json({ error: err.message });
     }
 
-    const { nombre_perfil, tipo, color, bio, cumpleanos, lugar_estudio, pronombres } = req.body;
+    const { nombre_perfil, tipo, color, bio, cumpleanos, lugar_estudio, pronombres, tema, foto_base64 } = req.body;
 
     if (!nombre_perfil || !nombre_perfil.trim()) {
       return res.status(400).json({ error: 'El nombre del perfil es obligatorio.' });
     }
 
     const slug = generateUniqueSlug(nombre_perfil);
-    const foto_url = req.file ? `/uploads/${req.file.filename}` : null;
+    const foto_url = foto_base64 ? foto_base64 : (req.file ? `/uploads/${req.file.filename}` : null);
     const perfilColor = color || '#007AFF';
+    const perfilTema = tema || 'ios';
 
     const result = db.prepare(
-      `INSERT INTO perfiles (usuario_id, slug, nombre_perfil, tipo, foto_url, color, bio, cumpleanos, lugar_estudio, pronombres)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-    ).run(req.user.id, slug, nombre_perfil.trim(), tipo || null, foto_url, perfilColor,
+      `INSERT INTO perfiles (usuario_id, slug, nombre_perfil, tipo, foto_url, color, tema, bio, cumpleanos, lugar_estudio, pronombres)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    ).run(req.user.id, slug, nombre_perfil.trim(), tipo || null, foto_url, perfilColor, perfilTema,
           bio || null, cumpleanos || null, lugar_estudio || null, pronombres || null);
 
     const perfil = db.prepare('SELECT * FROM perfiles WHERE id = ?').get(result.lastInsertRowid);
@@ -93,12 +94,14 @@ router.put('/:id', auth, (req, res) => {
       return res.status(403).json({ error: 'No tienes permiso para editar este perfil.' });
     }
 
-    const { nombre_perfil, tipo, color, bio, cumpleanos, lugar_estudio, pronombres } = req.body;
+    const { nombre_perfil, tipo, color, bio, cumpleanos, lugar_estudio, pronombres, tema, foto_base64 } = req.body;
     let foto_url = perfil.foto_url;
 
-    // Si se sube una nueva foto, eliminar la anterior
-    if (req.file) {
-      if (perfil.foto_url) {
+    // Si se sube una nueva foto, actualizar
+    if (foto_base64) {
+      foto_url = foto_base64;
+    } else if (req.file) {
+      if (perfil.foto_url && perfil.foto_url.startsWith('/uploads/')) {
         const oldPath = path.join(process.cwd(), perfil.foto_url);
         try {
           if (fs.existsSync(oldPath)) {
@@ -110,12 +113,15 @@ router.put('/:id', auth, (req, res) => {
       }
       foto_url = `/uploads/${req.file.filename}`;
     }
+    
+    const perfilTema = tema || perfil.tema;
 
     db.prepare(
       `UPDATE perfiles
        SET nombre_perfil = COALESCE(?, nombre_perfil),
            tipo = COALESCE(?, tipo),
            color = COALESCE(?, color),
+           tema = ?,
            foto_url = ?,
            bio = ?,
            cumpleanos = ?,
@@ -126,6 +132,7 @@ router.put('/:id', auth, (req, res) => {
       nombre_perfil || null,
       tipo || null,
       color || null,
+      perfilTema,
       foto_url,
       bio !== undefined ? (bio || null) : perfil.bio,
       cumpleanos !== undefined ? (cumpleanos || null) : perfil.cumpleanos,
@@ -264,14 +271,17 @@ function perfilPublicoHandler(req, res) {
   const themeCss = `
     :root {
       --primary: ${color};
+      --accent: ${color};
     }
   `;
 
   // --- Avatar HTML ---
   let avatar_html;
+  let fotoSrc = '';
   if (perfil.foto_url) {
+    fotoSrc = perfil.foto_url.startsWith('data:image') ? perfil.foto_url : `${BASE_URL}${perfil.foto_url}`;
     avatar_html = `<div class="avatar" style="width:110px;height:110px;border:3px solid ${color}">
-      <img src="${BASE_URL}${perfil.foto_url}" alt="${escapeHtml(perfil.nombre_perfil)}">
+      <img src="${fotoSrc}" alt="${escapeHtml(perfil.nombre_perfil)}">
     </div>`;
   } else {
     const initials = perfil.nombre_perfil
@@ -474,9 +484,7 @@ function perfilPublicoHandler(req, res) {
   const action_buttons_html = generateActionButtons(perfil, campos);
 
   // --- OG image ---
-  const og_image = perfil.foto_url
-    ? `${BASE_URL}${perfil.foto_url}`
-    : `${BASE_URL}/img/og-default.png`;
+  const og_image = fotoSrc || `${BASE_URL}/img/og-default.png`;
 
   // --- Read template ---
   let html;
@@ -503,6 +511,7 @@ function perfilPublicoHandler(req, res) {
     .replace(/\{\{base_url\}\}/g, BASE_URL)
     .replace(/\{\{visitas\}\}/g, String(perfil.visitas + 1))
     .replace(/\{\{avatar_html\}\}/g, avatar_html)
+    .replace(/\{\{foto_url\}\}/g, fotoSrc)
     .replace(/\{\{bio_html\}\}/g, bio_html)
     .replace(/\{\{tags_html\}\}/g, tags_html)
     .replace(/\{\{bloques_html\}\}/g, bloques_html)
@@ -532,16 +541,16 @@ function escapeHtml(str) {
 
 function getFieldIcon(tipo) {
   const icons = {
-    whatsapp: '💬', telefono: '📞', email: '✉️', direccion: '📍',
-    facebook: 'f', instagram: '📷', tiktok: '♪', linkedin: 'in',
-    twitter: '𝕏', youtube: '▶', threads: '@', telegram: '✈',
-    snapchat: '👻', discord: '🎮', twitch: '🎬', kick: 'K',
-    spotify: '🎵', apple_music: '♫', steam: '🎮', xbox: '🎯', psn: '🎯',
-    amazon_wishlist: '🛒', pinterest: '📌', reddit: '🔴', bereal: '👁',
-    web: '🌐', github: '⌨', behance: 'Bē', dribbble: '🏀', portafolio: '💼',
-    otro: '•'
+    whatsapp: '<i class="fab fa-whatsapp"></i>', telefono: '<i class="fas fa-phone"></i>', email: '<i class="fas fa-envelope"></i>', direccion: '<i class="fas fa-map-marker-alt"></i>',
+    facebook: '<i class="fab fa-facebook-f"></i>', instagram: '<i class="fab fa-instagram"></i>', tiktok: '<i class="fab fa-tiktok"></i>', linkedin: '<i class="fab fa-linkedin-in"></i>',
+    twitter: '<i class="fab fa-x-twitter"></i>', youtube: '<i class="fab fa-youtube"></i>', threads: '<i class="fab fa-threads"></i>', telegram: '<i class="fab fa-telegram-plane"></i>',
+    snapchat: '<i class="fab fa-snapchat-ghost"></i>', discord: '<i class="fab fa-discord"></i>', twitch: '<i class="fab fa-twitch"></i>', kick: '<i class="fas fa-play"></i>',
+    spotify: '<i class="fab fa-spotify"></i>', apple_music: '<i class="fab fa-apple"></i>', steam: '<i class="fab fa-steam"></i>', xbox: '<i class="fab fa-xbox"></i>', psn: '<i class="fab fa-playstation"></i>',
+    amazon_wishlist: '<i class="fab fa-amazon"></i>', pinterest: '<i class="fab fa-pinterest-p"></i>', reddit: '<i class="fab fa-reddit-alien"></i>', bereal: '<i class="fas fa-camera-retro"></i>',
+    web: '<i class="fas fa-globe"></i>', github: '<i class="fab fa-github"></i>', behance: '<i class="fab fa-behance"></i>', dribbble: '<i class="fab fa-dribbble"></i>', portafolio: '<i class="fas fa-briefcase"></i>',
+    otro: '<i class="fas fa-link"></i>'
   };
-  return icons[tipo] || '•';
+  return icons[tipo] || '<i class="fas fa-link"></i>';
 }
 
 function getFieldColor(tipo) {

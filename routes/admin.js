@@ -1,5 +1,5 @@
 // ============================================
-// My ID — Admin Routes (Full Dashboard API)
+// VYNK — Admin Routes (Full Dashboard API)
 // ============================================
 const express = require('express');
 const router = express.Router();
@@ -87,8 +87,8 @@ router.get('/usuarios', async (req, res) => {
   }
 });
 
-// POST /api/admin/usuarios/:id/plan — Toggle user plan
-router.post('/usuarios/:id/plan', [
+// PUT /api/admin/usuarios/:id/plan — Toggle user plan
+router.put('/usuarios/:id/plan', [
   body('plan').isIn(['free', 'paid']).withMessage('Plan debe ser free o paid')
 ], async (req, res) => {
   try {
@@ -135,6 +135,82 @@ router.get('/usuarios/:id/perfiles', async (req, res) => {
   } catch (err) {
     console.error('Error listando perfiles:', err);
     res.status(500).json({ error: 'Error al listar perfiles' });
+  }
+});
+
+// GET /api/admin/pagos — List all pending payments
+router.get('/pagos', async (req, res) => {
+  try {
+    const db = await dbReady;
+    const pagos = db.prepare(`
+      SELECT p.*, u.nombre as usuario_nombre, u.telefono as usuario_telefono
+      FROM pagos p
+      JOIN usuarios u ON p.usuario_id = u.id
+      WHERE p.estado = 'pendiente'
+      ORDER BY p.fecha_solicitud DESC
+    `).all();
+
+    res.json({ pagos });
+  } catch (err) {
+    console.error('Error listando pagos:', err);
+    res.status(500).json({ error: 'Error al listar pagos' });
+  }
+});
+
+// PUT /api/admin/pagos/:id/aprobar — Approve payment
+router.put('/pagos/:id/aprobar', async (req, res) => {
+  try {
+    const db = await dbReady;
+    const pagoId = parseInt(req.params.id);
+    const { duracion_dias } = req.body;
+    
+    const dias = duracion_dias || 30; // default 30 days
+
+    const pago = db.prepare('SELECT * FROM pagos WHERE id = ?').get(pagoId);
+    if (!pago) return res.status(404).json({ error: 'Pago no encontrado' });
+    if (pago.estado !== 'pendiente') return res.status(400).json({ error: 'El pago ya fue procesado' });
+
+    // Update payment
+    db.prepare(`
+      UPDATE pagos SET estado = 'aprobado', aprobado_por = ?, fecha_resolucion = datetime('now')
+      WHERE id = ?
+    `).run(req.user.id, pagoId);
+
+    // Update user plan and expiration
+    db.prepare(`
+      UPDATE usuarios SET plan = 'paid', plan_expira = datetime('now', '+' || ? || ' days')
+      WHERE id = ?
+    `).run(dias, pago.usuario_id);
+
+    const updatedPago = db.prepare('SELECT * FROM pagos WHERE id = ?').get(pagoId);
+    res.json({ ok: true, pago: updatedPago });
+  } catch (err) {
+    console.error('Error aprobando pago:', err);
+    res.status(500).json({ error: 'Error interno' });
+  }
+});
+
+// PUT /api/admin/pagos/:id/rechazar — Reject payment
+router.put('/pagos/:id/rechazar', async (req, res) => {
+  try {
+    const db = await dbReady;
+    const pagoId = parseInt(req.params.id);
+    const { motivo } = req.body;
+
+    const pago = db.prepare('SELECT * FROM pagos WHERE id = ?').get(pagoId);
+    if (!pago) return res.status(404).json({ error: 'Pago no encontrado' });
+    if (pago.estado !== 'pendiente') return res.status(400).json({ error: 'El pago ya fue procesado' });
+
+    db.prepare(`
+      UPDATE pagos SET estado = 'rechazado', motivo_rechazo = ?, aprobado_por = ?, fecha_resolucion = datetime('now')
+      WHERE id = ?
+    `).run(motivo || '', req.user.id, pagoId);
+
+    const updatedPago = db.prepare('SELECT * FROM pagos WHERE id = ?').get(pagoId);
+    res.json({ ok: true, pago: updatedPago });
+  } catch (err) {
+    console.error('Error rechazando pago:', err);
+    res.status(500).json({ error: 'Error interno' });
   }
 });
 

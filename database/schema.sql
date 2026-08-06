@@ -10,7 +10,9 @@ CREATE TABLE IF NOT EXISTS usuarios (
   telefono TEXT UNIQUE NOT NULL,
   nombre TEXT NOT NULL,
   password_hash TEXT NOT NULL,
+  email TEXT,
   plan TEXT DEFAULT 'free' CHECK(plan IN ('free','paid')),
+  plan_expira TEXT,
   role TEXT DEFAULT 'user' CHECK(role IN ('user','admin')),
   fecha_registro TEXT DEFAULT (datetime('now'))
 );
@@ -118,3 +120,18 @@ CREATE INDEX IF NOT EXISTS idx_estadisticas_fecha ON estadisticas(fecha);
 CREATE INDEX IF NOT EXISTS idx_usuarios_telefono ON usuarios(telefono);
 CREATE INDEX IF NOT EXISTS idx_revendedor_codigo ON tarjetas_revendedor(codigo_activacion);
 
+-- Pagos y suscripciones
+CREATE TABLE IF NOT EXISTS pagos (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  usuario_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+  plan TEXT NOT NULL CHECK(plan IN ('mensual','anual')),
+  monto REAL NOT NULL,
+  comprobante_url TEXT,
+  estado TEXT DEFAULT 'pendiente' CHECK(estado IN ('pendiente','aprobado','rechazado')),
+  motivo_rechazo TEXT,
+  aprobado_por INTEGER REFERENCES usuarios(id),
+  fecha_solicitud TEXT DEFAULT (datetime('now')),
+  fecha_resolucion TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_pagos_usuario ON pagos(usuario_id);
+CREATE INDEX IF NOT EXISTS idx_pagos_estado ON pagos(estado);

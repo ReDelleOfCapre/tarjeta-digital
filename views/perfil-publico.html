@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>{{nombre_perfil}} — My ID</title>
+  <title>{{nombre_perfil}} — VYNK</title>
   <meta name="description" content="{{bio_text}}">
   <meta property="og:title" content="{{nombre_perfil}}">
   <meta property="og:description" content="{{bio_text}}">
@@ -13,6 +13,7 @@
   <meta name="twitter:card" content="summary">
   <meta name="theme-color" content="{{color}}" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#1C1C1E" media="(prefers-color-scheme: dark)">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -37,7 +38,7 @@
     [data-theme='neon'] {
       --bg: #0a0a0f; --bg-card: rgba(20,20,35,0.8);
       --text: #fff; --text2: #a0a0b0; --text3: #666;
-      --accent: #00f0ff; --sep: rgba(0,240,255,0.15);
+      --accent: var(--primary); --sep: rgba(0,240,255,0.15);
     }
     [data-theme='neon'] .block-link,
     [data-theme='neon'] .block-email-form,
@@ -51,7 +52,7 @@
     [data-theme='minimal'] {
       --bg: #fafafa; --bg-card: #fff;
       --text: #111; --text2: #666; --text3: #999;
-      --accent: #111; --sep: #eee;
+      --accent: var(--primary); --sep: #eee;
     }
     [data-theme='minimal'] body { font-family: 'Georgia', 'Times New Roman', serif; }
     [data-theme='minimal'] .block-link { border: 1px solid #ddd; border-radius: 2px; }
@@ -60,7 +61,7 @@
     [data-theme='gradient'] {
       --bg: #667eea; --bg-card: rgba(255,255,255,0.15);
       --text: #fff; --text2: rgba(255,255,255,0.8); --text3: rgba(255,255,255,0.5);
-      --accent: #fff; --sep: rgba(255,255,255,0.2);
+      --accent: var(--primary); --sep: rgba(255,255,255,0.2);
     }
     [data-theme='gradient'] body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important; min-height: 100vh; }
     [data-theme='gradient'] .block-link,
@@ -70,7 +71,7 @@
     [data-theme='glass'] {
       --bg: #0f0c29; --bg-card: rgba(255,255,255,0.06);
       --text: #fff; --text2: rgba(255,255,255,0.7); --text3: rgba(255,255,255,0.4);
-      --accent: #e94560; --sep: rgba(255,255,255,0.08);
+      --accent: var(--primary); --sep: rgba(255,255,255,0.08);
     }
     [data-theme='glass'] body { background: linear-gradient(180deg, #0f0c29, #302b63, #24243e) !important; }
     [data-theme='glass'] .block-link,
@@ -79,7 +80,7 @@
     [data-theme='retro'] {
       --bg: #1a1a2e; --bg-card: #16213e;
       --text: #00ff41; --text2: #00cc33; --text3: #009926;
-      --accent: #ff6600; --sep: #0f3460;
+      --accent: var(--primary); --sep: #0f3460;
     }
     [data-theme='retro'] body { font-family: 'Courier New', monospace; }
     [data-theme='retro'] .block-link { border: 2px solid #00ff41; border-radius: 0; text-transform: uppercase; letter-spacing: 1px; }
@@ -272,7 +273,7 @@
     <a href="/api/perfiles/{{slug}}/vcard" class="save-btn">📥 Guardar contacto</a>
   </footer>
 
-  <p class="brand">Creado con <a href="{{base_url}}">My ID</a></p>
+  <p class="brand">Creado con <a href="{{base_url}}">VYNK</a></p>
 
   <!-- Countdown JS -->
   <script>

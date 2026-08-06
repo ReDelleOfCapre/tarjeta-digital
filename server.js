@@ -63,6 +63,9 @@ app.use('/api/admin', adminRoutes);
 app.use('/api', bloquesRoutes);
 app.use('/api', suscriptoresRoutes);
 
+const pagosRoutes = require('./routes/pagos');
+app.use('/api/pagos', pagosRoutes);
+
 // =============================================
 // Ruta pública de perfiles
 // =============================================
@@ -115,7 +118,7 @@ async function start() {
     app.listen(PORT, () => {
       console.log('');
       console.log('╔════════════════════════════════════════════╗');
-      console.log('║           🪪 My ID — Backend               ║');
+      console.log('║          ⚡ VYNK — Backend                  ║');
       console.log('╠════════════════════════════════════════════╣');
       console.log(`║  🌐 Servidor: http://localhost:${PORT}        ║`);
       console.log(`║  📁 Uploads:  ${path.resolve(UPLOAD_DIR)}`);

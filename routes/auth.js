@@ -1,5 +1,5 @@
 // ============================================
-// My ID — Auth Routes
+// VYNK — Auth Routes
 // ============================================
 const express = require('express');
 const router = express.Router();
@@ -9,7 +9,7 @@ const { body, validationResult } = require('express-validator');
 const { dbReady } = require('../database/db');
 const rateLimit = require('../middleware/rateLimit');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'myid-default-secret';
+const JWT_SECRET = process.env.JWT_SECRET || 'vynk-default-secret';
 const OWNER_PHONE = (process.env.OWNER_PHONE || '').replace(/[^0-9]/g, '');
 
 function normalizePhone(phone) {
@@ -33,7 +33,8 @@ function signToken(user) {
 router.post('/registro', [
   body('telefono').notEmpty().isLength({ min: 7, max: 15 }).withMessage('Teléfono inválido'),
   body('nombre').notEmpty().trim().isLength({ min: 2, max: 50 }).withMessage('Nombre requerido (2-50 caracteres)'),
-  body('password').isLength({ min: 6 }).withMessage('La contraseña debe tener al menos 6 caracteres')
+  body('password').isLength({ min: 6 }).withMessage('La contraseña debe tener al menos 6 caracteres'),
+  body('email').optional().isEmail().withMessage('Email inválido')
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -42,7 +43,7 @@ router.post('/registro', [
     }
 
     const db = await dbReady;
-    const { telefono, nombre, password } = req.body;
+    const { telefono, nombre, password, email, legal_aceptado } = req.body;
     const telefonoNorm = normalizePhone(telefono);
 
     // Check if already registered
@@ -59,8 +60,8 @@ router.post('/registro', [
     const role = ownerDetected ? 'admin' : 'user';
 
     const result = db.prepare(
-      'INSERT INTO usuarios (telefono, nombre, password_hash, plan, role) VALUES (?, ?, ?, ?, ?)'
-    ).run(telefonoNorm, nombre.trim(), password_hash, plan, role);
+      'INSERT INTO usuarios (telefono, nombre, password_hash, plan, role, email) VALUES (?, ?, ?, ?, ?, ?)'
+    ).run(telefonoNorm, nombre.trim(), password_hash, plan, role, email || null);
 
     const user = { id: result.lastInsertRowid, telefono: telefonoNorm, nombre: nombre.trim(), plan, role };
     const token = signToken(user);

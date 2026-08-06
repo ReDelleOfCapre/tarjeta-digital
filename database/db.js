@@ -74,6 +74,16 @@ class DatabaseWrapper {
       console.log('✅ Migración: columna role agregada a usuarios');
     }
 
+    // Add plan_expira and email columns to usuarios if missing
+    try {
+      this.db.exec("SELECT plan_expira, email FROM usuarios LIMIT 1");
+    } catch (e) {
+      try { this.db.exec("ALTER TABLE usuarios ADD COLUMN plan_expira TEXT DEFAULT NULL"); } catch(err) {}
+      try { this.db.exec("ALTER TABLE usuarios ADD COLUMN email TEXT DEFAULT NULL"); } catch(err) {}
+      console.log('✅ Migración: columnas plan_expira y email agregadas a usuarios');
+    }
+
+
     // Add bio, cumpleanos, lugar_estudio, pronombres to perfiles if missing
     const newCols = ['bio', 'cumpleanos', 'lugar_estudio', 'pronombres'];
     for (const col of newCols) {
@@ -161,6 +171,29 @@ class DatabaseWrapper {
         )
       `);
       console.log('✅ Migración: tabla temas creada');
+    }
+
+    // Create pagos table
+    try {
+      this.db.exec("SELECT id FROM pagos LIMIT 1");
+    } catch (e) {
+      this.db.exec(`
+        CREATE TABLE IF NOT EXISTS pagos (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          usuario_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+          plan TEXT NOT NULL CHECK(plan IN ('mensual','anual')),
+          monto REAL NOT NULL,
+          comprobante_url TEXT,
+          estado TEXT DEFAULT 'pendiente' CHECK(estado IN ('pendiente','aprobado','rechazado')),
+          motivo_rechazo TEXT,
+          aprobado_por INTEGER REFERENCES usuarios(id),
+          fecha_solicitud TEXT DEFAULT (datetime('now')),
+          fecha_resolucion TEXT
+        )
+      `);
+      this.db.exec("CREATE INDEX IF NOT EXISTS idx_pagos_usuario ON pagos(usuario_id)");
+      this.db.exec("CREATE INDEX IF NOT EXISTS idx_pagos_estado ON pagos(estado)");
+      console.log('✅ Migración: tabla pagos creada');
     }
 
     // Add tema_id to perfiles

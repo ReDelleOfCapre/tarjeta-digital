@@ -2,173 +2,404 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Planes — My ID</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Planes - VYNK</title>
   <link rel="stylesheet" href="/css/styles.css">
   <style>
-    .plan-card { padding: 24px; margin-bottom: 16px; position: relative; }
-    .plan-card.featured { border: 2px solid var(--accent); }
-    .popular-badge {
-      position: absolute; top: -10px; right: 16px;
-      background: var(--accent); color: #fff;
-      font-size: var(--font-xs); font-weight: 700;
-      padding: 4px 12px; border-radius: 50px;
+    :root {
+      --primary: #7C3AED;
+      --secondary: #FF6B6B;
+      --bg-dark: #0F0B1E;
+      --text-light: #F3F4F6;
+      --card-bg: rgba(255, 255, 255, 0.05);
     }
-    .plan-name { font-size: var(--font-lg); font-weight: 700; }
-    .plan-price { font-size: var(--font-2xl); font-weight: 700; color: var(--accent); margin: 8px 0; }
-    .plan-price .period { font-size: var(--font-sm); font-weight: 400; color: var(--text-tertiary); }
-    .plan-price .original { text-decoration: line-through; color: var(--text-muted); font-size: var(--font-base); margin-right: 4px; }
-    .plan-features { margin: 16px 0; }
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-light);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background: rgba(15, 11, 30, 0.9);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .navbar a {
+      color: var(--text-light);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .brand {
+      font-size: 1.5rem;
+      font-weight: 800;
+      background: linear-gradient(to right, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero {
+      text-align: center;
+      padding: 4rem 1rem 2rem;
+    }
+    .hero h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+    .hero p {
+      color: #9CA3AF;
+      font-size: 1.1rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .plans-container {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      padding: 2rem;
+      max-width: 1000px;
+      margin: 0 auto;
+      flex-wrap: wrap;
+    }
+    .plan-card {
+      background: var(--card-bg);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 2rem;
+      width: 100%;
+      max-width: 350px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .plan-card.pro {
+      border-color: var(--primary);
+      box-shadow: 0 0 30px rgba(124, 58, 237, 0.2);
+    }
+    .pro-badge {
+      position: absolute;
+      top: -12px;
+      right: 20px;
+      background: linear-gradient(to right, var(--primary), var(--secondary));
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: bold;
+    }
+    .plan-name {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+    .plan-price {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 1.5rem;
+    }
+    .plan-price span {
+      font-size: 1rem;
+      color: #9CA3AF;
+      font-weight: normal;
+    }
+    .plan-features {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 2rem 0;
+      flex-grow: 1;
+    }
     .plan-features li {
-      display: flex; align-items: center; gap: 8px;
-      padding: 6px 0; font-size: var(--font-sm); color: var(--text-secondary);
+      padding: 0.5rem 0;
+      display: flex;
+      align-items: center;
+      color: #D1D5DB;
     }
-    .plan-features li::before { content: '✓'; color: var(--green); font-weight: 700; }
-    .plan-features li.no::before { content: '—'; color: var(--text-muted); }
-    .plan-features li.no { color: var(--text-muted); }
-    .billing-toggle {
-      display: flex; background: var(--bg-tertiary); border-radius: var(--radius-md);
-      padding: 3px; margin-bottom: 20px;
+    .plan-features li::before {
+      content: '✓';
+      color: var(--secondary);
+      margin-right: 10px;
+      font-weight: bold;
     }
-    .billing-opt {
-      flex: 1; padding: 8px; text-align: center; font-size: var(--font-sm);
-      font-weight: 600; border-radius: var(--radius-sm); cursor: pointer;
-      border: none; background: transparent; color: var(--text-tertiary); font-family: inherit;
-      transition: all var(--transition-fast);
+    .btn {
+      width: 100%;
+      padding: 1rem;
+      border-radius: 8px;
+      border: none;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
     }
-    .billing-opt.active { background: var(--bg-card); color: var(--text-primary); box-shadow: var(--shadow-sm); }
-    .faq-item { border-bottom: 0.5px solid var(--separator); padding: 14px 0; }
-    .faq-q { font-weight: 600; font-size: var(--font-sm); margin-bottom: 4px; }
-    .faq-a { font-size: var(--font-sm); color: var(--text-secondary); line-height: 1.6; }
+    .btn-outline {
+      background: transparent;
+      color: var(--text-light);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .btn-outline:hover {
+      background: rgba(255,255,255,0.1);
+    }
+    .btn-primary {
+      background: linear-gradient(to right, var(--primary), var(--secondary));
+      color: white;
+    }
+    .btn-primary:hover {
+      opacity: 0.9;
+    }
+    
+    /* Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(5px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal.active {
+      display: flex;
+    }
+    .modal-content {
+      background: var(--bg-dark);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 2rem;
+      width: 90%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    .close-modal {
+      background: none;
+      border: none;
+      color: #9CA3AF;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+    .bank-details {
+      background: var(--card-bg);
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+    }
+    .bank-details p {
+      margin: 0.5rem 0;
+      display: flex;
+      justify-content: space-between;
+    }
+    .bank-details strong {
+      color: var(--primary);
+    }
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+    .form-control {
+      width: 100%;
+      padding: 0.8rem;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 6px;
+      color: white;
+    }
+    .checkbox-group {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 1.5rem;
+    }
+    .checkbox-group label a {
+      color: var(--secondary);
+    }
+    .plan-selector {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 1.5rem;
+    }
+    .plan-selector label {
+      flex: 1;
+      padding: 1rem;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: center;
+    }
+    .plan-selector input:checked + label {
+      border-color: var(--primary);
+      background: rgba(124, 58, 237, 0.1);
+    }
+    .plan-selector input {
+      display: none;
+    }
   </style>
 </head>
 <body>
   <nav class="navbar">
-    <div style="display:flex;align-items:center;gap:8px">
-      <a href="/dashboard.html" class="btn btn-icon btn-sm">←</a>
-      <span class="logo">Planes</span>
-    </div>
-    <span style="font-size:var(--font-sm);color:var(--text-tertiary)" id="current-plan">Plan: <strong>Free</strong></span>
+    <a href="/" class="brand">VYNK</a>
+    <a href="/dashboard.html">Mi Panel</a>
   </nav>
 
-  <div class="container" style="padding-top:16px">
-    <div class="billing-toggle">
-      <button class="billing-opt active" id="btn-monthly" onclick="setBilling('monthly')">Mensual</button>
-      <button class="billing-opt" id="btn-annual" onclick="setBilling('annual')">Anual <span style="color:var(--green)">-40%</span></button>
-    </div>
+  <div class="hero">
+    <h1>Mejora tu identidad digital</h1>
+    <p>Elige el plan que mejor se adapte a tus necesidades. Pasa a Pro y desbloquea todo el potencial de VYNK.</p>
+  </div>
 
-    <!-- Free -->
-    <div class="card plan-card">
-      <div class="plan-name">Gratis</div>
-      <div class="plan-price">$0 <span class="period">MXN / siempre</span></div>
+  <div class="plans-container">
+    <!-- Plan Gratuito -->
+    <div class="plan-card">
+      <div class="plan-name">Gratuito</div>
+      <div class="plan-price">$0 <span>MXN</span></div>
       <ul class="plan-features">
         <li>3 tarjetas digitales</li>
-        <li>5 campos por tarjeta</li>
-        <li>2 archivos por tarjeta</li>
-        <li>QR + vCard + link</li>
-        <li class="no">Tarjetas ilimitadas</li>
-        <li class="no">GIF en perfil</li>
-        <li class="no">NFC sharing</li>
-        <li class="no">Sin marca My ID</li>
+        <li>6 bloques por tarjeta</li>
+        <li>Temas básicos (iOS, Minimal)</li>
+        <li>Analytics básico (últimos 7 días)</li>
+        <li>Marca de agua 'Creado con VYNK'</li>
+        <li>QR básico</li>
       </ul>
-      <button class="btn btn-secondary btn-block" disabled id="btn-free">Plan actual</button>
+      <button class="btn btn-outline" onclick="window.location.href='/dashboard.html'">Tu plan actual</button>
     </div>
 
-    <!-- Pro -->
-    <div class="card plan-card featured">
-      <span class="popular-badge">Popular</span>
+    <!-- Plan Pro -->
+    <div class="plan-card pro">
+      <div class="pro-badge">Más popular</div>
       <div class="plan-name">Pro</div>
-      <div class="plan-price">
-        <span class="original hidden" id="price-orig">$99</span>
-        <span id="price-val">$99</span>
-        <span class="period" id="price-period">MXN / mes</span>
-      </div>
+      <div class="plan-price">$149 <span>MXN/mes</span></div>
       <ul class="plan-features">
         <li>Tarjetas ilimitadas</li>
-        <li>Campos ilimitados</li>
-        <li>Archivos ilimitados</li>
-        <li>GIF como foto de perfil</li>
-        <li>NFC + Google Wallet</li>
-        <li>Estadísticas avanzadas</li>
-        <li>Sin marca My ID</li>
+        <li>Bloques ilimitados</li>
+        <li>TODOS los temas (Neon, Glass, Gradient, Retro + nuevos)</li>
+        <li>Analytics avanzado (90 días, geolocalización)</li>
+        <li>Sin marca de agua</li>
+        <li>NFC sharing</li>
+        <li>Google/Samsung Wallet</li>
+        <li>QR personalizado con logo</li>
+        <li>Tienda digital (0% comisión)</li>
+        <li>Email capture ilimitado</li>
         <li>Soporte prioritario</li>
-        <li>Modo revendedor</li>
       </ul>
-      <button class="btn btn-primary btn-block" id="btn-pro" onclick="activarPro()">⚡ Comenzar Pro</button>
-      <p style="text-align:center;font-size:var(--font-xs);color:var(--text-muted);margin-top:8px">7 días gratis · Cancela cuando quieras</p>
-    </div>
-
-    <!-- FAQ -->
-    <h3 style="margin:24px 0 12px">Preguntas frecuentes</h3>
-    <div class="card" style="padding:0 16px">
-      <div class="faq-item">
-        <div class="faq-q">¿Puedo cancelar en cualquier momento?</div>
-        <div class="faq-a">Sí, tu plan Pro sigue activo hasta el final del período.</div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q">¿Qué métodos de pago aceptan?</div>
-        <div class="faq-a">Transferencia, OXXO, tarjeta débito/crédito vía WhatsApp.</div>
-      </div>
-      <div class="faq-item" style="border:none">
-        <div class="faq-q">¿Mis tarjetas se borran si bajo de plan?</div>
-        <div class="faq-a">No, se mantienen pero solo puedes editar las primeras 3.</div>
-      </div>
-    </div>
-
-    <p style="text-align:center;padding:24px 0;font-size:var(--font-sm);color:var(--text-muted)">
-      ¿Dudas? <a href="https://wa.me/522311556138">Escríbenos por WhatsApp</a><br>
-      <a href="/legal.html" style="color:var(--text-tertiary)">Términos</a> · <a href="/legal.html#privacidad" style="color:var(--text-tertiary)">Privacidad</a>
-    </p>
-  </div>
-
-  <!-- Modal -->
-  <div class="modal-overlay hidden" id="modal-pro">
-    <div class="modal">
-      <h3>🎉 ¡Activa Pro!</h3>
-      <p style="color:var(--text-secondary);font-size:var(--font-sm);margin-bottom:16px;line-height:1.6">
-        Escríbenos por WhatsApp y te activamos en minutos.
-      </p>
-      <div class="card p-16 mb-16">
-        <div style="font-size:var(--font-xs);color:var(--text-muted)">Plan seleccionado</div>
-        <div class="font-bold" id="modal-detail">Pro Mensual · $99 MXN/mes</div>
-      </div>
-      <a href="https://wa.me/522311556138?text=Hola%2C%20quiero%20activar%20My%20ID%20Pro" target="_blank"
-         class="btn btn-block" style="background:#25D366;color:#fff;margin-bottom:8px">
-        💬 Activar por WhatsApp
-      </a>
-      <button class="btn btn-secondary btn-block" onclick="document.getElementById('modal-pro').classList.add('hidden')">Cancelar</button>
+      <button class="btn btn-primary" onclick="openPaymentModal()">Contratar Pro</button>
     </div>
   </div>
 
-  <div class="toast-container" id="toast-container"></div>
+  <!-- Modal de Pago -->
+  <div id="paymentModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Contratar VYNK Pro</h2>
+        <button class="close-modal" onclick="closePaymentModal()">&times;</button>
+      </div>
+
+      <div class="plan-selector">
+        <input type="radio" id="planMensual" name="planTipo" value="mensual" checked onchange="updatePaymentDetails()">
+        <label for="planMensual">
+          <strong>Mensual</strong><br>
+          $149 MXN
+        </label>
+        
+        <input type="radio" id="planAnual" name="planTipo" value="anual" onchange="updatePaymentDetails()">
+        <label for="planAnual">
+          <strong>Anual</strong><br>
+          $1,499 MXN<br>
+          <small style="color:var(--secondary)">Ahorra $289</small>
+        </label>
+      </div>
+
+      <div class="bank-details">
+        <p>Transfiere a los siguientes datos:</p>
+        <p><span>Banco:</span> <strong>BBVA México</strong></p>
+        <p><span>Beneficiario:</span> <strong>Giovanni Paolo</strong></p>
+        <p><span>CLABE:</span> <strong>012345678901234567</strong></p>
+        <p><span>Concepto:</span> <strong id="conceptoPago">VYNK-PRO</strong></p>
+        <p><span>Monto a transferir:</span> <strong id="montoPago">$149.00 MXN</strong></p>
+      </div>
+
+      <form id="paymentForm">
+        <div class="form-group">
+          <label>URL del comprobante (Sube a Imgur/Google Drive y pega el link):</label>
+          <input type="url" id="comprobanteUrl" class="form-control" required placeholder="https://...">
+        </div>
+        
+        <div class="checkbox-group">
+          <input type="checkbox" id="aceptoTerminos" required>
+          <label for="aceptoTerminos">✅ He leído y acepto los <a href="/legal.html" target="_blank">Términos de Servicio y Política de Privacidad</a></label>
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="btnSubmitPayment">Enviar Comprobante</button>
+      </form>
+    </div>
+  </div>
+
   <script src="/js/app.js"></script>
   <script>
-    var user = getUser();
-    if (user && user.plan === 'paid') {
-      document.getElementById('current-plan').innerHTML = 'Plan: <strong style="color:var(--accent)">Pro</strong>';
-      document.getElementById('btn-free').textContent = 'Plan anterior';
-      document.getElementById('btn-pro').textContent = '✓ Plan actual';
-      document.getElementById('btn-pro').disabled = true;
-      document.getElementById('btn-pro').classList.replace('btn-primary','btn-secondary');
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!Auth.getToken()) {
+        window.location.href = '/login.html';
+      }
+    });
+
+    function openPaymentModal() {
+      const user = Auth.getUser();
+      if(user) {
+        document.getElementById('conceptoPago').textContent = `VYNK-PRO-${user.telefono}`;
+      }
+      document.getElementById('paymentModal').classList.add('active');
     }
 
-    var billing = 'monthly';
-    function setBilling(t) {
-      billing = t;
-      document.getElementById('btn-monthly').classList.toggle('active', t === 'monthly');
-      document.getElementById('btn-annual').classList.toggle('active', t === 'annual');
-      document.getElementById('price-val').textContent = t === 'annual' ? '$59' : '$99';
-      document.getElementById('price-orig').classList.toggle('hidden', t === 'monthly');
+    function closePaymentModal() {
+      document.getElementById('paymentModal').classList.remove('active');
     }
 
-    function activarPro() {
-      document.getElementById('modal-detail').textContent = billing === 'annual'
-        ? 'Pro Anual · $59 MXN/mes (facturado anualmente)' : 'Pro Mensual · $99 MXN/mes';
-      document.getElementById('modal-pro').classList.remove('hidden');
+    function updatePaymentDetails() {
+      const isAnual = document.getElementById('planAnual').checked;
+      document.getElementById('montoPago').textContent = isAnual ? '$1,499.00 MXN' : '$149.00 MXN';
     }
 
-    document.getElementById('modal-pro').addEventListener('click', function(e) {
-      if (e.target === this) this.classList.add('hidden');
+    document.getElementById('paymentForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const plan = document.querySelector('input[name="planTipo"]:checked').value;
+      const url = document.getElementById('comprobanteUrl').value;
+      const btn = document.getElementById('btnSubmitPayment');
+
+      try {
+        btn.textContent = 'Enviando...';
+        btn.disabled = true;
+
+        const res = await API.post('/api/pagos/solicitar', {
+          plan: plan,
+          comprobante_url: url
+        });
+
+        if (res.ok) {
+          alert('Tu pago será verificado en las próximas 24 horas. Recibirás confirmación por WhatsApp.');
+          closePaymentModal();
+          window.location.href = '/dashboard.html';
+        } else {
+          alert('Error: ' + (res.error || 'No se pudo enviar'));
+        }
+      } catch (err) {
+        alert('Error de conexión');
+      } finally {
+        btn.textContent = 'Enviar Comprobante';
+        btn.disabled = false;
+      }
     });
   </script>
 </body>

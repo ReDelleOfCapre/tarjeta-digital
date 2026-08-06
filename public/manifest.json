@@ -1,11 +1,11 @@
 {
-  "name": "My ID",
-  "short_name": "My ID",
-  "description": "Tu tarjeta digital inteligente",
+  "name": "VYNK",
+  "short_name": "VYNK",
+  "description": "Tu identidad digital. Sin límites.",
   "start_url": "/dashboard.html",
   "display": "standalone",
-  "background_color": "#F2F2F7",
-  "theme_color": "#007AFF",
+  "background_color": "#0F0B1E",
+  "theme_color": "#7C3AED",
   "icons": [
     { "src": "/img/icon-192.png", "sizes": "192x192", "type": "image/png" },
     { "src": "/img/icon-512.png", "sizes": "512x512", "type": "image/png" }

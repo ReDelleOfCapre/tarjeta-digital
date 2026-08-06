@@ -42,6 +42,7 @@
   var params = new URLSearchParams(location.search);
   var editId = params.get('id');
   var selectedColor = '#007AFF';
+  var selectedTema = 'ios';
   var selectedFieldType = null;
   var addedFields = []; // {tipo, valor, etiqueta, id?}
   var existingFoto = null;
@@ -49,6 +50,7 @@
   // Init
   renderFieldChips();
   setupColorPicker();
+  setupThemePicker();
   setupPhotoUpload();
 
   if (editId) {
@@ -81,6 +83,17 @@
     });
   }
 
+  // --- Theme Picker ---
+  function setupThemePicker() {
+    document.querySelectorAll('.theme-option').forEach(function(el) {
+      el.addEventListener('click', function() {
+        document.querySelectorAll('.theme-option').forEach(function(t) { t.classList.remove('selected'); });
+        el.classList.add('selected');
+        selectedTema = el.dataset.theme;
+      });
+    });
+  }
+
   // --- Photo Upload ---
   function setupPhotoUpload() {
     document.getElementById('input-foto').addEventListener('change', function(e) {
@@ -95,6 +108,27 @@
         document.getElementById('photo-img').src = ev.target.result;
         document.getElementById('photo-img').style.display = 'block';
         document.getElementById('photo-placeholder').style.display = 'none';
+
+        var img = new Image();
+        img.onload = function() {
+          var canvas = document.createElement('canvas');
+          var MAX_WIDTH = 800;
+          var MAX_HEIGHT = 800;
+          var width = img.width;
+          var height = img.height;
+
+          if (width > height) {
+            if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+          } else {
+            if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+          }
+          canvas.width = width;
+          canvas.height = height;
+          var ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          window.fotoBase64 = canvas.toDataURL('image/jpeg', 0.85);
+        };
+        img.src = ev.target.result;
       };
       reader.readAsDataURL(file);
     });
@@ -200,6 +234,13 @@
           c.classList.toggle('active', c.dataset.color === perfil.color);
         });
       }
+      
+      if (perfil.tema) {
+        selectedTema = perfil.tema;
+        document.querySelectorAll('.theme-option').forEach(function(t) {
+          t.classList.toggle('selected', t.dataset.theme === perfil.tema);
+        });
+      }
 
       if (perfil.foto_url) {
         existingFoto = perfil.foto_url;
@@ -233,6 +274,7 @@
     formData.append('nombre_perfil', nombre);
     formData.append('tipo', document.getElementById('tipo-perfil').value);
     formData.append('color', selectedColor);
+    formData.append('tema', selectedTema);
 
     var bio = document.getElementById('bio-perfil').value.trim();
     var cumpleanos = document.getElementById('cumpleanos').value.trim();
@@ -244,8 +286,12 @@
     if (lugarEstudio) formData.append('lugar_estudio', lugarEstudio);
     if (pronombres) formData.append('pronombres', pronombres);
 
-    var fotoFile = document.getElementById('input-foto').files[0];
-    if (fotoFile) formData.append('foto', fotoFile);
+    if (window.fotoBase64) {
+      formData.append('foto_base64', window.fotoBase64);
+    } else {
+      var fotoFile = document.getElementById('input-foto').files[0];
+      if (fotoFile) formData.append('foto', fotoFile);
+    }
 
     var method = editId ? 'PUT' : 'POST';
     var url = editId ? '/perfiles/' + editId : '/perfiles';
