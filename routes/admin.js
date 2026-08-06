@@ -232,4 +232,21 @@ router.put('/pagos/:id/rechazar', async (req, res) => {
   }
 });
 
+// DELETE /api/admin/perfiles/:id — Delete any profile
+router.delete('/perfiles/:id', async (req, res) => {
+  try {
+    const db = await dbReady;
+    const perfilId = parseInt(req.params.id);
+    
+    const perfil = db.prepare('SELECT id FROM perfiles WHERE id = ?').get(perfilId);
+    if (!perfil) return res.status(404).json({ error: 'Perfil no encontrado' });
+
+    db.prepare('DELETE FROM perfiles WHERE id = ?').run(perfilId);
+    res.json({ ok: true, mensaje: 'Perfil eliminado' });
+  } catch (err) {
+    console.error('Error eliminando perfil (admin):', err);
+    res.status(500).json({ error: 'Error interno' });
+  }
+});
+
 module.exports = router;

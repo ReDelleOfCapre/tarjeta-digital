@@ -120,6 +120,12 @@
     .badge.paid { background: rgba(16, 185, 129, 0.2); color: #10B981; }
     .badge.free { background: rgba(156, 163, 175, 0.2); color: #9CA3AF; }
     
+    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+    .modal.active { display: flex; }
+    .modal-content { background: var(--bg-dark); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 2rem; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+    .close-modal { background: none; border: none; color: #9CA3AF; font-size: 1.5rem; cursor: pointer; }
+    .perfil-item { background: var(--card-bg); padding: 1rem; border-radius: 8px; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; }
   </style>
 </head>
 <body>
@@ -193,6 +199,17 @@
     </div>
   </div>
 
+  <!-- Modal Perfiles -->
+  <div id="modal-perfiles" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modal-perfiles-title">Perfiles del Usuario</h2>
+        <button class="close-modal" onclick="closePerfilesModal()">&times;</button>
+      </div>
+      <div id="modal-perfiles-list"></div>
+    </div>
+  </div>
+
   <script src="/js/app.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
@@ -258,6 +275,7 @@
               <td><span class="badge ${u.plan}">${u.plan.toUpperCase()}</span></td>
               <td>${u.total_perfiles}</td>
               <td>
+                <button class="btn-sm btn-view" onclick="verPerfiles(${u.id}, '${u.nombre}')">Ver Tarjetas</button>
                 <button class="btn-sm btn-toggle" onclick="togglePlan(${u.id}, '${u.plan === 'paid' ? 'free' : 'paid'}')">
                   Hacer ${u.plan === 'paid' ? 'Free' : 'Pro'}
                 </button>
@@ -336,6 +354,51 @@
           alert('Error: ' + res.error);
         }
       } catch (e) { alert('Error de conexión'); }
+    }
+
+    async function verPerfiles(userId, nombre) {
+      document.getElementById('modal-perfiles-title').textContent = `Tarjetas de ${nombre}`;
+      document.getElementById('modal-perfiles-list').innerHTML = '<p>Cargando tarjetas...</p>';
+      document.getElementById('modal-perfiles').classList.add('active');
+
+      try {
+        const res = await api(`/api/admin/usuarios/${userId}/perfiles`);
+        if (res.perfiles && res.perfiles.length > 0) {
+          document.getElementById('modal-perfiles-list').innerHTML = res.perfiles.map(p => `
+            <div class="perfil-item" id="perfil-item-${p.id}">
+              <div>
+                <strong>${p.slug}</strong><br>
+                <span style="font-size:0.8rem; color:#9CA3AF">${p.visitas} visitas | ${p.total_campos} bloques</span>
+              </div>
+              <div>
+                <button class="btn-sm btn-view" onclick="window.open('/${p.slug}', '_blank')">Abrir</button>
+                <button class="btn-sm btn-reject" onclick="deletePerfilAdmin(${p.id})">Eliminar</button>
+              </div>
+            </div>
+          `).join('');
+        } else {
+          document.getElementById('modal-perfiles-list').innerHTML = '<p>Este usuario no tiene tarjetas creadas.</p>';
+        }
+      } catch(e) {
+        document.getElementById('modal-perfiles-list').innerHTML = '<p>Error al cargar tarjetas.</p>';
+      }
+    }
+
+    function closePerfilesModal() {
+      document.getElementById('modal-perfiles').classList.remove('active');
+    }
+
+    async function deletePerfilAdmin(perfilId) {
+      if(!confirm('¿Seguro que deseas eliminar permanentemente esta tarjeta digital? Esta acción no se puede deshacer.')) return;
+      try {
+        const res = await api(`/api/admin/perfiles/${perfilId}`, { method: 'DELETE' });
+        if(res.ok) {
+          document.getElementById(`perfil-item-${perfilId}`).remove();
+          loadDashboardData(); 
+        } else {
+          alert('Error: ' + res.error);
+        }
+      } catch(e) { alert('Error de conexión'); }
     }
   </script>
 </body>
