@@ -457,6 +457,9 @@
         <input type="password" class="form-input" id="loginPassword" required placeholder="••••••••">
       </div>
       <button type="submit" class="btn btn-primary" style="width:100%">Entrar a mi cuenta</button>
+      <div style="text-align:center; margin-top:16px;">
+        <a href="javascript:void(0)" onclick="openHelpModal()" style="color:var(--text-muted); font-size:0.85rem; text-decoration:underline;">¿Olvidaste tu contraseña o necesitas ayuda?</a>
+      </div>
     </form>
     
     <form id="registerForm" class="auth-form">
@@ -531,8 +534,34 @@
 
   <div id="toast-container"></div>
 
+  <!-- Floating Support Chatbot Button -->
+  <div id="support-widget" onclick="openHelpModal()" style="position:fixed; bottom:24px; right:24px; z-index:9999; background:linear-gradient(135deg, var(--primary), var(--secondary)); width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 10px 25px rgba(124,58,237,0.5); cursor:pointer; transition:transform 0.2s;" title="Ayuda & Soporte">
+    <span style="font-size:1.5rem; color:white;">💬</span>
+  </div>
+
+  <!-- Modal Ayuda y Recuperación -->
+  <div id="helpModal" class="modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:10000; align-items:center; justify-content:center; backdrop-filter:blur(5px);">
+    <div class="modal-content" style="background:var(--bg-dark); border:1px solid var(--glass-border); border-radius:24px; padding:32px; max-width:440px; width:90%; color:white; text-align:center;">
+      <h3 style="font-size:1.4rem; margin-bottom:12px;">💬 Asistencia & Recuperación</h3>
+      <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:20px; line-height:1.5;">
+        Si olvidaste tu contraseña o necesitas atención de soporte, te conectamos directamente con nuestro centro de atención por WhatsApp.
+      </p>
+      <a href="https://wa.me/522311556138?text=Hola,%20olvid%C3%A9%20mi%20contrase%C3%B1a%20o%20necesito%20ayuda%20con%20mi%20cuenta%20VYNK" target="_blank" class="btn btn-primary" style="width:100%; margin-bottom:12px; background:#25D366; color:white;">
+        📱 Contactar Soporte por WhatsApp
+      </a>
+      <button class="btn btn-ghost" onclick="closeHelpModal()" style="width:100%;">Cerrar</button>
+    </div>
+  </div>
+
   <script src="/js/app.js"></script>
   <script>
+    function openHelpModal() {
+      document.getElementById('helpModal').style.display = 'flex';
+    }
+    function closeHelpModal() {
+      document.getElementById('helpModal').style.display = 'none';
+    }
+
     // Tab switching for auth
     function switchTab(tab) {
       document.getElementById('tab-login').classList.remove('active');

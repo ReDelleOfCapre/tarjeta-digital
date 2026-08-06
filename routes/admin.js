@@ -245,11 +245,45 @@ router.delete('/perfiles/:id', async (req, res) => {
     const perfil = db.prepare('SELECT id FROM perfiles WHERE id = ?').get(perfilId);
     if (!perfil) return res.status(404).json({ error: 'Perfil no encontrado' });
 
-    db.prepare('DELETE FROM perfiles WHERE id = ?').run(perfilId);
-    res.json({ ok: true, mensaje: 'Perfil eliminado' });
+// PUT /api/admin/usuarios/:id/password — Admin resets password for any user
+const bcrypt = require('bcryptjs');
+const fs = require('fs');
+const path = require('path');
+
+router.put('/usuarios/:id/password', [
+  body('password').isLength({ min: 6 }).withMessage('La contraseña debe tener al menos 6 caracteres')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ error: errors.array()[0].msg });
+    }
+
+    const db = await dbReady;
+    const userId = parseInt(req.params.id);
+    const { password } = req.body;
+
+    const hash = await bcrypt.hash(password, 10);
+    db.prepare('UPDATE usuarios SET password_hash = ? WHERE id = ?').run(hash, userId);
+
+    res.json({ ok: true, mensaje: 'Contraseña actualizada correctamente' });
   } catch (err) {
-    console.error('Error eliminando perfil (admin):', err);
-    res.status(500).json({ error: 'Error interno' });
+    console.error('Error reseteando contraseña:', err);
+    res.status(500).json({ error: 'Error al cambiar la contraseña' });
+  }
+});
+
+// GET /api/admin/backup-db — Descargar copia de seguridad de la BD
+router.get('/backup-db', async (req, res) => {
+  try {
+    const DB_PATH = process.env.DB_PATH || path.join(__dirname, '../database/tarjeta.db');
+    if (fs.existsSync(DB_PATH)) {
+      res.download(DB_PATH, `vynk-backup-${new Date().toISOString().slice(0,10)}.db`);
+    } else {
+      res.status(404).json({ error: 'Archivo de base de datos no encontrado' });
+    }
+  } catch (err) {
+    res.status(500).json({ error: 'Error al generar copia de seguridad' });
   }
 });
 

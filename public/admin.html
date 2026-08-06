@@ -132,6 +132,7 @@
   <nav class="navbar">
     <div class="brand">VYNK Admin</div>
     <div>
+      <a href="/api/admin/backup-db" class="btn-sm" style="background:#10B981; color:white; text-decoration:none; margin-right: 15px;">💾 Descargar Copia BD</a>
       <a href="/dashboard.html" style="color:white; text-decoration:none; margin-right: 15px;">Ir a mi panel</a>
       <button onclick="logout()" class="btn-sm" style="background:rgba(255,255,255,0.1); color:white">Salir</button>
     </div>
@@ -277,6 +278,7 @@
               <td>${u.total_perfiles}</td>
               <td>
                 <button class="btn-sm btn-view" onclick="verPerfiles(${u.id}, '${u.nombre}')">Ver Tarjetas</button>
+                <button class="btn-sm" style="background:#8B5CF6; color:white;" onclick="adminResetPassword(${u.id}, '${u.nombre}')">🔑 Pass</button>
                 <button class="btn-sm btn-toggle" onclick="togglePlan(${u.id}, '${u.plan === 'paid' ? 'free' : 'paid'}')">
                   Hacer ${u.plan === 'paid' ? 'Free' : 'Pro'}
                 </button>
@@ -289,6 +291,25 @@
       } catch (err) {
         console.error('Error al cargar dashboard', err);
       }
+    }
+
+    async function adminResetPassword(userId, nombre) {
+      const newPass = prompt(`Ingresa la nueva contraseña para ${nombre}:`);
+      if (!newPass || newPass.length < 6) {
+        alert('La contraseña debe tener al menos 6 caracteres.');
+        return;
+      }
+      try {
+        const res = await api(`/api/admin/usuarios/${userId}/password`, {
+          method: 'PUT',
+          body: JSON.stringify({ password: newPass })
+        });
+        if (res.ok) {
+          alert(`¡Contraseña actualizada correctamente para ${nombre}!`);
+        } else {
+          alert('Error: ' + (res.error || 'No se pudo cambiar'));
+        }
+      } catch (e) { alert('Error de conexión'); }
     }
 
     async function resetQuota(userId) {
