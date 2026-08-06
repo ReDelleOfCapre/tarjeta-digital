@@ -443,8 +443,8 @@
     
     <form id="loginForm" class="auth-form active">
       <div class="form-group">
-        <label class="form-label">Correo electrónico</label>
-        <input type="email" class="form-input" id="loginEmail" required placeholder="tu@email.com">
+        <label class="form-label">Teléfono (10 dígitos)</label>
+        <input type="text" class="form-input" id="loginTelefono" required placeholder="5512345678">
       </div>
       <div class="form-group">
         <label class="form-label">Contraseña</label>
@@ -459,8 +459,12 @@
         <input type="text" class="form-input" id="regName" required placeholder="Juan Pérez">
       </div>
       <div class="form-group">
-        <label class="form-label">Correo electrónico</label>
-        <input type="email" class="form-input" id="regEmail" required placeholder="tu@email.com">
+        <label class="form-label">Teléfono (10 dígitos)</label>
+        <input type="text" class="form-input" id="regTelefono" required placeholder="5512345678">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Correo electrónico (Opcional)</label>
+        <input type="email" class="form-input" id="regEmail" placeholder="tu@email.com">
       </div>
       <div class="form-group">
         <label class="form-label">Contraseña</label>
@@ -556,22 +560,25 @@
     // Auth logic utilizing app.js
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const email = document.getElementById('loginEmail').value;
+      const telefono = document.getElementById('loginTelefono').value;
       const password = document.getElementById('loginPassword').value;
       const btn = e.target.querySelector('button');
       const originalText = btn.innerText;
       btn.innerText = 'Cargando...'; btn.disabled = true;
 
       try {
-        const res = await api('/api/auth/login', 'POST', { email, password });
+        const res = await api('/api/auth/login', { 
+          method: 'POST', 
+          body: JSON.stringify({ telefono, password }) 
+        });
         if(res.token) {
           localStorage.setItem('token', res.token);
-          localStorage.setItem('user', JSON.stringify(res.user));
+          localStorage.setItem('usuario', JSON.stringify(res.usuario));
           showToast('Bienvenido de vuelta', 'success');
           setTimeout(() => window.location.href = '/dashboard.html', 1000);
         }
       } catch (err) {
-        showToast(err.message || 'Error al iniciar sesión', 'error');
+        showToast(err.error || err.message || 'Error al iniciar sesión', 'error');
       } finally {
         btn.innerText = originalText; btn.disabled = false;
       }
@@ -579,7 +586,8 @@
 
     document.getElementById('registerForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const name = document.getElementById('regName').value;
+      const nombre = document.getElementById('regName').value;
+      const telefono = document.getElementById('regTelefono').value;
       const email = document.getElementById('regEmail').value;
       const password = document.getElementById('regPassword').value;
       const btn = e.target.querySelector('button');
@@ -587,15 +595,18 @@
       btn.innerText = 'Cargando...'; btn.disabled = true;
 
       try {
-        const res = await api('/api/auth/registro', 'POST', { name, email, password });
+        const res = await api('/api/auth/registro', { 
+          method: 'POST', 
+          body: JSON.stringify({ nombre, telefono, email, password }) 
+        });
         if(res.token) {
           localStorage.setItem('token', res.token);
-          localStorage.setItem('user', JSON.stringify(res.user));
+          localStorage.setItem('usuario', JSON.stringify(res.usuario));
           showToast('Cuenta creada con éxito', 'success');
           setTimeout(() => window.location.href = '/dashboard.html', 1000);
         }
       } catch (err) {
-        showToast(err.message || 'Error al registrar', 'error');
+        showToast(err.error || err.message || 'Error al registrar', 'error');
       } finally {
         btn.innerText = originalText; btn.disabled = false;
       }

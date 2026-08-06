@@ -127,7 +127,7 @@
     <div class="brand">VYNK Admin</div>
     <div>
       <a href="/dashboard.html" style="color:white; text-decoration:none; margin-right: 15px;">Ir a mi panel</a>
-      <button onclick="Auth.logout()" class="btn-sm" style="background:rgba(255,255,255,0.1); color:white">Salir</button>
+      <button onclick="logout()" class="btn-sm" style="background:rgba(255,255,255,0.1); color:white">Salir</button>
     </div>
   </nav>
 
@@ -196,13 +196,13 @@
   <script src="/js/app.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
-      if (!Auth.getToken()) {
-        window.location.href = '/login.html';
+      if (!localStorage.getItem('token')) {
+        window.location.href = '/';
         return;
       }
 
       // Check admin role
-      const user = Auth.getUser();
+      const user = getUser();
       if (!user || user.role !== 'admin') {
         alert('Acceso denegado. No eres administrador.');
         window.location.href = '/dashboard.html';
@@ -215,7 +215,7 @@
     async function loadDashboardData() {
       try {
         // Load stats
-        const statsRes = await API.get('/api/admin/stats');
+        const statsRes = await api('/api/admin/stats');
         if (statsRes.usuarios) {
           document.getElementById('stat-users').textContent = statsRes.usuarios.total;
           document.getElementById('stat-pro').textContent = statsRes.usuarios.paid;
@@ -224,7 +224,7 @@
         }
 
         // Load pending payments
-        const paymentsRes = await API.get('/api/admin/pagos');
+        const paymentsRes = await api('/api/admin/pagos');
         const tbodyPayments = document.querySelector('#payments-table tbody');
         if (paymentsRes.pagos) {
           document.getElementById('stat-pending').textContent = paymentsRes.pagos.length;
@@ -247,7 +247,7 @@
         }
 
         // Load users
-        const usersRes = await API.get('/api/admin/usuarios');
+        const usersRes = await api('/api/admin/usuarios');
         const tbodyUsers = document.querySelector('#users-table tbody');
         if (usersRes.usuarios) {
           tbodyUsers.innerHTML = usersRes.usuarios.map(u => `
@@ -276,7 +276,10 @@
       const dias = planStr === 'anual' ? 365 : 30;
       
       try {
-        const res = await API.put(`/api/admin/pagos/${id}/aprobar`, { duracion_dias: dias });
+        const res = await api(`/api/admin/pagos/${id}/aprobar`, {
+          method: 'PUT',
+          body: JSON.stringify({ duracion_dias: dias })
+        });
         if (res.ok) {
           alert('Pago aprobado y cuenta actualizada a Pro');
           loadDashboardData();
@@ -291,7 +294,10 @@
       if (motivo === null) return;
       
       try {
-        const res = await API.put(`/api/admin/pagos/${id}/rechazar`, { motivo });
+        const res = await api(`/api/admin/pagos/${id}/rechazar`, {
+          method: 'PUT',
+          body: JSON.stringify({ motivo })
+        });
         if (res.ok) {
           alert('Pago rechazado');
           loadDashboardData();
@@ -305,7 +311,10 @@
       if (!confirm(`¿Cambiar el plan del usuario a ${newPlan.toUpperCase()}?`)) return;
       
       try {
-        const res = await API.put(`/api/admin/usuarios/${userId}/plan`, { plan: newPlan });
+        const res = await api(`/api/admin/usuarios/${userId}/plan`, {
+          method: 'PUT',
+          body: JSON.stringify({ plan: newPlan })
+        });
         if (res.ok) {
           loadDashboardData();
         } else {
