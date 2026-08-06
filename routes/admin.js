@@ -128,9 +128,9 @@ router.put('/usuarios/:id/reset-quota', async (req, res) => {
       return res.status(404).json({ error: 'Usuario no encontrado' });
     }
 
-    db.prepare('UPDATE usuarios SET acciones_restantes = 5, ultimo_reset = datetime("now") WHERE id = ?').run(userId);
+    db.prepare('UPDATE usuarios SET acciones_restantes = 10, ultimo_reset = datetime("now") WHERE id = ?').run(userId);
 
-    res.json({ ok: true, mensaje: 'Energía restablecida a 5' });
+    res.json({ ok: true, mensaje: 'Energía restablecida a 10' });
   } catch (err) {
     console.error('Error reseteando cuota:', err);
     res.status(500).json({ error: 'Error interno' });

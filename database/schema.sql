@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
   plan_expira TEXT,
   role TEXT DEFAULT 'user' CHECK(role IN ('user','admin')),
   fecha_registro TEXT DEFAULT (datetime('now')),
-  acciones_restantes INTEGER DEFAULT 5,
+  acciones_restantes INTEGER DEFAULT 10,
   ultimo_reset TEXT DEFAULT (datetime('now'))
 );
 

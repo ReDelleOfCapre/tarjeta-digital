@@ -291,7 +291,7 @@
     }
 
     async function resetQuota(userId) {
-      if (!confirm('¿Recargar las 5 acciones de este usuario?')) return;
+      if (!confirm('¿Recargar las 10 acciones de este usuario?')) return;
       try {
         const res = await api(`/api/admin/usuarios/${userId}/reset-quota`, { method: 'PUT' });
         if (res.ok) {

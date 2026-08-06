@@ -87,7 +87,7 @@ class DatabaseWrapper {
     try {
       this.db.exec("SELECT acciones_restantes, ultimo_reset FROM usuarios LIMIT 1");
     } catch (e) {
-      try { this.db.exec("ALTER TABLE usuarios ADD COLUMN acciones_restantes INTEGER DEFAULT 5"); } catch(err) {}
+      try { this.db.exec("ALTER TABLE usuarios ADD COLUMN acciones_restantes INTEGER DEFAULT 10"); } catch(err) {}
       try { this.db.exec("ALTER TABLE usuarios ADD COLUMN ultimo_reset TEXT DEFAULT (datetime('now'))"); } catch(err) {}
       console.log('✅ Migración: columnas acciones_restantes y ultimo_reset agregadas a usuarios');
     }

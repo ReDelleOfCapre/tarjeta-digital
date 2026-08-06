@@ -54,13 +54,13 @@ router.post('/registro', [
 
     const password_hash = await bcrypt.hash(password, 10);
 
-    // Auto-detect owner
+    // Todos los usuarios nuevos obtienen 30 días de prueba Pro
     const ownerDetected = isOwner(telefonoNorm);
-    const plan = ownerDetected ? 'paid' : 'free';
+    const plan = 'paid';
     const role = ownerDetected ? 'admin' : 'user';
 
     const result = db.prepare(
-      'INSERT INTO usuarios (telefono, nombre, password_hash, plan, role, email) VALUES (?, ?, ?, ?, ?, ?)'
+      "INSERT INTO usuarios (telefono, nombre, password_hash, plan, plan_expira, role, email) VALUES (?, ?, ?, ?, datetime('now', '+30 days'), ?, ?)"
     ).run(telefonoNorm, nombre.trim(), password_hash, plan, role, email || null);
 
     const user = { id: result.lastInsertRowid, telefono: telefonoNorm, nombre: nombre.trim(), plan, role };
