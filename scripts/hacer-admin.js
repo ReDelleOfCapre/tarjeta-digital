@@ -1,36 +1,41 @@
-const { initPromise } = require('../database/db');
+const fs = require('fs');
+const path = require('path');
 
-const args = process.argv.slice(2);
-const telefono = args[0];
+const svgLogo = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="vynk-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F0B1E"/>
+      <stop offset="100%" stop-color="#1A103C"/>
+    </linearGradient>
+    <linearGradient id="vynk-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7C3AED"/>
+      <stop offset="50%" stop-color="#FF6B6B"/>
+      <stop offset="100%" stop-color="#06B6D4"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="128" fill="url(#vynk-bg)"/>
+  <rect width="504" height="504" x="4" y="4" rx="124" fill="none" stroke="url(#vynk-grad)" stroke-width="12" stroke-opacity="0.6"/>
+  <path d="M 120 140 L 256 390 L 392 140 L 320 140 L 256 268 L 192 140 Z" fill="url(#vynk-grad)"/>
+  <circle cx="256" cy="140" r="28" fill="#06B6D4"/>
+</svg>`;
 
-if (!telefono) {
-  console.error('Uso: node hacer-admin.js <numero_telefono>');
-  console.error('Ejemplo: node hacer-admin.js 5512345678');
-  process.exit(1);
-}
+const favPath = path.join(__dirname, '../public/favicon.svg');
+const logoPath = path.join(__dirname, '../public/img/logo.svg');
+fs.writeFileSync(favPath, svgLogo);
+fs.writeFileSync(logoPath, svgLogo);
+console.log('✅ Logotipos e Iconos SVG generados correctamente.');
 
-async function makeAdmin() {
-  try {
-    const database = await initPromise;
-    const user = database.prepare('SELECT id, nombre, telefono FROM usuarios WHERE telefono = ?').get(telefono);
-
-    if (!user) {
-      console.error(`❌ Usuario con teléfono ${telefono} no encontrado.`);
-      process.exit(1);
-    }
-
-    database.prepare(`
-      UPDATE usuarios 
-      SET role = 'admin', plan = 'paid' 
-      WHERE id = ?
-    `).run(user.id);
-
-    console.log(`✅ ¡Éxito! El usuario ${user.nombre} (${user.telefono}) ahora es ADMIN y tiene plan PRO.`);
-    process.exit(0);
-  } catch (err) {
-    console.error('Error:', err);
-    process.exit(1);
+if (require.main === module) {
+  const args = process.argv.slice(2);
+  const telefono = args[0];
+  if (telefono) {
+    const { initPromise } = require('../database/db');
+    initPromise.then(database => {
+      const user = database.prepare('SELECT id, nombre, telefono FROM usuarios WHERE telefono = ?').get(telefono);
+      if (user) {
+        database.prepare("UPDATE usuarios SET role = 'admin', plan = 'paid' WHERE id = ?").run(user.id);
+        console.log(`✅ ¡Éxito! ${user.nombre} (${user.telefono}) es ADMIN.`);
+      }
+    });
   }
 }
-
-makeAdmin();
