@@ -62,7 +62,7 @@
       if (data && data.token) {
         localStorage.setItem('token', data.token);
         localStorage.setItem('usuario', JSON.stringify(data.usuario));
-        showToast('¡Cuenta creada! Bienvenido a My ID', 'success');
+        showToast('¡Cuenta creada! Bienvenido a VYNK', 'success');
         setTimeout(function() { location.href = '/dashboard.html'; }, 500);
       }
     } catch(err) {

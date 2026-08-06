@@ -151,7 +151,7 @@
       html += field('URL *','bf-url','Pega la URL de '+tipo);
     } else if (tipo === 'whatsapp') {
       html += field('Número *','bf-tel','522311556138');
-      html += field('Mensaje','bf-msg','Hola, te contacto desde My ID');
+      html += field('Mensaje','bf-msg','Hola, te contacto desde VYNK');
     } else if (tipo === 'social_icons') {
       html += '<p style="font-size:var(--font-xs);color:var(--text-muted);margin-bottom:8px">Agrega tus redes (deja vacío las que no uses)</p>';
       SOCIAL_TYPES.forEach(function(s){
