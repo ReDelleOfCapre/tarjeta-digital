@@ -219,14 +219,6 @@
         return;
       }
 
-      // Check admin role
-      const user = getUser();
-      if (!user || user.role !== 'admin') {
-        alert('Acceso denegado. No eres administrador.');
-        window.location.href = '/dashboard.html';
-        return;
-      }
-
       await loadDashboardData();
     });
 

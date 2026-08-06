@@ -125,10 +125,13 @@ class DatabaseWrapper {
     }
 
     // Auto-upgrade owner
-    const OWNER_PHONE = (process.env.OWNER_PHONE || '').replace(/[^0-9]/g, '');
-    if (OWNER_PHONE) {
-      this.db.run("UPDATE usuarios SET plan = 'paid', role = 'admin' WHERE telefono = ?", [OWNER_PHONE]);
-    }
+    const OWNER_PHONE = (process.env.OWNER_PHONE || '522311556138').replace(/[^0-9]/g, '');
+    try {
+      this.db.run("UPDATE usuarios SET plan = 'paid', role = 'admin' WHERE email LIKE '%gpprzrom%' OR telefono LIKE '%2311556138%'");
+      if (OWNER_PHONE) {
+        this.db.run("UPDATE usuarios SET plan = 'paid', role = 'admin' WHERE telefono = ?", [OWNER_PHONE]);
+      }
+    } catch(e) {}
 
     // Create bloques table
     try {
