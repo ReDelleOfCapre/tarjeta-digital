@@ -4,6 +4,7 @@ const { body, validationResult } = require('express-validator');
 const db = require('../database/db');
 const auth = require('../middleware/auth');
 const checkPlanLimit = require('../middleware/planLimits');
+const requireQuota = require('../middleware/quota');
 
 const TIPOS_VALIDOS = [
   // Contacto
@@ -43,6 +44,7 @@ router.get('/perfiles/:id/campos', auth, (req, res) => {
 router.post(
   '/perfiles/:id/campos',
   auth,
+  requireQuota,
   checkPlanLimit('campo'),
   [
     body('tipo')
@@ -98,6 +100,7 @@ router.post(
 router.put(
   '/campos/:id',
   auth,
+  requireQuota,
   [
     body('tipo')
       .optional()
@@ -167,7 +170,7 @@ router.put(
  * DELETE /api/campos/:id
  * Eliminar un campo de contacto.
  */
-router.delete('/campos/:id', auth, (req, res) => {
+router.delete('/campos/:id', auth, requireQuota, (req, res) => {
   const campoId = parseInt(req.params.id, 10);
 
   // Buscar campo y verificar propiedad

@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../database/db');
 const auth = require('../middleware/auth');
+const requireQuota = require('../middleware/quota');
 const { getEmbed } = require('../utils/embeds');
 
 // GET /api/perfiles/:perfilId/bloques
@@ -17,7 +18,7 @@ router.get('/perfiles/:perfilId/bloques', auth, (req, res) => {
 });
 
 // POST /api/perfiles/:perfilId/bloques
-router.post('/perfiles/:perfilId/bloques', auth, (req, res) => {
+router.post('/perfiles/:perfilId/bloques', auth, requireQuota, (req, res) => {
   const perfilId = parseInt(req.params.perfilId, 10);
   const perfil = db.prepare('SELECT usuario_id FROM perfiles WHERE id = ?').get(perfilId);
   
@@ -51,7 +52,7 @@ router.post('/perfiles/:perfilId/bloques', auth, (req, res) => {
 });
 
 // PUT /api/bloques/:id
-router.put('/bloques/:id', auth, (req, res) => {
+router.put('/bloques/:id', auth, requireQuota, (req, res) => {
   const bloqueId = parseInt(req.params.id, 10);
   const bloque = db.prepare(`
     SELECT b.*, p.usuario_id 
@@ -90,7 +91,7 @@ router.put('/bloques/:id', auth, (req, res) => {
 });
 
 // DELETE /api/bloques/:id
-router.delete('/bloques/:id', auth, (req, res) => {
+router.delete('/bloques/:id', auth, requireQuota, (req, res) => {
   const bloqueId = parseInt(req.params.id, 10);
   const bloque = db.prepare(`
     SELECT b.id, p.usuario_id 
@@ -107,7 +108,7 @@ router.delete('/bloques/:id', auth, (req, res) => {
 });
 
 // PUT /api/perfiles/:perfilId/bloques/reorder
-router.put('/perfiles/:perfilId/bloques/reorder', auth, (req, res) => {
+router.put('/perfiles/:perfilId/bloques/reorder', auth, requireQuota, (req, res) => {
   const perfilId = parseInt(req.params.perfilId, 10);
   const perfil = db.prepare('SELECT usuario_id FROM perfiles WHERE id = ?').get(perfilId);
   

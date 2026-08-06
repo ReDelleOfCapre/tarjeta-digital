@@ -84,7 +84,12 @@ function showToast(message, type = 'info') {
 }
 
 function showUpgradeToast(message) {
-  showToast('⚡ ' + (message || 'Actualiza a Pro para más funciones'), 'info');
+  const container = document.getElementById('toast-container');
+  if (container) {
+    showToast('⚡ ' + (message || 'Actualiza a Pro para más funciones'), 'error');
+  } else {
+    alert('⚡ ' + (message || 'Actualiza a Pro para más funciones'));
+  }
 }
 
 function checkAuth() {

@@ -14,7 +14,9 @@ CREATE TABLE IF NOT EXISTS usuarios (
   plan TEXT DEFAULT 'free' CHECK(plan IN ('free','paid')),
   plan_expira TEXT,
   role TEXT DEFAULT 'user' CHECK(role IN ('user','admin')),
-  fecha_registro TEXT DEFAULT (datetime('now'))
+  fecha_registro TEXT DEFAULT (datetime('now')),
+  acciones_restantes INTEGER DEFAULT 5,
+  ultimo_reset TEXT DEFAULT (datetime('now'))
 );
 
 -- Perfiles (tarjetas)

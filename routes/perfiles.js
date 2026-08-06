@@ -39,11 +39,13 @@ router.get('/', auth, (req, res) => {
   res.json(result);
 });
 
+const requireQuota = require('../middleware/quota');
+
 /**
  * POST /api/perfiles
  * Crear un nuevo perfil.
  */
-router.post('/', auth, checkPlanLimit('perfil'), (req, res) => {
+router.post('/', auth, requireQuota, checkPlanLimit('perfil'), (req, res) => {
   // Wrapper para manejar multer como promise-like
   uploadImage(req, res, (err) => {
     if (err) {
@@ -77,7 +79,7 @@ router.post('/', auth, checkPlanLimit('perfil'), (req, res) => {
  * PUT /api/perfiles/:id
  * Actualizar un perfil existente.
  */
-router.put('/:id', auth, (req, res) => {
+router.put('/:id', auth, requireQuota, (req, res) => {
   uploadImage(req, res, (err) => {
     if (err) {
       return res.status(400).json({ error: err.message });
@@ -150,7 +152,7 @@ router.put('/:id', auth, (req, res) => {
  * DELETE /api/perfiles/:id
  * Eliminar un perfil y sus archivos asociados.
  */
-router.delete('/:id', auth, (req, res) => {
+router.delete('/:id', auth, requireQuota, (req, res) => {
   const perfilId = parseInt(req.params.id, 10);
   const perfil = db.prepare('SELECT * FROM perfiles WHERE id = ?').get(perfilId);
 

@@ -117,7 +117,25 @@ router.put('/usuarios/:id/plan', [
     res.status(500).json({ error: 'Error al actualizar plan' });
   }
 });
+// PUT /api/admin/usuarios/:id/reset-quota — Reset user quota
+router.put('/usuarios/:id/reset-quota', async (req, res) => {
+  try {
+    const db = await dbReady;
+    const userId = parseInt(req.params.id);
 
+    const user = db.prepare('SELECT id, plan FROM usuarios WHERE id = ?').get(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    db.prepare('UPDATE usuarios SET acciones_restantes = 5, ultimo_reset = datetime("now") WHERE id = ?').run(userId);
+
+    res.json({ ok: true, mensaje: 'Energía restablecida a 5' });
+  } catch (err) {
+    console.error('Error reseteando cuota:', err);
+    res.status(500).json({ error: 'Error interno' });
+  }
+});
 // GET /api/admin/usuarios/:id/perfiles — List user's profiles
 router.get('/usuarios/:id/perfiles', async (req, res) => {
   try {

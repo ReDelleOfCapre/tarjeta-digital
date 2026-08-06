@@ -261,6 +261,7 @@
                 <button class="btn-sm btn-toggle" onclick="togglePlan(${u.id}, '${u.plan === 'paid' ? 'free' : 'paid'}')">
                   Hacer ${u.plan === 'paid' ? 'Free' : 'Pro'}
                 </button>
+                ${u.plan === 'free' ? `<button class="btn-sm" style="background:#06B6D4; color:white;" onclick="resetQuota(${u.id})">Recargar Energía</button>` : ''}
               </td>
             </tr>
           `).join('');
@@ -268,6 +269,20 @@
 
       } catch (err) {
         console.error('Error al cargar dashboard', err);
+      }
+    }
+
+    async function resetQuota(userId) {
+      if (!confirm('¿Recargar las 5 acciones de este usuario?')) return;
+      try {
+        const res = await api(`/api/admin/usuarios/${userId}/reset-quota`, { method: 'PUT' });
+        if (res.ok) {
+          alert('Energía recargada correctamente.');
+        } else {
+          alert('Error: ' + (res.error || 'No se pudo recargar'));
+        }
+      } catch (e) {
+        alert('Error de conexión');
       }
     }
 
