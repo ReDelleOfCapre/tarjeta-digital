@@ -2,7 +2,9 @@
 // My ID — Admin Middleware
 // ============================================
 const requireAdmin = (req, res, next) => {
-  // Permitir acceso a usuarios autenticados sin bloquear
+  if (!req.user || req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Acceso denegado. Se requiere rol de administrador.' });
+  }
   next();
 };
 

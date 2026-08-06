@@ -219,6 +219,14 @@
         return;
       }
 
+      // Check admin role
+      const user = getUser();
+      if (!user || user.role !== 'admin') {
+        alert('Acceso restringido. Solo el administrador principal puede acceder.');
+        window.location.href = '/dashboard.html';
+        return;
+      }
+
       await loadDashboardData();
     });
 

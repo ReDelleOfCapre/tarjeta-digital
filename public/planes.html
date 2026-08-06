@@ -273,7 +273,7 @@
         <li>Marca de agua 'Creado con VYNK'</li>
         <li>QR básico</li>
       </ul>
-      <button class="btn btn-outline" onclick="window.location.href='/dashboard.html'">Tu plan actual</button>
+      <button class="btn btn-outline" id="btn-free-plan" onclick="window.location.href='/dashboard.html'">Tu plan actual</button>
     </div>
 
     <!-- Plan Pro -->
@@ -294,7 +294,7 @@
         <li>Email capture ilimitado</li>
         <li>Soporte prioritario</li>
       </ul>
-      <button class="btn btn-primary" onclick="openPaymentModal()">Contratar Pro</button>
+      <button class="btn btn-primary" id="btn-pro-plan" onclick="openPaymentModal()">Contratar Pro</button>
     </div>
   </div>
 
@@ -352,6 +352,23 @@
     document.addEventListener('DOMContentLoaded', () => {
       if (!localStorage.getItem('token')) {
         window.location.href = '/';
+        return;
+      }
+      const user = getUser();
+      if (user && user.plan === 'paid') {
+        const freeBtn = document.getElementById('btn-free-plan');
+        const proBtn = document.getElementById('btn-pro-plan');
+        if (freeBtn) {
+          freeBtn.textContent = 'Plan Básico';
+        }
+        if (proBtn) {
+          proBtn.textContent = '★ Tu plan Pro Activo';
+          proBtn.className = 'btn btn-outline';
+          proBtn.onclick = () => window.location.href = '/dashboard.html';
+          proBtn.style.background = 'rgba(16, 185, 129, 0.2)';
+          proBtn.style.borderColor = '#10B981';
+          proBtn.style.color = '#10B981';
+        }
       }
     });
 
