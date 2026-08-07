@@ -269,8 +269,18 @@ router.get('/:slug/vcard', (req, res) => {
  */
 function perfilPublicoHandler(req, res) {
   const { slug } = req.params;
+  const cleanSlug = (slug || '').toLowerCase().trim();
 
-  let perfil = db.prepare('SELECT * FROM perfiles WHERE LOWER(slug) = LOWER(?)').get(slug);
+  let perfil = db.prepare('SELECT * FROM perfiles WHERE LOWER(slug) = LOWER(?)').get(cleanSlug);
+
+  // Relaxed fallback for cristina and juan if exact slug match is missed
+  if (!perfil) {
+    if (cleanSlug.includes('cristina')) {
+      perfil = db.prepare("SELECT * FROM perfiles WHERE slug IN ('cristina', 'cristina-teziutlan', 'cristina-taqueria') ORDER BY id DESC LIMIT 1").get();
+    } else if (cleanSlug.includes('juan') || cleanSlug.includes('peque')) {
+      perfil = db.prepare("SELECT * FROM perfiles WHERE slug IN ('pequeno-juan', 'peque-juan', 'pequeno-juan-medio-digital') ORDER BY id DESC LIMIT 1").get();
+    }
+  }
 
   // Auto-healing fallback para cristina si no existiera en la DB
   if (!perfil && slug.toLowerCase().includes('cristina')) {
@@ -349,7 +359,9 @@ function perfilPublicoHandler(req, res) {
   let avatar_html;
   let fotoSrc = '';
   if (perfil.foto_url) {
-    fotoSrc = perfil.foto_url.startsWith('data:image') ? perfil.foto_url : `${BASE_URL}${perfil.foto_url}`;
+    fotoSrc = (perfil.foto_url.startsWith('http') || perfil.foto_url.startsWith('data:image'))
+      ? perfil.foto_url
+      : `${BASE_URL}${perfil.foto_url}`;
     avatar_html = `<div class="avatar" style="width:110px;height:110px;border:3px solid ${color}">
       <img src="${fotoSrc}" alt="${escapeHtml(perfil.nombre_perfil)}">
     </div>`;
