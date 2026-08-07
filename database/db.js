@@ -289,7 +289,7 @@ class DatabaseWrapper {
       const defaultPassHash = '$2a$10$UL3O/uLxzkBfrOBYqOveAu0P3dq6JTb7xvAQzjESiXw9jl82YOG8.';
 
       // 1. Asegurar cuenta Admin (Giovanni Paolo)
-      let admin = this.prepare("SELECT id FROM usuarios WHERE telefono = '2311556138' OR email = 'gpprzrom@gmail.com'").get();
+      let admin = this.prepare("SELECT id FROM usuarios WHERE telefono = '2311556138' OR email = 'gpprzrom@gmail.com' OR email = 'giovanni@vynk.me'").get();
       if (!admin) {
         const res = this.prepare(`
           INSERT INTO usuarios (telefono, nombre, password_hash, email, plan, role, acciones_restantes)
@@ -298,7 +298,7 @@ class DatabaseWrapper {
         admin = { id: res.lastInsertRowid };
         console.log('✅ Usuario Administrador (Giovanni Paolo) sembrado automáticamente');
       } else {
-        this.prepare("UPDATE usuarios SET role = 'admin', plan = 'paid' WHERE id = ?").run(admin.id);
+        this.prepare("UPDATE usuarios SET role = 'admin', plan = 'paid', email = 'gpprzrom@gmail.com' WHERE id = ?").run(admin.id);
       }
 
       // Perfil oficial del Admin
@@ -313,31 +313,33 @@ class DatabaseWrapper {
         this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'social_icons', ?, 1)").run(pId, JSON.stringify({ redes: [{ tipo: 'instagram', url: 'https://instagram.com' }, { tipo: 'linkedin', url: 'https://linkedin.com' }] }));
       }
 
-      // Perfil Empresarial "Nivel Dios": Cristina Restaurante & Taquería — Teziutlán
-      let cristinaP = this.prepare("SELECT id FROM perfiles WHERE slug = 'cristina-teziutlan'").get();
-      let cId;
-      if (!cristinaP) {
-        const resC = this.prepare(`
-          INSERT INTO perfiles (usuario_id, slug, nombre_perfil, tipo, color, tema, bio, foto_url, banner_url)
-          VALUES (?, 'cristina-teziutlan', 'Cristina Restaurante & Taquería', 'negocio', '#B91C1C', 'food', '⭐ 4.8 (120+ opiniones) · Desde 1985 · 📍 3 Sucursales\nEl auténtico sabor de Teziutlán: Tacos al pastor, desayunos buffet y antojitos tradicionales.', 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=300', 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1000')
-        `).run(admin.id);
-        cId = resC.lastInsertRowid;
-      } else {
-        cId = cristinaP.id;
-        this.prepare(`
-          UPDATE perfiles SET 
-            usuario_id = ?,
-            banner_url = 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1000',
-            foto_url = 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=300',
-            color = '#B91C1C',
-            tema = 'food',
-            bio = '⭐ 4.8 (120+ opiniones) · Desde 1985 · 📍 3 Sucursales\nEl auténtico sabor de Teziutlán: Tacos al pastor, desayunos buffet y antojitos tradicionales.'
-          WHERE id = ?
-        `).run(admin.id, cId);
-      }
+      // Crear / Actualizar tarjetas de Cristina Teziutlán ( slugs: 'cristina-teziutlan' y 'cristina' )
+      const cristinaSlugs = ['cristina-teziutlan', 'cristina'];
+      for (const slug of cristinaSlugs) {
+        let cristinaP = this.prepare("SELECT id FROM perfiles WHERE slug = ?").get(slug);
+        let cId;
+        if (!cristinaP) {
+          const resC = this.prepare(`
+            INSERT INTO perfiles (usuario_id, slug, nombre_perfil, tipo, color, tema, bio, foto_url, banner_url)
+            VALUES (?, ?, 'Cristina Restaurante & Taquería', 'negocio', '#B91C1C', 'food', '⭐ 4.8 (120+ opiniones) · Desde 1985 · 📍 3 Sucursales\nEl auténtico sabor de Teziutlán: Tacos al pastor, desayunos buffet y antojitos tradicionales.', 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=300', 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1000')
+          `).run(admin.id, slug);
+          cId = resC.lastInsertRowid;
+        } else {
+          cId = cristinaP.id;
+          this.prepare(`
+            UPDATE perfiles SET 
+              usuario_id = ?,
+              banner_url = 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1000',
+              foto_url = 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=300',
+              color = '#B91C1C',
+              tema = 'food',
+              bio = '⭐ 4.8 (120+ opiniones) · Desde 1985 · 📍 3 Sucursales\nEl auténtico sabor de Teziutlán: Tacos al pastor, desayunos buffet y antojitos tradicionales.'
+            WHERE id = ?
+          `).run(admin.id, cId);
+        }
 
-      // Actualizar bloques para iconografía coherente de sucursales
-      this.prepare("DELETE FROM bloques WHERE perfil_id = ?").run(cId);
+        // Actualizar bloques para iconografía coherente de sucursales
+        this.prepare("DELETE FROM bloques WHERE perfil_id = ?").run(cId);
 
         // --- SECCIÓN 1: CONTACTO Y PEDIDOS ---
         this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'seccion', ?, 0)").run(
@@ -399,6 +401,7 @@ class DatabaseWrapper {
         this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'social_icons', ?, 12)").run(
           cId, JSON.stringify({ redes: [{ tipo: 'facebook', url: 'https://www.facebook.com/CristinaRestauranteOficial/' }, { tipo: 'instagram', url: 'https://instagram.com/cristinarestaurante' }] })
         );
+      }
 
       // 2. Definir los 5 Usuarios Free y 5 Usuarios Pro
       const seedUsers = [
