@@ -17,6 +17,7 @@ const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
  * Listar perfiles del usuario autenticado.
  */
 router.get('/', auth, (req, res) => {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
   console.log('API FETCH USER:', req.user);
 
   // Asegurar que el usuario autenticado (especialmente el Admin / Giovanni Paolo) tenga asignadas las tarjetas empresariales

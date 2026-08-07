@@ -56,7 +56,7 @@
   };
 
   function loadProfiles() {
-    api('/perfiles').then(function(data) {
+    api('/perfiles?_t=' + Date.now()).then(function(data) {
       if (!data || data.error) return;
 
       var perfiles = Array.isArray(data) ? data : (data.perfiles || []);
