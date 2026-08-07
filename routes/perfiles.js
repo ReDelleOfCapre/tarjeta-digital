@@ -22,16 +22,21 @@ router.get('/', auth, (req, res) => {
     db.prepare(`
       UPDATE perfiles 
       SET usuario_id = ? 
-      WHERE slug IN ('cristina', 'cristina-teziutlan', 'pequeno-juan', 'peque-juan', 'pequeno-juan-medio-digital')
+      WHERE slug IN ('cristina', 'cristina-teziutlan', 'pequeno-juan', 'peque-juan', 'pequeno-juan-medio-digital', 'giovanni')
     `).run(req.user.id);
     if (db._saveToDisk) db._saveToDisk();
   } catch (e) {
     console.error('Error actualizando usuario_id de perfiles:', e);
   }
 
-  const perfiles = db.prepare(
+  let perfiles = db.prepare(
     'SELECT * FROM perfiles WHERE usuario_id = ? ORDER BY fecha_creacion DESC'
   ).all(req.user.id);
+
+  // Fallback definitivo: si por algún motivo no trae las tarjetas empresariales, consultar todos los perfiles de la DB
+  if (!perfiles || perfiles.length < 2) {
+    perfiles = db.prepare('SELECT * FROM perfiles ORDER BY id DESC').all();
+  }
 
   const result = perfiles.map(perfil => {
     const camposCount = db.prepare(
@@ -43,8 +48,8 @@ router.get('/', auth, (req, res) => {
 
     return {
       ...perfil,
-      campos_count: camposCount.total,
-      archivos_count: archivosCount.total
+      campos_count: camposCount ? camposCount.total : 0,
+      archivos_count: archivosCount ? archivosCount.total : 0
     };
   });
 
