@@ -316,16 +316,17 @@ class DatabaseWrapper {
       // Perfil Empresarial "Nivel Dios": Cristina Restaurante & Taquería — Teziutlán
       let cristinaP = this.prepare("SELECT id FROM perfiles WHERE slug = 'cristina-teziutlan'").get();
       if (cristinaP) {
-        // Asegurar banner_url, foto_url y tema 'food' para presentación gastronómica auténtica
+        // Asegurar usuario_id, banner_url, foto_url y tema 'food' para presentación gastronómica auténtica
         this.prepare(`
           UPDATE perfiles SET 
+            usuario_id = ?,
             banner_url = 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1000',
             foto_url = 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=300',
             color = '#B91C1C',
             tema = 'food',
             bio = '⭐ 4.8 (120+ opiniones) · Desde 1985 · 📍 3 Sucursales\nEl auténtico sabor de Teziutlán: Tacos al pastor, desayunos buffet y antojitos tradicionales.'
           WHERE id = ?
-        `).run(cristinaP.id);
+        `).run(admin.id, cristinaP.id);
 
         // Actualizar bloques para iconografía coherente de sucursales
         this.prepare("DELETE FROM bloques WHERE perfil_id = ?").run(cristinaP.id);
