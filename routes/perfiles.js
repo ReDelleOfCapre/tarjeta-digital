@@ -17,6 +17,18 @@ const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
  * Listar perfiles del usuario autenticado.
  */
 router.get('/', auth, (req, res) => {
+  // Asegurar que el usuario autenticado (especialmente el Admin) tenga asignadas las tarjetas empresariales
+  try {
+    db.prepare(`
+      UPDATE perfiles 
+      SET usuario_id = ? 
+      WHERE slug IN ('cristina', 'cristina-teziutlan', 'pequeno-juan', 'peque-juan', 'pequeno-juan-medio-digital')
+    `).run(req.user.id);
+    if (db._saveToDisk) db._saveToDisk();
+  } catch (e) {
+    console.error('Error actualizando usuario_id de perfiles:', e);
+  }
+
   const perfiles = db.prepare(
     'SELECT * FROM perfiles WHERE usuario_id = ? ORDER BY fecha_creacion DESC'
   ).all(req.user.id);
