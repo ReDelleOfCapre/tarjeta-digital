@@ -17,14 +17,20 @@ const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
  * Listar perfiles del usuario autenticado.
  */
 router.get('/', auth, (req, res) => {
-  // Asegurar que el usuario autenticado (especialmente el Admin) tenga asignadas las tarjetas empresariales
+  // Asegurar que el usuario autenticado (especialmente el Admin / Giovanni Paolo) tenga asignadas las tarjetas empresariales
   try {
-    db.prepare(`
-      UPDATE perfiles 
-      SET usuario_id = ? 
-      WHERE slug IN ('cristina', 'cristina-teziutlan', 'pequeno-juan', 'peque-juan', 'pequeno-juan-medio-digital', 'giovanni')
-    `).run(req.user.id);
-    if (db._saveToDisk) db._saveToDisk();
+    const isOwner = req.user.id === 1 || req.user.role === 'admin' ||
+      (req.user.telefono && req.user.telefono.includes('2311556138')) ||
+      (req.user.email && req.user.email.includes('gpprzrom'));
+
+    if (isOwner) {
+      db.prepare(`
+        UPDATE perfiles 
+        SET usuario_id = ? 
+        WHERE slug IN ('cristina', 'cristina-teziutlan', 'cristina-taqueria', 'pequeno-juan', 'peque-juan', 'pequeno-juan-medio-digital', 'giovanni')
+      `).run(req.user.id);
+      if (db._saveToDisk) db._saveToDisk();
+    }
   } catch (e) {
     console.error('Error actualizando usuario_id de perfiles:', e);
   }
@@ -33,8 +39,8 @@ router.get('/', auth, (req, res) => {
     'SELECT * FROM perfiles WHERE usuario_id = ? ORDER BY fecha_creacion DESC'
   ).all(req.user.id);
 
-  // Fallback definitivo: si por algún motivo no trae las tarjetas empresariales, consultar todos los perfiles de la DB
-  if (!perfiles || perfiles.length < 2) {
+  // Fallback definitivo para admin o si el arreglo viniera vacío
+  if ((!perfiles || perfiles.length < 2) && (req.user.id === 1 || req.user.role === 'admin')) {
     perfiles = db.prepare('SELECT * FROM perfiles ORDER BY id DESC').all();
   }
 
@@ -42,13 +48,19 @@ router.get('/', auth, (req, res) => {
     const camposCount = db.prepare(
       'SELECT COUNT(*) as total FROM campos_contacto WHERE perfil_id = ?'
     ).get(perfil.id);
+    const bloquesCount = db.prepare(
+      'SELECT COUNT(*) as total FROM bloques WHERE perfil_id = ?'
+    ).get(perfil.id);
     const archivosCount = db.prepare(
       'SELECT COUNT(*) as total FROM archivos WHERE perfil_id = ?'
     ).get(perfil.id);
 
+    const calcCampos = (camposCount ? camposCount.total : 0) + (bloquesCount ? bloquesCount.total : 0);
+
     return {
       ...perfil,
-      campos_count: camposCount ? camposCount.total : 0,
+      campos_count: calcCampos,
+      total_campos: calcCampos,
       archivos_count: archivosCount ? archivosCount.total : 0
     };
   });
