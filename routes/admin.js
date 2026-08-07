@@ -245,6 +245,14 @@ router.delete('/perfiles/:id', async (req, res) => {
     const perfil = db.prepare('SELECT id FROM perfiles WHERE id = ?').get(perfilId);
     if (!perfil) return res.status(404).json({ error: 'Perfil no encontrado' });
 
+    db.prepare('DELETE FROM perfiles WHERE id = ?').run(perfilId);
+    res.json({ ok: true, mensaje: 'Perfil eliminado' });
+  } catch (err) {
+    console.error('Error eliminando perfil (admin):', err);
+    res.status(500).json({ error: 'Error interno' });
+  }
+});
+
 // PUT /api/admin/usuarios/:id/password — Admin resets password for any user
 const bcrypt = require('bcryptjs');
 const fs = require('fs');
