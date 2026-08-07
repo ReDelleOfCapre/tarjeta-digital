@@ -288,22 +288,37 @@ class DatabaseWrapper {
     try {
       const defaultPassHash = '$2a$10$UL3O/uLxzkBfrOBYqOveAu0P3dq6JTb7xvAQzjESiXw9jl82YOG8.';
 
-      // 1. Asegurar cuenta Admin (Giovanni Paolo)
-      let admin = this.prepare("SELECT id FROM usuarios WHERE telefono LIKE '%2311556138%' OR email LIKE '%gpprzrom%' OR email = 'giovanni@vynk.me'").get();
-      if (!admin) {
-        const res = this.prepare(`
-          INSERT INTO usuarios (telefono, nombre, password_hash, email, plan, role, acciones_restantes)
-          VALUES ('2311556138', 'Giovanni Paolo', ?, 'gpprzrom@gmail.com', 'paid', 'admin', 10)
-        `).run(defaultPassHash);
-        admin = { id: res.lastInsertRowid };
-        console.log('✅ Usuario Administrador (Giovanni Paolo) sembrado automáticamente');
-      } else {
-        this.prepare("UPDATE usuarios SET role = 'admin', plan = 'paid', email = 'gpprzrom@gmail.com', nombre = 'Giovanni Paolo' WHERE id = ?").run(admin.id);
-      }
+      // 1. Asegurar cuenta Admin (Giovanni Paolo) como ID 1 por defecto
+      this.prepare(`
+        INSERT OR IGNORE INTO usuarios (id, telefono, nombre, password_hash, email, plan, role, acciones_restantes)
+        VALUES (1, '2311556138', 'Giovanni Paolo', ?, 'gpprzrom@gmail.com', 'paid', 'admin', 10)
+      `).run(defaultPassHash);
 
-      // Re-asignar tarjetas empresariales a todas las cuentas que pertenezcan a Giovanni Paolo (por teléfono o email)
-      const adminUsers = this.prepare("SELECT id FROM usuarios WHERE role = 'admin' OR telefono LIKE '%2311556138%' OR email LIKE '%gpprzrom%'").all();
-      const targetUserId = adminUsers.length > 0 ? adminUsers[0].id : (admin ? admin.id : 1);
+      let admin = this.prepare("SELECT id FROM usuarios WHERE id = 1 OR telefono LIKE '%2311556138%' OR email LIKE '%gpprzrom%'").get();
+      if (!admin) admin = { id: 1 };
+      this.prepare("UPDATE usuarios SET role = 'admin', plan = 'paid', email = 'gpprzrom@gmail.com', nombre = 'Giovanni Paolo' WHERE id = ?").run(admin.id);
+
+      const targetUserId = admin.id;
+
+      // Re-asignar incondicionalmente las 7 tarjetas al usuario principal
+      const seedCards = [
+        { slug: 'giovanni', nombre: 'Giovanni Paolo — VYNK Director', tipo: 'personal', color: '#7C3AED', tema: 'neon', bio: 'Fundador de VYNK. Creando la mejor plataforma de identidad digital.' },
+        { slug: 'cristina', nombre: 'Cristina Restaurante & Taquería', tipo: 'negocio', color: '#B91C1C', tema: 'food', bio: '⭐ 4.2 (1,300+ opiniones) · 📍 3 Sucursales en Teziutlán' },
+        { slug: 'cristina-teziutlan', nombre: 'Cristina Restaurante & Taquería', tipo: 'negocio', color: '#B91C1C', tema: 'food', bio: '⭐ 4.2 (1,300+ opiniones) · 📍 3 Sucursales en Teziutlán' },
+        { slug: 'cristina-taqueria', nombre: 'Cristina Restaurante & Taquería', tipo: 'negocio', color: '#B91C1C', tema: 'food', bio: '⭐ 4.2 (1,300+ opiniones) · 📍 3 Sucursales en Teziutlán' },
+        { slug: 'pequeno-juan', nombre: 'Pequeño Juan | Medio Digital Líder', tipo: 'negocio', color: '#E11D48', tema: 'neon', bio: '⭐ 5.0 (226K+ Seguidores) · El Medio Digital Mejor Posicionado de Teziutlán' },
+        { slug: 'peque-juan', nombre: 'Pequeño Juan | Medio Digital Líder', tipo: 'negocio', color: '#E11D48', tema: 'neon', bio: '⭐ 5.0 (226K+ Seguidores) · El Medio Digital Mejor Posicionado de Teziutlán' },
+        { slug: 'pequeno-juan-medio-digital', nombre: 'Pequeño Juan | Medio Digital Líder', tipo: 'negocio', color: '#E11D48', tema: 'neon', bio: '⭐ 5.0 (226K+ Seguidores) · El Medio Digital Mejor Posicionado de Teziutlán' }
+      ];
+
+      for (const card of seedCards) {
+        this.prepare(`
+          INSERT OR IGNORE INTO perfiles (usuario_id, slug, nombre_perfil, tipo, color, tema, bio)
+          VALUES (?, ?, ?, ?, ?, ?, ?)
+        `).run(targetUserId, card.slug, card.nombre, card.tipo, card.color, card.tema, card.bio);
+
+        this.prepare("UPDATE perfiles SET usuario_id = ? WHERE slug = ?").run(targetUserId, card.slug);
+      }
 
       // Perfil oficial del Admin
       let adminP = this.prepare("SELECT id FROM perfiles WHERE slug = 'giovanni'").get();
