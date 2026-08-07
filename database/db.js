@@ -313,16 +313,17 @@ class DatabaseWrapper {
         this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'social_icons', ?, 1)").run(pId, JSON.stringify({ redes: [{ tipo: 'instagram', url: 'https://instagram.com' }, { tipo: 'linkedin', url: 'https://linkedin.com' }] }));
       }
 
-      // Crear / Actualizar tarjetas de Cristina Teziutlán ( slugs: 'cristina-teziutlan' y 'cristina' )
-      const cristinaSlugs = ['cristina-teziutlan', 'cristina'];
+      // Crear / Actualizar tarjetas de Cristina Teziutlán ( slugs: 'cristina-teziutlan', 'cristina' y 'cristina-taqueria' )
+      const cristinaSlugs = ['cristina-teziutlan', 'cristina', 'cristina-taqueria'];
       for (const slug of cristinaSlugs) {
         let cristinaP = this.prepare("SELECT id FROM perfiles WHERE slug = ?").get(slug);
         let cId;
+        const bioText = '⭐ 4.2 (1,300+ opiniones) · 📍 3 Sucursales en Teziutlán\n"Buena comida, buena vista y una buena plática. A veces no hace falta mucho más para disfrutar el día."';
         if (!cristinaP) {
           const resC = this.prepare(`
             INSERT INTO perfiles (usuario_id, slug, nombre_perfil, tipo, color, tema, bio, foto_url, banner_url)
-            VALUES (?, ?, 'Cristina Restaurante & Taquería', 'negocio', '#B91C1C', 'food', '⭐ 4.8 (120+ opiniones) · Desde 1985 · 📍 3 Sucursales\nEl auténtico sabor de Teziutlán: Tacos al pastor, desayunos buffet y antojitos tradicionales.', 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=300', 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1000')
-          `).run(admin.id, slug);
+            VALUES (?, ?, 'Cristina Restaurante & Taquería', 'negocio', '#B91C1C', 'food', ?, 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=300', 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1000')
+          `).run(admin.id, slug, bioText);
           cId = resC.lastInsertRowid;
         } else {
           cId = cristinaP.id;
@@ -333,9 +334,9 @@ class DatabaseWrapper {
               foto_url = 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=300',
               color = '#B91C1C',
               tema = 'food',
-              bio = '⭐ 4.8 (120+ opiniones) · Desde 1985 · 📍 3 Sucursales\nEl auténtico sabor de Teziutlán: Tacos al pastor, desayunos buffet y antojitos tradicionales.'
+              bio = ?
             WHERE id = ?
-          `).run(admin.id, cId);
+          `).run(admin.id, bioText, cId);
         }
 
         // Actualizar bloques para iconografía coherente de sucursales
@@ -347,28 +348,28 @@ class DatabaseWrapper {
         );
 
         this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'whatsapp', ?, 1)").run(
-          cId, JSON.stringify({ numero: '522313122032', texto: '🚀 Ordenar por WhatsApp', mensaje_default: '¡Hola Cristina Restaurante! Me gustaría realizar un pedido para pasar a recoger / a domicilio.' })
+          cId, JSON.stringify({ numero: '522313122032', texto: '🚀 Ordenar por WhatsApp Directo', mensaje_default: '¡Hola Cristina Restaurante & Taquería! Me gustaría realizar un pedido para pasar a recoger / a domicilio.' })
         );
 
         this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 2)").run(
-          cId, JSON.stringify({ url: 'https://www.ubereats.com/store/cristina-restaurante-taqueria/', titulo: '🛵 Pedir a Domicilio por Uber Eats', subtitulo: 'Entregas directas a tu ubicación', icono: '🛵', color: '#10B981' })
+          cId, JSON.stringify({ url: 'https://www.ubereats.com/store/cristina-restaurante-taqueria/', titulo: '🛵 Pedir a Domicilio por Uber Eats', subtitulo: 'Entrega rápida directo a tu ubicación', icono: '🛵', color: '#10B981' })
         );
 
         // --- SECCIÓN 2: MENÚ Y GALERÍA DE PLATILLOS ---
         this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'seccion', ?, 3)").run(
-          cId, JSON.stringify({ titulo: '🍽 MENÚ DIGITAL & GALERÍA DE PLATILLOS' })
+          cId, JSON.stringify({ titulo: '🍽 MENÚ DIGITAL & ESPECIALIDADES' })
         );
 
         this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'pdf', ?, 4)").run(
-          cId, JSON.stringify({ titulo: '📄 Descargar Menú Completo (PDF)', subtitulo: 'Carta oficial con desayunos, tacos al pastor y especialidades', url: 'http://restaurantescristina.com/menu.pdf' })
+          cId, JSON.stringify({ titulo: '📄 Descargar Menú Completo (PDF)', subtitulo: 'Carta oficial con desayunos buffet, tacos al pastor y especialidades', url: 'http://restaurantescristina.com/menu.pdf' })
         );
 
         this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'galeria', ?, 5)").run(
           cId, JSON.stringify({
             imagenes: [
-              { url: 'https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?w=600', caption: '🌮 Tacos al Pastor Tradicionales' },
-              { url: 'https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?w=600', caption: '🥐 Buffet de Desayunos Teziutecos' },
-              { url: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=600', caption: '🥩 Cortes a la Parrilla & Antojitos' }
+              { url: 'https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?w=600', caption: '🌮 Tacos al Pastor Tradicionales con Piña' },
+              { url: 'https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?w=600', caption: '🥐 Buffet de Desayunos Teziutecos & Antojitos' },
+              { url: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=600', caption: '🥩 Cortes a la Parrilla & Carnes Asadas' }
             ]
           })
         );
@@ -382,22 +383,22 @@ class DatabaseWrapper {
           cId, JSON.stringify({ banco: 'Mercado Pago W / STPF', clabe: '722969020100826020', beneficiario: 'Cristina Restaurante S.A.', concepto: 'Consumo / Pedido' })
         );
 
-        // --- SECCIÓN 4: SUCURSALES (Pines de mapa consistentes) ---
+        // --- SECCIÓN 4: SUCURSALES (Las 3 Ubicaciones de Teziutlán) ---
         this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'seccion', ?, 8)").run(
-          cId, JSON.stringify({ titulo: '📍 SUCURSALES EN TEZIUTLÁN' })
+          cId, JSON.stringify({ titulo: '📍 LAS 3 SUCURSALES EN TEZIUTLÁN' })
         );
 
         this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 9)").run(
-          cId, JSON.stringify({ url: 'https://maps.google.com/?q=Ignacio+Allende+603+Centro+Teziutlan+Puebla', titulo: '📍 Sucursal 1: Centro — Allende #603', subtitulo: 'Tel: (231) 312-2032 | 9:00 AM - 11:00 PM', icono: '📍', color: '#D97706' })
+          cId, JSON.stringify({ url: 'https://maps.google.com/?q=Ignacio+Allende+603+Centro+Teziutlan+Puebla', titulo: '📍 Sucursal 1: Centro — Allende #603', subtitulo: '⭐ 4.2 (1.1K opiniones) | Tel: (231) 312-2032 | Consumo & Para llevar', icono: '📍', color: '#D97706' })
         );
         this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 10)").run(
-          cId, JSON.stringify({ url: 'https://maps.google.com/?q=Av+Miguel+Hidalgo+1718+El+Pinal+Teziutlan+Puebla', titulo: '📍 Sucursal 2: La Maquinita — Av. Hidalgo #1718', subtitulo: 'Tel: (231) 688-4065 | El Pinal', icono: '📍', color: '#D97706' })
+          cId, JSON.stringify({ url: 'https://maps.google.com/?q=Av+Miguel+Hidalgo+1718+El+Pinal+Teziutlan+Puebla', titulo: '🚗 Sucursal 2: La Maquinita — Av. Hidalgo #1718', subtitulo: '⭐ 4.1 (211 opiniones) | Tel: (231) 688-4065 | Auto-servicio / Drive-thru', icono: '🚗', color: '#D97706' })
         );
         this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 11)").run(
-          cId, JSON.stringify({ url: 'https://maps.google.com/?q=Mercado+Victoria+51+Teziutlan+Puebla', titulo: '📍 Sucursal 3: Mercado Victoria — Calle Mercado #51', subtitulo: 'Sabor tradicional en el centro comercial', icono: '📍', color: '#D97706' })
+          cId, JSON.stringify({ url: 'https://maps.google.com/?q=Mercado+Victoria+51+Teziutlan+Puebla', titulo: '🏪 Sucursal 3: Mercado Victoria — Calle Mercado #51', subtitulo: '⭐ 4.6 (23 opiniones) | Sabor tradicional en el centro comercial', icono: '🏪', color: '#D97706' })
         );
 
-        // --- SECCIÓN 5: REDES ---
+        // --- SECCIÓN 5: REDES SOCIALES ---
         this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'social_icons', ?, 12)").run(
           cId, JSON.stringify({ redes: [{ tipo: 'facebook', url: 'https://www.facebook.com/CristinaRestauranteOficial/' }, { tipo: 'instagram', url: 'https://instagram.com/cristinarestaurante' }] })
         );
