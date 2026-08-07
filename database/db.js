@@ -282,90 +282,80 @@ class DatabaseWrapper {
   }
 
   /**
-   * Auto-sembrar cuenta Admin y 10 perfiles de prueba en cada arranque si no existen
+   * Auto-sembrar cuenta Admin, 5 Usuarios Free y 5 Usuarios Pro con sus perfiles
    */
   _seedDatabase() {
     try {
+      const defaultPassHash = '$2a$10$UL3O/uLxzkBfrOBYqOveAu0P3dq6JTb7xvAQzjESiXw9jl82YOG8.';
+
       // 1. Asegurar cuenta Admin (Giovanni Paolo)
-      const adminPassHash = '$2a$10$UL3O/uLxzkBfrOBYqOveAu0P3dq6JTb7xvAQzjESiXw9jl82YOG8.';
       let admin = this.prepare("SELECT id FROM usuarios WHERE telefono = '2311556138' OR email = 'gpprzrom@gmail.com'").get();
-      
       if (!admin) {
         const res = this.prepare(`
           INSERT INTO usuarios (telefono, nombre, password_hash, email, plan, role, acciones_restantes)
           VALUES ('2311556138', 'Giovanni Paolo', ?, 'gpprzrom@gmail.com', 'paid', 'admin', 10)
-        `).run(adminPassHash);
+        `).run(defaultPassHash);
         admin = { id: res.lastInsertRowid };
         console.log('✅ Usuario Administrador (Giovanni Paolo) sembrado automáticamente');
       } else {
         this.prepare("UPDATE usuarios SET role = 'admin', plan = 'paid' WHERE id = ?").run(admin.id);
       }
 
-      // 2. Verificar si hay al menos 10 perfiles de prueba
-      const countRes = this.prepare("SELECT COUNT(*) as total FROM perfiles").get();
-      if (countRes.total < 10) {
-        console.log('🌱 Generando 10 perfiles de prueba automáticos en la base de datos...');
-        
-        const testProfiles = [
-          { slug: 'giovanni', nombre: 'Giovanni Paolo — VYNK Director', tema: 'neon', color: '#7C3AED', bio: 'Fundador de VYNK. Creando la mejor plataforma de identidad digital.' },
-          { slug: 'demo-pro', nombre: 'Carlos Mendoza — Consultor Senior', tema: 'ios', color: '#3B82F6', bio: 'Especialista en consultoría estratégica y transformación digital.' },
-          { slug: 'creador-vynk', nombre: 'Sofía Rivera — Content Creator', tema: 'gradient', color: '#FF6B6B', bio: 'Creadora de contenido tech & lifestyle con más de 500k seguidores.' },
-          { slug: 'tech-lead', nombre: 'Alex Dev — Full Stack Engineer', tema: 'retro', color: '#00ff41', bio: 'Apasionado del código limpio, Node.js, React y arquitecturas Cloud.' },
-          { slug: 'musica-live', nombre: 'DJ Quantum — Music Producer', tema: 'glass', color: '#06B6D4', bio: 'Productor de música electrónica & DJ con lanzamientos en Spotify.' },
-          { slug: 'chef-gourmet', nombre: 'Chef Mateo — Alta Cocina', tema: 'minimal', color: '#D97706', bio: 'Cocina de autor y experiencias gastronómicas privadas.' },
-          { slug: 'fit-coach', nombre: 'Valeria Fit — Personal Trainer', tema: 'neon', color: '#10B981', bio: 'Transformaciones físicas y entrenamiento de alto rendimiento.' },
-          { slug: 'foto-studio', nombre: 'Diego Photo — Filmmaker', tema: 'gradient', color: '#8B5CF6', bio: 'Fotografía publicitaria, retrato y producción cinematográfica.' },
-          { slug: 'design-pro', nombre: 'Elena UI — Product Designer', tema: 'glass', color: '#EC4899', bio: 'Diseño de experiencias digitales y sistemas de diseño.' },
-          { slug: 'growth-mkt', nombre: 'Growth Studio — Agencia Digital', tema: 'ios', color: '#6366F1', bio: 'Escalamos marcas y productos digitales con estrategias Data-Driven.' }
-        ];
-
-        for (const p of testProfiles) {
-          const existingP = this.prepare("SELECT id FROM perfiles WHERE slug = ?").get(p.slug);
-          if (!existingP) {
-            const result = this.prepare(`
-              INSERT INTO perfiles (usuario_id, slug, nombre_perfil, tipo, color, tema, bio)
-              VALUES (?, ?, ?, 'personal', ?, ?, ?)
-            `).run(admin.id, p.slug, p.nombre, p.color, p.tema, p.bio);
-            
-            const perfilId = result.lastInsertRowid;
-
-            // Bloques de prueba para cada tarjeta
-            this.prepare(`
-              INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, ?, ?, 0)
-            `).run(perfilId, 'whatsapp', JSON.stringify({ numero: '522311556138', mensaje_default: 'Hola! Vi tu perfil en VYNK' }));
-
-            this.prepare(`
-              INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, ?, ?, 1)
-            `).run(perfilId, 'social_icons', JSON.stringify({
-              redes: [
-                { tipo: 'instagram', url: 'https://instagram.com' },
-                { tipo: 'facebook', url: 'https://facebook.com' },
-                { tipo: 'tiktok', url: 'https://tiktok.com' },
-                { tipo: 'linkedin', url: 'https://linkedin.com' }
-              ]
-            }));
-
-            this.prepare(`
-              INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, ?, ?, 2)
-            `).run(perfilId, 'link', JSON.stringify({
-              url: 'https://vynk.onrender.com',
-              titulo: '🌐 Visitar sitio oficial de VYNK',
-              subtitulo: 'Crea tu tarjeta digital gratis',
-              icono: '⚡',
-              color: p.color
-            }));
-
-            this.prepare(`
-              INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, ?, ?, 3)
-            `).run(perfilId, 'texto', JSON.stringify({
-              texto: '¡Bienvenido a mi tarjeta digital interactiva en VYNK!',
-              estilo: 'cita'
-            }));
-          }
-        }
-        console.log('✅ 10 Perfiles de prueba automáticos sembrados con éxito');
+      // Perfil oficial del Admin
+      let adminP = this.prepare("SELECT id FROM perfiles WHERE slug = 'giovanni'").get();
+      if (!adminP) {
+        const resP = this.prepare(`
+          INSERT INTO perfiles (usuario_id, slug, nombre_perfil, tipo, color, tema, bio)
+          VALUES (?, 'giovanni', 'Giovanni Paolo — VYNK Director', 'personal', '#7C3AED', 'neon', 'Fundador de VYNK. Creando la mejor plataforma de identidad digital.')
+        `).run(admin.id);
+        const pId = resP.lastInsertRowid;
+        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'whatsapp', ?, 0)").run(pId, JSON.stringify({ numero: '522311556138', mensaje_default: 'Hola Giovanni!' }));
+        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'social_icons', ?, 1)").run(pId, JSON.stringify({ redes: [{ tipo: 'instagram', url: 'https://instagram.com' }, { tipo: 'linkedin', url: 'https://linkedin.com' }] }));
       }
 
+      // 2. Definir los 5 Usuarios Free y 5 Usuarios Pro
+      const seedUsers = [
+        // 5 Usuarios Free
+        { tel: '5510000001', nombre: 'Laura Gómez', email: 'laura@ejemplo.com', plan: 'free', expira: null, slug: 'laura-design', color: '#3B82F6', tema: 'ios', bio: 'Diseñadora independiente y creativa.' },
+        { tel: '5510000002', nombre: 'Roberto Silva', email: 'roberto@ejemplo.com', plan: 'free', expira: null, slug: 'roberto-consultor', color: '#D97706', tema: 'minimal', bio: 'Consultor de negocios local.' },
+        { tel: '5510000003', nombre: 'Mariana Ríos', email: 'mariana@ejemplo.com', plan: 'free', expira: null, slug: 'mariana-foto', color: '#8B5CF6', tema: 'ios', bio: 'Fotógrafa de eventos y retrato.' },
+        { tel: '5510000004', nombre: 'Fernando Torres', email: 'fernando@ejemplo.com', plan: 'free', expira: null, slug: 'fernando-fit', color: '#10B981', tema: 'minimal', bio: 'Entrenador físico personal.' },
+        { tel: '5510000005', nombre: 'Camila Mendoza', email: 'camila@ejemplo.com', plan: 'free', expira: null, slug: 'camila-art', color: '#EC4899', tema: 'ios', bio: 'Ilustradora digital y artista.' },
+        
+        // 5 Usuarios Pro
+        { tel: '5520000001', nombre: 'Carlos Mendoza (Pro)', email: 'carlos.pro@ejemplo.com', plan: 'paid', expira: new Date(Date.now() + 30*86400000).toISOString(), slug: 'carlos-pro', color: '#7C3AED', tema: 'neon', bio: 'Consultor Corporativo Senior & Speaker.' },
+        { tel: '5520000002', nombre: 'Sofía Rivera (Pro)', email: 'sofia.pro@ejemplo.com', plan: 'paid', expira: new Date(Date.now() + 30*86400000).toISOString(), slug: 'sofia-creator', color: '#FF6B6B', tema: 'gradient', bio: 'Content Creator (+500k seguidores).' },
+        { tel: '5520000003', nombre: 'Alex Dev (Pro)', email: 'alex.pro@ejemplo.com', plan: 'paid', expira: new Date(Date.now() + 365*86400000).toISOString(), slug: 'alex-dev', color: '#00ff41', tema: 'retro', bio: 'Full Stack Tech Lead & Cloud Architect.' },
+        { tel: '5520000004', nombre: 'DJ Quantum (Pro)', email: 'dj.pro@ejemplo.com', plan: 'paid', expira: new Date(Date.now() + 30*86400000).toISOString(), slug: 'dj-quantum', color: '#06B6D4', tema: 'glass', bio: 'Productor de Música Electrónica & Tour DJ.' },
+        { tel: '5520000005', nombre: 'Growth Studio (Pro)', email: 'growth.pro@ejemplo.com', plan: 'paid', expira: new Date(Date.now() + 365*86400000).toISOString(), slug: 'growth-studio', color: '#6366F1', tema: 'glass', bio: 'Agencia de Marketing Digital & Escalabilidad.' }
+      ];
+
+      for (const u of seedUsers) {
+        let userRecord = this.prepare("SELECT id FROM usuarios WHERE telefono = ?").get(u.tel);
+        if (!userRecord) {
+          const resU = this.prepare(`
+            INSERT INTO usuarios (telefono, nombre, password_hash, email, plan, plan_expira, role, acciones_restantes)
+            VALUES (?, ?, ?, ?, ?, ?, 'user', 10)
+          `).run(u.tel, u.nombre, defaultPassHash, u.email, u.plan, u.expira);
+          userRecord = { id: resU.lastInsertRowid };
+        }
+
+        // Crear tarjeta del usuario si no existe
+        let perfilRecord = this.prepare("SELECT id FROM perfiles WHERE slug = ?").get(u.slug);
+        if (!perfilRecord) {
+          const resP = this.prepare(`
+            INSERT INTO perfiles (usuario_id, slug, nombre_perfil, tipo, color, tema, bio)
+            VALUES (?, ?, ?, 'personal', ?, ?, ?)
+          `).run(userRecord.id, u.slug, u.nombre, u.color, u.tema, u.bio);
+          const pId = resP.lastInsertRowid;
+
+          this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'whatsapp', ?, 0)").run(pId, JSON.stringify({ numero: u.tel, mensaje_default: 'Hola!' }));
+          this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'social_icons', ?, 1)").run(pId, JSON.stringify({ redes: [{ tipo: 'instagram', url: 'https://instagram.com' }, { tipo: 'facebook', url: 'https://facebook.com' }] }));
+          this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 2)").run(pId, JSON.stringify({ url: 'https://vynk.onrender.com', titulo: '⚡ Visitar mi sitio', icono: '🌐', color: u.color }));
+        }
+      }
+
+      console.log('✅ Base de datos sembrada con 5 Usuarios Free, 5 Usuarios Pro y Admin');
       this._saveToDisk();
     } catch (e) {
       console.error('Error en _seedDatabase:', e);
