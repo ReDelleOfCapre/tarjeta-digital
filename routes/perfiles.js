@@ -13,9 +13,29 @@ const { generateVCard } = require('../utils/vcard');
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 
 /**
- * GET /api/perfiles
- * Listar perfiles del usuario autenticado.
+ * POST /api/perfiles/inicializar
+ * Forzar sembrado e inyección de las 7 tarjetas para el usuario autenticado.
  */
+router.post('/inicializar', auth, (req, res) => {
+  try {
+    const userId = req.user ? req.user.id : 1;
+    if (db._seedDatabase) db._seedDatabase();
+
+    db.prepare(`
+      UPDATE perfiles 
+      SET usuario_id = ? 
+      WHERE slug IN ('cristina', 'cristina-teziutlan', 'cristina-taqueria', 'pequeno-juan', 'peque-juan', 'pequeno-juan-medio-digital', 'giovanni')
+    `).run(userId);
+
+    if (db._saveToDisk) db._saveToDisk();
+
+    const perfiles = db.prepare('SELECT * FROM perfiles ORDER BY id DESC').all();
+    res.json({ success: true, count: perfiles.length, perfiles });
+  } catch (e) {
+    console.error('Error inicializando perfiles:', e);
+    res.status(500).json({ error: 'Error al inicializar tarjetas' });
+  }
+});
 router.get('/', auth, (req, res) => {
   res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
   console.log('API FETCH USER:', req.user);
