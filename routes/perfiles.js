@@ -391,6 +391,41 @@ function perfilPublicoHandler(req, res) {
             </div>
           </div>`;
           break;
+        case 'seccion':
+          html += `<div class="block-section-title">${escapeHtml(bContent.titulo)}</div>`;
+          break;
+        case 'pdf':
+          html += `<a href="${escapeHtml(bContent.url)}" target="_blank" rel="noopener" class="block-link block-pdf">
+            <div class="bl-icon" style="background:rgba(239,68,68,0.15);color:#EF4444"><i class="fas fa-file-pdf"></i></div>
+            <div class="bl-text">
+              <div class="bl-title">${escapeHtml(bContent.titulo || 'Documento PDF')}</div>
+              ${bContent.subtitulo ? `<div class="bl-sub">${escapeHtml(bContent.subtitulo)}</div>` : ''}
+            </div>
+            <i class="fas fa-download bl-arrow"></i>
+          </a>`;
+          break;
+        case 'pago':
+          html += `<div class="block-pago">
+            <div class="pago-header">
+              <div class="pago-icon"><i class="fas fa-credit-card"></i></div>
+              <div>
+                <div class="pago-title">${escapeHtml(bContent.banco || 'Datos de Transferencia')}</div>
+                ${bContent.beneficiario ? `<div class="pago-sub">Titular: ${escapeHtml(bContent.beneficiario)}</div>` : ''}
+              </div>
+            </div>
+            ${bContent.clabe ? `
+              <div class="pago-clabe-box">
+                <span class="clabe-num">${escapeHtml(bContent.clabe)}</span>
+                <button type="button" class="btn-copy-clabe" onclick="navigator.clipboard.writeText('${escapeHtml(bContent.clabe)}');this.textContent='¡Copiado! ✓';setTimeout(()=>this.textContent='Copiar CLABE',2000)">Copiar CLABE</button>
+              </div>` : ''}
+          </div>`;
+          break;
+        case 'nota':
+          html += `<div class="block-nota">
+            <i class="fas fa-thumbtack nota-icon"></i>
+            <div>${escapeHtml(bContent.texto)}</div>
+          </div>`;
+          break;
         default:
           html += `<div class="block-unsupported">Bloque no soportado: ${escapeHtml(bloque.tipo)}</div>`;
       }
@@ -478,6 +513,10 @@ function perfilPublicoHandler(req, res) {
   const bio_text = perfil.bio ? escapeHtml(perfil.bio) : 'Tarjeta digital de contacto';
   const tema = perfil.tema || 'ios';
 
+  const banner_html = perfil.banner_url
+    ? `<div class="hero-banner"><img src="${escapeHtml(perfil.banner_url)}" alt="Portada"></div>`
+    : '';
+
   html = html
     .replace(/\{\{tema_css\}\}/g, themeCss)
     .replace(/\{\{tema\}\}/g, tema)
@@ -489,6 +528,7 @@ function perfilPublicoHandler(req, res) {
     .replace(/\{\{og_image\}\}/g, og_image)
     .replace(/\{\{base_url\}\}/g, BASE_URL)
     .replace(/\{\{visitas\}\}/g, String(perfil.visitas + 1))
+    .replace(/\{\{banner_html\}\}/g, banner_html)
     .replace(/\{\{avatar_html\}\}/g, avatar_html)
     .replace(/\{\{foto_url\}\}/g, fotoSrc)
     .replace(/\{\{bio_html\}\}/g, bio_html)

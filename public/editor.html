@@ -59,10 +59,19 @@
           <label class="form-label">Bio</label>
           <textarea class="form-input" id="bio_perfil" placeholder="Cuéntales sobre ti..." rows="2" maxlength="200"></textarea>
         </div>
+        <div class="form-group" style="margin-top:16px">
+          <label class="form-label">Foto de portada / Banner (Opcional)</label>
+          <div style="display:flex;align-items:center;gap:16px">
+            <div id="banner-preview" onclick="document.getElementById('input-banner').click()" style="width:100%;height:80px;border-radius:12px;background:var(--bg-tertiary);display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;font-size:1.2rem;color:var(--text-muted);border:2px dashed var(--separator)">
+              🌄 Subir Banner / Portada
+            </div>
+            <input type="file" id="input-banner" accept="image/jpeg,image/png,image/gif,image/webp" hidden>
+          </div>
+        </div>
       </div>
 
       <div class="card p-16 mb-16">
-        <label class="form-label">Color</label>
+        <label class="form-label">Color de acento</label>
         <div id="color-picker" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
           <div class="color-option active" style="background:#007AFF;width:36px;height:36px;border-radius:50%;cursor:pointer;border:3px solid transparent" data-color="#007AFF"></div>
           <div class="color-option" style="background:#34C759;width:36px;height:36px;border-radius:50%;cursor:pointer;border:3px solid transparent" data-color="#34C759"></div>
@@ -70,13 +79,13 @@
           <div class="color-option" style="background:#FF3B30;width:36px;height:36px;border-radius:50%;cursor:pointer;border:3px solid transparent" data-color="#FF3B30"></div>
           <div class="color-option" style="background:#AF52DE;width:36px;height:36px;border-radius:50%;cursor:pointer;border:3px solid transparent" data-color="#AF52DE"></div>
           <div class="color-option" style="background:#FF2D55;width:36px;height:36px;border-radius:50%;cursor:pointer;border:3px solid transparent" data-color="#FF2D55"></div>
-          <div class="color-option" style="background:#5AC8FA;width:36px;height:36px;border-radius:50%;cursor:pointer;border:3px solid transparent" data-color="#5AC8FA"></div>
+          <div class="color-option" style="background:#B91C1C;width:36px;height:36px;border-radius:50%;cursor:pointer;border:3px solid transparent" data-color="#B91C1C"></div>
           <div class="color-option" style="background:#1C1C1E;width:36px;height:36px;border-radius:50%;cursor:pointer;border:3px solid transparent" data-color="#1C1C1E"></div>
         </div>
       </div>
 
       <div class="card p-16 mb-16">
-        <label class="form-label" style="margin-bottom:8px">Tema</label>
+        <label class="form-label" style="margin-bottom:8px">Tema visual</label>
         <div id="theme-picker" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px"></div>
       </div>
 

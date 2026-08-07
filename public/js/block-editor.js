@@ -7,24 +7,29 @@
   // ===== CONFIG =====
   var BLOCK_TYPES = [
     { tipo:'link', label:'Link', icon:'📎', color:'#007AFF' },
+    { tipo:'whatsapp', label:'WhatsApp CTA', icon:'💬', color:'#25D366' },
+    { tipo:'social_icons', label:'Redes', icon:'🔗', color:'#AF52DE' },
+    { tipo:'galeria', label:'Fotos / Galería', icon:'📸', color:'#EC4899' },
+    { tipo:'wishlist', label:'Wishlist / Tienda', icon:'🎁', color:'#FF9500' },
+    { tipo:'pdf', label:'Documento PDF', icon:'📄', color:'#EF4444' },
+    { tipo:'pago', label:'Transferencia / Pago', icon:'💳', color:'#10B981' },
+    { tipo:'nota', label:'Nota / Aviso', icon:'📌', color:'#F59E0B' },
+    { tipo:'seccion', label:'Título Sección', icon:'🏷️', color:'#8B5CF6' },
     { tipo:'spotify', label:'Spotify', icon:'🎵', color:'#1DB954' },
     { tipo:'youtube', label:'YouTube', icon:'▶️', color:'#FF0000' },
-    { tipo:'tweet', label:'Tweet', icon:'🐦', color:'#1DA1F2' },
     { tipo:'tiktok', label:'TikTok', icon:'🎬', color:'#000' },
-    { tipo:'whatsapp', label:'WhatsApp', icon:'💬', color:'#25D366' },
-    { tipo:'social_icons', label:'Redes', icon:'🔗', color:'#AF52DE' },
-    { tipo:'texto', label:'Texto', icon:'📝', color:'#8E8E93' },
-    { tipo:'email_capture', label:'Emails', icon:'📧', color:'#FF9500' },
+    { tipo:'texto', label:'Texto libre', icon:'📝', color:'#8E8E93' },
+    { tipo:'email_capture', label:'Captura Email', icon:'📧', color:'#FF9500' },
     { tipo:'countdown', label:'Cuenta regresiva', icon:'⏳', color:'#FF3B30' }
   ];
 
   var THEMES = [
-    { id:'ios', name:'iOS', bg:'#F2F2F7', fg:'#1C1C1E', accent:'#007AFF' },
-    { id:'neon', name:'Neon', bg:'#0a0a0f', fg:'#00f0ff', accent:'#00f0ff' },
-    { id:'minimal', name:'Minimal', bg:'#fafafa', fg:'#111', accent:'#111' },
-    { id:'gradient', name:'Gradient', bg:'linear-gradient(135deg,#667eea,#764ba2)', fg:'#fff', accent:'#fff' },
-    { id:'glass', name:'Glass', bg:'#1a1a2e', fg:'#fff', accent:'#e94560' },
-    { id:'retro', name:'Retro', bg:'#1a1a2e', fg:'#00ff41', accent:'#ff6600' }
+    { id:'ios', name:'iOS Glass', bg:'#F2F2F7', fg:'#1C1C1E', accent:'#007AFF' },
+    { id:'neon', name:'Neon Dark', bg:'#0a0a0f', fg:'#00f0ff', accent:'#00f0ff' },
+    { id:'minimal', name:'Minimal Clean', bg:'#fafafa', fg:'#111', accent:'#111' },
+    { id:'gradient', name:'Gradient VIP', bg:'linear-gradient(135deg,#667eea,#764ba2)', fg:'#fff', accent:'#fff' },
+    { id:'food', name:'Street Food / Rest', bg:'linear-gradient(135deg,#1F2937,#111827)', fg:'#F97316', accent:'#F97316' },
+    { id:'premium', name:'Luxury Gold', bg:'linear-gradient(135deg,#0F172A,#020617)', fg:'#F59E0B', accent:'#F59E0B' }
   ];
 
   var SOCIAL_TYPES = [
