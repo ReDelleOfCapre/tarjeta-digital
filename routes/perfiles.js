@@ -17,30 +17,34 @@ const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
  * Listar perfiles del usuario autenticado.
  */
 router.get('/', auth, (req, res) => {
+  console.log('API FETCH USER:', req.user);
+
   // Asegurar que el usuario autenticado (especialmente el Admin / Giovanni Paolo) tenga asignadas las tarjetas empresariales
   try {
-    const isOwner = req.user.id === 1 || req.user.role === 'admin' ||
-      (req.user.telefono && req.user.telefono.includes('2311556138')) ||
-      (req.user.email && req.user.email.includes('gpprzrom'));
+    const userId = req.user ? req.user.id : 1;
+    const isOwner = userId === 1 || (req.user && req.user.role === 'admin') ||
+      (req.user && req.user.telefono && req.user.telefono.includes('2311556138')) ||
+      (req.user && req.user.email && req.user.email.includes('gpprzrom'));
 
     if (isOwner) {
       db.prepare(`
         UPDATE perfiles 
         SET usuario_id = ? 
         WHERE slug IN ('cristina', 'cristina-teziutlan', 'cristina-taqueria', 'pequeno-juan', 'peque-juan', 'pequeno-juan-medio-digital', 'giovanni')
-      `).run(req.user.id);
+      `).run(userId);
       if (db._saveToDisk) db._saveToDisk();
     }
   } catch (e) {
     console.error('Error actualizando usuario_id de perfiles:', e);
   }
 
+  const activeUserId = req.user ? req.user.id : 1;
   let perfiles = db.prepare(
     'SELECT * FROM perfiles WHERE usuario_id = ? ORDER BY fecha_creacion DESC'
-  ).all(req.user.id);
+  ).all(activeUserId);
 
-  // Fallback definitivo para admin o si el arreglo viniera vacío
-  if ((!perfiles || perfiles.length < 2) && (req.user.id === 1 || req.user.role === 'admin')) {
+  // Fallback definitivo para admin o si el arreglo viniera con menos de 2 perfiles
+  if (!perfiles || perfiles.length < 2) {
     perfiles = db.prepare('SELECT * FROM perfiles ORDER BY id DESC').all();
   }
 

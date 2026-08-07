@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const { dbReady } = require('../database/db');
 
-const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET = process.env.JWT_SECRET || 'vynk-default-secret';
 
 /**
  * Middleware de autenticación JWT.
