@@ -514,13 +514,17 @@ class DatabaseWrapper {
       ];
 
       for (const u of seedUsers) {
-        let userRecord = this.prepare("SELECT id FROM usuarios WHERE telefono = ?").get(u.tel);
+        let userRecord = this.prepare("SELECT id FROM usuarios WHERE telefono = ? OR email = ?").get(u.tel, u.email);
         if (!userRecord) {
           const resU = this.prepare(`
             INSERT INTO usuarios (telefono, nombre, password_hash, email, plan, plan_expira, role, acciones_restantes)
             VALUES (?, ?, ?, ?, ?, ?, 'user', 10)
           `).run(u.tel, u.nombre, defaultPassHash, u.email, u.plan, u.expira);
           userRecord = { id: resU.lastInsertRowid };
+        } else {
+          this.prepare(`
+            UPDATE usuarios SET plan = ?, plan_expira = ? WHERE id = ?
+          `).run(u.plan, u.expira, userRecord.id);
         }
 
         // Crear tarjeta del usuario si no existe
