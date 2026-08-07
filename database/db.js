@@ -59,6 +59,9 @@ class DatabaseWrapper {
       this._runMigrations();
     }
 
+    // Auto-seed database with Admin user and 10 test profiles
+    this._seedDatabase();
+
     return this;
   }
 
@@ -276,6 +279,97 @@ class DatabaseWrapper {
     }
 
     this._saveToDisk();
+  }
+
+  /**
+   * Auto-sembrar cuenta Admin y 10 perfiles de prueba en cada arranque si no existen
+   */
+  _seedDatabase() {
+    try {
+      // 1. Asegurar cuenta Admin (Giovanni Paolo)
+      const adminPassHash = '$2a$10$UL3O/uLxzkBfrOBYqOveAu0P3dq6JTb7xvAQzjESiXw9jl82YOG8.';
+      let admin = this.prepare("SELECT id FROM usuarios WHERE telefono = '2311556138' OR email = 'gpprzrom@gmail.com'").get();
+      
+      if (!admin) {
+        const res = this.prepare(`
+          INSERT INTO usuarios (telefono, nombre, password_hash, email, plan, role, acciones_restantes)
+          VALUES ('2311556138', 'Giovanni Paolo', ?, 'gpprzrom@gmail.com', 'paid', 'admin', 10)
+        `).run(adminPassHash);
+        admin = { id: res.lastInsertRowid };
+        console.log('✅ Usuario Administrador (Giovanni Paolo) sembrado automáticamente');
+      } else {
+        this.prepare("UPDATE usuarios SET role = 'admin', plan = 'paid' WHERE id = ?").run(admin.id);
+      }
+
+      // 2. Verificar si hay al menos 10 perfiles de prueba
+      const countRes = this.prepare("SELECT COUNT(*) as total FROM perfiles").get();
+      if (countRes.total < 10) {
+        console.log('🌱 Generando 10 perfiles de prueba automáticos en la base de datos...');
+        
+        const testProfiles = [
+          { slug: 'giovanni', nombre: 'Giovanni Paolo — VYNK Director', tema: 'neon', color: '#7C3AED', bio: 'Fundador de VYNK. Creando la mejor plataforma de identidad digital.' },
+          { slug: 'demo-pro', nombre: 'Carlos Mendoza — Consultor Senior', tema: 'ios', color: '#3B82F6', bio: 'Especialista en consultoría estratégica y transformación digital.' },
+          { slug: 'creador-vynk', nombre: 'Sofía Rivera — Content Creator', tema: 'gradient', color: '#FF6B6B', bio: 'Creadora de contenido tech & lifestyle con más de 500k seguidores.' },
+          { slug: 'tech-lead', nombre: 'Alex Dev — Full Stack Engineer', tema: 'retro', color: '#00ff41', bio: 'Apasionado del código limpio, Node.js, React y arquitecturas Cloud.' },
+          { slug: 'musica-live', nombre: 'DJ Quantum — Music Producer', tema: 'glass', color: '#06B6D4', bio: 'Productor de música electrónica & DJ con lanzamientos en Spotify.' },
+          { slug: 'chef-gourmet', nombre: 'Chef Mateo — Alta Cocina', tema: 'minimal', color: '#D97706', bio: 'Cocina de autor y experiencias gastronómicas privadas.' },
+          { slug: 'fit-coach', nombre: 'Valeria Fit — Personal Trainer', tema: 'neon', color: '#10B981', bio: 'Transformaciones físicas y entrenamiento de alto rendimiento.' },
+          { slug: 'foto-studio', nombre: 'Diego Photo — Filmmaker', tema: 'gradient', color: '#8B5CF6', bio: 'Fotografía publicitaria, retrato y producción cinematográfica.' },
+          { slug: 'design-pro', nombre: 'Elena UI — Product Designer', tema: 'glass', color: '#EC4899', bio: 'Diseño de experiencias digitales y sistemas de diseño.' },
+          { slug: 'growth-mkt', nombre: 'Growth Studio — Agencia Digital', tema: 'ios', color: '#6366F1', bio: 'Escalamos marcas y productos digitales con estrategias Data-Driven.' }
+        ];
+
+        for (const p of testProfiles) {
+          const existingP = this.prepare("SELECT id FROM perfiles WHERE slug = ?").get(p.slug);
+          if (!existingP) {
+            const result = this.prepare(`
+              INSERT INTO perfiles (usuario_id, slug, nombre_perfil, tipo, color, tema, bio)
+              VALUES (?, ?, ?, 'personal', ?, ?, ?)
+            `).run(admin.id, p.slug, p.nombre, p.color, p.tema, p.bio);
+            
+            const perfilId = result.lastInsertRowid;
+
+            // Bloques de prueba para cada tarjeta
+            this.prepare(`
+              INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, ?, ?, 0)
+            `).run(perfilId, 'whatsapp', JSON.stringify({ numero: '522311556138', mensaje_default: 'Hola! Vi tu perfil en VYNK' }));
+
+            this.prepare(`
+              INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, ?, ?, 1)
+            `).run(perfilId, 'social_icons', JSON.stringify({
+              redes: [
+                { tipo: 'instagram', url: 'https://instagram.com' },
+                { tipo: 'facebook', url: 'https://facebook.com' },
+                { tipo: 'tiktok', url: 'https://tiktok.com' },
+                { tipo: 'linkedin', url: 'https://linkedin.com' }
+              ]
+            }));
+
+            this.prepare(`
+              INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, ?, ?, 2)
+            `).run(perfilId, 'link', JSON.stringify({
+              url: 'https://vynk.onrender.com',
+              titulo: '🌐 Visitar sitio oficial de VYNK',
+              subtitulo: 'Crea tu tarjeta digital gratis',
+              icono: '⚡',
+              color: p.color
+            }));
+
+            this.prepare(`
+              INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, ?, ?, 3)
+            `).run(perfilId, 'texto', JSON.stringify({
+              texto: '¡Bienvenido a mi tarjeta digital interactiva en VYNK!',
+              estilo: 'cita'
+            }));
+          }
+        }
+        console.log('✅ 10 Perfiles de prueba automáticos sembrados con éxito');
+      }
+
+      this._saveToDisk();
+    } catch (e) {
+      console.error('Error en _seedDatabase:', e);
+    }
   }
 
   /**
