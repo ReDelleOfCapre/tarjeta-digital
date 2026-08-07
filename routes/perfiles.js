@@ -273,10 +273,12 @@ function perfilPublicoHandler(req, res) {
       db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'pdf', ?, 4)").run(cId, JSON.stringify({ titulo: '📄 Descargar Menú Completo (PDF)', url: 'http://restaurantescristina.com/menu.pdf' }));
       db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'seccion', ?, 5)").run(cId, JSON.stringify({ titulo: '📍 SUCURSALES EN TEZIUTLÁN' }));
       db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 6)").run(cId, JSON.stringify({ url: 'https://maps.google.com/?q=Ignacio+Allende+603+Centro+Teziutlan+Puebla', titulo: '📍 Sucursal 1: Centro — Allende #603', icono: '📍', color: '#D97706' }));
-      db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 7)").run(cId, JSON.stringify({ url: 'https://maps.google.com/?q=Av+Miguel+Hidalgo+1718+El+Pinal+Teziutlan+Puebla', titulo: '📍 Sucursal 2: La Maquinita — Av. Hidalgo #1718', icono: '📍', color: '#D97706' }));
-      db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 8)").run(cId, JSON.stringify({ url: 'https://maps.google.com/?q=Mercado+Victoria+51+Teziutlan+Puebla', titulo: '📍 Sucursal 3: Mercado Victoria — Calle Mercado #51', icono: '📍', color: '#D97706' }));
-
-  // Auto-healing fallback para pequeño juan si no existiera en la DB
+      if (db._saveToDisk) db._saveToDisk();
+      perfil = db.prepare('SELECT * FROM perfiles WHERE id = ?').get(cId);
+    } catch (e) {
+      console.error('Error auto-healing cristina profile:', e);
+    }
+  }
   if (!perfil && (slug.toLowerCase().includes('juan') || slug.toLowerCase().includes('peque'))) {
     try {
       let admin = db.prepare("SELECT id FROM usuarios WHERE role = 'admin' OR telefono = '2311556138'").get();
