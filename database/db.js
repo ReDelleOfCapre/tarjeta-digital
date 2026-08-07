@@ -288,19 +288,22 @@ class DatabaseWrapper {
     try {
       const defaultPassHash = '$2a$10$UL3O/uLxzkBfrOBYqOveAu0P3dq6JTb7xvAQzjESiXw9jl82YOG8.';
 
-      // 1. Asegurar cuenta Admin (Giovanni Paolo) como usuario_id = 1
-      let admin = this.prepare("SELECT id FROM usuarios WHERE id = 1 OR telefono = '2311556138' OR email = 'gpprzrom@gmail.com'").get();
+      // 1. Asegurar cuenta Admin (Giovanni Paolo)
+      let admin = this.prepare("SELECT id FROM usuarios WHERE telefono LIKE '%2311556138%' OR email LIKE '%gpprzrom%' OR email = 'giovanni@vynk.me'").get();
       if (!admin) {
         const res = this.prepare(`
-          INSERT INTO usuarios (id, telefono, nombre, password_hash, email, plan, role, acciones_restantes)
-          VALUES (1, '2311556138', 'Giovanni Paolo', ?, 'gpprzrom@gmail.com', 'paid', 'admin', 10)
+          INSERT INTO usuarios (telefono, nombre, password_hash, email, plan, role, acciones_restantes)
+          VALUES ('2311556138', 'Giovanni Paolo', ?, 'gpprzrom@gmail.com', 'paid', 'admin', 10)
         `).run(defaultPassHash);
-        admin = { id: 1 };
-        console.log('✅ Usuario Administrador ID 1 (Giovanni Paolo) sembrado automáticamente');
+        admin = { id: res.lastInsertRowid };
+        console.log('✅ Usuario Administrador (Giovanni Paolo) sembrado automáticamente');
       } else {
         this.prepare("UPDATE usuarios SET role = 'admin', plan = 'paid', email = 'gpprzrom@gmail.com', nombre = 'Giovanni Paolo' WHERE id = ?").run(admin.id);
       }
-      const targetUserId = admin ? admin.id : 1;
+
+      // Re-asignar tarjetas empresariales a todas las cuentas que pertenezcan a Giovanni Paolo (por teléfono o email)
+      const adminUsers = this.prepare("SELECT id FROM usuarios WHERE role = 'admin' OR telefono LIKE '%2311556138%' OR email LIKE '%gpprzrom%'").all();
+      const targetUserId = adminUsers.length > 0 ? adminUsers[0].id : (admin ? admin.id : 1);
 
       // Perfil oficial del Admin
       let adminP = this.prepare("SELECT id FROM perfiles WHERE slug = 'giovanni'").get();

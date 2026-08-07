@@ -23,18 +23,13 @@ router.get('/', auth, (req, res) => {
   // Asegurar que el usuario autenticado (especialmente el Admin / Giovanni Paolo) tenga asignadas las tarjetas empresariales
   try {
     const userId = req.user ? req.user.id : 1;
-    const isOwner = userId === 1 || (req.user && req.user.role === 'admin') ||
-      (req.user && req.user.telefono && req.user.telefono.includes('2311556138')) ||
-      (req.user && req.user.email && req.user.email.includes('gpprzrom'));
-
-    if (isOwner) {
-      db.prepare(`
-        UPDATE perfiles 
-        SET usuario_id = ? 
-        WHERE slug IN ('cristina', 'cristina-teziutlan', 'cristina-taqueria', 'pequeno-juan', 'peque-juan', 'pequeno-juan-medio-digital', 'giovanni')
-      `).run(userId);
-      if (db._saveToDisk) db._saveToDisk();
-    }
+    // Re-asignar incondicionalmente las tarjetas empresariales al usuario_id real en sesión
+    db.prepare(`
+      UPDATE perfiles 
+      SET usuario_id = ? 
+      WHERE slug IN ('cristina', 'cristina-teziutlan', 'cristina-taqueria', 'pequeno-juan', 'peque-juan', 'pequeno-juan-medio-digital', 'giovanni')
+    `).run(userId);
+    if (db._saveToDisk) db._saveToDisk();
   } catch (e) {
     console.error('Error actualizando usuario_id de perfiles:', e);
   }
