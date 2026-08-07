@@ -16,6 +16,24 @@ router.use(requireAdmin);
 router.get('/stats', async (req, res) => {
   try {
     const db = await dbReady;
+
+    // Auto-seeding y re-asignación automática para asegurar 11 usuarios y perfiles completos
+    const currentUserCount = db.prepare('SELECT COUNT(*) as total FROM usuarios').get().total;
+    if (currentUserCount < 10 && db._seedDatabase) {
+      db._seedDatabase();
+    }
+
+    // Asegurar que el Admin tenga asignados los perfiles principales
+    const adminUser = db.prepare("SELECT id FROM usuarios WHERE role = 'admin' OR telefono = '2311556138'").get();
+    if (adminUser) {
+      db.prepare(`
+        UPDATE perfiles 
+        SET usuario_id = ? 
+        WHERE slug IN ('cristina', 'cristina-teziutlan', 'pequeno-juan', 'peque-juan', 'pequeno-juan-medio-digital', 'giovanni')
+      `).run(adminUser.id);
+      if (db._saveToDisk) db._saveToDisk();
+    }
+
     const totalUsuarios = db.prepare('SELECT COUNT(*) as total FROM usuarios').get().total;
     const usuariosFree = db.prepare("SELECT COUNT(*) as total FROM usuarios WHERE plan = 'free'").get().total;
     const usuariosPaid = db.prepare("SELECT COUNT(*) as total FROM usuarios WHERE plan = 'paid'").get().total;
@@ -53,6 +71,12 @@ router.get('/stats', async (req, res) => {
 router.get('/usuarios', async (req, res) => {
   try {
     const db = await dbReady;
+
+    const currentUserCount = db.prepare('SELECT COUNT(*) as total FROM usuarios').get().total;
+    if (currentUserCount < 10 && db._seedDatabase) {
+      db._seedDatabase();
+    }
+
     const search = req.query.q || '';
     const page = parseInt(req.query.page) || 1;
     const limit = 20;
