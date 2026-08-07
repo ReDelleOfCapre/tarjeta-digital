@@ -403,6 +403,99 @@ class DatabaseWrapper {
         );
       }
 
+      // Perfil Empresarial "Nivel Dios": Pequeño Juan Medio Digital — Teziutlán
+      const juanSlugs = ['pequeno-juan', 'peque-juan', 'pequeno-juan-medio-digital'];
+      for (const slug of juanSlugs) {
+        let juanP = this.prepare("SELECT id FROM perfiles WHERE slug = ?").get(slug);
+        let jId;
+        if (!juanP) {
+          const resJ = this.prepare(`
+            INSERT INTO perfiles (usuario_id, slug, nombre_perfil, tipo, color, tema, bio, foto_url, banner_url)
+            VALUES (?, ?, 'Pequeño Juan | Medio Digital Líder', 'negocio', '#E11D48', 'neon', '⭐ 5.0 (226K+ Seguidores) · El Medio Digital Mejor Posicionado de Teziutlán\nCoberturas en vivo HD, campañas publicitarias, posicionamiento de marcas, producción audiovisual y noticias.', 'https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?w=300', 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=1000')
+          `).run(admin.id, slug);
+          jId = resJ.lastInsertRowid;
+        } else {
+          jId = juanP.id;
+          this.prepare(`
+            UPDATE perfiles SET 
+              usuario_id = ?,
+              banner_url = 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=1000',
+              foto_url = 'https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?w=300',
+              color = '#E11D48',
+              tema = 'neon',
+              bio = '⭐ 5.0 (226K+ Seguidores) · El Medio Digital Mejor Posicionado de Teziutlán\nCoberturas en vivo HD, campañas publicitarias, posicionamiento de marcas, producción audiovisual y noticias.'
+            WHERE id = ?
+          `).run(admin.id, jId);
+        }
+
+        // Limpiar bloques antiguos
+        this.prepare("DELETE FROM bloques WHERE perfil_id = ?").run(jId);
+
+        // --- SECCIÓN 1: COTIZACIONES & SERVICIOS ---
+        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'seccion', ?, 0)").run(
+          jId, JSON.stringify({ titulo: '📢 COTIZAR CAMPAÑA & SERVICIOS' })
+        );
+
+        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'whatsapp', ?, 1)").run(
+          jId, JSON.stringify({ numero: '522311120932', texto: '🚀 Cotizar Publicidad por WhatsApp', mensaje_default: '¡Hola Pequeño Juan Medio Digital! Me interesa cotizar una campaña publicitaria / cobertura en vivo para mi negocio o evento.' })
+        );
+
+        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 2)").run(
+          jId, JSON.stringify({ url: 'tel:2311120932', titulo: '📞 Llamada Directa a Ventas: (231) 112-0932', subtitulo: 'Atención 24 hrs a anunciantes y patrocinadores', icono: '📞', color: '#0284C7' })
+        );
+
+        // --- SECCIÓN 2: TRANSMISIONES & NOTICIAS ---
+        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'seccion', ?, 3)").run(
+          jId, JSON.stringify({ titulo: '📺 TRANSMISIONES EN VIVO & COBERTURAS' })
+        );
+
+        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 4)").run(
+          jId, JSON.stringify({ url: 'https://www.facebook.com/pequenojuantez/?locale=es_LA', titulo: '🔴 Ver Transmisión en Vivo por Facebook (+226k)', subtitulo: 'Sigue la señal en directo de las noticias y eventos de Teziutlán', icono: '📺', color: '#1877F2' })
+        );
+
+        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'pdf', ?, 5)").run(
+          jId, JSON.stringify({ titulo: '📄 Media Kit & Tarifario Publicitario 2026 (PDF)', subtitulo: 'Planes de transmisión HD, spots, menciones y banners', url: 'http://pequenojuan.me/mediakit.pdf' })
+        );
+
+        // --- SECCIÓN 3: PRODUCCIÓN AUDIOVISUAL ---
+        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'seccion', ?, 6)").run(
+          jId, JSON.stringify({ titulo: '🎬 PORTAFOLIO & COBERTURAS DESTACADAS' })
+        );
+
+        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'galeria', ?, 7)").run(
+          jId, JSON.stringify({
+            imagenes: [
+              { url: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=600', caption: '🎤 Coberturas en Vivo de Eventos & Ferias' },
+              { url: 'https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?w=600', caption: '🎬 Estudio de Grabación & Producción Digital' },
+              { url: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=600', caption: '📢 Entrevistas & Posicionamiento de Marca' }
+            ]
+          })
+        );
+
+        // --- SECCIÓN 4: OFICINA CENTRAL ---
+        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'seccion', ?, 8)").run(
+          jId, JSON.stringify({ titulo: '📍 OFICINAS CENTRALES EN TEZIUTLÁN' })
+        );
+
+        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 9)").run(
+          jId, JSON.stringify({ url: 'https://maps.google.com/?q=Av.+Benito+Juarez+1510-A+Centro+Teziutlan+Puebla', titulo: '📍 Oficina Central: Av. Benito Juárez 1510-A', subtitulo: 'Centro, 73800 Teziutlán, Pue. | Abierto 24 Horas', icono: '📍', color: '#E11D48' })
+        );
+
+        // --- SECCIÓN 5: DATOS DE FACTURACIÓN & PAGO ---
+        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'seccion', ?, 10)").run(
+          jId, JSON.stringify({ titulo: '💳 DATOS BANCARIOS PARA PATROCINIOS' })
+        );
+
+        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'pago', ?, 11)").run(
+          jId, JSON.stringify({ banco: 'BBVA Bancomer / STPF', clabe: '012650001928374650', beneficiario: 'Pequeño Juan Medio Digital S.A. de C.V.', concepto: 'Campaña / Publicidad' })
+        );
+
+        // --- SECCIÓN 6: REDES SOCIALES ---
+        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'social_icons', ?, 12)").run(
+          jId, JSON.stringify({ redes: [{ tipo: 'facebook', url: 'https://www.facebook.com/pequenojuantez/?locale=es_LA' }, { tipo: 'instagram', url: 'https://instagram.com/pequenojuantez' }, { tipo: 'tiktok', url: 'https://tiktok.com/@pequenojuantez' }] })
+        );
+      }
+
       // 2. Definir los 5 Usuarios Free y 5 Usuarios Pro
       const seedUsers = [
         // 5 Usuarios Free

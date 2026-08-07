@@ -276,10 +276,30 @@ function perfilPublicoHandler(req, res) {
       db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 7)").run(cId, JSON.stringify({ url: 'https://maps.google.com/?q=Av+Miguel+Hidalgo+1718+El+Pinal+Teziutlan+Puebla', titulo: '📍 Sucursal 2: La Maquinita — Av. Hidalgo #1718', icono: '📍', color: '#D97706' }));
       db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 8)").run(cId, JSON.stringify({ url: 'https://maps.google.com/?q=Mercado+Victoria+51+Teziutlan+Puebla', titulo: '📍 Sucursal 3: Mercado Victoria — Calle Mercado #51', icono: '📍', color: '#D97706' }));
 
+  // Auto-healing fallback para pequeño juan si no existiera en la DB
+  if (!perfil && (slug.toLowerCase().includes('juan') || slug.toLowerCase().includes('peque'))) {
+    try {
+      let admin = db.prepare("SELECT id FROM usuarios WHERE role = 'admin' OR telefono = '2311556138'").get();
+      const adminId = admin ? admin.id : 1;
+      const resJ = db.prepare(`
+        INSERT INTO perfiles (usuario_id, slug, nombre_perfil, tipo, color, tema, bio, foto_url, banner_url)
+        VALUES (?, ?, 'Pequeño Juan | Medio Digital Líder', 'negocio', '#E11D48', 'neon', '⭐ 5.0 (226K+ Seguidores) · El Medio Digital Mejor Posicionado de Teziutlán\nCoberturas en vivo HD, campañas publicitarias, posicionamiento de marcas, producción audiovisual y noticias.', 'https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?w=300', 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=1000')
+      `).run(adminId, slug);
+      const jId = resJ.lastInsertRowid;
+
+      db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'seccion', ?, 0)").run(jId, JSON.stringify({ titulo: '📢 COTIZAR CAMPAÑA & SERVICIOS' }));
+      db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'whatsapp', ?, 1)").run(jId, JSON.stringify({ numero: '522311120932', texto: '🚀 Cotizar Publicidad por WhatsApp', mensaje_default: '¡Hola Pequeño Juan Medio Digital!' }));
+      db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 2)").run(jId, JSON.stringify({ url: 'tel:2311120932', titulo: '📞 Llamada Directa: (231) 112-0932', subtitulo: 'Atención 24 hrs a anunciantes', icono: '📞', color: '#0284C7' }));
+      db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'seccion', ?, 3)").run(jId, JSON.stringify({ titulo: '📺 TRANSMISIONES EN VIVO' }));
+      db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 4)").run(jId, JSON.stringify({ url: 'https://www.facebook.com/pequenojuantez/?locale=es_LA', titulo: '🔴 Ver Transmisión en Vivo por Facebook (+226k)', icono: '📺', color: '#1877F2' }));
+      db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'pdf', ?, 5)").run(jId, JSON.stringify({ titulo: '📄 Media Kit & Tarifario Publicitario (PDF)', url: 'http://pequenojuan.me/mediakit.pdf' }));
+      db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'seccion', ?, 6)").run(jId, JSON.stringify({ titulo: '📍 OFICINAS CENTRALES' }));
+      db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 7)").run(jId, JSON.stringify({ url: 'https://maps.google.com/?q=Av.+Benito+Juarez+1510-A+Centro+Teziutlan+Puebla', titulo: '📍 Oficina Central: Av. Benito Juárez 1510-A', subtitulo: 'Centro, Teziutlán, Pue.', icono: '📍', color: '#E11D48' }));
+
       if (db._saveToDisk) db._saveToDisk();
-      perfil = db.prepare('SELECT * FROM perfiles WHERE id = ?').get(cId);
+      perfil = db.prepare('SELECT * FROM perfiles WHERE id = ?').get(jId);
     } catch (e) {
-      console.error('Error auto-healing cristina profile:', e);
+      console.error('Error auto-healing pequeno juan profile:', e);
     }
   }
 
