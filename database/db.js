@@ -337,7 +337,7 @@ class DatabaseWrapper {
       for (const slug of cristinaSlugs) {
         let cristinaP = this.prepare("SELECT id FROM perfiles WHERE slug = ?").get(slug);
         let cId;
-        const bioText = '⭐ 4.2 (1,300+ opiniones) · 📍 3 Sucursales en Teziutlán\n"Buena comida, buena vista y una buena plática. A veces no hace falta mucho más para disfrutar el día."';
+        const bioText = '⭐ 4.2 (1,300+ opiniones) · 📍 3 Sucursales en Teziutlán · Tacos al pastor, árabes, cortes y desayunos.';
         if (!cristinaP) {
           const resC = this.prepare(`
             INSERT OR IGNORE INTO perfiles (usuario_id, slug, nombre_perfil, tipo, color, tema, bio, foto_url, banner_url)
@@ -358,81 +358,45 @@ class DatabaseWrapper {
           `).run(targetUserId, bioText, cId);
         }
 
-        // Actualizar bloques para iconografía coherente de sucursales
+        // Limpiar y sembrar bloques de Cristina Restaurante & Taquería
         this.prepare("DELETE FROM bloques WHERE perfil_id = ?").run(cId);
 
-        // --- SECCIÓN 1: CONTACTO Y PEDIDOS ---
-        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'seccion', ?, 0)").run(
-          cId, JSON.stringify({ titulo: '💬 CONTACTO & PEDIDOS RÁPIDOS' })
+        this.prepare("INSERT OR IGNORE INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'whatsapp', ?, 0)").run(
+          cId, JSON.stringify({ titulo: 'Pedir por WhatsApp / Domicilio', url: 'https://wa.me/522311556138', numero: '522311556138', texto: 'Pedir por WhatsApp / Domicilio' })
         );
 
-        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'whatsapp', ?, 1)").run(
-          cId, JSON.stringify({ numero: '522313122032', texto: '🚀 Ordenar por WhatsApp Directo', mensaje_default: '¡Hola Cristina Restaurante & Taquería! Me gustaría realizar un pedido para pasar a recoger / a domicilio.' })
+        this.prepare("INSERT OR IGNORE INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 1)").run(
+          cId, JSON.stringify({ titulo: 'Ver Menú en Uber Eats', url: 'https://www.ubereats.com/mx/store/cristina-restaurante-%26-taqueria-suc-centro/Yd6UdKQ7WiSBAcOFDE-wOA', icono: '🛵', color: '#10B981' })
         );
 
-        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 2)").run(
-          cId, JSON.stringify({ url: 'https://www.ubereats.com/store/cristina-restaurante-taqueria/', titulo: '🛵 Pedir a Domicilio por Uber Eats', subtitulo: 'Entrega rápida directo a tu ubicación', icono: '🛵', color: '#10B981' })
+        this.prepare("INSERT OR IGNORE INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'seccion', ?, 2)").run(
+          cId, JSON.stringify({ titulo: 'Nuestras 3 Sucursales en Teziutlán' })
         );
 
-        // --- SECCIÓN 2: MENÚ Y GALERÍA DE PLATILLOS ---
-        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'seccion', ?, 3)").run(
-          cId, JSON.stringify({ titulo: '🍽 MENÚ DIGITAL & ESPECIALIDADES' })
+        this.prepare("INSERT OR IGNORE INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 3)").run(
+          cId, JSON.stringify({ titulo: 'Sucursal Centro (Allende #603)', url: 'https://maps.google.com/?q=Cristina+Restaurante+&+Taquería+Allende+603+Teziutlan', icono: '📍', color: '#D97706' })
         );
 
-        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'pdf', ?, 4)").run(
-          cId, JSON.stringify({ titulo: '📄 Descargar Menú Completo (PDF)', subtitulo: 'Carta oficial con desayunos buffet, tacos al pastor y especialidades', url: 'http://restaurantescristina.com/menu.pdf' })
+        this.prepare("INSERT OR IGNORE INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 4)").run(
+          cId, JSON.stringify({ titulo: 'Sucursal Av. Hidalgo #1718', url: 'https://maps.google.com/?q=Av.+Miguel+Hidalgo+1718+Teziutlan', icono: '🚗', color: '#D97706' })
         );
 
-        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'galeria', ?, 5)").run(
-          cId, JSON.stringify({
-            imagenes: [
-              { url: 'https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?w=600', caption: '🌮 Tacos al Pastor Tradicionales con Piña' },
-              { url: 'https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?w=600', caption: '🥐 Buffet de Desayunos Teziutecos & Antojitos' },
-              { url: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=600', caption: '🥩 Cortes a la Parrilla & Carnes Asadas' }
-            ]
-          })
-        );
-
-        // --- SECCIÓN 3: PAGO DIRECTO ---
-        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'seccion', ?, 6)").run(
-          cId, JSON.stringify({ titulo: '💳 DATOS DE PAGO / TRANSFERENCIA' })
-        );
-
-        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'pago', ?, 7)").run(
-          cId, JSON.stringify({ banco: 'Mercado Pago W / STPF', clabe: '722969020100826020', beneficiario: 'Cristina Restaurante S.A.', concepto: 'Consumo / Pedido' })
-        );
-
-        // --- SECCIÓN 4: SUCURSALES (Las 3 Ubicaciones de Teziutlán) ---
-        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'seccion', ?, 8)").run(
-          cId, JSON.stringify({ titulo: '📍 LAS 3 SUCURSALES EN TEZIUTLÁN' })
-        );
-
-        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 9)").run(
-          cId, JSON.stringify({ url: 'https://maps.google.com/?q=Ignacio+Allende+603+Centro+Teziutlan+Puebla', titulo: '📍 Sucursal 1: Centro — Allende #603', subtitulo: '⭐ 4.2 (1.1K opiniones) | Tel: (231) 312-2032 | Consumo & Para llevar', icono: '📍', color: '#D97706' })
-        );
-        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 10)").run(
-          cId, JSON.stringify({ url: 'https://maps.google.com/?q=Av+Miguel+Hidalgo+1718+El+Pinal+Teziutlan+Puebla', titulo: '🚗 Sucursal 2: La Maquinita — Av. Hidalgo #1718', subtitulo: '⭐ 4.1 (211 opiniones) | Tel: (231) 688-4065 | Auto-servicio / Drive-thru', icono: '🚗', color: '#D97706' })
-        );
-        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 11)").run(
-          cId, JSON.stringify({ url: 'https://maps.google.com/?q=Mercado+Victoria+51+Teziutlan+Puebla', titulo: '🏪 Sucursal 3: Mercado Victoria — Calle Mercado #51', subtitulo: '⭐ 4.6 (23 opiniones) | Sabor tradicional en el centro comercial', icono: '🏪', color: '#D97706' })
-        );
-
-        // --- SECCIÓN 5: REDES SOCIALES ---
-        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'social_icons', ?, 12)").run(
-          cId, JSON.stringify({ redes: [{ tipo: 'facebook', url: 'https://www.facebook.com/CristinaRestauranteOficial/' }, { tipo: 'instagram', url: 'https://instagram.com/cristinarestaurante' }] })
+        this.prepare("INSERT OR IGNORE INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 5)").run(
+          cId, JSON.stringify({ titulo: 'Sucursal Mercado Victoria (#51)', url: 'https://maps.google.com/?q=Mercado+Victoria+Teziutlan', icono: '🏪', color: '#D97706' })
         );
       }
 
-      // Perfil Empresarial "Nivel Dios": Pequeño Juan Medio Digital — Teziutlán
+      // Perfil Empresarial: Pequeño Juan Medio Digital — Teziutlán
       const juanSlugs = ['pequeno-juan', 'peque-juan', 'pequeno-juan-medio-digital'];
       for (const slug of juanSlugs) {
         let juanP = this.prepare("SELECT id FROM perfiles WHERE slug = ?").get(slug);
         let jId;
+        const bioText = '⭐ 5.0 (226K+ Seguidores) · El medio digital de noticias y comunicación líder en Teziutlán.';
         if (!juanP) {
           const resJ = this.prepare(`
             INSERT OR IGNORE INTO perfiles (usuario_id, slug, nombre_perfil, tipo, color, tema, bio, foto_url, banner_url)
-            VALUES (?, ?, 'Pequeño Juan | Medio Digital Líder', 'negocio', '#E11D48', 'neon', '⭐ 5.0 (226K+ Seguidores) · El Medio Digital Mejor Posicionado de Teziutlán\nCoberturas en vivo HD, campañas publicitarias, posicionamiento de marcas, producción audiovisual y noticias.', 'https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?w=300', 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=1000')
-          `).run(targetUserId, slug);
+            VALUES (?, ?, 'Pequeño Juan | Medio Digital Líder', 'negocio', '#E11D48', 'neon', ?, 'https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?w=300', 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=1000')
+          `).run(targetUserId, slug, bioText);
           jId = resJ.lastInsertRowid;
         } else {
           jId = juanP.id;
@@ -443,76 +407,32 @@ class DatabaseWrapper {
               foto_url = 'https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?w=300',
               color = '#E11D48',
               tema = 'neon',
-              bio = '⭐ 5.0 (226K+ Seguidores) · El Medio Digital Mejor Posicionado de Teziutlán\nCoberturas en vivo HD, campañas publicitarias, posicionamiento de marcas, producción audiovisual y noticias.'
+              bio = ?
             WHERE id = ?
-          `).run(targetUserId, jId);
+          `).run(targetUserId, bioText, jId);
         }
 
-        // Limpiar bloques antiguos
+        // Limpiar y sembrar bloques de Pequeño Juan
         this.prepare("DELETE FROM bloques WHERE perfil_id = ?").run(jId);
 
-        // --- SECCIÓN 1: COTIZACIONES & SERVICIOS ---
-        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'seccion', ?, 0)").run(
-          jId, JSON.stringify({ titulo: '📢 COTIZAR CAMPAÑA & SERVICIOS' })
+        this.prepare("INSERT OR IGNORE INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'whatsapp', ?, 0)").run(
+          jId, JSON.stringify({ titulo: 'Cotizar Publicidad y Coberturas', url: 'https://wa.me/522311120932', numero: '522311120932', texto: 'Cotizar Publicidad y Coberturas' })
         );
 
-        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'whatsapp', ?, 1)").run(
-          jId, JSON.stringify({ numero: '522311120932', texto: '🚀 Cotizar Publicidad por WhatsApp', mensaje_default: '¡Hola Pequeño Juan Medio Digital! Me interesa cotizar una campaña publicitaria / cobertura en vivo para mi negocio o evento.' })
+        this.prepare("INSERT OR IGNORE INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 1)").run(
+          jId, JSON.stringify({ titulo: 'Página Oficial de Facebook', url: 'https://www.facebook.com/Pequeño-Juan-Teziutlán-Centro', icono: '📱', color: '#1877F2' })
         );
 
-        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 2)").run(
-          jId, JSON.stringify({ url: 'tel:2311120932', titulo: '📞 Llamada Directa a Ventas: (231) 112-0932', subtitulo: 'Atención 24 hrs a anunciantes y patrocinadores', icono: '📞', color: '#0284C7' })
+        this.prepare("INSERT OR IGNORE INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 2)").run(
+          jId, JSON.stringify({ titulo: 'Llamar a Redacción (tel:2311120932)', url: 'tel:2311120932', icono: '📞', color: '#0284C7' })
         );
 
-        // --- SECCIÓN 2: TRANSMISIONES & NOTICIAS ---
-        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'seccion', ?, 3)").run(
-          jId, JSON.stringify({ titulo: '📺 TRANSMISIONES EN VIVO & COBERTURAS' })
+        this.prepare("INSERT OR IGNORE INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'seccion', ?, 3)").run(
+          jId, JSON.stringify({ titulo: 'Ubicación de Oficinas' })
         );
 
-        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 4)").run(
-          jId, JSON.stringify({ url: 'https://www.facebook.com/pequenojuantez/?locale=es_LA', titulo: '🔴 Ver Transmisión en Vivo por Facebook (+226k)', subtitulo: 'Sigue la señal en directo de las noticias y eventos de Teziutlán', icono: '📺', color: '#1877F2' })
-        );
-
-        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'pdf', ?, 5)").run(
-          jId, JSON.stringify({ titulo: '📄 Media Kit & Tarifario Publicitario 2026 (PDF)', subtitulo: 'Planes de transmisión HD, spots, menciones y banners', url: 'http://pequenojuan.me/mediakit.pdf' })
-        );
-
-        // --- SECCIÓN 3: PRODUCCIÓN AUDIOVISUAL ---
-        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'seccion', ?, 6)").run(
-          jId, JSON.stringify({ titulo: '🎬 PORTAFOLIO & COBERTURAS DESTACADAS' })
-        );
-
-        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'galeria', ?, 7)").run(
-          jId, JSON.stringify({
-            imagenes: [
-              { url: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=600', caption: '🎤 Coberturas en Vivo de Eventos & Ferias' },
-              { url: 'https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?w=600', caption: '🎬 Estudio de Grabación & Producción Digital' },
-              { url: 'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=600', caption: '📢 Entrevistas & Posicionamiento de Marca' }
-            ]
-          })
-        );
-
-        // --- SECCIÓN 4: OFICINA CENTRAL ---
-        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'seccion', ?, 8)").run(
-          jId, JSON.stringify({ titulo: '📍 OFICINAS CENTRALES EN TEZIUTLÁN' })
-        );
-
-        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 9)").run(
-          jId, JSON.stringify({ url: 'https://maps.google.com/?q=Av.+Benito+Juarez+1510-A+Centro+Teziutlan+Puebla', titulo: '📍 Oficina Central: Av. Benito Juárez 1510-A', subtitulo: 'Centro, 73800 Teziutlán, Pue. | Abierto 24 Horas', icono: '📍', color: '#E11D48' })
-        );
-
-        // --- SECCIÓN 5: DATOS DE FACTURACIÓN & PAGO ---
-        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'seccion', ?, 10)").run(
-          jId, JSON.stringify({ titulo: '💳 DATOS BANCARIOS PARA PATROCINIOS' })
-        );
-
-        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'pago', ?, 11)").run(
-          jId, JSON.stringify({ banco: 'BBVA Bancomer / STPF', clabe: '012650001928374650', beneficiario: 'Pequeño Juan Medio Digital S.A. de C.V.', concepto: 'Campaña / Publicidad' })
-        );
-
-        // --- SECCIÓN 6: REDES SOCIALES ---
-        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'social_icons', ?, 12)").run(
-          jId, JSON.stringify({ redes: [{ tipo: 'facebook', url: 'https://www.facebook.com/pequenojuantez/?locale=es_LA' }, { tipo: 'instagram', url: 'https://instagram.com/pequenojuantez' }, { tipo: 'tiktok', url: 'https://tiktok.com/@pequenojuantez' }] })
+        this.prepare("INSERT OR IGNORE INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 4)").run(
+          jId, JSON.stringify({ titulo: 'Oficinas Av. Benito Juárez 1510-A, Centro', url: 'https://maps.google.com/?q=Av.+Benito+Juárez+1510-A+Teziutlan', icono: '📍', color: '#E11D48' })
         );
       }
 
