@@ -288,18 +288,19 @@ class DatabaseWrapper {
     try {
       const defaultPassHash = '$2a$10$UL3O/uLxzkBfrOBYqOveAu0P3dq6JTb7xvAQzjESiXw9jl82YOG8.';
 
-      // 1. Asegurar cuenta Admin (Giovanni Paolo)
-      let admin = this.prepare("SELECT id FROM usuarios WHERE telefono = '2311556138' OR email = 'gpprzrom@gmail.com' OR email = 'giovanni@vynk.me'").get();
+      // 1. Asegurar cuenta Admin (Giovanni Paolo) como usuario_id = 1
+      let admin = this.prepare("SELECT id FROM usuarios WHERE id = 1 OR telefono = '2311556138' OR email = 'gpprzrom@gmail.com'").get();
       if (!admin) {
         const res = this.prepare(`
-          INSERT INTO usuarios (telefono, nombre, password_hash, email, plan, role, acciones_restantes)
-          VALUES ('2311556138', 'Giovanni Paolo', ?, 'gpprzrom@gmail.com', 'paid', 'admin', 10)
+          INSERT INTO usuarios (id, telefono, nombre, password_hash, email, plan, role, acciones_restantes)
+          VALUES (1, '2311556138', 'Giovanni Paolo', ?, 'gpprzrom@gmail.com', 'paid', 'admin', 10)
         `).run(defaultPassHash);
-        admin = { id: res.lastInsertRowid };
-        console.log('✅ Usuario Administrador (Giovanni Paolo) sembrado automáticamente');
+        admin = { id: 1 };
+        console.log('✅ Usuario Administrador ID 1 (Giovanni Paolo) sembrado automáticamente');
       } else {
-        this.prepare("UPDATE usuarios SET role = 'admin', plan = 'paid', email = 'gpprzrom@gmail.com' WHERE id = ?").run(admin.id);
+        this.prepare("UPDATE usuarios SET role = 'admin', plan = 'paid', email = 'gpprzrom@gmail.com', nombre = 'Giovanni Paolo' WHERE id = ?").run(admin.id);
       }
+      const targetUserId = admin ? admin.id : 1;
 
       // Perfil oficial del Admin
       let adminP = this.prepare("SELECT id FROM perfiles WHERE slug = 'giovanni'").get();
@@ -323,7 +324,7 @@ class DatabaseWrapper {
           const resC = this.prepare(`
             INSERT INTO perfiles (usuario_id, slug, nombre_perfil, tipo, color, tema, bio, foto_url, banner_url)
             VALUES (?, ?, 'Cristina Restaurante & Taquería', 'negocio', '#B91C1C', 'food', ?, 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=300', 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1000')
-          `).run(admin.id, slug, bioText);
+          `).run(targetUserId, slug, bioText);
           cId = resC.lastInsertRowid;
         } else {
           cId = cristinaP.id;
@@ -336,7 +337,7 @@ class DatabaseWrapper {
               tema = 'food',
               bio = ?
             WHERE id = ?
-          `).run(admin.id, bioText, cId);
+          `).run(targetUserId, bioText, cId);
         }
 
         // Actualizar bloques para iconografía coherente de sucursales
@@ -413,7 +414,7 @@ class DatabaseWrapper {
           const resJ = this.prepare(`
             INSERT INTO perfiles (usuario_id, slug, nombre_perfil, tipo, color, tema, bio, foto_url, banner_url)
             VALUES (?, ?, 'Pequeño Juan | Medio Digital Líder', 'negocio', '#E11D48', 'neon', '⭐ 5.0 (226K+ Seguidores) · El Medio Digital Mejor Posicionado de Teziutlán\nCoberturas en vivo HD, campañas publicitarias, posicionamiento de marcas, producción audiovisual y noticias.', 'https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?w=300', 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=1000')
-          `).run(admin.id, slug);
+          `).run(targetUserId, slug);
           jId = resJ.lastInsertRowid;
         } else {
           jId = juanP.id;
@@ -426,7 +427,7 @@ class DatabaseWrapper {
               tema = 'neon',
               bio = '⭐ 5.0 (226K+ Seguidores) · El Medio Digital Mejor Posicionado de Teziutlán\nCoberturas en vivo HD, campañas publicitarias, posicionamiento de marcas, producción audiovisual y noticias.'
             WHERE id = ?
-          `).run(admin.id, jId);
+          `).run(targetUserId, jId);
         }
 
         // Limpiar bloques antiguos
