@@ -110,7 +110,10 @@ function getUser() {
   return u ? JSON.parse(u) : null;
 }
 
-// Service Worker
+// Service Worker Registration & Cache Invalidation
+if ('caches' in window) {
+  caches.delete('tarjeta-v1').catch(() => {});
+}
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js').catch(() => {});
