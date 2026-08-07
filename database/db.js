@@ -313,6 +313,114 @@ class DatabaseWrapper {
         this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'social_icons', ?, 1)").run(pId, JSON.stringify({ redes: [{ tipo: 'instagram', url: 'https://instagram.com' }, { tipo: 'linkedin', url: 'https://linkedin.com' }] }));
       }
 
+      // Perfil Empresarial "Nivel Dios": Cristina Restaurante & Taquería — Teziutlán
+      let cristinaP = this.prepare("SELECT id FROM perfiles WHERE slug = 'cristina-teziutlan'").get();
+      if (!cristinaP) {
+        const resC = this.prepare(`
+          INSERT INTO perfiles (usuario_id, slug, nombre_perfil, tipo, color, tema, bio)
+          VALUES (?, 'cristina-teziutlan', 'Cristina Restaurante & Taquería', 'negocio', '#B91C1C', 'gradient', '👑 El auténtico sabor de Teziutlán. Tacos al pastor, desayunos buffet y platillos típicos en nuestros 3 establecimientos.')
+        `).run(admin.id);
+        const cId = resC.lastInsertRowid;
+
+        // Bloque 0: WhatsApp Pedidos & Reservaciones
+        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'whatsapp', ?, 0)").run(
+          cId,
+          JSON.stringify({ numero: '522313122032', mensaje_default: '¡Hola! Me gustaría hacer un pedido o reservación en Cristina Restaurante.' })
+        );
+
+        // Bloque 1: Menú Digital & Especialidades
+        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 1)").run(
+          cId,
+          JSON.stringify({
+            url: 'http://restaurantescristina.com',
+            titulo: '📖 Menú Digital & Carta Completa',
+            subtitulo: 'Tacos al pastor, desayunos buffet, cortes y antojitos típicos',
+            icono: '🌮',
+            color: '#B91C1C'
+          })
+        );
+
+        // Bloque 2: Redes Sociales Oficiales
+        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'social_icons', ?, 2)").run(
+          cId,
+          JSON.stringify({
+            redes: [
+              { tipo: 'facebook', url: 'https://www.facebook.com/CristinaRestauranteOficial/' },
+              { tipo: 'instagram', url: 'https://instagram.com/cristinarestaurante' }
+            ]
+          })
+        );
+
+        // Bloque 3: Sucursal 1 - Centro
+        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 3)").run(
+          cId,
+          JSON.stringify({
+            url: 'https://maps.google.com/?q=Ignacio+Allende+603+Centro+Teziutlan+Puebla',
+            titulo: '📍 Sucursal 1: Centro — Allende #603',
+            subtitulo: 'Tel: (231) 312-2032 | Servicio 9:00 AM - 11:00 PM',
+            icono: '🏛️',
+            color: '#D97706'
+          })
+        );
+
+        // Bloque 4: Sucursal 2 - La Maquinita
+        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 4)").run(
+          cId,
+          JSON.stringify({
+            url: 'https://maps.google.com/?q=Av+Miguel+Hidalgo+1718+El+Pinal+Teziutlan+Puebla',
+            titulo: '📍 Sucursal 2: La Maquinita — Av. Hidalgo #1718',
+            subtitulo: 'Tel: (231) 688-4065 | El Pinal, Teziutlán',
+            icono: '🚂',
+            color: '#D97706'
+          })
+        );
+
+        // Bloque 5: Sucursal 3 - Mercado Victoria
+        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 5)").run(
+          cId,
+          JSON.stringify({
+            url: 'https://maps.google.com/?q=Mercado+Victoria+51+Teziutlan+Puebla',
+            titulo: '📍 Sucursal 3: Mercado Victoria — Calle Mercado #51',
+            subtitulo: 'Sabor tradicional en el corazón comercial de la ciudad',
+            icono: '🏪',
+            color: '#D97706'
+          })
+        );
+
+        // Bloque 6: Pedidos a Domicilio (Uber Eats)
+        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 6)").run(
+          cId,
+          JSON.stringify({
+            url: 'https://www.ubereats.com/store/cristina-restaurante-taqueria/',
+            titulo: '🛵 Pedir a Domicilio por Uber Eats',
+            subtitulo: 'Entregas rápidas directo a tu casa u oficina',
+            icono: '🍔',
+            color: '#10B981'
+          })
+        );
+
+        // Bloque 7: Reseñas & TripAdvisor
+        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 7)").run(
+          cId,
+          JSON.stringify({
+            url: 'https://www.tripadvisor.com.mx/Restaurant_Review-g3180224-d27257528-Reviews-Cristina_Restaurante_Taqueria-Teziutlan_Central_Mexico_and_Gulf_Coast.html',
+            titulo: '⭐ Reseñas & Calificación TripAdvisor',
+            subtitulo: 'Uno de los restaurantes más recomendados de Teziutlán',
+            icono: '🏆',
+            color: '#00AF87'
+          })
+        );
+
+        // Bloque 8: Mensaje de Bienvenida
+        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'texto', ?, 8)").run(
+          cId,
+          JSON.stringify({
+            texto: '¡Bienvenidos a Cristina Restaurante & Taquería! Más de 20 años ofreciendo la mejor gastronomía tradicional teziuteca, tacos al pastor y platillos caseros con atención de primera clase.',
+            estilo: 'destacado'
+          })
+        );
+      }
+
       // 2. Definir los 5 Usuarios Free y 5 Usuarios Pro
       const seedUsers = [
         // 5 Usuarios Free
