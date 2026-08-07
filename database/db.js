@@ -340,7 +340,7 @@ class DatabaseWrapper {
         const bioText = '⭐ 4.2 (1,300+ opiniones) · 📍 3 Sucursales en Teziutlán\n"Buena comida, buena vista y una buena plática. A veces no hace falta mucho más para disfrutar el día."';
         if (!cristinaP) {
           const resC = this.prepare(`
-            INSERT INTO perfiles (usuario_id, slug, nombre_perfil, tipo, color, tema, bio, foto_url, banner_url)
+            INSERT OR IGNORE INTO perfiles (usuario_id, slug, nombre_perfil, tipo, color, tema, bio, foto_url, banner_url)
             VALUES (?, ?, 'Cristina Restaurante & Taquería', 'negocio', '#B91C1C', 'food', ?, 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=300', 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1000')
           `).run(targetUserId, slug, bioText);
           cId = resC.lastInsertRowid;
@@ -430,7 +430,7 @@ class DatabaseWrapper {
         let jId;
         if (!juanP) {
           const resJ = this.prepare(`
-            INSERT INTO perfiles (usuario_id, slug, nombre_perfil, tipo, color, tema, bio, foto_url, banner_url)
+            INSERT OR IGNORE INTO perfiles (usuario_id, slug, nombre_perfil, tipo, color, tema, bio, foto_url, banner_url)
             VALUES (?, ?, 'Pequeño Juan | Medio Digital Líder', 'negocio', '#E11D48', 'neon', '⭐ 5.0 (226K+ Seguidores) · El Medio Digital Mejor Posicionado de Teziutlán\nCoberturas en vivo HD, campañas publicitarias, posicionamiento de marcas, producción audiovisual y noticias.', 'https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?w=300', 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=1000')
           `).run(targetUserId, slug);
           jId = resJ.lastInsertRowid;

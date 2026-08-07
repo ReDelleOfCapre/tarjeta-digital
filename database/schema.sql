@@ -137,18 +137,3 @@ CREATE TABLE IF NOT EXISTS pagos (
 );
 CREATE INDEX IF NOT EXISTS idx_pagos_usuario ON pagos(usuario_id);
 CREATE INDEX IF NOT EXISTS idx_pagos_estado ON pagos(estado);
-
--- ====================================================
--- SEED HARDCODED PERMANENTE DE 7 TARJETAS PARA USER ID 1
--- ====================================================
-INSERT OR IGNORE INTO usuarios (id, telefono, nombre, password_hash, email, plan, role, acciones_restantes)
-VALUES (1, '2311556138', 'Giovanni Paolo', '$2a$10$UL3O/uLxzkBfrOBYqOveAu0P3dq6JTb7xvAQzjESiXw9jl82YOG8.', 'gpprzrom@gmail.com', 'paid', 'admin', 10);
-
-INSERT OR IGNORE INTO perfiles (id, usuario_id, slug, nombre_perfil, tipo, color, tema, bio, foto_url, banner_url) VALUES
-(1, 1, 'giovanni', 'Giovanni Paolo — VYNK Director', 'personal', '#7C3AED', 'neon', 'Fundador de VYNK. Creando la mejor plataforma de identidad digital.', NULL, NULL),
-(2, 1, 'cristina', 'Cristina Restaurante & Taquería', 'negocio', '#B91C1C', 'food', '⭐ 4.2 (1,300+ opiniones) · 📍 3 Sucursales en Teziutlán', 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=300', 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1000'),
-(3, 1, 'cristina-teziutlan', 'Cristina Restaurante & Taquería', 'negocio', '#B91C1C', 'food', '⭐ 4.2 (1,300+ opiniones) · 📍 3 Sucursales en Teziutlán', 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=300', 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1000'),
-(4, 1, 'cristina-taqueria', 'Cristina Restaurante & Taquería', 'negocio', '#B91C1C', 'food', '⭐ 4.2 (1,300+ opiniones) · 📍 3 Sucursales en Teziutlán', 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=300', 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1000'),
-(5, 1, 'pequeno-juan', 'Pequeño Juan | Medio Digital Líder', 'negocio', '#E11D48', 'neon', '⭐ 5.0 (226K+ Seguidores) · El Medio Digital Mejor Posicionado de Teziutlán', 'https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?w=300', 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=1000'),
-(6, 1, 'peque-juan', 'Pequeño Juan | Medio Digital Líder', 'negocio', '#E11D48', 'neon', '⭐ 5.0 (226K+ Seguidores) · El Medio Digital Mejor Posicionado de Teziutlán', 'https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?w=300', 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=1000'),
-(7, 1, 'pequeno-juan-medio-digital', 'Pequeño Juan | Medio Digital Líder', 'negocio', '#E11D48', 'neon', '⭐ 5.0 (226K+ Seguidores) · El Medio Digital Mejor Posicionado de Teziutlán', 'https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?w=300', 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=1000');
