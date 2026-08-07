@@ -315,8 +315,15 @@ class DatabaseWrapper {
 
       // Perfil Empresarial "Nivel Dios": Cristina Restaurante & Taquería — Teziutlán
       let cristinaP = this.prepare("SELECT id FROM perfiles WHERE slug = 'cristina-teziutlan'").get();
-      if (cristinaP) {
-        // Asegurar usuario_id, banner_url, foto_url y tema 'food' para presentación gastronómica auténtica
+      let cId;
+      if (!cristinaP) {
+        const resC = this.prepare(`
+          INSERT INTO perfiles (usuario_id, slug, nombre_perfil, tipo, color, tema, bio, foto_url, banner_url)
+          VALUES (?, 'cristina-teziutlan', 'Cristina Restaurante & Taquería', 'negocio', '#B91C1C', 'food', '⭐ 4.8 (120+ opiniones) · Desde 1985 · 📍 3 Sucursales\nEl auténtico sabor de Teziutlán: Tacos al pastor, desayunos buffet y antojitos tradicionales.', 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=300', 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1000')
+        `).run(admin.id);
+        cId = resC.lastInsertRowid;
+      } else {
+        cId = cristinaP.id;
         this.prepare(`
           UPDATE perfiles SET 
             usuario_id = ?,
@@ -326,11 +333,11 @@ class DatabaseWrapper {
             tema = 'food',
             bio = '⭐ 4.8 (120+ opiniones) · Desde 1985 · 📍 3 Sucursales\nEl auténtico sabor de Teziutlán: Tacos al pastor, desayunos buffet y antojitos tradicionales.'
           WHERE id = ?
-        `).run(admin.id, cristinaP.id);
+        `).run(admin.id, cId);
+      }
 
-        // Actualizar bloques para iconografía coherente de sucursales
-        this.prepare("DELETE FROM bloques WHERE perfil_id = ?").run(cristinaP.id);
-        const cId = cristinaP.id;
+      // Actualizar bloques para iconografía coherente de sucursales
+      this.prepare("DELETE FROM bloques WHERE perfil_id = ?").run(cId);
 
         // --- SECCIÓN 1: CONTACTO Y PEDIDOS ---
         this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'seccion', ?, 0)").run(
@@ -392,7 +399,6 @@ class DatabaseWrapper {
         this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'social_icons', ?, 12)").run(
           cId, JSON.stringify({ redes: [{ tipo: 'facebook', url: 'https://www.facebook.com/CristinaRestauranteOficial/' }, { tipo: 'instagram', url: 'https://instagram.com/cristinarestaurante' }] })
         );
-      }
 
       // 2. Definir los 5 Usuarios Free y 5 Usuarios Pro
       const seedUsers = [
