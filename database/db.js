@@ -286,6 +286,13 @@ class DatabaseWrapper {
    */
   _seedDatabase() {
     try {
+      const countRes = this.prepare('SELECT COUNT(*) as total FROM perfiles').get();
+      const totalPerfiles = countRes ? countRes.total : 0;
+      if (totalPerfiles > 0) {
+        console.log('ℹ️ Base de datos ya contiene ' + totalPerfiles + ' perfiles. Omitiendo sembrado inicial.');
+        return;
+      }
+
       const defaultPassHash = '$2a$10$UL3O/uLxzkBfrOBYqOveAu0P3dq6JTb7xvAQzjESiXw9jl82YOG8.';
 
       // 1. Asegurar cuenta Admin (Giovanni Paolo) como ID 1 por defecto
