@@ -1403,7 +1403,7 @@ input[type="text"], input[type="email"], input[type="password"], input[type="num
 }
 
 /* ============================================
-   HOTFIX NUCLEAR: ZERO OVERFLOW-X & STRICT RESPONSIVE LOCK
+   HOTFIX FINAL: ZERO OVERFLOW-X, RESTRICTIVE CARD WIDTH & PINNED FOOTER
    ============================================ */
 *, *::before, *::after {
   box-sizing: border-box !important;
@@ -1418,18 +1418,44 @@ html, body, .dashboard-page {
   padding: 0 !important;
   position: relative !important;
 }
-.container, .container-lg-dashboard, .dashboard-grid-container {
-  width: 100% !important;
-  max-width: 100% !important;
-  box-sizing: border-box !important;
-  overflow-x: hidden !important;
-}
 
 .mobile-only-btn { display: none !important; }
 @media (max-width: 768px) {
   .mobile-only-btn { display: inline-flex !important; }
   .desktop-nav-item { display: none !important; }
-  .navbar { padding: 12px 16px !important; }
+  .navbar { padding: 12px 16px !important; width: 100% !important; box-sizing: border-box !important; }
+
+  .container, .container-lg-dashboard {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
+  }
+
+  .dashboard-grid-container {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .main-panel, .sidebar-panel {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .card, .ai-suggestion-card, .card-create-cta, #btn-create-card, .upgrade-banner {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    box-sizing: border-box !important;
+  }
 
   .stats-bar, #stats-bar {
     display: grid !important;
@@ -1438,7 +1464,7 @@ html, body, .dashboard-page {
     width: 100% !important;
     max-width: 100% !important;
     box-sizing: border-box !important;
-    padding: 0 16px !important;
+    padding: 0 !important;
     margin-left: 0 !important;
     margin-right: 0 !important;
   }
@@ -1460,23 +1486,24 @@ html, body, .dashboard-page {
     font-size: clamp(0.65rem, 2.6vw, 0.78rem) !important;
     line-height: 1.2 !important;
   }
-  .card-create-cta, #btn-create-card, .upgrade-banner, .card {
-    width: 100% !important;
-    max-width: 100% !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-    box-sizing: border-box !important;
-  }
 
   #profile-grid, .profile-grid {
     width: 100% !important;
     max-width: 100% !important;
-    padding: 0 16px !important;
+    padding: 0 !important;
     display: flex !important;
     flex-direction: column !important;
     gap: 12px !important;
     overflow: hidden !important;
     box-sizing: border-box !important;
+  }
+
+  .profile-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    border-radius: 16px !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
   }
 }
 
@@ -1511,7 +1538,16 @@ html, body, .dashboard-page {
   transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   box-shadow: -10px 0 40px rgba(0, 0, 0, 0.6);
+}
+.mobile-nav-footer {
+  padding: 16px 20px 24px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(10, 10, 14, 0.98);
+  margin-top: auto;
+  width: 100%;
+  box-sizing: border-box;
 }
 .mobile-nav-drawer.active {
   transform: translateX(0);
