@@ -292,381 +292,418 @@ router.get('/:slug/vcard', (req, res) => {
  * Se exporta para montar directamente en server.js.
  */
 function perfilPublicoHandler(req, res) {
-  const { slug } = req.params;
-  const cleanSlug = (slug || '').toLowerCase().trim();
+  try {
+    const param = (req.params.slug || req.params.id || '').trim();
+    const cleanParam = param.toLowerCase();
 
-  let perfil = db.prepare('SELECT * FROM perfiles WHERE LOWER(slug) = LOWER(?)').get(cleanSlug);
+    let perfil = null;
 
-  // Relaxed fallback for cristina and juan if exact slug match is missed
-  if (!perfil) {
-    if (cleanSlug.includes('cristina')) {
-      perfil = db.prepare("SELECT * FROM perfiles WHERE slug IN ('cristina', 'cristina-teziutlan', 'cristina-taqueria') ORDER BY id DESC LIMIT 1").get();
-    } else if (cleanSlug.includes('juan') || cleanSlug.includes('peque')) {
-      perfil = db.prepare("SELECT * FROM perfiles WHERE slug IN ('pequeno-juan', 'peque-juan', 'pequeno-juan-medio-digital') ORDER BY id DESC LIMIT 1").get();
+    // Check by ID if numeric
+    if (!isNaN(param) && Number(param) > 0) {
+      perfil = db.prepare('SELECT * FROM perfiles WHERE id = ?').get(parseInt(param, 10));
     }
-  }
-
-  // Auto-healing fallback para cristina si no existiera en la DB
-  if (!perfil && slug.toLowerCase().includes('cristina')) {
-    try {
-      let admin = db.prepare("SELECT id FROM usuarios WHERE role = 'admin' OR telefono = '2311556138'").get();
-      const adminId = admin ? admin.id : 1;
-      const resC = db.prepare(`
-        INSERT INTO perfiles (usuario_id, slug, nombre_perfil, tipo, color, tema, bio, foto_url, banner_url)
-        VALUES (?, ?, 'Cristina Restaurante & Taquería', 'negocio', '#B91C1C', 'food', '⭐ 4.8 (120+ opiniones) · Desde 1985 · 📍 3 Sucursales\nEl auténtico sabor de Teziutlán: Tacos al pastor, desayunos buffet y antojitos tradicionales.', 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=300', 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1000')
-      `).run(adminId, slug);
-      const cId = resC.lastInsertRowid;
-
-      db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'seccion', ?, 0)").run(cId, JSON.stringify({ titulo: '💬 CONTACTO & PEDIDOS RÁPIDOS' }));
-      db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'whatsapp', ?, 1)").run(cId, JSON.stringify({ numero: '522313122032', texto: '🚀 Ordenar por WhatsApp', mensaje_default: '¡Hola Cristina Restaurante! Me gustaría realizar un pedido.' }));
-      db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 2)").run(cId, JSON.stringify({ url: 'https://www.ubereats.com/store/cristina-restaurante-taqueria/', titulo: '🛵 Pedir por Uber Eats', subtitulo: 'Entregas a domicilio', icono: '🛵', color: '#10B981' }));
-      db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'seccion', ?, 3)").run(cId, JSON.stringify({ titulo: '🍽 MENÚ DIGITAL' }));
-      db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'pdf', ?, 4)").run(cId, JSON.stringify({ titulo: '📄 Descargar Menú Completo (PDF)', url: 'http://restaurantescristina.com/menu.pdf' }));
-      db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'seccion', ?, 5)").run(cId, JSON.stringify({ titulo: '📍 SUCURSALES EN TEZIUTLÁN' }));
-      db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 6)").run(cId, JSON.stringify({ url: 'https://maps.google.com/?q=Ignacio+Allende+603+Centro+Teziutlan+Puebla', titulo: '📍 Sucursal 1: Centro — Allende #603', icono: '📍', color: '#D97706' }));
-      if (db._saveToDisk) db._saveToDisk();
-      perfil = db.prepare('SELECT * FROM perfiles WHERE id = ?').get(cId);
-    } catch (e) {
-      console.error('Error auto-healing cristina profile:', e);
+    // Check by slug
+    if (!perfil) {
+      perfil = db.prepare('SELECT * FROM perfiles WHERE LOWER(slug) = LOWER(?)').get(cleanParam);
     }
-  }
-  if (!perfil && (slug.toLowerCase().includes('juan') || slug.toLowerCase().includes('peque'))) {
-    try {
-      let admin = db.prepare("SELECT id FROM usuarios WHERE role = 'admin' OR telefono = '2311556138'").get();
-      const adminId = admin ? admin.id : 1;
-      const resJ = db.prepare(`
-        INSERT INTO perfiles (usuario_id, slug, nombre_perfil, tipo, color, tema, bio, foto_url, banner_url)
-        VALUES (?, ?, 'Pequeño Juan | Medio Digital Líder', 'negocio', '#E11D48', 'neon', '⭐ 5.0 (226K+ Seguidores) · El Medio Digital Mejor Posicionado de Teziutlán\nCoberturas en vivo HD, campañas publicitarias, posicionamiento de marcas, producción audiovisual y noticias.', 'https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?w=300', 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=1000')
-      `).run(adminId, slug);
-      const jId = resJ.lastInsertRowid;
 
-      db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'seccion', ?, 0)").run(jId, JSON.stringify({ titulo: '📢 COTIZAR CAMPAÑA & SERVICIOS' }));
-      db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'whatsapp', ?, 1)").run(jId, JSON.stringify({ numero: '522311120932', texto: '🚀 Cotizar Publicidad por WhatsApp', mensaje_default: '¡Hola Pequeño Juan Medio Digital!' }));
-      db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 2)").run(jId, JSON.stringify({ url: 'tel:2311120932', titulo: '📞 Llamada Directa: (231) 112-0932', subtitulo: 'Atención 24 hrs a anunciantes', icono: '📞', color: '#0284C7' }));
-      db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'seccion', ?, 3)").run(jId, JSON.stringify({ titulo: '📺 TRANSMISIONES EN VIVO' }));
-      db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 4)").run(jId, JSON.stringify({ url: 'https://www.facebook.com/pequenojuantez/?locale=es_LA', titulo: '🔴 Ver Transmisión en Vivo por Facebook (+226k)', icono: '📺', color: '#1877F2' }));
-      db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'pdf', ?, 5)").run(jId, JSON.stringify({ titulo: '📄 Media Kit & Tarifario Publicitario (PDF)', url: 'http://pequenojuan.me/mediakit.pdf' }));
-      db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'seccion', ?, 6)").run(jId, JSON.stringify({ titulo: '📍 OFICINAS CENTRALES' }));
-      db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 7)").run(jId, JSON.stringify({ url: 'https://maps.google.com/?q=Av.+Benito+Juarez+1510-A+Centro+Teziutlan+Puebla', titulo: '📍 Oficina Central: Av. Benito Juárez 1510-A', subtitulo: 'Centro, Teziutlán, Pue.', icono: '📍', color: '#E11D48' }));
-
-      if (db._saveToDisk) db._saveToDisk();
-      perfil = db.prepare('SELECT * FROM perfiles WHERE id = ?').get(jId);
-    } catch (e) {
-      console.error('Error auto-healing pequeno juan profile:', e);
-    }
-  }
-
-  if (!perfil) {
-    return res.status(404).send(generate404Page());
-  }
-
-  // Incrementar visitas
-  db.prepare('UPDATE perfiles SET visitas = visitas + 1 WHERE id = ?').run(perfil.id);
-
-  const campos = db.prepare(
-    'SELECT * FROM campos_contacto WHERE perfil_id = ? ORDER BY orden ASC'
-  ).all(perfil.id);
-
-  const archivos = db.prepare(
-    'SELECT * FROM archivos WHERE perfil_id = ? ORDER BY fecha_subida DESC'
-  ).all(perfil.id);
-
-  const color = escapeHtml(perfil.color || '#007AFF');
-  const themeCss = `
-    :root {
-      --primary: ${color};
-      --accent: ${color};
-    }
-  `;
-
-  // --- Avatar HTML ---
-  let avatar_html;
-  let fotoSrc = '';
-  if (perfil.foto_url) {
-    fotoSrc = (perfil.foto_url.startsWith('http') || perfil.foto_url.startsWith('data:image'))
-      ? perfil.foto_url
-      : `${BASE_URL}${perfil.foto_url}`;
-    avatar_html = `<div class="avatar" style="width:110px;height:110px;border:3px solid ${color}">
-      <img src="${fotoSrc}" alt="${escapeHtml(perfil.nombre_perfil)}">
-    </div>`;
-  } else {
-    const initials = perfil.nombre_perfil
-      .split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
-    avatar_html = `<div class="avatar" style="width:110px;height:110px;background:${color};font-size:2.5rem">${initials}</div>`;
-  }
-
-  // --- Bio HTML ---
-  let bio_html = '';
-  if (perfil.bio) {
-    bio_html = `<p class="bio">${escapeHtml(perfil.bio)}</p>`;
-  }
-
-  // --- Tags HTML ---
-  let tags_parts = [];
-  if (perfil.tipo) tags_parts.push(escapeHtml(perfil.tipo));
-  if (perfil.pronombres) tags_parts.push(escapeHtml(perfil.pronombres));
-  if (perfil.lugar_estudio) tags_parts.push('📚 ' + escapeHtml(perfil.lugar_estudio));
-  if (perfil.cumpleanos) tags_parts.push('🎂 ' + escapeHtml(perfil.cumpleanos));
-
-  const tags_html = tags_parts.length > 0
-    ? `<div class="tags">${tags_parts.map(t => `<span class="tag">${t}</span>`).join('')}</div>`
-    : '';
-
-  // --- Bloques & Campos de contacto HTML ---
-  const bloques = db.prepare('SELECT * FROM bloques WHERE perfil_id = ? AND visible = 1 ORDER BY orden ASC').all(perfil.id);
-  
-  let bloques_html = '';
-  
-  if (bloques.length > 0) {
-    bloques_html = bloques.map(bloque => {
-      const bId = bloque.id;
-      const bContent = typeof bloque.contenido === 'string' ? JSON.parse(bloque.contenido) : bloque.contenido;
-      let html = `<div class="block-wrapper block-${bloque.tipo}" data-bloque-id="${bId}">`;
-      
-      switch (bloque.tipo) {
-        case 'link':
-          const url = bContent.url || '';
-          const titulo = bContent.titulo || '';
-
-          // Smart Embed: Spotify
-          if (url.includes('open.spotify.com')) {
-            let spotifyPath = url.replace('https://open.spotify.com/', '').replace('http://open.spotify.com/', '');
-            if (!spotifyPath.startsWith('embed/')) spotifyPath = 'embed/' + spotifyPath;
-            html += `<iframe class="smart-player" src="https://open.spotify.com/${escapeHtml(spotifyPath)}" width="100%" height="152" frameborder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
-          }
-          // Smart Embed: Google Maps / Ubicación
-          else if (url.includes('maps.google.com') || url.includes('google.com/maps') || titulo.toLowerCase().includes('ubicacion') || titulo.toLowerCase().includes('mapa')) {
-            let mapUrl = url;
-            if (!mapUrl.includes('output=embed')) {
-              mapUrl = `https://maps.google.com/maps?q=${encodeURIComponent(titulo || 'Ubicación')}&output=embed`;
-            }
-            html += `<iframe class="smart-map" src="${escapeHtml(mapUrl)}" width="100%" height="220" style="border:0;border-radius:20px;" allowfullscreen="" loading="lazy"></iframe>`;
-          }
-          else {
-            const icon = getSmartIcon(titulo, url);
-            const brandColor = getSmartBrandColor(titulo, url) || bContent.color || 'var(--text-primary)';
-            html += `<a href="${escapeHtml(url)}" target="_blank" rel="noopener" class="block-link" style="border-left: 4px solid ${brandColor};">
-              <div class="bl-icon" style="color: ${brandColor}">${icon}</div>
-              <div class="bl-text">
-                <div class="bl-title">${escapeHtml(titulo)}</div>
-                ${bContent.subtitulo ? `<div class="bl-sub">${escapeHtml(bContent.subtitulo)}</div>` : ''}
-              </div>
-              <i class="fas fa-chevron-right bl-arrow"></i>
-            </a>`;
-          }
-          break;
-        case 'spotify':
-        case 'youtube':
-        case 'tweet':
-        case 'tiktok':
-          html += `<div class="block-embed">${bContent.embed_html || ''}</div>`;
-          break;
-        case 'texto':
-          const tStyle = bContent.estilo === 'cita' ? 't-cita' : bContent.estilo === 'titulo' ? 't-titulo' : 't-normal';
-          html += `<div class="block-text ${tStyle}">${escapeHtml(bContent.texto)}</div>`;
-          break;
-        case 'whatsapp':
-          const waLink = `https://wa.me/${(bContent.numero || '').replace(/[^0-9]/g, '')}${bContent.mensaje_default ? `?text=${encodeURIComponent(bContent.mensaje_default)}` : ''}`;
-          html += `<a href="${escapeHtml(waLink)}" target="_blank" rel="noopener" class="block-wa">
-            <i class="fab fa-whatsapp"></i> ${escapeHtml(bContent.texto || 'WhatsApp')}
-          </a>`;
-          break;
-        case 'social_icons':
-          html += `<div class="block-socials">`;
-          (bContent.redes || []).forEach(red => {
-            const icon = getFieldIcon(red.tipo);
-            const color = getFieldColor(red.tipo);
-            const link = getFieldLink({ tipo: red.tipo, valor: red.url });
-            html += `<a href="${escapeHtml(link)}" target="_blank" rel="noopener" class="social-icon" style="background: ${color};" title="${escapeHtml(red.tipo)}">
-              ${icon}
-            </a>`;
-          });
-          html += `</div>`;
-          break;
-        case 'email_capture':
-          html += `<div class="block-email">
-            <form data-perfil="${perfil.id}">
-              ${bContent.titulo ? `<h3>${escapeHtml(bContent.titulo)}</h3>` : ''}
-              <div class="email-form-group">
-                <input type="email" name="email" placeholder="${escapeHtml(bContent.placeholder || 'Tu email')}" required>
-                <button type="submit">${escapeHtml(bContent.boton_texto || 'Suscribirse')}</button>
-              </div>
-            </form>
-          </div>`;
-          break;
-        case 'galeria':
-          html += `<div class="block-gallery">`;
-          (bContent.imagenes || []).forEach(img => {
-            html += `<div class="gallery-item">
-              <img src="${escapeHtml(img.url)}" alt="Galería">
-              ${img.caption ? `<div class="gallery-caption">${escapeHtml(img.caption)}</div>` : ''}
-            </div>`;
-          });
-          html += `</div>`;
-          break;
-        case 'countdown':
-          const targetDate = new Date(bContent.fecha_fin).getTime();
-          html += `<div class="block-countdown" data-countdown="${targetDate}">
-            ${bContent.titulo ? `<h3>${escapeHtml(bContent.titulo)}</h3>` : ''}
-            <div class="cd-digits">
-              <div class="cd-unit"><div class="cd-num days">00</div><div class="cd-lbl">Días</div></div>
-              <div class="cd-unit"><div class="cd-num hours">00</div><div class="cd-lbl">Hrs</div></div>
-              <div class="cd-unit"><div class="cd-num minutes">00</div><div class="cd-lbl">Min</div></div>
-              <div class="cd-unit"><div class="cd-num seconds">00</div><div class="cd-lbl">Seg</div></div>
-            </div>
-          </div>`;
-          break;
-        case 'seccion':
-          html += `<div class="block-section-title">${escapeHtml(bContent.titulo)}</div>`;
-          break;
-        case 'pdf':
-          html += `<a href="${escapeHtml(bContent.url)}" target="_blank" rel="noopener" class="block-link block-pdf">
-            <div class="bl-icon" style="background:rgba(239,68,68,0.15);color:#EF4444"><i class="fas fa-file-pdf"></i></div>
-            <div class="bl-text">
-              <div class="bl-title">${escapeHtml(bContent.titulo || 'Documento PDF')}</div>
-              ${bContent.subtitulo ? `<div class="bl-sub">${escapeHtml(bContent.subtitulo)}</div>` : ''}
-            </div>
-            <i class="fas fa-download bl-arrow"></i>
-          </a>`;
-          break;
-        case 'pago':
-          html += `<div class="block-pago">
-            <div class="pago-header">
-              <div class="pago-icon"><i class="fas fa-credit-card"></i></div>
-              <div>
-                <div class="pago-title">${escapeHtml(bContent.banco || 'Datos de Transferencia')}</div>
-                ${bContent.beneficiario ? `<div class="pago-sub">Titular: ${escapeHtml(bContent.beneficiario)}</div>` : ''}
-              </div>
-            </div>
-            ${bContent.clabe ? `
-              <div class="pago-clabe-box">
-                <span class="clabe-num">${escapeHtml(bContent.clabe)}</span>
-                <button type="button" class="btn-copy-clabe" onclick="navigator.clipboard.writeText('${escapeHtml(bContent.clabe)}');this.textContent='¡Copiado! ✓';setTimeout(()=>this.textContent='Copiar CLABE',2000)">Copiar CLABE</button>
-              </div>` : ''}
-          </div>`;
-          break;
-        case 'nota':
-          html += `<div class="block-nota">
-            <i class="fas fa-thumbtack nota-icon"></i>
-            <div>${escapeHtml(bContent.texto)}</div>
-          </div>`;
-          break;
-        default:
-          html += `<div class="block-unsupported">Bloque no soportado: ${escapeHtml(bloque.tipo)}</div>`;
+    // Relaxed fallback for cristina and juan if exact slug match is missed
+    if (!perfil) {
+      if (cleanParam.includes('cristina')) {
+        perfil = db.prepare("SELECT * FROM perfiles WHERE slug IN ('cristina', 'cristina-teziutlan', 'cristina-taqueria') ORDER BY id DESC LIMIT 1").get();
+      } else if (cleanParam.includes('juan') || cleanParam.includes('peque')) {
+        perfil = db.prepare("SELECT * FROM perfiles WHERE slug IN ('pequeno-juan', 'peque-juan', 'pequeno-juan-medio-digital') ORDER BY id DESC LIMIT 1").get();
       }
-      
-      html += `</div>`;
-      return html;
-    }).join('\n');
-  } else {
-    // Fallback to campos_contacto if no blocks
-    const campos_html = campos.map(campo => {
-      const icon = getFieldIcon(campo.tipo);
-      const iconColor = getFieldColor(campo.tipo);
-      const link = getFieldLink(campo);
-      const label = campo.etiqueta || getFieldLabel(campo.tipo);
-      const eventType = campo.tipo === 'whatsapp' ? 'click_whatsapp'
-        : campo.tipo === 'telefono' ? 'click_llamar'
-        : campo.tipo === 'email' ? 'click_email'
-        : campo.tipo === 'direccion' ? 'click_mapa'
-        : 'click_red_social';
+    }
+
+    // Auto-healing fallback para cristina si no existiera en la DB
+    if (!perfil && cleanParam.includes('cristina')) {
+      try {
+        let admin = db.prepare("SELECT id FROM usuarios WHERE role = 'admin' OR telefono = '2311556138'").get();
+        const adminId = admin ? admin.id : 1;
+        const resC = db.prepare(`
+          INSERT INTO perfiles (usuario_id, slug, nombre_perfil, tipo, color, tema, bio, foto_url, banner_url)
+          VALUES (?, ?, 'Cristina Restaurante & Taquería', 'negocio', '#B91C1C', 'food', '⭐ 4.8 (120+ opiniones) · Desde 1985 · 📍 3 Sucursales\nEl auténtico sabor de Teziutlán: Tacos al pastor, desayunos buffet y antojitos tradicionales.', 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=300', 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1000')
+        `).run(adminId, param);
+        const cId = resC.lastInsertRowid;
+
+        db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'seccion', ?, 0)").run(cId, JSON.stringify({ titulo: '💬 CONTACTO & PEDIDOS RÁPIDOS' }));
+        db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'whatsapp', ?, 1)").run(cId, JSON.stringify({ numero: '522313122032', texto: '🚀 Ordenar por WhatsApp', mensaje_default: '¡Hola Cristina Restaurante! Me gustaría realizar un pedido.' }));
+        db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 2)").run(cId, JSON.stringify({ url: 'https://www.ubereats.com/store/cristina-restaurante-taqueria/', titulo: '🛵 Pedir por Uber Eats', subtitulo: 'Entregas a domicilio', icono: '🛵', color: '#10B981' }));
+        db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'seccion', ?, 3)").run(cId, JSON.stringify({ titulo: '🍽 MENÚ DIGITAL' }));
+        db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'pdf', ?, 4)").run(cId, JSON.stringify({ titulo: '📄 Descargar Menú Completo (PDF)', url: 'http://restaurantescristina.com/menu.pdf' }));
+        db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'seccion', ?, 5)").run(cId, JSON.stringify({ titulo: '📍 SUCURSALES EN TEZIUTLÁN' }));
+        db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 6)").run(cId, JSON.stringify({ url: 'https://maps.google.com/?q=Ignacio+Allende+603+Centro+Teziutlan+Puebla', titulo: '📍 Sucursal 1: Centro — Allende #603', icono: '📍', color: '#D97706' }));
+        if (db._saveToDisk) db._saveToDisk();
+        perfil = db.prepare('SELECT * FROM perfiles WHERE id = ?').get(cId);
+      } catch (e) {
+        console.error('Error auto-healing cristina profile:', e);
+      }
+    }
+    if (!perfil && (cleanParam.includes('juan') || cleanParam.includes('peque'))) {
+      try {
+        let admin = db.prepare("SELECT id FROM usuarios WHERE role = 'admin' OR telefono = '2311556138'").get();
+        const adminId = admin ? admin.id : 1;
+        const resJ = db.prepare(`
+          INSERT INTO perfiles (usuario_id, slug, nombre_perfil, tipo, color, tema, bio, foto_url, banner_url)
+          VALUES (?, ?, 'Pequeño Juan | Medio Digital Líder', 'negocio', '#E11D48', 'neon', '⭐ 5.0 (226K+ Seguidores) · El Medio Digital Mejor Posicionado de Teziutlán\nCoberturas en vivo HD, campañas publicitarias, posicionamiento de marcas, producción audiovisual y noticias.', 'https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?w=300', 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=1000')
+        `).run(adminId, param);
+        const jId = resJ.lastInsertRowid;
+
+        db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'seccion', ?, 0)").run(jId, JSON.stringify({ titulo: '📢 COTIZAR CAMPAÑA & SERVICIOS' }));
+        db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'whatsapp', ?, 1)").run(jId, JSON.stringify({ numero: '522311120932', texto: '🚀 Cotizar Publicidad por WhatsApp', mensaje_default: '¡Hola Pequeño Juan Medio Digital!' }));
+        db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 2)").run(jId, JSON.stringify({ url: 'tel:2311120932', titulo: '📞 Llamada Directa: (231) 112-0932', subtitulo: 'Atención 24 hrs a anunciantes', icono: '📞', color: '#0284C7' }));
+        db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'seccion', ?, 3)").run(jId, JSON.stringify({ titulo: '📺 TRANSMISIONES EN VIVO' }));
+        db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 4)").run(jId, JSON.stringify({ url: 'https://www.facebook.com/pequenojuantez/?locale=es_LA', titulo: '🔴 Ver Transmisión en Vivo por Facebook (+226k)', icono: '📺', color: '#1877F2' }));
+        db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'pdf', ?, 5)").run(jId, JSON.stringify({ titulo: '📄 Media Kit & Tarifario Publicitario (PDF)', url: 'http://pequenojuan.me/mediakit.pdf' }));
+        db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'seccion', ?, 6)").run(jId, JSON.stringify({ titulo: '📍 OFICINAS CENTRALES' }));
+        db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 7)").run(jId, JSON.stringify({ url: 'https://maps.google.com/?q=Av.+Benito+Juarez+1510-A+Centro+Teziutlan+Puebla', titulo: '📍 Oficina Central: Av. Benito Juárez 1510-A', subtitulo: 'Centro, Teziutlán, Pue.', icono: '📍', color: '#E11D48' }));
+
+        if (db._saveToDisk) db._saveToDisk();
+        perfil = db.prepare('SELECT * FROM perfiles WHERE id = ?').get(jId);
+      } catch (e) {
+        console.error('Error auto-healing pequeno juan profile:', e);
+      }
+    }
+
+    if (!perfil) {
+      return res.status(404).send(generate404Page());
+    }
+
+    // Incrementar visitas
+    try {
+      db.prepare('UPDATE perfiles SET visitas = visitas + 1 WHERE id = ?').run(perfil.id);
+    } catch(e) {}
+
+    const campos = db.prepare('SELECT * FROM campos_contacto WHERE perfil_id = ? ORDER BY orden ASC').all(perfil.id) || [];
+    const archivos = db.prepare('SELECT * FROM archivos WHERE perfil_id = ? ORDER BY fecha_subida DESC').all(perfil.id) || [];
+
+    const color = escapeHtml(perfil.color || '#007AFF');
+    const themeCss = `
+      :root {
+        --primary: ${color};
+        --accent: ${color};
+      }
+    `;
+
+    // --- Avatar HTML ---
+    let avatar_html;
+    let fotoSrc = '';
+    if (perfil.foto_url) {
+      fotoSrc = (perfil.foto_url.startsWith('http') || perfil.foto_url.startsWith('data:image'))
+        ? perfil.foto_url
+        : `${BASE_URL}${perfil.foto_url}`;
+      avatar_html = `<div class="avatar" style="width:110px;height:110px;border:3px solid ${color}">
+        <img src="${fotoSrc}" alt="${escapeHtml(perfil.nombre_perfil || '')}">
+      </div>`;
+    } else {
+      const initials = (perfil.nombre_perfil || 'V')
+        .split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+      avatar_html = `<div class="avatar" style="width:110px;height:110px;background:${color};font-size:2.5rem">${initials}</div>`;
+    }
+
+    // --- Bio HTML ---
+    let bio_html = '';
+    if (perfil.bio) {
+      bio_html = `<p class="bio">${escapeHtml(perfil.bio)}</p>`;
+    }
+
+    // --- Tags HTML ---
+    let tags_parts = [];
+    if (perfil.tipo) tags_parts.push(escapeHtml(perfil.tipo));
+    if (perfil.pronombres) tags_parts.push(escapeHtml(perfil.pronombres));
+    if (perfil.lugar_estudio) tags_parts.push('📚 ' + escapeHtml(perfil.lugar_estudio));
+    if (perfil.cumpleanos) tags_parts.push('🎂 ' + escapeHtml(perfil.cumpleanos));
+
+    const tags_html = tags_parts.length > 0
+      ? `<div class="tags">${tags_parts.map(t => `<span class="tag">${t}</span>`).join('')}</div>`
+      : '';
+
+    // --- Bloques & Campos de contacto HTML ---
+    const bloques = db.prepare('SELECT * FROM bloques WHERE perfil_id = ? AND visible = 1 ORDER BY orden ASC').all(perfil.id) || [];
+    
+    let bloques_html = '';
+    
+    if (bloques.length > 0) {
+      bloques_html = bloques.map(bloque => {
+        try {
+          const bId = bloque.id;
+          let bContent = {};
+          if (typeof bloque.contenido === 'string') {
+            try { bContent = JSON.parse(bloque.contenido) || {}; } catch(e) { bContent = {}; }
+          } else if (bloque.contenido && typeof bloque.contenido === 'object') {
+            bContent = bloque.contenido;
+          }
+
+          const blockType = bloque.block_type || bloque.tipo || 'link';
+          let html = `<div class="block-wrapper block-${escapeHtml(blockType)}" data-bloque-id="${bId}">`;
+          
+          switch (blockType) {
+            case 'link': {
+              const url = bContent?.url || '';
+              const titulo = bContent?.titulo || 'Enlace';
+              const subtitulo = bContent?.subtitulo || '';
+
+              // Smart Embed: Spotify
+              if (url.includes('open.spotify.com')) {
+                let spotifyPath = url.replace('https://open.spotify.com/', '').replace('http://open.spotify.com/', '');
+                if (!spotifyPath.startsWith('embed/')) spotifyPath = 'embed/' + spotifyPath;
+                html += `<iframe class="smart-player" src="https://open.spotify.com/${escapeHtml(spotifyPath)}" width="100%" height="152" frameborder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
+              }
+              // Smart Embed: Google Maps / Ubicación
+              else if (url.includes('maps.google.com') || url.includes('google.com/maps') || (titulo && titulo.toLowerCase().includes('ubicacion')) || (titulo && titulo.toLowerCase().includes('mapa'))) {
+                let mapUrl = url;
+                if (!mapUrl.includes('output=embed')) {
+                  mapUrl = `https://maps.google.com/maps?q=${encodeURIComponent(titulo || 'Ubicación')}&output=embed`;
+                }
+                html += `<iframe class="smart-map" src="${escapeHtml(mapUrl)}" width="100%" height="220" style="border:0;border-radius:20px;" allowfullscreen="" loading="lazy"></iframe>`;
+              }
+              else {
+                const icon = getSmartIcon(titulo, url);
+                const brandColor = getSmartBrandColor(titulo, url) || bContent?.color || 'var(--text-primary)';
+                html += `<a href="${escapeHtml(url)}" target="_blank" rel="noopener" class="block-link" style="border-left: 4px solid ${brandColor};">
+                  <div class="bl-icon" style="color: ${brandColor}">${icon}</div>
+                  <div class="bl-text">
+                    <div class="bl-title">${escapeHtml(titulo)}</div>
+                    ${subtitulo ? `<div class="bl-sub">${escapeHtml(subtitulo)}</div>` : ''}
+                  </div>
+                  <i class="fas fa-chevron-right bl-arrow"></i>
+                </a>`;
+              }
+              break;
+            }
+            case 'spotify':
+            case 'youtube':
+            case 'tweet':
+            case 'tiktok':
+              html += `<div class="block-embed">${bContent?.embed_html || ''}</div>`;
+              break;
+            case 'texto': {
+              const tStyle = bContent?.estilo === 'cita' ? 't-cita' : bContent?.estilo === 'titulo' ? 't-titulo' : 't-normal';
+              html += `<div class="block-text ${tStyle}">${escapeHtml(bContent?.texto || '')}</div>`;
+              break;
+            }
+            case 'whatsapp': {
+              const waLink = `https://wa.me/${(bContent?.numero || '').replace(/[^0-9]/g, '')}${bContent?.mensaje_default ? `?text=${encodeURIComponent(bContent.mensaje_default)}` : ''}`;
+              html += `<a href="${escapeHtml(waLink)}" target="_blank" rel="noopener" class="block-wa">
+                <i class="fab fa-whatsapp"></i> ${escapeHtml(bContent?.texto || 'WhatsApp')}
+              </a>`;
+              break;
+            }
+            case 'social_icons': {
+              html += `<div class="block-socials">`;
+              const redes = Array.isArray(bContent?.redes) ? bContent.redes : [];
+              redes.forEach(red => {
+                if (red && red.url) {
+                  const icon = getFieldIcon(red.tipo);
+                  const color = getFieldColor(red.tipo);
+                  const link = getFieldLink({ tipo: red.tipo, valor: red.url });
+                  html += `<a href="${escapeHtml(link)}" target="_blank" rel="noopener" class="social-icon" style="background: ${color};" title="${escapeHtml(red.tipo || '')}">
+                    ${icon}
+                  </a>`;
+                }
+              });
+              html += `</div>`;
+              break;
+            }
+            case 'email_capture':
+              html += `<div class="block-email">
+                <form data-perfil="${perfil.id}">
+                  ${bContent?.titulo ? `<h3>${escapeHtml(bContent.titulo)}</h3>` : ''}
+                  <div class="email-form-group">
+                    <input type="email" name="email" placeholder="${escapeHtml(bContent?.placeholder || 'Tu email')}" required>
+                    <button type="submit">${escapeHtml(bContent?.boton_texto || 'Suscribirse')}</button>
+                  </div>
+                </form>
+              </div>`;
+              break;
+            case 'galeria': {
+              html += `<div class="block-gallery">`;
+              const imagenes = Array.isArray(bContent?.imagenes) ? bContent.imagenes : [];
+              imagenes.forEach(img => {
+                if (img && img.url) {
+                  html += `<div class="gallery-item">
+                    <img src="${escapeHtml(img.url)}" alt="Galería">
+                    ${img.caption ? `<div class="gallery-caption">${escapeHtml(img.caption)}</div>` : ''}
+                  </div>`;
+                }
+              });
+              html += `</div>`;
+              break;
+            }
+            case 'countdown': {
+              const targetDate = bContent?.fecha_fin ? new Date(bContent.fecha_fin).getTime() : Date.now();
+              html += `<div class="block-countdown" data-countdown="${targetDate}">
+                ${bContent?.titulo ? `<h3>${escapeHtml(bContent.titulo)}</h3>` : ''}
+                <div class="cd-digits">
+                  <div class="cd-unit"><div class="cd-num days">00</div><div class="cd-lbl">Días</div></div>
+                  <div class="cd-unit"><div class="cd-num hours">00</div><div class="cd-lbl">Hrs</div></div>
+                  <div class="cd-unit"><div class="cd-num minutes">00</div><div class="cd-lbl">Min</div></div>
+                  <div class="cd-unit"><div class="cd-num seconds">00</div><div class="cd-lbl">Seg</div></div>
+                </div>
+              </div>`;
+              break;
+            }
+            case 'pdf':
+              html += `<a href="${escapeHtml(bContent?.url || '#')}" target="_blank" rel="noopener" class="block-link block-pdf">
+                <div class="bl-icon" style="background:rgba(239,68,68,0.15);color:#EF4444"><i class="fas fa-file-pdf"></i></div>
+                <div class="bl-text">
+                  <div class="bl-title">${escapeHtml(bContent?.titulo || 'Documento PDF')}</div>
+                  ${bContent?.subtitulo ? `<div class="bl-sub">${escapeHtml(bContent.subtitulo)}</div>` : ''}
+                </div>
+                <i class="fas fa-download bl-arrow"></i>
+              </a>`;
+              break;
+            case 'pago':
+              html += `<div class="block-pago">
+                <div class="pago-header">
+                  <div class="pago-icon"><i class="fas fa-credit-card"></i></div>
+                  <div>
+                    <div class="pago-title">${escapeHtml(bContent?.banco || 'Datos de Transferencia')}</div>
+                    ${bContent?.beneficiario ? `<div class="pago-sub">Titular: ${escapeHtml(bContent.beneficiario)}</div>` : ''}
+                  </div>
+                </div>
+                ${bContent?.clabe ? `
+                  <div class="pago-clabe-box">
+                    <span class="clabe-num">${escapeHtml(bContent.clabe)}</span>
+                    <button type="button" class="btn-copy-clabe" onclick="navigator.clipboard.writeText('${escapeHtml(bContent.clabe)}');this.textContent='¡Copiado! ✓';setTimeout(()=>this.textContent='Copiar CLABE',2000)">Copiar CLABE</button>
+                  </div>` : ''}
+              </div>`;
+              break;
+            case 'nota':
+              html += `<div class="block-nota">
+                <i class="fas fa-thumbtack nota-icon"></i>
+                <div>${escapeHtml(bContent?.texto || '')}</div>
+              </div>`;
+              break;
+            case 'seccion':
+              html += `<div class="block-section-title">${escapeHtml(bContent?.titulo || '')}</div>`;
+              break;
+            default:
+              html += `<div class="block-unsupported">Bloque: ${escapeHtml(blockType)}</div>`;
+          }
+          
+          html += `</div>`;
+          return html;
+        } catch(e) {
+          console.error('[CRITICAL] Error al renderizar bloque individual:', e);
+          return '';
+        }
+      }).join('\n');
+    } else {
+      // Fallback to campos_contacto if no blocks
+      const campos_html = campos.map(campo => {
+        const icon = getFieldIcon(campo.tipo);
+        const iconColor = getFieldColor(campo.tipo);
+        const link = getFieldLink(campo);
+        const label = campo.etiqueta || getFieldLabel(campo.tipo);
+        const eventType = campo.tipo === 'whatsapp' ? 'click_whatsapp'
+          : campo.tipo === 'telefono' ? 'click_llamar'
+          : campo.tipo === 'email' ? 'click_email'
+          : campo.tipo === 'direccion' ? 'click_mapa'
+          : 'click_red_social';
+
+        return `
+          <a href="${escapeHtml(link)}" class="contact-item" target="_blank" rel="noopener" data-action="${eventType}">
+            <div class="contact-icon" style="background:${iconColor};">${icon}</div>
+            <div class="contact-info">
+              <span class="contact-label">${escapeHtml(label)}</span>
+              <span class="contact-value">${escapeHtml(campo.valor)}</span>
+            </div>
+            <i class="fas fa-chevron-right contact-arrow"></i>
+          </a>`;
+      }).join('\n');
+
+      bloques_html = campos.length > 0
+        ? `<div class="section contact-section">
+            <h2 class="section-title">Contacto</h2>
+            <div class="contact-list">
+              ${campos_html}
+            </div>
+           </div>`
+        : '';
+    }
+
+    // --- Archivos HTML ---
+    const archivos_html = archivos.map(archivo => {
+      const icon = (archivo.tipo || '').includes('pdf') ? '<i class="fas fa-file-pdf"></i>' : '<i class="fas fa-file-image"></i>';
+      const displayName = (archivo.nombre || '').length > 35
+        ? (archivo.nombre || '').substring(0, 32) + '...'
+        : (archivo.nombre || '');
 
       return `
-        <a href="${escapeHtml(link)}" class="contact-item" target="_blank" rel="noopener" data-action="${eventType}">
-          <div class="contact-icon" style="background:${iconColor};">${icon}</div>
-          <div class="contact-info">
-            <span class="contact-label">${escapeHtml(label)}</span>
-            <span class="contact-value">${escapeHtml(campo.valor)}</span>
+        <a href="${escapeHtml(archivo.url)}" class="file-item" target="_blank" rel="noopener" data-action="ver_archivo">
+          <div class="file-icon">${icon}</div>
+          <div class="file-info">
+            <span class="file-label">Archivo</span>
+            <span class="file-name">${escapeHtml(displayName)}</span>
           </div>
-          <i class="fas fa-chevron-right contact-arrow"></i>
+          <i class="fas fa-arrow-down file-download"></i>
         </a>`;
     }).join('\n');
 
-    bloques_html = campos.length > 0
-      ? `<div class="section contact-section">
-          <h2 class="section-title">Contacto</h2>
-          <div class="contact-list">
-            ${campos_html}
+    // --- Archivos section ---
+    const archivos_section_html = archivos.length > 0
+      ? `<div class="section files-section">
+          <h2 class="section-title">Archivos</h2>
+          <div class="file-list">
+            ${archivos_html}
           </div>
          </div>`
       : '';
+
+    // --- Action buttons ---
+    const action_buttons_html = generateActionButtons(perfil, campos);
+
+    // --- OG image ---
+    const og_image = fotoSrc || `${BASE_URL}/img/og-default.png`;
+
+    // --- Read template ---
+    let html;
+    const templatePath = path.join(process.cwd(), 'views', 'perfil-publico.html');
+    try {
+      html = fs.readFileSync(templatePath, 'utf-8');
+    } catch (e) {
+      html = generateFallbackHTML();
+    }
+
+    // --- Replace ALL placeholders ---
+    const bio_text = perfil.bio ? escapeHtml(perfil.bio) : 'Tarjeta digital de contacto';
+    const tema = perfil.tema || 'ios';
+
+    const banner_html = perfil.banner_url
+      ? `<div class="hero-banner"><img src="${escapeHtml(perfil.banner_url)}" alt="Portada"></div>`
+      : '';
+
+    html = html
+      .replace(/\{\{tema_css\}\}/g, themeCss)
+      .replace(/\{\{tema\}\}/g, tema)
+      .replace(/\{\{bio_text\}\}/g, bio_text)
+      .replace(/\{\{nombre_perfil\}\}/g, escapeHtml(perfil.nombre_perfil || ''))
+      .replace(/\{\{tipo\}\}/g, escapeHtml(perfil.tipo || ''))
+      .replace(/\{\{slug\}\}/g, escapeHtml(perfil.slug || ''))
+      .replace(/\{\{color\}\}/g, color)
+      .replace(/\{\{og_image\}\}/g, og_image)
+      .replace(/\{\{base_url\}\}/g, BASE_URL)
+      .replace(/\{\{visitas\}\}/g, String((perfil.visitas || 0) + 1))
+      .replace(/\{\{banner_html\}\}/g, banner_html)
+      .replace(/\{\{avatar_html\}\}/g, avatar_html)
+      .replace(/\{\{foto_url\}\}/g, fotoSrc)
+      .replace(/\{\{bio_html\}\}/g, bio_html)
+      .replace(/\{\{tags_html\}\}/g, tags_html)
+      .replace(/\{\{bloques_html\}\}/g, bloques_html)
+      .replace(/\{\{campos_section_html\}\}/g, '')
+      .replace(/\{\{archivos_section_html\}\}/g, archivos_section_html)
+      .replace(/\{\{action_buttons_html\}\}/g, action_buttons_html)
+      .replace(/\{\{perfil_id\}\}/g, String(perfil.id))
+      .replace(/\{\{api_base\}\}/g, BASE_URL);
+
+    res.set('Content-Type', 'text/html; charset=utf-8');
+    res.send(html);
+  } catch (err) {
+    console.error('[CRITICAL] Error renderizando perfil:', err);
+    res.status(500).send(`<!DOCTYPE html><html lang="es"><body style="background:#0A0A0B;color:#FFF;font-family:sans-serif;padding:40px;text-align:center"><h1>500 - Error al Renderizar Perfil</h1><p>${escapeHtml(err.message)}</p><a href="/" style="color:#7C3AED">Volver al inicio</a></body></html>`);
   }
-
-  // --- Archivos HTML ---
-  const archivos_html = archivos.map(archivo => {
-    const icon = archivo.tipo.includes('pdf') ? '<i class="fas fa-file-pdf"></i>' : '<i class="fas fa-file-image"></i>';
-    const displayName = archivo.nombre.length > 35
-      ? archivo.nombre.substring(0, 32) + '...'
-      : archivo.nombre;
-    return `
-      <a href="${escapeHtml(archivo.url)}" class="file-item" target="_blank" rel="noopener" data-action="ver_archivo">
-        <div class="file-icon">${icon}</div>
-        <div class="file-info">
-          <span class="file-label">Archivo</span>
-          <span class="file-name">${escapeHtml(displayName)}</span>
-        </div>
-        <i class="fas fa-arrow-down file-download"></i>
-      </a>`;
-  }).join('\n');
-
-  // --- Archivos section ---
-  const archivos_section_html = archivos.length > 0
-    ? `<div class="section files-section">
-        <h2 class="section-title">Archivos</h2>
-        <div class="file-list">
-          ${archivos_html}
-        </div>
-       </div>`
-    : '';
-
-  // --- Action buttons ---
-  const action_buttons_html = generateActionButtons(perfil, campos);
-
-  // --- OG image ---
-  const og_image = fotoSrc || `${BASE_URL}/img/og-default.png`;
-
-  // --- Read template ---
-  let html;
-  const templatePath = path.join(process.cwd(), 'views', 'perfil-publico.html');
-  try {
-    html = fs.readFileSync(templatePath, 'utf-8');
-  } catch (e) {
-    html = generateFallbackHTML();
-  }
-
-  // --- Replace ALL placeholders ---
-  const bio_text = perfil.bio ? escapeHtml(perfil.bio) : 'Tarjeta digital de contacto';
-  const tema = perfil.tema || 'ios';
-
-  const banner_html = perfil.banner_url
-    ? `<div class="hero-banner"><img src="${escapeHtml(perfil.banner_url)}" alt="Portada"></div>`
-    : '';
-
-  html = html
-    .replace(/\{\{tema_css\}\}/g, themeCss)
-    .replace(/\{\{tema\}\}/g, tema)
-    .replace(/\{\{bio_text\}\}/g, bio_text)
-    .replace(/\{\{nombre_perfil\}\}/g, escapeHtml(perfil.nombre_perfil))
-    .replace(/\{\{tipo\}\}/g, escapeHtml(perfil.tipo || ''))
-    .replace(/\{\{slug\}\}/g, escapeHtml(perfil.slug))
-    .replace(/\{\{color\}\}/g, color)
-    .replace(/\{\{og_image\}\}/g, og_image)
-    .replace(/\{\{base_url\}\}/g, BASE_URL)
-    .replace(/\{\{visitas\}\}/g, String(perfil.visitas + 1))
-    .replace(/\{\{banner_html\}\}/g, banner_html)
-    .replace(/\{\{avatar_html\}\}/g, avatar_html)
-    .replace(/\{\{foto_url\}\}/g, fotoSrc)
-    .replace(/\{\{bio_html\}\}/g, bio_html)
-    .replace(/\{\{tags_html\}\}/g, tags_html)
-    .replace(/\{\{bloques_html\}\}/g, bloques_html)
-    .replace(/\{\{campos_section_html\}\}/g, '')
-    .replace(/\{\{archivos_section_html\}\}/g, archivos_section_html)
-    .replace(/\{\{action_buttons_html\}\}/g, action_buttons_html)
-    .replace(/\{\{perfil_id\}\}/g, String(perfil.id))
-    .replace(/\{\{api_base\}\}/g, BASE_URL);
-
-  res.set('Content-Type', 'text/html; charset=utf-8');
-  res.send(html);
 }
 
 // =============================================
@@ -1005,3 +1042,45 @@ function generateFallbackHTML() {
 
 module.exports = router;
 module.exports.perfilPublicoHandler = perfilPublicoHandler;
+module.exports.getSmartIcon = getSmartIcon;
+module.exports.getSmartBrandColor = getSmartBrandColor;
+
+function getSmartIcon(titulo, url) {
+  const t = (titulo || '').toLowerCase();
+  const u = (url || '').toLowerCase();
+
+  if (u.includes('whatsapp') || t.includes('whatsapp')) return '<i class="fab fa-whatsapp"></i>';
+  if (u.includes('facebook') || t.includes('facebook')) return '<i class="fab fa-facebook"></i>';
+  if (u.includes('instagram') || t.includes('instagram')) return '<i class="fab fa-instagram"></i>';
+  if (u.includes('youtube') || t.includes('youtube')) return '<i class="fab fa-youtube"></i>';
+  if (u.includes('tiktok') || t.includes('tiktok')) return '<i class="fab fa-tiktok"></i>';
+  if (u.includes('spotify') || t.includes('spotify')) return '<i class="fab fa-spotify"></i>';
+  if (u.includes('twitter') || u.includes('x.com') || t.includes('twitter')) return '<i class="fab fa-x-twitter"></i>';
+  if (u.includes('linkedin') || t.includes('linkedin')) return '<i class="fab fa-linkedin"></i>';
+  if (u.includes('github') || t.includes('github')) return '<i class="fab fa-github"></i>';
+  if (u.includes('uber') || t.includes('uber')) return '<i class="fas fa-motorcycle"></i>';
+  if (u.includes('tel:') || t.includes('llama') || t.includes('telefono')) return '<i class="fas fa-phone"></i>';
+  if (u.includes('mailto:') || t.includes('email') || t.includes('correo')) return '<i class="fas fa-envelope"></i>';
+  if (u.includes('maps') || t.includes('ubicacion') || t.includes('sucursal')) return '<i class="fas fa-location-dot"></i>';
+  if (u.includes('.pdf') || t.includes('pdf') || t.includes('menu')) return '<i class="fas fa-file-pdf"></i>';
+  return '<i class="fas fa-link"></i>';
+}
+
+function getSmartBrandColor(titulo, url) {
+  const t = (titulo || '').toLowerCase();
+  const u = (url || '').toLowerCase();
+
+  if (u.includes('whatsapp') || t.includes('whatsapp')) return '#25D366';
+  if (u.includes('facebook') || t.includes('facebook')) return '#1877F2';
+  if (u.includes('instagram') || t.includes('instagram')) return '#E4405F';
+  if (u.includes('youtube') || t.includes('youtube')) return '#FF0000';
+  if (u.includes('tiktok') || t.includes('tiktok')) return '#00F2FE';
+  if (u.includes('spotify') || t.includes('spotify')) return '#1DB954';
+  if (u.includes('twitter') || u.includes('x.com')) return '#1DA1F2';
+  if (u.includes('linkedin')) return '#0A66C2';
+  if (u.includes('github')) return '#181717';
+  if (u.includes('uber')) return '#10B981';
+  if (u.includes('tel:')) return '#0284C7';
+  if (u.includes('.pdf') || t.includes('pdf')) return '#EF4444';
+  return null;
+}

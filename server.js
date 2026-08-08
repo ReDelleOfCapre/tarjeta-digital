@@ -94,7 +94,7 @@ app.use('/api/leads', workspacesRoutes);
 // Ruta pública de perfiles
 // =============================================
 
-app.get('/u/:slug', perfilPublicoHandler);
+app.get(['/u/:slug', '/p/:id', '/p/:slug'], perfilPublicoHandler);
 
 // =============================================
 // Crear directorio de uploads si no existe
