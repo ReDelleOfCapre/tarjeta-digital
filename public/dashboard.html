@@ -98,6 +98,25 @@
     .card-create-cta:active {
       transform: scale(0.98);
     }
+
+    /* Sidebar Navigation Menu Items */
+    .nav-side-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-radius: 14px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.92rem;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    .nav-side-item:hover, .nav-side-item.active {
+      background: rgba(124, 58, 237, 0.15);
+      color: #FFF;
+      font-weight: 600;
+    }
   </style>
 </head>
 <body class="dashboard-page">
@@ -114,9 +133,9 @@
     </div>
   </nav>
 
-  <div class="container">
+  <div class="container container-lg-dashboard">
     <!-- Header / Micro-Copy -->
-    <div style="margin-top:24px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between">
+    <div style="margin-top:24px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between">
       <div>
         <h1 style="font-size:1.8rem;font-weight:800;letter-spacing:-0.03em">Centro de Comando</h1>
         <p style="font-size:0.88rem;color:var(--text-tertiary)">Gestiona tu identidad digital y sincronizaciones NFC en tiempo real</p>
@@ -124,51 +143,125 @@
       <span class="pro-badge-lock" style="padding:6px 12px;font-size:0.75rem">Sincronización NFC Activa</span>
     </div>
 
-    <!-- Stats Bar -->
-    <div class="stats-bar" id="stats-bar">
-      <div class="stat-card card">
-        <div class="stat-value" id="total-perfiles">0</div>
-        <div class="stat-label">Identidades Digitales</div>
-      </div>
-      <div class="stat-card card">
-        <div class="stat-value" id="total-visitas">0</div>
-        <div class="stat-label">Conexiones Recibidas</div>
-      </div>
-    </div>
+    <!-- 3-Column Desktop Grid Architecture -->
+    <div class="dashboard-grid-container">
 
-    <!-- Nuevo CTA Integrado Glassmorphism (Crear Nueva Identidad Digital) -->
-    <div class="card-create-cta" id="btn-create-card" onclick="location.href='editor.html'" style="margin-top:20px;margin-bottom:24px;padding:20px 24px;border:2px dashed rgba(124,58,237,0.4);border-radius:24px;background:rgba(124,58,237,0.06);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);display:flex;align-items:center;justify-content:center;gap:14px;cursor:pointer;transition:all 0.25s cubic-bezier(0.23,1,0.32,1)">
-      <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#7C3AED,#06B6D4);display:flex;align-items:center;justify-content:center;font-size:1.6rem;color:#FFF;box-shadow:0 4px 15px rgba(124,58,237,0.4);flex-shrink:0">
-        +
-      </div>
-      <div>
-        <div style="font-size:1.05rem;font-weight:700;color:#FFF;letter-spacing:-0.01em">Crear Nueva Identidad Digital</div>
-        <div style="font-size:0.84rem;color:var(--text-tertiary)">Sincroniza una nueva e-card con QR y tecnología NFC nativa</div>
-      </div>
-    </div>
+      <!-- COLUMNA IZQUIERDA: Sidebar Nav & Completion Progress -->
+      <aside class="sidebar-panel">
+        <div class="card p-20" style="padding:20px">
+          <div style="font-size:0.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Navegación</div>
+          <nav style="display:flex;flex-direction:column;gap:6px">
+            <a href="/dashboard.html" class="nav-side-item active">🪪 Mis Tarjetas</a>
+            <a href="/analytics.html" class="nav-side-item">📊 Analíticas Pro</a>
+            <a href="/compartir.html" class="nav-side-item">⚡ Tienda & Tag NFC</a>
+            <a href="/planes.html" class="nav-side-item">💎 Suscripción Pro</a>
+          </nav>
+        </div>
 
-    <!-- Upgrade Banner -->
-    <a href="/planes.html" class="upgrade-banner hidden" id="upgrade-banner" style="text-decoration:none;color:#fff">
-      <h3>⚡ Potencia tu Red con VYNK Pro <span class="pro-badge-lock">🔒 Pro</span></h3>
-      <p>Reclama enlaces ilimitados, analíticas avanzadas de clics y grabación NFC directa</p>
-      <span style="font-weight:600;font-size:var(--font-sm);opacity:0.9">Elevar mi nivel Pro →</span>
-    </a>
+        <div class="card p-20" style="padding:20px">
+          <div style="font-size:0.85rem;font-weight:700;margin-bottom:8px;color:#FFF">Progreso de Perfil</div>
+          <p style="font-size:0.78rem;color:var(--text-tertiary);margin-bottom:12px">Tu e-card tiene un 85% de completado</p>
+          <div style="width:100%;height:8px;background:rgba(255,255,255,0.08);border-radius:10px;overflow:hidden">
+            <div style="width:85%;height:100%;background:linear-gradient(90deg,#7C3AED,#06B6D4);border-radius:10px"></div>
+          </div>
+        </div>
+      </aside>
 
-    <!-- Profile Grid -->
-    <div class="profile-grid" id="profile-grid"></div>
+      <!-- COLUMNA CENTRAL: Main Content (Stats, CTA, Cards Grid) -->
+      <main class="main-panel">
+        <!-- Stats Bar -->
+        <div class="stats-bar" id="stats-bar" style="margin-top:0">
+          <div class="stat-card card">
+            <div class="stat-value" id="total-perfiles">0</div>
+            <div class="stat-label">Identidades Digitales</div>
+          </div>
+          <div class="stat-card card">
+            <div class="stat-value" id="total-visitas">0</div>
+            <div class="stat-label">Conexiones Recibidas</div>
+          </div>
+        </div>
 
-    <!-- Onboarding Mechanics: Glassmorphic Empty State -->
-    <div class="empty-state hidden" id="empty-state" style="background:var(--bg-card);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid var(--card-border);border-radius:28px;padding:48px 24px;text-align:center;box-shadow:var(--card-shadow);margin-top:24px">
-      <div style="width:80px;height:80px;margin:0 auto 20px;background:rgba(124,58,237,0.15);border:1px solid rgba(124,58,237,0.4);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2.5rem;box-shadow:0 0 30px rgba(124,58,237,0.3)">
-        ⚡
-      </div>
-      <h2 style="font-size:1.6rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:8px">Crea tu primera tarjeta My ID y conecta con el mundo</h2>
-      <p class="text-muted" style="max-width:500px;margin:0 auto 28px;line-height:1.6;font-size:0.95rem">
-        Transmite la calidad de tu marca al instante. Diseña tu perfil inteligente, genera tu QR dinámico y grábalo en tu tarjeta física NFC.
-      </p>
-      <button class="btn btn-primary btn-pill" onclick="location.href='editor.html'" style="padding:16px 36px;font-size:1.05rem;background:linear-gradient(135deg,#7C3AED,#06B6D4);box-shadow:0 10px 30px rgba(124,58,237,0.4)">
-        + Desplegar Mi Primera Tarjeta My ID 2027
-      </button>
+        <!-- CTA Integrado Glassmorphism (Crear Nueva Identidad Digital) -->
+        <div class="card-create-cta" id="btn-create-card" onclick="location.href='editor.html'" style="margin-top:16px;margin-bottom:20px;padding:20px 24px;border:2px dashed rgba(124,58,237,0.4);border-radius:24px;background:rgba(124,58,237,0.06);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);display:flex;align-items:center;justify-content:center;gap:14px;cursor:pointer;transition:all 0.25s cubic-bezier(0.23,1,0.32,1)">
+          <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#7C3AED,#06B6D4);display:flex;align-items:center;justify-content:center;font-size:1.6rem;color:#FFF;box-shadow:0 4px 15px rgba(124,58,237,0.4);flex-shrink:0">
+            +
+          </div>
+          <div>
+            <div style="font-size:1.05rem;font-weight:700;color:#FFF;letter-spacing:-0.01em">Crear Nueva Identidad Digital</div>
+            <div style="font-size:0.84rem;color:var(--text-tertiary)">Sincroniza una nueva e-card con QR y tecnología NFC nativa</div>
+          </div>
+        </div>
+
+        <!-- Upgrade Banner -->
+        <a href="/planes.html" class="upgrade-banner hidden" id="upgrade-banner" style="text-decoration:none;color:#fff">
+          <h3>⚡ Potencia tu Red con VYNK Pro <span class="pro-badge-lock">🔒 Pro</span></h3>
+          <p>Reclama enlaces ilimitados, analíticas avanzadas de clics y grabación NFC directa</p>
+          <span style="font-weight:600;font-size:var(--font-sm);opacity:0.9">Elevar mi nivel Pro →</span>
+        </a>
+
+        <!-- Profile Grid -->
+        <div class="profile-grid" id="profile-grid" style="margin-top:0"></div>
+
+        <!-- Onboarding Mechanics: Glassmorphic Empty State -->
+        <div class="empty-state hidden" id="empty-state" style="background:var(--bg-card);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid var(--card-border);border-radius:28px;padding:48px 24px;text-align:center;box-shadow:var(--card-shadow);margin-top:16px">
+          <div style="width:80px;height:80px;margin:0 auto 20px;background:rgba(124,58,237,0.15);border:1px solid rgba(124,58,237,0.4);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2.5rem;box-shadow:0 0 30px rgba(124,58,237,0.3)">
+            ⚡
+          </div>
+          <h2 style="font-size:1.6rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:8px">Crea tu primera tarjeta My ID y conecta con el mundo</h2>
+          <p class="text-muted" style="max-width:500px;margin:0 auto 28px;line-height:1.6;font-size:0.95rem">
+            Transmite la calidad de tu marca al instante. Diseña tu perfil inteligente, genera tu QR dinámico y grábalo en tu tarjeta física NFC.
+          </p>
+          <button class="btn btn-primary btn-pill" onclick="location.href='editor.html'" style="padding:16px 36px;font-size:1.05rem;background:linear-gradient(135deg,#7C3AED,#06B6D4);box-shadow:0 10px 30px rgba(124,58,237,0.4)">
+            + Desplegar Mi Primera Tarjeta My ID 2027
+          </button>
+        </div>
+      </main>
+
+      <!-- COLUMNA DERECHA: Insights & Live Smartphone Preview Mockup -->
+      <aside class="insights-panel">
+        <!-- Actividad Reciente Stream -->
+        <div class="card p-20" style="padding:20px">
+          <div style="font-size:0.85rem;font-weight:700;color:#FFF;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between">
+            <span>Actividad Reciente</span>
+            <span style="font-size:0.7rem;color:var(--green)">● En vivo</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px;font-size:0.82rem">
+            <div style="display:flex;align-items:center;gap:10px;color:var(--text-secondary)">
+              <span>📱</span>
+              <div>
+                <div>Escaneo NFC en México DF</div>
+                <div style="font-size:0.72rem;color:var(--text-muted)">Hace 4 minutos</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;color:var(--text-secondary)">
+              <span>🔍</span>
+              <div>
+                <div>Vista de e-card por QR</div>
+                <div style="font-size:0.72rem;color:var(--text-muted)">Hace 18 minutos</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;color:var(--text-secondary)">
+              <span>👤</span>
+              <div>
+                <div>Contacto vCard descargado</div>
+                <div style="font-size:0.72rem;color:var(--text-muted)">Hace 45 minutos</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Vista Previa en Vivo Mockup -->
+        <div class="card p-20" style="padding:20px;text-align:center">
+          <div style="font-size:0.85rem;font-weight:700;color:#FFF;margin-bottom:12px">Vista Previa en Vivo</div>
+          <div style="width:180px;height:320px;margin:0 auto;background:#050508;border:3px solid rgba(255,255,255,0.15);border-radius:32px;padding:12px;box-shadow:0 12px 30px rgba(0,0,0,0.6);display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative">
+            <div style="width:50px;height:4px;background:rgba(255,255,255,0.2);border-radius:4px;position:absolute;top:10px"></div>
+            <div style="font-size:2.2rem;margin-bottom:8px">📱</div>
+            <div style="font-size:0.75rem;font-weight:700;color:#FFF">VYNK Live Frame</div>
+            <div style="font-size:0.65rem;color:var(--text-muted);margin-top:4px">Vista en Smartphone</div>
+          </div>
+        </div>
+      </aside>
+
     </div>
   </div>
 
