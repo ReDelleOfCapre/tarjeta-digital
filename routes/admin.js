@@ -3,12 +3,59 @@
 // ============================================
 const express = require('express');
 const router = express.Router();
+const rateLimit = require('express-rate-limit');
+const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
 const { dbReady } = require('../database/db');
 const auth = require('../middleware/auth');
 const requireAdmin = require('../middleware/requireAdmin');
 
-// All admin routes require auth + admin role
+// ============================================
+// Anti-Fuerza Bruta: Rate Limiter de Login Admin
+// Bloquea por 15 minutos tras 5 intentos fallidos
+// ============================================
+const adminLoginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 5, // 5 intentos
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Demasiados intentos fallidos. Tu dirección IP ha sido bloqueada por 15 minutos.' },
+  skipSuccessfulRequests: true // Solo cuenta intentos fallidos (401/400)
+});
+
+/**
+ * POST /api/admin/login
+ * Autenticación exclusiva con llave maestra (ADMIN_KEY)
+ */
+router.post('/login', adminLoginLimiter, (req, res) => {
+  const { key } = req.body;
+  const masterKey = process.env.ADMIN_KEY || 'admin123';
+
+  if (!key || key !== masterKey) {
+    return res.status(401).json({ error: 'Llave maestra de administrador incorrecta.' });
+  }
+
+  const payload = {
+    id: 1,
+    telefono: '2311556138',
+    nombre: 'Giovanni Paolo (Admin Master)',
+    role: 'admin',
+    plan: 'paid'
+  };
+
+  const secret = process.env.JWT_SECRET || 'vynk_secret_key';
+  const token = jwt.sign(payload, secret, { expiresIn: '7d' });
+
+  res.json({
+    ok: true,
+    token,
+    usuario: payload
+  });
+});
+
+// ============================================
+// Middleware de protección estricta para el resto de rutas /api/admin/*
+// ============================================
 router.use(auth);
 router.use(requireAdmin);
 
@@ -17,23 +64,6 @@ router.get('/stats', async (req, res) => {
   try {
     const db = await dbReady;
 
-    // Auto-seeding y re-asignación automática para asegurar 11 usuarios y perfiles completos
-    const currentUserCount = db.prepare('SELECT COUNT(*) as total FROM usuarios').get().total;
-    if (currentUserCount < 10 && db._seedDatabase) {
-      db._seedDatabase();
-    }
-
-    // Asegurar que el Admin tenga asignados los perfiles principales
-    const adminUser = db.prepare("SELECT id FROM usuarios WHERE role = 'admin' OR telefono = '2311556138'").get();
-    if (adminUser) {
-      db.prepare(`
-        UPDATE perfiles 
-        SET usuario_id = ? 
-        WHERE slug IN ('cristina', 'cristina-teziutlan', 'pequeno-juan', 'peque-juan', 'pequeno-juan-medio-digital', 'giovanni')
-      `).run(adminUser.id);
-      if (db._saveToDisk) db._saveToDisk();
-    }
-
     const totalUsuarios = db.prepare('SELECT COUNT(*) as total FROM usuarios').get().total;
     const usuariosFree = db.prepare("SELECT COUNT(*) as total FROM usuarios WHERE plan = 'free'").get().total;
     const usuariosPaid = db.prepare("SELECT COUNT(*) as total FROM usuarios WHERE plan = 'paid'").get().total;
@@ -41,14 +71,12 @@ router.get('/stats', async (req, res) => {
     const totalVisitas = db.prepare('SELECT COALESCE(SUM(visitas), 0) as total FROM perfiles').get().total;
     const totalCampos = db.prepare('SELECT COUNT(*) as total FROM campos_contacto').get().total;
 
-    // Ingresos totales (pagos aprobados)
     const ingresosTotal = db.prepare("SELECT COALESCE(SUM(monto), 0) as total FROM pagos WHERE estado = 'aprobado'").get().total;
 
-    // Últimos 7 días de registros
     const registrosRecientes = db.prepare(`
       SELECT DATE(fecha_registro) as fecha, COUNT(*) as total
       FROM usuarios
-      WHERE fecha_registro >= datetime('now', '-7 days')
+      WHERE fecha_registro >= CURRENT_DATE - INTERVAL '7 days'
       GROUP BY DATE(fecha_registro)
       ORDER BY fecha DESC
     `).all();
@@ -72,14 +100,9 @@ router.get('/usuarios', async (req, res) => {
   try {
     const db = await dbReady;
 
-    const currentUserCount = db.prepare('SELECT COUNT(*) as total FROM usuarios').get().total;
-    if (currentUserCount < 10 && db._seedDatabase) {
-      db._seedDatabase();
-    }
-
     const search = req.query.q || '';
     const page = parseInt(req.query.page) || 1;
-    const limit = 20;
+    const limit = 50;
     const offset = (page - 1) * limit;
 
     let usuarios, total;
@@ -108,83 +131,14 @@ router.get('/usuarios', async (req, res) => {
       total = db.prepare('SELECT COUNT(*) as total FROM usuarios').get().total;
     }
 
-    res.json({ usuarios, total, page, pages: Math.ceil(total / limit) });
+    res.json({ usuarios, total, page, totalPages: Math.ceil(total / limit) });
   } catch (err) {
-    console.error('Error listando usuarios:', err);
-    res.status(500).json({ error: 'Error al listar usuarios' });
+    console.error('Error al listar usuarios:', err);
+    res.status(500).json({ error: 'Error al obtener lista de usuarios' });
   }
 });
 
-// PUT /api/admin/usuarios/:id/plan — Toggle user plan
-router.put('/usuarios/:id/plan', [
-  body('plan').isIn(['free', 'paid']).withMessage('Plan debe ser free o paid')
-], async (req, res) => {
-  try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ error: errors.array()[0].msg });
-    }
-
-    const db = await dbReady;
-    const userId = parseInt(req.params.id);
-    const { plan } = req.body;
-
-    const user = db.prepare('SELECT id, nombre, telefono, plan, role FROM usuarios WHERE id = ?').get(userId);
-    if (!user) {
-      return res.status(404).json({ error: 'Usuario no encontrado' });
-    }
-
-    db.prepare('UPDATE usuarios SET plan = ? WHERE id = ?').run(plan, userId);
-
-    res.json({
-      ok: true,
-      usuario: { id: user.id, nombre: user.nombre, telefono: user.telefono, plan, role: user.role }
-    });
-  } catch (err) {
-    console.error('Error actualizando plan:', err);
-    res.status(500).json({ error: 'Error al actualizar plan' });
-  }
-});
-// PUT /api/admin/usuarios/:id/reset-quota — Reset user quota
-router.put('/usuarios/:id/reset-quota', async (req, res) => {
-  try {
-    const db = await dbReady;
-    const userId = parseInt(req.params.id);
-
-    const user = db.prepare('SELECT id, plan FROM usuarios WHERE id = ?').get(userId);
-    if (!user) {
-      return res.status(404).json({ error: 'Usuario no encontrado' });
-    }
-
-    db.prepare('UPDATE usuarios SET acciones_restantes = 10, ultimo_reset = datetime("now") WHERE id = ?').run(userId);
-
-    res.json({ ok: true, mensaje: 'Energía restablecida a 10' });
-  } catch (err) {
-    console.error('Error reseteando cuota:', err);
-    res.status(500).json({ error: 'Error interno' });
-  }
-});
-// GET /api/admin/usuarios/:id/perfiles — List user's profiles
-router.get('/usuarios/:id/perfiles', async (req, res) => {
-  try {
-    const db = await dbReady;
-    const userId = parseInt(req.params.id);
-    const perfiles = db.prepare(`
-      SELECT p.*,
-        (SELECT COUNT(*) FROM campos_contacto WHERE perfil_id = p.id) as total_campos,
-        (SELECT COUNT(*) FROM archivos WHERE perfil_id = p.id) as total_archivos
-      FROM perfiles p WHERE p.usuario_id = ?
-      ORDER BY p.fecha_creacion DESC
-    `).all(userId);
-
-    res.json({ perfiles });
-  } catch (err) {
-    console.error('Error listando perfiles:', err);
-    res.status(500).json({ error: 'Error al listar perfiles' });
-  }
-});
-
-// GET /api/admin/pagos — List all pending payments
+// GET /api/admin/pagos — List pending payments
 router.get('/pagos', async (req, res) => {
   try {
     const db = await dbReady;
@@ -198,124 +152,153 @@ router.get('/pagos', async (req, res) => {
 
     res.json({ pagos });
   } catch (err) {
-    console.error('Error listando pagos:', err);
-    res.status(500).json({ error: 'Error al listar pagos' });
+    console.error('Error al listar pagos:', err);
+    res.status(500).json({ error: 'Error al obtener lista de pagos' });
   }
 });
 
-// PUT /api/admin/pagos/:id/aprobar — Approve payment
-router.put('/pagos/:id/aprobar', async (req, res) => {
+// POST /api/admin/pagos/:id/aprobar — Approve payment
+router.post('/pagos/:id/aprobar', async (req, res) => {
   try {
     const db = await dbReady;
-    const pagoId = parseInt(req.params.id);
-    const { duracion_dias } = req.body;
-    
-    const dias = duracion_dias || 30; // default 30 days
-
+    const pagoId = parseInt(req.params.id, 10);
     const pago = db.prepare('SELECT * FROM pagos WHERE id = ?').get(pagoId);
-    if (!pago) return res.status(404).json({ error: 'Pago no encontrado' });
-    if (pago.estado !== 'pendiente') return res.status(400).json({ error: 'El pago ya fue procesado' });
 
-    // Update payment
-    db.prepare(`
-      UPDATE pagos SET estado = 'aprobado', aprobado_por = ?, fecha_resolucion = datetime('now')
-      WHERE id = ?
-    `).run(req.user.id, pagoId);
+    if (!pago) {
+      return res.status(404).json({ error: 'Pago no encontrado.' });
+    }
 
-    // Update user plan and expiration
-    db.prepare(`
-      UPDATE usuarios SET plan = 'paid', plan_expira = datetime('now', '+' || ? || ' days')
-      WHERE id = ?
-    `).run(dias, pago.usuario_id);
+    const dias = pago.plan === 'anual' ? 365 : 30;
+    const expiraDate = new Date();
+    expiraDate.setDate(expiraDate.getDate() + dias);
 
-    const updatedPago = db.prepare('SELECT * FROM pagos WHERE id = ?').get(pagoId);
-    res.json({ ok: true, pago: updatedPago });
+    db.prepare("UPDATE usuarios SET plan = 'paid', plan_expira = ? WHERE id = ?").run(expiraDate.toISOString(), pago.usuario_id);
+    db.prepare("UPDATE pagos SET estado = 'aprobado', aprobado_por = ?, fecha_resolucion = CURRENT_TIMESTAMP WHERE id = ?").run(req.user.id, pagoId);
+
+    res.json({ ok: true, mensaje: `Pago aprobado. Usuario actualizado a PRO por ${dias} días.` });
   } catch (err) {
-    console.error('Error aprobando pago:', err);
-    res.status(500).json({ error: 'Error interno' });
+    console.error('Error al aprobar pago:', err);
+    res.status(500).json({ error: 'Error al aprobar pago' });
   }
 });
 
-// PUT /api/admin/pagos/:id/rechazar — Reject payment
-router.put('/pagos/:id/rechazar', async (req, res) => {
+// POST /api/admin/pagos/:id/rechazar — Reject payment
+router.post('/pagos/:id/rechazar', async (req, res) => {
   try {
     const db = await dbReady;
-    const pagoId = parseInt(req.params.id);
+    const pagoId = parseInt(req.params.id, 10);
     const { motivo } = req.body;
 
     const pago = db.prepare('SELECT * FROM pagos WHERE id = ?').get(pagoId);
-    if (!pago) return res.status(404).json({ error: 'Pago no encontrado' });
-    if (pago.estado !== 'pendiente') return res.status(400).json({ error: 'El pago ya fue procesado' });
+    if (!pago) {
+      return res.status(404).json({ error: 'Pago no encontrado.' });
+    }
 
-    db.prepare(`
-      UPDATE pagos SET estado = 'rechazado', motivo_rechazo = ?, aprobado_por = ?, fecha_resolucion = datetime('now')
-      WHERE id = ?
-    `).run(motivo || '', req.user.id, pagoId);
+    db.prepare("UPDATE pagos SET estado = 'rechazado', motivo_rechazo = ?, fecha_resolucion = CURRENT_TIMESTAMP WHERE id = ?").run(motivo || 'Pago rechazado por el administrador', pagoId);
 
-    const updatedPago = db.prepare('SELECT * FROM pagos WHERE id = ?').get(pagoId);
-    res.json({ ok: true, pago: updatedPago });
+    res.json({ ok: true, mensaje: 'Pago rechazado correctamente.' });
   } catch (err) {
-    console.error('Error rechazando pago:', err);
-    res.status(500).json({ error: 'Error interno' });
+    console.error('Error al rechazar pago:', err);
+    res.status(500).json({ error: 'Error al rechazar pago' });
   }
 });
 
-// DELETE /api/admin/perfiles/:id — Delete any profile
+// POST /api/admin/usuarios/:id/plan — Change user plan
+router.post('/usuarios/:id/plan', async (req, res) => {
+  try {
+    const db = await dbReady;
+    const userId = parseInt(req.params.id, 10);
+    const { plan, dias } = req.body;
+
+    if (!['free', 'paid'].includes(plan)) {
+      return res.status(400).json({ error: 'Plan inválido. Debe ser free o paid.' });
+    }
+
+    let expira = null;
+    if (plan === 'paid') {
+      const numDias = parseInt(dias) || 30;
+      const d = new Date();
+      d.setDate(d.getDate() + numDias);
+      expira = d.toISOString();
+    }
+
+    db.prepare('UPDATE usuarios SET plan = ?, plan_expira = ? WHERE id = ?').run(plan, expira, userId);
+    res.json({ ok: true, mensaje: `Plan de usuario ${userId} actualizado a ${plan.toUpperCase()}` });
+  } catch (err) {
+    console.error('Error al cambiar plan:', err);
+    res.status(500).json({ error: 'Error al actualizar plan' });
+  }
+});
+
+// POST /api/admin/usuarios/:id/reset-quota — Reset action energy quota
+router.post('/usuarios/:id/reset-quota', async (req, res) => {
+  try {
+    const db = await dbReady;
+    const userId = parseInt(req.params.id, 10);
+
+    db.prepare("UPDATE usuarios SET acciones_restantes = 10, ultimo_reset = CURRENT_TIMESTAMP WHERE id = ?").run(userId);
+    res.json({ ok: true, mensaje: `Energía del usuario ${userId} recargada a 10 acciones.` });
+  } catch (err) {
+    console.error('Error al recargar cuota:', err);
+    res.status(500).json({ error: 'Error al recargar cuota' });
+  }
+});
+
+// POST /api/admin/usuarios/:id/password — Admin reset user password
+router.post('/usuarios/:id/password', async (req, res) => {
+  try {
+    const db = await dbReady;
+    const userId = parseInt(req.params.id, 10);
+    const { newPassword } = req.body;
+    const bcrypt = require('bcryptjs');
+
+    if (!newPassword || newPassword.length < 4) {
+      return res.status(400).json({ error: 'La contraseña debe tener al menos 4 caracteres.' });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const passHash = await bcrypt.hash(newPassword, salt);
+
+    db.prepare('UPDATE usuarios SET password_hash = ? WHERE id = ?').run(passHash, userId);
+    res.json({ ok: true, mensaje: `Contraseña del usuario ${userId} restablecida con éxito.` });
+  } catch (err) {
+    console.error('Error al cambiar contraseña:', err);
+    res.status(500).json({ error: 'Error al cambiar contraseña' });
+  }
+});
+
+// GET /api/admin/usuarios/:id/perfiles — View cards for user
+router.get('/usuarios/:id/perfiles', async (req, res) => {
+  try {
+    const db = await dbReady;
+    const userId = parseInt(req.params.id, 10);
+
+    const perfiles = db.prepare('SELECT * FROM perfiles WHERE usuario_id = ? ORDER BY id DESC').all(userId);
+    const result = perfiles.map(p => {
+      const bCount = db.prepare('SELECT COUNT(*) as total FROM bloques WHERE perfil_id = ?').get(p.id).total;
+      return { ...p, total_campos: bCount };
+    });
+
+    res.json({ perfiles: result });
+  } catch (err) {
+    console.error('Error obteniendo perfiles de usuario:', err);
+    res.status(500).json({ error: 'Error al obtener tarjetas del usuario' });
+  }
+});
+
+// DELETE /api/admin/perfiles/:id — Delete card as admin
 router.delete('/perfiles/:id', async (req, res) => {
   try {
     const db = await dbReady;
-    const perfilId = parseInt(req.params.id);
-    
-    const perfil = db.prepare('SELECT id FROM perfiles WHERE id = ?').get(perfilId);
-    if (!perfil) return res.status(404).json({ error: 'Perfil no encontrado' });
+    const perfilId = parseInt(req.params.id, 10);
 
+    db.prepare('DELETE FROM bloques WHERE perfil_id = ?').run(perfilId);
     db.prepare('DELETE FROM perfiles WHERE id = ?').run(perfilId);
-    res.json({ ok: true, mensaje: 'Perfil eliminado' });
+
+    res.json({ ok: true, mensaje: 'Tarjeta eliminada permanentemente por administración.' });
   } catch (err) {
-    console.error('Error eliminando perfil (admin):', err);
-    res.status(500).json({ error: 'Error interno' });
-  }
-});
-
-// PUT /api/admin/usuarios/:id/password — Admin resets password for any user
-const bcrypt = require('bcryptjs');
-const fs = require('fs');
-const path = require('path');
-
-router.put('/usuarios/:id/password', [
-  body('password').isLength({ min: 6 }).withMessage('La contraseña debe tener al menos 6 caracteres')
-], async (req, res) => {
-  try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ error: errors.array()[0].msg });
-    }
-
-    const db = await dbReady;
-    const userId = parseInt(req.params.id);
-    const { password } = req.body;
-
-    const hash = await bcrypt.hash(password, 10);
-    db.prepare('UPDATE usuarios SET password_hash = ? WHERE id = ?').run(hash, userId);
-
-    res.json({ ok: true, mensaje: 'Contraseña actualizada correctamente' });
-  } catch (err) {
-    console.error('Error reseteando contraseña:', err);
-    res.status(500).json({ error: 'Error al cambiar la contraseña' });
-  }
-});
-
-// GET /api/admin/backup-db — Descargar copia de seguridad de la BD
-router.get('/backup-db', async (req, res) => {
-  try {
-    const DB_PATH = process.env.DB_PATH || path.join(__dirname, '../database/tarjeta.db');
-    if (fs.existsSync(DB_PATH)) {
-      res.download(DB_PATH, `vynk-backup-${new Date().toISOString().slice(0,10)}.db`);
-    } else {
-      res.status(404).json({ error: 'Archivo de base de datos no encontrado' });
-    }
-  } catch (err) {
-    res.status(500).json({ error: 'Error al generar copia de seguridad' });
+    console.error('Error eliminando tarjeta:', err);
+    res.status(500).json({ error: 'Error al eliminar tarjeta' });
   }
 });
 

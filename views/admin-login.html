@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Acceso Admin Master — VYNK</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    body {
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #050508;
+      background-image: radial-gradient(circle at 50% 30%, rgba(124, 58, 237, 0.15), transparent 70%);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: #F8FAFC;
+      margin: 0;
+      padding: 24px;
+    }
+    .admin-card {
+      width: 100%;
+      max-width: 400px;
+      background: rgba(15, 11, 30, 0.75);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 28px;
+      padding: 36px 32px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
+      text-align: center;
+    }
+    .admin-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 100px;
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #F87171;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+    }
+    .admin-title {
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      margin: 0 0 8px 0;
+      color: #FFFFFF;
+    }
+    .admin-sub {
+      color: #94A3B8;
+      font-size: 0.9rem;
+      margin-bottom: 28px;
+      line-height: 1.5;
+    }
+    .form-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+    .form-label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #CBD5E1;
+      margin-bottom: 8px;
+    }
+    .form-input {
+      width: 100%;
+      box-sizing: border-box;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 14px;
+      padding: 14px 16px;
+      color: #FFFFFF;
+      font-size: 1rem;
+      transition: border-color 160ms cubic-bezier(0.23, 1, 0.32, 1), box-shadow 160ms cubic-bezier(0.23, 1, 0.32, 1);
+    }
+    .form-input:focus {
+      outline: none;
+      border-color: #7C3AED;
+      box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.25);
+    }
+    .btn-admin-submit {
+      width: 100%;
+      padding: 14px;
+      border-radius: 14px;
+      border: none;
+      background: linear-gradient(135deg, #7C3AED, #6366F1);
+      color: #FFFFFF;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(124, 58, 237, 0.4);
+      transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), opacity 160ms ease;
+    }
+    .btn-admin-submit:hover {
+      opacity: 0.95;
+    }
+    .btn-admin-submit:active {
+      transform: scale(0.96) !important;
+    }
+    .alert-error {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #F87171;
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      margin-bottom: 20px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-card">
+    <div class="admin-badge">⚡ Master Control</div>
+    <h1 class="admin-title">Panel de Administración</h1>
+    <p class="admin-sub">Ingresa la llave maestra de seguridad (ADMIN_KEY) para acceder al sistema.</p>
+
+    <div class="alert-error" id="error-box"></div>
+
+    <form id="admin-login-form">
+      <div class="form-group">
+        <label class="form-label" for="admin-key">Llave Maestra</label>
+        <input type="password" id="admin-key" class="form-input" placeholder="••••••••••••" required autofocus autocomplete="current-password">
+      </div>
+      <button type="submit" class="btn-admin-submit" id="btn-submit">Desbloquear Panel</button>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById('admin-login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const keyInput = document.getElementById('admin-key').value;
+      const errorBox = document.getElementById('error-box');
+      const btnSubmit = document.getElementById('btn-submit');
+
+      errorBox.style.display = 'none';
+      btnSubmit.disabled = true;
+      btnSubmit.textContent = 'Verificando...';
+
+      try {
+        const res = await fetch('/api/admin/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ key: keyInput })
+        });
+        
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.error || 'Acceso denegado.');
+        }
+
+        // Guardar token maestro de Admin y redirigir
+        localStorage.setItem('admin_token', data.token);
+        localStorage.setItem('token', data.token);
+        if (data.usuario) {
+          localStorage.setItem('user', JSON.stringify(data.usuario));
+        }
+
+        location.href = '/admin.html';
+      } catch (err) {
+        errorBox.textContent = err.message;
+        errorBox.style.display = 'block';
+        btnSubmit.disabled = false;
+        btnSubmit.textContent = 'Desbloquear Panel';
+      }
+    });
+  </script>
+</body>
+</html>

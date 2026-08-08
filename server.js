@@ -41,6 +41,17 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 // =============================================
+// Interceptar Rutas de Admin (Bloqueo de Acceso Público Estático)
+// =============================================
+app.get(['/admin-login', '/admin-login.html'], (req, res) => {
+  res.sendFile(path.join(process.cwd(), 'views', 'admin-login.html'));
+});
+
+app.get(['/admin', '/admin.html'], (req, res) => {
+  res.sendFile(path.join(process.cwd(), 'views', 'admin.html'));
+});
+
+// =============================================
 // Archivos estáticos
 // =============================================
 
