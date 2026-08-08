@@ -105,6 +105,33 @@ class PgDatabaseWrapper {
       await this.pool.query("ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS apple_id VARCHAR(255)");
       await this.pool.query("ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS microsoft_id VARCHAR(255)");
       await this.pool.query("ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS terms_accepted BOOLEAN DEFAULT FALSE");
+      
+      await this.pool.query(`
+        CREATE TABLE IF NOT EXISTS workspaces (
+          id SERIAL PRIMARY KEY,
+          nombre VARCHAR(255) NOT NULL,
+          owner_id INT NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+          tipo VARCHAR(50) DEFAULT 'personal',
+          fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE TABLE IF NOT EXISTS workspace_members (
+          id SERIAL PRIMARY KEY,
+          workspace_id INT NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+          usuario_id INT NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+          role VARCHAR(50) DEFAULT 'Editor',
+          fecha_unión TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        CREATE TABLE IF NOT EXISTS lead_captures (
+          id SERIAL PRIMARY KEY,
+          perfil_id INT NOT NULL REFERENCES perfiles(id) ON DELETE CASCADE,
+          nombre VARCHAR(255) NOT NULL,
+          email VARCHAR(255) NOT NULL,
+          telefono VARCHAR(50),
+          mensaje TEXT,
+          webhook_status VARCHAR(50) DEFAULT 'pending',
+          fecha_captura TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+      `);
     } catch (e) {
       console.error('Error corriendo migraciones PG:', e);
     }

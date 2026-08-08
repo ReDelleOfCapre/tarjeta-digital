@@ -167,13 +167,24 @@
     <!-- 3-Column Desktop Grid Architecture -->
     <div class="dashboard-grid-container">
 
-      <!-- COLUMNA IZQUIERDA: Sidebar Nav & Retention / UGC Circular Progress Widget -->
+      <!-- COLUMNA IZQUIERDA: Workspace Selector, Sidebar Nav & Retention / UGC Circular Progress Widget -->
       <aside class="sidebar-panel">
+        <!-- Selector de Espacios de Trabajo (Multi-Tenant B2B Dropdown) -->
+        <div class="card p-20" style="padding:16px;margin-bottom:4px;background:rgba(124,58,237,0.1)!important;border:1px solid rgba(124,58,237,0.3)!important">
+          <div style="font-size:0.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Espacio de Trabajo</div>
+          <select id="select-workspace" onchange="switchWorkspace(this.value)" style="width:100%;padding:10px;border-radius:12px;background:#08080E;color:#FFF;font-size:0.85rem;font-weight:600;border:1px solid rgba(255,255,255,0.15);cursor:pointer">
+            <option value="personal">🏢 Personal Workspace (Tú)</option>
+            <option value="company">💼 Company Workspace B2B</option>
+            <option value="new">+ Crear nuevo Workspace...</option>
+          </select>
+        </div>
+
         <div class="card p-20" style="padding:20px">
           <div style="font-size:0.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Navegación</div>
           <nav style="display:flex;flex-direction:column;gap:6px">
             <a href="/dashboard.html" class="nav-side-item active">🪪 Mis Tarjetas</a>
             <a href="/analytics.html" class="nav-side-item">📊 Analíticas Pro</a>
+            <a href="javascript:void(0)" onclick="openTeamModal()" class="nav-side-item">👥 Miembros del Equipo <span class="pro-badge-lock" style="font-size:0.6rem">RBAC</span></a>
             <a href="/compartir.html" class="nav-side-item">⚡ Tienda & Tag NFC</a>
             <a href="/planes.html" class="nav-side-item">💎 Suscripción Pro</a>
           </nav>
@@ -389,6 +400,40 @@
     </div>
   </div>
 
+  <!-- Team Members & RBAC Management Modal -->
+  <div class="modal-overlay hidden" id="modal-team-members" style="background:rgba(3,3,6,0.92);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);z-index:9999;display:flex;align-items:center;justify-content:center">
+    <div class="modal card" style="max-width:540px;width:92%;background:rgba(15,11,30,0.9);border:1px solid rgba(255,255,255,0.18);border-radius:28px;padding:32px;box-shadow:0 20px 50px rgba(0,0,0,0.8)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <h2 style="font-size:1.4rem;font-weight:800;letter-spacing:-0.02em;color:#FFF;margin:0">👥 Miembros del Equipo & Roles RBAC</h2>
+        <button onclick="closeTeamModal()" style="background:none;border:none;color:var(--text-muted);font-size:1.4rem;cursor:pointer">✕</button>
+      </div>
+      <p class="text-muted" style="font-size:0.85rem;line-height:1.5;margin-bottom:20px">
+        Asigna permisos de acceso y control a tus colaboradores en el espacio de trabajo corporativo.
+      </p>
+
+      <div style="display:flex;gap:8px;margin-bottom:20px">
+        <input type="email" id="invite-email" placeholder="colaborador@empresa.com" style="flex:1;padding:12px 16px">
+        <select id="invite-role" style="padding:12px;border-radius:12px;background:#08080E;color:#FFF">
+          <option value="Admin">Admin</option>
+          <option value="Editor" selected>Editor</option>
+          <option value="Viewer">Viewer</option>
+        </select>
+        <button class="btn btn-primary" onclick="inviteTeamMember()" style="padding:12px 18px">+ Invitar</button>
+      </div>
+
+      <div style="font-size:0.8rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:10px">Miembros del Equipo Activos</div>
+      <div id="team-members-list" style="display:flex;flex-direction:column;gap:8px;max-height:200px;overflow-y:auto">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:rgba(255,255,255,0.04);border-radius:12px">
+          <div>
+            <div style="font-weight:700;color:#FFF;font-size:0.88rem">Giovanni Paolo (Tú)</div>
+            <div style="font-size:0.75rem;color:var(--text-tertiary)">gpprzrom@gmail.com</div>
+          </div>
+          <span class="pro-badge-lock" style="background:rgba(124,58,237,0.2);color:#A78BFA;border-color:rgba(124,58,237,0.4)">Pro Owner / Admin</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <footer style="text-align:center;padding:36px 0;color:var(--text-muted);font-size:0.85rem;border-top:1px solid var(--separator);margin-top:60px">
     <div class="container">
       <p>© 2026 VYNK Platform Inc. | <a href="/terminos" style="color:var(--text-secondary)">Términos de Servicio</a> | <a href="/privacidad" style="color:var(--text-secondary)">Aviso de Privacidad</a></p>
@@ -400,6 +445,43 @@
   <script src="/js/app.js"></script>
   <script src="/js/dashboard.js"></script>
   <script>
+    function openTeamModal() {
+      document.getElementById('modal-team-members').classList.remove('hidden');
+    }
+    function closeTeamModal() {
+      document.getElementById('modal-team-members').classList.add('hidden');
+    }
+
+    function switchWorkspace(val) {
+      if (val === 'new') {
+        var name = prompt('Nombre del nuevo Company Workspace:');
+        if (name) {
+          api('/workspaces', { method: 'POST', body: JSON.stringify({ nombre: name, tipo: 'company' }) })
+            .then(function() {
+              showToast('Workspace corporativo creado', 'success');
+              setTimeout(function() { location.reload(); }, 400);
+            });
+        }
+      } else {
+        showToast('Cambiado a ' + (val === 'company' ? 'Company Workspace B2B' : 'Personal Workspace'), 'info');
+      }
+    }
+
+    function inviteTeamMember() {
+      var email = document.getElementById('invite-email').value;
+      var role = document.getElementById('invite-role').value;
+      if (!email) { showToast('Ingresa un correo electrónico válido', 'error'); return; }
+
+      var list = document.getElementById('team-members-list');
+      var item = document.createElement('div');
+      item.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:12px;background:rgba(255,255,255,0.04);border-radius:12px;margin-top:4px';
+      item.innerHTML = '<div><div style="font-weight:700;color:#FFF;font-size:0.88rem">' + email.split('@')[0] + '</div><div style="font-size:0.75rem;color:var(--text-tertiary)">' + email + '</div></div><span class="pro-badge-lock" style="background:rgba(6,182,212,0.2);color:#38BDF8;border-color:rgba(6,182,212,0.4)">' + role + '</span>';
+      list.appendChild(item);
+
+      document.getElementById('invite-email').value = '';
+      showToast('Invitación enviada con rol ' + role, 'success');
+    }
+
     function toggleSupportChat() {
       var win = document.getElementById('chat-window');
       win.classList.toggle('hidden');

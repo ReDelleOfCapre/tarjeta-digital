@@ -86,6 +86,10 @@ app.use('/api', suscriptoresRoutes);
 const pagosRoutes = require('./routes/pagos');
 app.use('/api/pagos', pagosRoutes);
 
+const workspacesRoutes = require('./routes/workspaces');
+app.use('/api/workspaces', workspacesRoutes);
+app.use('/api/leads', workspacesRoutes);
+
 // =============================================
 // Ruta pública de perfiles
 // =============================================

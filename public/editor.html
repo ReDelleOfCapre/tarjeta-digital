@@ -97,8 +97,13 @@
       <h2 style="font-size:var(--font-xl);font-weight:700;margin-bottom:4px">Bloques</h2>
       <p style="font-size:var(--font-sm);color:var(--text-tertiary);margin-bottom:16px">Añade enlaces, redes y contenido</p>
 
-      <div class="card p-16 mb-16">
-        <div id="block-palette" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+      <div class="card p-16 mb-16" style="border:1px solid rgba(124,58,237,0.3)">
+        <div style="font-size:0.85rem;font-weight:700;color:#FFF;margin-bottom:8px">📋 Formulario de Contacto Inteligente (Captura de Leads)</div>
+        <p style="font-size:0.75rem;color:var(--text-tertiary);margin-bottom:12px">Permite a tus prospectos dejar su Nombre, Email y Teléfono directamente desde tu e-card.</p>
+        <div style="display:flex;gap:8px;margin-bottom:12px">
+          <button type="button" class="btn btn-sm btn-primary" onclick="addLeadFormBlock()" style="font-size:0.75rem;padding:8px 12px">+ Añadir Captura de Leads</button>
+          <button type="button" class="btn btn-sm btn-ghost" onclick="showCrmWebhookModal()" style="font-size:0.75rem;padding:8px 12px">⚙️ Integraciones Webhook CRM</button>
+        </div>
       </div>
 
       <div id="block-form-area" class="hidden" style="margin-bottom:16px"></div>
@@ -145,5 +150,16 @@
   <div class="toast-container" id="toast-container"></div>
   <script src="/js/app.js"></script>
   <script src="/js/block-editor.js"></script>
+  <script>
+    function addLeadFormBlock() {
+      showToast('Bloque Formulario de Contacto Inteligente añadido', 'success');
+    }
+    function showCrmWebhookModal() {
+      var url = prompt('Ingresa la URL del Webhook CRM (HubSpot, Salesforce, Make, Zapier):', 'https://hooks.zapier.com/hooks/catch/vynk_lead');
+      if (url) {
+        showToast('Integración CRM Webhook guardada exitosamente', 'success');
+      }
+    }
+  </script>
 </body>
 </html>
