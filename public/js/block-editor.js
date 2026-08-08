@@ -72,63 +72,97 @@
 
   // ===== STEPS =====
   window.goStep = function(s) {
-    for (var i=1;i<=3;i++) {
-      document.getElementById('step-'+i).classList.toggle('hidden', i!==s);
-      var dot = document.getElementById('dot-'+i);
-      dot.classList.remove('active','done');
-      if (i<s) dot.classList.add('done');
-      if (i===s) dot.classList.add('active');
+    if (s > 1) {
+      var nombre = gv('nombre_perfil');
+      var inputNombre = document.getElementById('nombre_perfil');
+      if (!nombre || !nombre.trim()) {
+        if (inputNombre) {
+          inputNombre.style.borderColor = 'var(--red)';
+          inputNombre.focus();
+        }
+        showToast('Por favor ingresa el Nombre para continuar', 'error');
+        return false;
+      } else if (inputNombre) {
+        inputNombre.style.borderColor = '';
+      }
     }
-    window.scrollTo(0,0);
+
+    for (var i = 1; i <= 3; i++) {
+      var stepEl = document.getElementById('step-' + i);
+      if (stepEl) stepEl.classList.toggle('hidden', i !== s);
+      var dot = document.getElementById('dot-' + i);
+      if (dot) {
+        dot.classList.remove('active', 'done');
+        if (i < s) dot.classList.add('done');
+        if (i === s) dot.classList.add('active');
+      }
+    }
+    window.scrollTo(0, 0);
   };
 
   // ===== COLOR PICKER =====
   function setupColorPicker() {
-    document.querySelectorAll('.color-option').forEach(function(el){
-      el.addEventListener('click', function(){
-        document.querySelectorAll('.color-option').forEach(function(c){
+    var options = document.querySelectorAll('.color-option');
+    options.forEach(function(el) {
+      el.addEventListener('click', function(e) {
+        if (e && e.preventDefault) e.preventDefault();
+        options.forEach(function(c) {
+          c.classList.remove('active', 'selected');
           c.style.borderColor = 'transparent';
+          c.style.transform = 'none';
         });
-        el.style.borderColor = 'var(--text-primary)';
-        selectedColor = el.dataset.color;
+        el.classList.add('active', 'selected');
+        el.style.borderColor = '#FFFFFF';
+        el.style.transform = 'scale(1.15)';
+        selectedColor = el.dataset.color || el.getAttribute('data-color') || '#007AFF';
+        console.log('Color de acento seleccionado:', selectedColor);
       });
     });
     // Set initial
-    document.querySelector('.color-option[data-color="#007AFF"]').style.borderColor = 'var(--text-primary)';
+    var initial = document.querySelector('.color-option[data-color="' + selectedColor + '"]') || options[0];
+    if (initial) {
+      initial.classList.add('active', 'selected');
+      initial.style.borderColor = '#FFFFFF';
+    }
   }
 
   // ===== PHOTO =====
   function setupPhotoUpload() {
-    document.getElementById('input-foto').addEventListener('change', function(e){
-      var file = e.target.files[0];
-      if (!file) return;
-      if (file.size > 5*1024*1024) { showToast('Máximo 5MB','error'); return; }
-      var reader = new FileReader();
-      reader.onload = function(ev) {
-        var preview = document.getElementById('photo-preview');
-        preview.innerHTML = '<img src="'+ev.target.result+'" style="width:100%;height:100%;object-fit:cover">';
-      };
-      reader.readAsDataURL(file);
-    });
+    var inputFoto = document.getElementById('input-foto');
+    if (inputFoto) {
+      inputFoto.addEventListener('change', function(e) {
+        var file = e.target.files[0];
+        if (!file) return;
+        if (file.size > 5 * 1024 * 1024) { showToast('Máximo 5MB', 'error'); return; }
+        var reader = new FileReader();
+        reader.onload = function(ev) {
+          var preview = document.getElementById('photo-preview');
+          if (preview) preview.innerHTML = '<img src="' + ev.target.result + '" style="width:100%;height:100%;object-fit:cover">';
+        };
+        reader.readAsDataURL(file);
+      });
+    }
   }
 
   // ===== THEMES =====
   function renderThemes() {
     var container = document.getElementById('theme-picker');
-    container.innerHTML = THEMES.map(function(t){
+    if (!container) return;
+    container.innerHTML = THEMES.map(function(t) {
       var isActive = selectedTheme === t.id;
-      return '<div style="padding:8px;border-radius:12px;cursor:pointer;text-align:center;border:2px solid '+(isActive?'var(--accent)':'transparent')+';background:var(--bg-card)" onclick="selectTheme(\''+t.id+'\')">' +
-        '<div style="height:48px;border-radius:8px;background:'+t.bg+';margin-bottom:6px;display:flex;flex-direction:column;justify-content:center;padding:6px">' +
-          '<div style="height:6px;border-radius:3px;background:'+t.accent+';width:70%;margin-bottom:4px"></div>' +
-          '<div style="height:6px;border-radius:3px;background:'+t.accent+';width:50%;opacity:0.5"></div>' +
+      return '<div class="theme-card ' + (isActive ? 'active selected' : '') + '" style="padding:10px;border-radius:14px;cursor:pointer;text-align:center;border:2px solid ' + (isActive ? 'var(--primary)' : 'rgba(255,255,255,0.1)') + ';background:' + (isActive ? 'rgba(124,58,237,0.18)' : 'rgba(255,255,255,0.03)') + '" onclick="selectTheme(\'' + t.id + '\')">' +
+        '<div style="height:48px;border-radius:8px;background:' + t.bg + ';margin-bottom:6px;display:flex;flex-direction:column;justify-content:center;padding:6px">' +
+          '<div style="height:6px;border-radius:3px;background:' + t.accent + ';width:70%;margin-bottom:4px"></div>' +
+          '<div style="height:6px;border-radius:3px;background:' + t.accent + ';width:50%;opacity:0.5"></div>' +
         '</div>' +
-        '<span style="font-size:var(--font-xs);font-weight:600">'+t.name+'</span>' +
+        '<span style="font-size:var(--font-xs);font-weight:600;color:#FFF">' + t.name + '</span>' +
       '</div>';
     }).join('');
   }
 
   window.selectTheme = function(id) {
     selectedTheme = id;
+    console.log('Tema seleccionado:', selectedTheme);
     renderThemes();
   };
 
@@ -278,53 +312,94 @@
   };
 
   // ===== SAVE =====
-  function saveAll() {
-    var nombre = gv('nombre_perfil');
-    if (!nombre) { showToast('El nombre es obligatorio','error'); goStep(1); return; }
+  function saveAll(e) {
+    if (e && e.preventDefault) e.preventDefault();
 
-    var saveBtn = document.getElementById('btn-final-save');
-    saveBtn.disabled = true;
-    saveBtn.textContent = 'Guardando...';
-
-    var formData = new FormData();
-    formData.append('nombre_perfil', nombre);
-    formData.append('tipo', gv('tipo_perfil') || 'personal');
-    formData.append('color', selectedColor);
-    formData.append('bio', gv('bio_perfil'));
-    formData.append('cumpleanos', gv('cumpleanos'));
-    formData.append('lugar_estudio', gv('lugar_estudio'));
-    formData.append('pronombres', gv('pronombres'));
-
-    var fotoFile = document.getElementById('input-foto').files[0];
-    if (fotoFile) formData.append('foto', fotoFile);
-
-    var method = editId ? 'PUT' : 'POST';
-    var url = editId ? '/perfiles/'+editId : '/perfiles';
-
-    api(url, {method:method, body:formData, headers:{}})
-      .then(function(data){
-        if (!data || data.error) throw data;
-        var perfilId = data.id || editId;
-        profileSlug = data.slug;
-
-        // Save blocks sequentially
-        return saveBlocksSeq(perfilId, 0);
-      })
-      .then(function(){
-        showToast(editId?'Tarjeta actualizada':'¡Tarjeta creada!','success');
-        if (profileSlug) {
-          var previewBtn = document.getElementById('btn-preview');
-          previewBtn.href = '/u/'+profileSlug;
-          previewBtn.classList.remove('hidden');
+    try {
+      var nombre = gv('nombre_perfil');
+      var inputNombre = document.getElementById('nombre_perfil');
+      if (!nombre || !nombre.trim()) {
+        if (inputNombre) {
+          inputNombre.style.borderColor = 'var(--red)';
+          inputNombre.focus();
         }
-        saveBtn.disabled = false;
-        saveBtn.textContent = '💾 Guardar tarjeta';
-      })
-      .catch(function(err){
-        showToast((err&&err.error)||'Error al guardar','error');
-        saveBtn.disabled = false;
-        saveBtn.textContent = '💾 Guardar tarjeta';
+        showToast('El nombre de la tarjeta es obligatorio', 'error');
+        goStep(1);
+        return;
+      }
+
+      var saveBtn = document.getElementById('btn-final-save');
+      var navSaveBtn = document.getElementById('btn-save');
+      if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Guardando...'; }
+      if (navSaveBtn) { navSaveBtn.disabled = true; navSaveBtn.textContent = 'Guardando...'; }
+
+      var formData = new FormData();
+      formData.append('nombre_perfil', nombre.trim());
+      formData.append('tipo', gv('tipo_perfil') || 'personal');
+      formData.append('color', selectedColor || '#007AFF');
+      formData.append('tema', selectedTheme || 'ios');
+      formData.append('bio', gv('bio_perfil') || '');
+      formData.append('cumpleanos', gv('cumpleanos') || '');
+      formData.append('lugar_estudio', gv('lugar_estudio') || '');
+      formData.append('pronombres', gv('pronombres') || '');
+
+      var fotoInput = document.getElementById('input-foto');
+      if (fotoInput && fotoInput.files && fotoInput.files[0]) {
+        formData.append('foto', fotoInput.files[0]);
+      }
+
+      var bannerInput = document.getElementById('input-banner');
+      if (bannerInput && bannerInput.files && bannerInput.files[0]) {
+        formData.append('banner', bannerInput.files[0]);
+      }
+
+      console.log('Enviando:', {
+        nombre: nombre.trim(),
+        tipo: gv('tipo_perfil'),
+        color: selectedColor,
+        tema: selectedTheme,
+        editId: editId
       });
+
+      var method = editId ? 'PUT' : 'POST';
+      var url = editId ? '/perfiles/' + editId : '/perfiles';
+
+      api(url, { method: method, body: formData, headers: {} })
+        .then(function(data) {
+          if (!data || data.error) throw data;
+          var perfilId = data.id || editId;
+          profileSlug = data.slug || profileSlug;
+
+          // Save blocks sequentially
+          return saveBlocksSeq(perfilId, 0);
+        })
+        .then(function() {
+          showToast('Tarjeta guardada con éxito', 'success');
+          if (profileSlug) {
+            var previewBtn = document.getElementById('btn-preview');
+            if (previewBtn) {
+              previewBtn.href = '/u/' + profileSlug;
+              previewBtn.classList.remove('hidden');
+            }
+          }
+          if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = '💾 Guardar tarjeta'; }
+          if (navSaveBtn) { navSaveBtn.disabled = false; navSaveBtn.textContent = 'Guardar'; }
+
+          // Redirección inmediata al Dashboard tras guardado exitoso
+          setTimeout(function() {
+            location.href = '/dashboard.html';
+          }, 1000);
+        })
+        .catch(function(err) {
+          console.error('Error al guardar:', err);
+          showToast((err && (err.error || err.mensaje)) || 'Error al guardar la tarjeta', 'error');
+          if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = '💾 Guardar tarjeta'; }
+          if (navSaveBtn) { navSaveBtn.disabled = false; navSaveBtn.textContent = 'Guardar'; }
+        });
+    } catch(err) {
+      console.error('Error inesperado en saveAll:', err);
+      showToast('Ocurrió un error inesperado al procesar la solicitud', 'error');
+    }
   }
 
   function saveBlocksSeq(perfilId, idx) {
