@@ -784,3 +784,69 @@ body { animation: fadeIn 0.4s ease; }
   display: flex; flex-direction: column; gap: 8px; padding: 12px; justify-content: center; border: 1px solid var(--separator);
 }
 .theme-card .tc-bar { height: 10px; border-radius: var(--radius-pill); }
+
+/* ==========================================================================
+   MASTER GLOBAL UI/UX EMIL KOWALSKI DIRECTIVES (ECOSYSTEM-WIDE GLASS & PHYSICS)
+   ========================================================================== */
+
+/* 1. Universal Physics & Tactile Press Feedback */
+a, button, input[type="button"], input[type="submit"], .btn, .action-btn, 
+.save-contact-btn, .block-link, .block-whatsapp, .block-social-icons a, 
+.profile-card, .stat-card, .ios-group-item, .fab, .auth-tab, .field-chip, 
+.theme-card, .block-palette-item, .block-item, .option-card, .nav-item, 
+.action-chip, .btn-icon, .plan-card, .feature-card, .pricing-card, .nav-links a {
+  transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), 
+              background-color 160ms ease, 
+              box-shadow 160ms cubic-bezier(0.23, 1, 0.32, 1), 
+              border-color 160ms ease !important;
+}
+
+button:active, input[type="button"]:active, input[type="submit"]:active, 
+.btn:active, .action-btn:active, .save-contact-btn:active, .block-link:active, 
+.block-whatsapp:active, .block-social-icons a:active, .profile-card:active, 
+.stat-card:active, .ios-group-item:active, .fab:active, .auth-tab:active, 
+.field-chip:active, .theme-card:active, .block-palette-item:active, 
+.option-card:active, .nav-item:active, .action-chip:active, .btn-icon:active, 
+.plan-card:active, .feature-card:active, .pricing-card:active {
+  transform: scale(0.96) !important;
+}
+
+/* 2. Ambient Glass Elevation System (Replacing Solid 1px Borders Everywhere) */
+.card, .stat-card, .profile-card, .ios-group, .modal, .auth-form, .share-card, 
+.block-edit-form, .block-email-form, .block-countdown, .upgrade-banner, 
+.theme-card, .plan-card, .feature-card, .pricing-card, .section, .admin-card, 
+.table-container, .chart-card, .analytics-card, .legal-card, .info-card {
+  background: rgba(255, 255, 255, 0.03) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: none !important;
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.12),
+              0 0 0 1px rgba(255, 255, 255, 0.06),
+              0 12px 32px rgba(0, 0, 0, 0.35) !important;
+  border-radius: var(--radius-lg, 16px) !important;
+}
+
+/* Glass Navbar Global */
+.navbar, header, nav {
+  background: rgba(15, 11, 30, 0.75) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-bottom: none !important;
+  box-shadow: inset 0 -1px 0 0 rgba(255, 255, 255, 0.08), 0 4px 20px rgba(0, 0, 0, 0.25) !important;
+}
+
+/* 3. Premium Form Inputs & Focus Glow Rings */
+input[type="text"], input[type="email"], input[type="password"], input[type="number"], input[type="tel"], input[type="url"], select, textarea, .form-input, .form-select {
+  border: none !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.08) !important;
+  border-radius: var(--radius-md, 12px) !important;
+  color: #ffffff !important;
+  transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), box-shadow 160ms cubic-bezier(0.23, 1, 0.32, 1), background-color 160ms ease !important;
+}
+
+input:focus, select:focus, textarea:focus, .form-input:focus, .form-select:focus {
+  outline: none !important;
+  background: rgba(255, 255, 255, 0.07) !important;
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.2), 0 0 0 2px var(--primary, #7C3AED), 0 0 20px rgba(124, 58, 237, 0.35) !important;
+}
