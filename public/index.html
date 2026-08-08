@@ -603,8 +603,9 @@
         if (res.token) {
           localStorage.setItem('token', res.token);
           localStorage.setItem('user', JSON.stringify(res.usuario));
+          localStorage.setItem('usuario', JSON.stringify(res.usuario));
           showToast('¡Sesión iniciada con ' + provider.toUpperCase() + '!', 'success');
-          setTimeout(() => { location.href = '/dashboard.html'; }, 400);
+          window.location.href = '/dashboard.html';
         }
       } catch (err) {
         showToast(err.error || 'Error de autenticación SSO', 'error');
