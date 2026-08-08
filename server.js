@@ -86,9 +86,17 @@ app.use('/api', suscriptoresRoutes);
 const pagosRoutes = require('./routes/pagos');
 app.use('/api/pagos', pagosRoutes);
 
-const workspacesRoutes = require('./routes/workspaces');
-app.use('/api/workspaces', workspacesRoutes);
-app.use('/api/leads', workspacesRoutes);
+const { fetchUrlMetadata } = require('./services/metadataService');
+app.post('/api/metadata', async (req, res) => {
+  try {
+    const { url } = req.body || {};
+    if (!url) return res.status(400).json({ error: 'URL requerida' });
+    const meta = await fetchUrlMetadata(url);
+    res.json(meta);
+  } catch(err) {
+    res.status(500).json({ error: 'Error al consultar metadata', title: '', description: '', image: '', favicon: '' });
+  }
+});
 
 // =============================================
 // Ruta pública de perfiles

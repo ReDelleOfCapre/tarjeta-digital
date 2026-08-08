@@ -421,8 +421,33 @@
     var contenido = {};
 
     if (tipo === 'link') {
-      var url = gv('bf-url'); if(!url){showToast('URL requerida','error');return;}
-      contenido = {url:url, titulo:gv('bf-titulo')||url, subtitulo:gv('bf-sub')||''};
+      var url = gv('bf-url'); if (!url){ showToast('URL requerida','error'); return; }
+      var tit = gv('bf-titulo') || url;
+      var sub = gv('bf-sub') || '';
+
+      contenido = { url: url, titulo: tit, subtitulo: sub };
+      
+      var newBlock = { _tempId: 't'+Date.now(), tipo: tipo, contenido: contenido, orden: blocks.length };
+      blocks.push(newBlock);
+      hideBlockForm();
+      renderBlockList();
+      showToast('Bloque añadido ✓', 'success');
+
+      // Auto fetch Open Graph metadata safely in background
+      api('/metadata', { method: 'POST', body: JSON.stringify({ url: url }) })
+        .then(function(meta) {
+          if (meta && meta.domain) {
+            if (meta.title && (!tit || tit === url)) newBlock.contenido.titulo = meta.title;
+            if (meta.description && !sub) newBlock.contenido.subtitulo = meta.description;
+            newBlock.contenido.og_title = meta.title;
+            newBlock.contenido.og_description = meta.description;
+            newBlock.contenido.og_image = meta.image;
+            newBlock.contenido.favicon = meta.favicon;
+            newBlock.contenido.domain = meta.domain;
+            renderBlockList();
+          }
+        }).catch(function(){});
+      return;
     } else if (tipo==='spotify'||tipo==='youtube'||tipo==='tweet'||tipo==='tiktok') {
       var url = gv('bf-url'); if(!url){showToast('URL requerida','error');return;}
       contenido = {url:url};

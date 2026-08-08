@@ -472,14 +472,33 @@ function perfilPublicoHandler(req, res) {
               else {
                 const icon = getSmartIcon(titulo, url);
                 const brandColor = getSmartBrandColor(titulo, url) || bContent?.color || 'var(--text-primary)';
-                html += `<a href="${escapeHtml(url)}" target="_blank" rel="noopener" class="block-link" style="border-left: 4px solid ${brandColor};">
-                  <div class="bl-icon" style="color: ${brandColor}">${icon}</div>
-                  <div class="bl-text">
-                    <div class="bl-title">${escapeHtml(titulo)}</div>
-                    ${subtitulo ? `<div class="bl-sub">${escapeHtml(subtitulo)}</div>` : ''}
-                  </div>
-                  <i class="fas fa-chevron-right bl-arrow"></i>
-                </a>`;
+                const ogImage = bContent?.og_image || bContent?.image || '';
+                const ogDesc = bContent?.og_description || bContent?.subtitulo || '';
+                const favicon = bContent?.favicon || '';
+
+                if (ogImage) {
+                  html += `<a href="${escapeHtml(url)}" target="_blank" rel="noopener" class="bento-rich-card">
+                    <img src="${escapeHtml(ogImage)}" alt="${escapeHtml(titulo)}" class="bento-thumb" onerror="this.style.display='none'">
+                    <div class="bento-content">
+                      <div class="bento-title">${escapeHtml(titulo)}</div>
+                      ${ogDesc ? `<div class="bento-desc">${escapeHtml(ogDesc)}</div>` : ''}
+                      <div class="bento-footer">
+                        ${favicon ? `<img src="${escapeHtml(favicon)}" alt="" class="bento-favicon">` : icon}
+                        <span>${escapeHtml(bContent?.domain || 'Enlace')}</span>
+                      </div>
+                    </div>
+                    <i class="fas fa-chevron-right bl-arrow" style="opacity:0.5;font-size:0.8rem"></i>
+                  </a>`;
+                } else {
+                  html += `<a href="${escapeHtml(url)}" target="_blank" rel="noopener" class="block-link" style="border-left: 4px solid ${brandColor};">
+                    <div class="bl-icon" style="color: ${brandColor}">${icon}</div>
+                    <div class="bl-text">
+                      <div class="bl-title">${escapeHtml(titulo)}</div>
+                      ${ogDesc ? `<div class="bl-sub">${escapeHtml(ogDesc)}</div>` : ''}
+                    </div>
+                    <i class="fas fa-chevron-right bl-arrow"></i>
+                  </a>`;
+                }
               }
               break;
             }
