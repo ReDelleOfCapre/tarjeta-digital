@@ -4,26 +4,26 @@
    ============================================ */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-/* ---- CSS Custom Properties (Startup 2027 OLED Default) ---- */
+/* ---- CSS Custom Properties (Technical B2B Minimalism - Stripe/Linear Style) ---- */
 :root {
-  /* VYNK OLED Dark Theme Default */
-  --bg-primary: #030306;
-  --bg-secondary: #08080E;
-  --bg-tertiary: #100C1E;
-  --bg-card: rgba(255, 255, 255, 0.03);
-  --card-border: rgba(255, 255, 255, 0.12);
-  --card-blur: 24px;
-  --card-shadow: 0 12px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
+  /* Obsidian B2B Minimal Palette */
+  --bg-primary: #0A0A0B;
+  --bg-secondary: #121214;
+  --bg-tertiary: #18181B;
+  --bg-card: #121214;
+  --card-border: rgba(255, 255, 255, 0.06);
+  --card-blur: 16px;
+  --card-shadow: 0 4px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
   
-  --text-primary: #F8FAFC;
-  --text-secondary: #CBD5E1;
+  --text-primary: #FFFFFF;
+  --text-secondary: #E2E8F0;
   --text-tertiary: #94A3B8;
   --text-muted: #64748B;
   
   --primary: #7C3AED;
   --secondary: #6366F1;
   --accent: #06B6D4;
-  --accent-glow: rgba(124, 58, 237, 0.35);
+  --accent-glow: rgba(124, 58, 237, 0.15);
   
   --green: #10B981;
   --orange: #F59E0B;
@@ -31,25 +31,25 @@
   --purple: #8B5CF6;
   --pink: #EC4899;
   
-  --separator: rgba(255, 255, 255, 0.08);
+  --separator: rgba(255, 255, 255, 0.06);
   
-  --shadow-sm: 0 2px 4px rgba(0,0,0,0.4);
-  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.5);
-  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.7);
-  --overlay: rgba(2, 2, 5, 0.85);
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 12px 36px rgba(0, 0, 0, 0.6);
+  --overlay: rgba(5, 5, 8, 0.85);
   
   --grad-primary: linear-gradient(135deg, #7C3AED, #6366F1);
   --grad-accent: linear-gradient(135deg, #7C3AED, #06B6D4);
-  --grad-oled: radial-gradient(circle at 50% 20%, rgba(124, 58, 237, 0.18), transparent 75%);
+  --grad-oled: none;
 
-  --radius-sm: 10px;
-  --radius-md: 14px;
-  --radius-lg: 20px;
-  --radius-xl: 28px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
   --radius-full: 50%;
   --radius-pill: 100px;
 
-  --font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-xs: 0.75rem;
   --font-sm: 0.875rem;
   --font-base: 1rem;
@@ -63,7 +63,7 @@
   --transition-fast: 0.16s var(--ease-out);
   --transition-normal: 0.25s var(--ease-out);
 
-  color-scheme: dark light;
+  color-scheme: dark;
 }
 
 /* ---- Light Theme Explicit Override ---- */
@@ -904,28 +904,26 @@ button:active, input[type="button"]:active, input[type="submit"]:active,
   transform: scale(0.96) !important;
 }
 
-/* 2. Ambient Glass Elevation System (Replacing Solid 1px Borders Everywhere) */
+/* 2. Stripe / Linear Technical Minimalism Card Elevation System */
 .card, .stat-card, .profile-card, .ios-group, .modal, .auth-form, .share-card, 
 .block-edit-form, .block-email-form, .block-countdown, .upgrade-banner, 
 .theme-card, .plan-card, .feature-card, .pricing-card, .section, .admin-card, 
 .table-container, .chart-card, .analytics-card, .legal-card, .info-card {
-  background: rgba(255, 255, 255, 0.03) !important;
-  backdrop-filter: blur(20px) !important;
-  -webkit-backdrop-filter: blur(20px) !important;
-  border: none !important;
-  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.12),
-              0 0 0 1px rgba(255, 255, 255, 0.06),
-              0 12px 32px rgba(0, 0, 0, 0.35) !important;
+  background: #121214 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 0 rgba(255, 255, 255, 0.04) !important;
   border-radius: var(--radius-lg, 16px) !important;
 }
 
-/* Glass Navbar Global */
+/* Minimalist B2B Navbar */
 .navbar, header, nav {
-  background: rgba(15, 11, 30, 0.75) !important;
-  backdrop-filter: blur(20px) !important;
-  -webkit-backdrop-filter: blur(20px) !important;
-  border-bottom: none !important;
-  box-shadow: inset 0 -1px 0 0 rgba(255, 255, 255, 0.08), 0 4px 20px rgba(0, 0, 0, 0.25) !important;
+  background: rgba(10, 10, 11, 0.85) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3) !important;
 }
 
 /* 3. Premium Form Inputs & Focus Glow Rings */
