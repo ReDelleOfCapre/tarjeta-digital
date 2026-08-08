@@ -1753,3 +1753,89 @@ main, .main-panel, .controls-panel, .builder-grid, .config-container, .dashboard
   background: #EF4444;
   box-shadow: 0 0 25px rgba(239, 68, 68, 0.6);
 }
+
+/* ============================================
+   UI ARCHITECTURE 2026: HYBRID ADAPTIVE SYSTEM
+   Single Codebase, Mobile-First App + Panoramic Desktop
+   ============================================ */
+
+/* 1. Universal Max-Width Containment (Ultra-wide 4K/WQHD Screens) */
+.main-wrapper,
+.builder-grid,
+.dashboard-grid-container,
+.config-container,
+.container-app,
+.container-panoramic {
+  max-width: 1200px !important;
+  margin: 0 auto !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* 2. Mobile Layouts (< 768px): App-like Vertical Stack */
+@media (max-width: 767px) {
+  .main-wrapper,
+  .builder-grid,
+  .dashboard-grid-container,
+  .config-container {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+    padding: 12px 16px !important;
+  }
+
+  /* Bottom Sheet UI Pattern for Off-Canvas & Drawer Modals in Mobile */
+  .adaptive-sheet,
+  .nav-drawer,
+  .modal-sheet-mobile {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: auto !important;
+    width: 100% !important;
+    max-height: 85vh !important;
+    border-radius: 24px 24px 0 0 !important;
+    background: rgba(15, 15, 20, 0.96) !important;
+    backdrop-filter: blur(28px) !important;
+    -webkit-backdrop-filter: blur(28px) !important;
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.6) !important;
+    transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1) !important;
+    z-index: 9999 !important;
+  }
+}
+
+/* 3. Panoramic Desktop Layouts (>= 768px): CSS Grid & Static Sidebars */
+@media (min-width: 768px) {
+  .builder-grid,
+  .config-container {
+    display: grid !important;
+    grid-template-columns: minmax(340px, 420px) 1fr !important;
+    gap: 24px !important;
+    padding: 24px 32px !important;
+    align-items: start !important;
+  }
+
+  .dashboard-grid-container {
+    display: grid !important;
+    grid-template-columns: repeat(12, 1fr) !important;
+    gap: 20px !important;
+    padding: 24px 32px !important;
+  }
+
+  /* Single Codebase Transformation: Same Bottom Sheet DOM Node becomes a Static Sidebar in Desktop */
+  .adaptive-sheet,
+  .nav-drawer,
+  .modal-sheet-mobile {
+    position: relative !important;
+    bottom: auto !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    width: 100% !important;
+    max-height: none !important;
+    border-radius: 20px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+    transform: none !important;
+  }
+}
