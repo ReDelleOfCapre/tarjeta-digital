@@ -518,18 +518,27 @@ class DatabaseWrapper {
       const userId = admin.id;
 
       // 🌮 1. Cristina Restaurante & Taquería (slug: cristina)
-      let cristinaP = this.prepare("SELECT id FROM perfiles WHERE slug = 'cristina'").get();
-      let cId;
       const cBio = '👑 El auténtico sabor de Teziutlán. Tacos al pastor, desayunos buffet y platillos típicos en nuestros 3 establecimientos.';
-      if (!cristinaP) {
+      const cristinaRows = this.prepare("SELECT id FROM perfiles WHERE slug = 'cristina' ORDER BY id ASC").all();
+      let cId;
+
+      if (cristinaRows && cristinaRows.length > 0) {
+        cId = cristinaRows[0].id;
+        // Limpiar duplicados si existieran más de 1 perfil con el mismo slug
+        if (cristinaRows.length > 1) {
+          const extraIds = cristinaRows.slice(1).map(r => r.id);
+          for (const extraId of extraIds) {
+            this.prepare("DELETE FROM bloques WHERE perfil_id = ?").run(extraId);
+            this.prepare("DELETE FROM perfiles WHERE id = ?").run(extraId);
+          }
+        }
+        this.prepare("UPDATE perfiles SET usuario_id = ?, nombre_perfil = 'Cristina Restaurante & Taquería', tipo = 'negocio', color = '#E53E3E', tema = 'food', bio = ? WHERE id = ?").run(userId, cBio, cId);
+      } else {
         const resC = this.prepare(`
-          INSERT OR IGNORE INTO perfiles (usuario_id, slug, nombre_perfil, tipo, color, tema, bio, foto_url, banner_url)
+          INSERT INTO perfiles (usuario_id, slug, nombre_perfil, tipo, color, tema, bio, foto_url, banner_url)
           VALUES (?, 'cristina', 'Cristina Restaurante & Taquería', 'negocio', '#E53E3E', 'food', ?, 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=300', 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1000')
         `).run(userId, cBio);
         cId = resC.lastInsertRowid;
-      } else {
-        cId = cristinaP.id;
-        this.prepare("UPDATE perfiles SET usuario_id = ?, nombre_perfil = 'Cristina Restaurante & Taquería', tipo = 'negocio', color = '#E53E3E', tema = 'food', bio = ? WHERE id = ?").run(userId, cBio, cId);
       }
 
       if (cId) {
@@ -569,18 +578,27 @@ class DatabaseWrapper {
       }
 
       // 📺 2. Pequeño Juan | Medio Digital Líder (slug: pequeno-juan)
-      let juanP = this.prepare("SELECT id FROM perfiles WHERE slug = 'pequeno-juan'").get();
-      let jId;
       const jBio = '⭐ 5.0 (226K+ Seguidores) · El medio digital de noticias y comunicación líder en Teziutlán.';
-      if (!juanP) {
+      const juanRows = this.prepare("SELECT id FROM perfiles WHERE slug = 'pequeno-juan' ORDER BY id ASC").all();
+      let jId;
+
+      if (juanRows && juanRows.length > 0) {
+        jId = juanRows[0].id;
+        // Limpiar duplicados si existieran más de 1 perfil con el mismo slug
+        if (juanRows.length > 1) {
+          const extraIds = juanRows.slice(1).map(r => r.id);
+          for (const extraId of extraIds) {
+            this.prepare("DELETE FROM bloques WHERE perfil_id = ?").run(extraId);
+            this.prepare("DELETE FROM perfiles WHERE id = ?").run(extraId);
+          }
+        }
+        this.prepare("UPDATE perfiles SET usuario_id = ?, nombre_perfil = 'Pequeño Juan | Medio Digital Líder', tipo = 'negocio', color = '#3182CE', tema = 'neon', bio = ? WHERE id = ?").run(userId, jBio, jId);
+      } else {
         const resJ = this.prepare(`
-          INSERT OR IGNORE INTO perfiles (usuario_id, slug, nombre_perfil, tipo, color, tema, bio, foto_url, banner_url)
+          INSERT INTO perfiles (usuario_id, slug, nombre_perfil, tipo, color, tema, bio, foto_url, banner_url)
           VALUES (?, 'pequeno-juan', 'Pequeño Juan | Medio Digital Líder', 'negocio', '#3182CE', 'neon', ?, 'https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?w=300', 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=1000')
         `).run(userId, jBio);
         jId = resJ.lastInsertRowid;
-      } else {
-        jId = juanP.id;
-        this.prepare("UPDATE perfiles SET usuario_id = ?, nombre_perfil = 'Pequeño Juan | Medio Digital Líder', tipo = 'negocio', color = '#3182CE', tema = 'neon', bio = ? WHERE id = ?").run(userId, jBio, jId);
       }
 
       if (jId) {
