@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Compartir & NFC — VYNK</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="stylesheet" href="/css/styles.css">
@@ -109,6 +109,18 @@
       </a>
     </div>
 
+    <!-- Growth Loop: Sistema de Invitaciones B2B -->
+    <div class="card p-20 mt-16" style="padding:20px;background:rgba(6,182,212,0.08);border:1px solid rgba(6,182,212,0.25);border-radius:20px;margin-top:16px">
+      <div style="font-size:0.95rem;font-weight:700;color:#FFF;margin-bottom:6px">✉️ Growth Loop: Invitar a un Colega a VYNK</div>
+      <p style="font-size:0.82rem;color:var(--text-tertiary);line-height:1.4;margin-bottom:12px">
+        Expande tu red corporativa enviando una invitación formal por correo electrónico con token exclusivo.
+      </p>
+      <div style="display:flex;gap:8px">
+        <input type="email" id="invite-email-input" placeholder="correo@empresa.com" style="flex:1;padding:10px 14px;border-radius:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#FFF;font-size:0.85rem">
+        <button onclick="sendVynkInvite()" class="btn btn-primary btn-sm" style="padding:10px 16px;white-space:nowrap">Enviar</button>
+      </div>
+    </div>
+
     <!-- NFC Status Panel -->
     <div class="card p-16 mt-16 hidden" id="nfc-status" style="background:rgba(124,58,237,0.1);border:1px solid rgba(124,58,237,0.3);border-radius:16px;padding:20px;text-align:center">
       <p style="font-size:var(--font-sm);color:var(--text-secondary);margin:0" id="nfc-message">
@@ -164,6 +176,21 @@
           document.body.removeChild(input);
           showToast('Enlace copiado al portapapeles', 'success');
         });
+      };
+
+      window.sendVynkInvite = function() {
+        var email = document.getElementById('invite-email-input').value;
+        if (!email) { showToast('Ingresa un correo electrónico válido', 'error'); return; }
+        if (navigator.vibrate) try { navigator.vibrate(50); } catch(e){}
+
+        api('/invite', { method: 'POST', body: JSON.stringify({ email: email, senderName: document.getElementById('share-name').textContent || 'Un colega' }) })
+          .then(function(res) {
+            showToast(res.message || 'Invitación enviada con éxito', 'success');
+            document.getElementById('invite-email-input').value = '';
+          })
+          .catch(function(err) {
+            showToast(err.error || 'Error enviando invitación', 'error');
+          });
       };
 
       window.shareNative = function() {

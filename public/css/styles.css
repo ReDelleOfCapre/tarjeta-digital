@@ -1403,20 +1403,43 @@ input[type="text"], input[type="email"], input[type="password"], input[type="num
 }
 
 /* ============================================
-   HOTFIX FINAL: ZERO OVERFLOW-X, RESTRICTIVE CARD WIDTH & PINNED FOOTER
+   SAAS 2026: CONTAINER QUERIES, ZERO-OVERFLOW & SKELETON LOADERS
    ============================================ */
-*, *::before, *::after {
-  box-sizing: border-box !important;
+:root, html, body {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden !important;
+  margin: 0;
+  padding: 0;
+}
+* { box-sizing: border-box !important; }
+
+main, .main-panel, .controls-panel, .builder-grid, .config-container, .dashboard-grid-container, .container {
+  container-type: inline-size;
 }
 
-html, body, .dashboard-page {
-  width: 100% !important;
-  max-width: 100vw !important;
-  overflow-x: hidden !important;
-  box-sizing: border-box !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  position: relative !important;
+@container (max-width: 400px) {
+  .card, .stat-card, .btn, input, select, textarea, .profile-card, .selling-card-item, .card-create-cta {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .stats-bar, #stats-bar {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+.skeleton-pulse {
+  background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.04) 75%);
+  background-size: 200% 100%;
+  animation: skeletonPulse 1.5s infinite ease-in-out;
+  border-radius: 12px;
+  min-height: 24px;
+}
+
+@keyframes skeletonPulse {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 .mobile-only-btn { display: none !important; }

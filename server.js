@@ -99,6 +99,43 @@ app.post('/api/metadata', async (req, res) => {
 });
 
 // =============================================
+// Motor Transaccional B2B & Growth Loop Invitaciones
+// =============================================
+const { sendOnboardingEmail, sendInviteEmail } = require('./services/emailService');
+
+app.post('/api/onboarding', async (req, res) => {
+  try {
+    const { email, nombre, profileUrl } = req.body || {};
+    if (!email) return res.status(400).json({ error: 'Se requiere un correo electrónico' });
+
+    await sendOnboardingEmail(email, nombre, profileUrl);
+    res.json({ success: true, message: 'Correo de bienvenida y onboarding enviado correctamente' });
+  } catch (err) {
+    console.error('❌ Error enviando onboarding:', err);
+    res.status(500).json({ error: 'Error enviando correo de onboarding' });
+  }
+});
+
+app.post('/api/invite', async (req, res) => {
+  try {
+    const { email, senderName } = req.body || {};
+    if (!email) return res.status(400).json({ error: 'Ingresa un correo electrónico de destino' });
+
+    const inviteToken = 'vynk_' + Math.random().toString(36).substring(2, 10);
+    await sendInviteEmail(email, senderName || 'Colega VYNK', inviteToken);
+
+    res.json({
+      success: true,
+      message: `Invitación enviada exitosamente a ${email}`,
+      inviteToken
+    });
+  } catch (err) {
+    console.error('❌ Error enviando invitación:', err);
+    res.status(500).json({ error: 'Error enviando invitación' });
+  }
+});
+
+// =============================================
 // Ruta pública de perfiles
 // =============================================
 

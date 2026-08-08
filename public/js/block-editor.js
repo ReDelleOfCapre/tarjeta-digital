@@ -546,6 +546,7 @@
   // ===== SAVE =====
   function saveAll(e) {
     if (e && e.preventDefault) e.preventDefault();
+    if (navigator.vibrate) { try { navigator.vibrate(50); } catch(e){} }
 
     var nombre = gv('nombre_perfil');
     var inputNombre = document.getElementById('nombre_perfil');

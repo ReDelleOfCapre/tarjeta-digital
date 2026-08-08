@@ -78,6 +78,13 @@
   };
 
   function loadProfiles() {
+    var grid = document.getElementById('profile-grid');
+    if (grid && (!grid.children || grid.children.length === 0)) {
+      grid.innerHTML = `
+        <div class="card p-20 skeleton-pulse" style="height:90px;margin-bottom:12px"></div>
+        <div class="card p-20 skeleton-pulse" style="height:90px;margin-bottom:12px"></div>
+      `;
+    }
     api('/perfiles?_t=' + Date.now()).then(function(data) {
       if (!data || data.error) return;
 
