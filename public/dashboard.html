@@ -117,6 +117,27 @@
       color: #FFF;
       font-weight: 600;
     }
+
+    /* Social Selling Showcase Carousel in Dashboard Preview */
+    .selling-showcase-container {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      padding: 8px 0;
+      scrollbar-width: none;
+    }
+    .selling-showcase-container::-webkit-scrollbar { display: none; }
+    .selling-card-item {
+      width: 140px;
+      flex-shrink: 0;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 12px;
+      text-align: center;
+      transition: transform 0.2s;
+    }
+    .selling-card-item:hover { transform: translateY(-2px); }
   </style>
 </head>
 <body class="dashboard-page">
@@ -146,7 +167,7 @@
     <!-- 3-Column Desktop Grid Architecture -->
     <div class="dashboard-grid-container">
 
-      <!-- COLUMNA IZQUIERDA: Sidebar Nav & Completion Progress -->
+      <!-- COLUMNA IZQUIERDA: Sidebar Nav & Retention / UGC Circular Progress Widget -->
       <aside class="sidebar-panel">
         <div class="card p-20" style="padding:20px">
           <div style="font-size:0.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Navegación</div>
@@ -158,16 +179,32 @@
           </nav>
         </div>
 
-        <div class="card p-20" style="padding:20px">
-          <div style="font-size:0.85rem;font-weight:700;margin-bottom:8px;color:#FFF">Progreso de Perfil</div>
-          <p style="font-size:0.78rem;color:var(--text-tertiary);margin-bottom:12px">Tu e-card tiene un 85% de completado</p>
-          <div style="width:100%;height:8px;background:rgba(255,255,255,0.08);border-radius:10px;overflow:hidden">
-            <div style="width:85%;height:100%;background:linear-gradient(90deg,#7C3AED,#06B6D4);border-radius:10px"></div>
+        <!-- Widget de Retención / UGC Circular Progress -->
+        <div class="card p-20" style="padding:20px;text-align:center">
+          <div style="font-size:0.85rem;font-weight:700;margin-bottom:12px;color:#FFF">Nivel de Retención & UGC</div>
+          <div style="position:relative;width:90px;height:90px;margin:0 auto 12px">
+            <svg width="90" height="90" viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="40" stroke="rgba(255,255,255,0.08)" stroke-width="10" fill="none"/>
+              <circle cx="50" cy="50" r="40" stroke="url(#ugc-grad)" stroke-width="10" fill="none" stroke-dasharray="251" stroke-dashoffset="62" stroke-linecap="round"/>
+              <defs>
+                <linearGradient id="ugc-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#7C3AED"/>
+                  <stop offset="100%" stop-color="#06B6D4"/>
+                </linearGradient>
+              </defs>
+            </svg>
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-weight:800;font-size:1.1rem;color:#FFF">75%</div>
           </div>
+          <p style="font-size:0.78rem;color:var(--text-tertiary);line-height:1.4;margin-bottom:14px">
+            Sube fotos de colaboración auténtica o testimonios de clientes para alcanzar el 100%.
+          </p>
+          <a href="/editor.html" class="btn btn-sm btn-block" style="background:rgba(124,58,237,0.15);border:1px solid rgba(124,58,237,0.3);color:#FFF;font-size:0.75rem;padding:8px">
+            + Añadir Testimonios / UGC
+          </a>
         </div>
       </aside>
 
-      <!-- COLUMNA CENTRAL: Main Content (Stats, CTA, Cards Grid) -->
+      <!-- COLUMNA CENTRAL: Main Content (Stats, CTA, Escaparate Social Selling, Cards Grid) -->
       <main class="main-panel">
         <!-- Stats Bar -->
         <div class="stats-bar" id="stats-bar" style="margin-top:0">
@@ -189,6 +226,31 @@
           <div>
             <div style="font-size:1.05rem;font-weight:700;color:#FFF;letter-spacing:-0.01em">Crear Nueva Identidad Digital</div>
             <div style="font-size:0.84rem;color:var(--text-tertiary)">Sincroniza una nueva e-card con QR y tecnología NFC nativa</div>
+          </div>
+        </div>
+
+        <!-- Bloque de Catálogo Nativo (Escaparate de Social Selling Showcase) -->
+        <div class="card p-20" style="padding:20px;margin-bottom:20px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+            <div style="font-size:0.9rem;font-weight:700;color:#FFF">🛍️ Escaparate de Social Selling (Venta Nativa)</div>
+            <span class="pro-badge-lock" style="font-size:0.65rem">Pro Showcase</span>
+          </div>
+          <div class="selling-showcase-container">
+            <div class="selling-card-item">
+              <div style="font-size:1.8rem;margin-bottom:6px">💳</div>
+              <div style="font-size:0.8rem;font-weight:700;color:#FFF">Tarjeta NFC VYNK</div>
+              <div style="font-size:0.75rem;color:var(--green);font-weight:800;margin-top:4px">$399 MXN</div>
+            </div>
+            <div class="selling-card-item">
+              <div style="font-size:1.8rem;margin-bottom:6px">🏷️</div>
+              <div style="font-size:0.8rem;font-weight:700;color:#FFF">Sticker NFC 3M</div>
+              <div style="font-size:0.75rem;color:var(--green);font-weight:800;margin-top:4px">$199 MXN</div>
+            </div>
+            <div class="selling-card-item">
+              <div style="font-size:1.8rem;margin-bottom:6px">🔑</div>
+              <div style="font-size:0.8rem;font-weight:700;color:#FFF">Llavero Smart Pro</div>
+              <div style="font-size:0.75rem;color:var(--green);font-weight:800;margin-top:4px">$249 MXN</div>
+            </div>
           </div>
         </div>
 
@@ -219,6 +281,16 @@
 
       <!-- COLUMNA DERECHA: Insights & Live Smartphone Preview Mockup -->
       <aside class="insights-panel">
+        <!-- Widget de Narrativa de Datos (Insights Inteligentes) -->
+        <div class="card p-20" style="padding:20px;background:rgba(124,58,237,0.08)!important;border:1px solid rgba(124,58,237,0.25)!important">
+          <div style="font-size:0.85rem;font-weight:700;color:#FFF;margin-bottom:8px;display:flex;align-items:center;gap:6px">
+            <span>💡</span> <span>Insights Inteligentes</span>
+          </div>
+          <p style="font-size:0.82rem;line-height:1.5;color:var(--text-secondary);margin:0">
+            "Tus enlaces de productos e Instagram tienen un <strong>28% más de interacción</strong> hoy. Es el momento perfecto para publicar tu nuevo inventario o lanzar una oferta."
+          </p>
+        </div>
+
         <!-- Actividad Reciente Stream -->
         <div class="card p-20" style="padding:20px">
           <div style="font-size:0.85rem;font-weight:700;color:#FFF;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between">
