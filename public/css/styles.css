@@ -4,16 +4,24 @@
    ============================================ */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-/* ---- CSS Custom Properties (Technical B2B Minimalism - Stripe/Linear Style) ---- */
+/* ---- CSS Custom Properties (Arquitectura 2026: Design Tokens & Lienzo Infinito) ---- */
 :root {
-  /* Obsidian B2B Minimal Palette */
+  /* Fluid Spacing & Typography Tokens via clamp() */
+  --gap-sm: clamp(0.5rem, 1.2vw, 0.85rem);
+  --gap-md: clamp(1rem, 2.5vw, 1.75rem);
+  --gap-lg: clamp(1.75rem, 4vw, 3rem);
+
+  --font-h1: clamp(1.8rem, 4.5vw, 3.2rem);
+  --font-h2: clamp(1.35rem, 3vw, 2.2rem);
+
+  /* Obsidian B2B Minimal Palette & Glass Surfaces */
   --bg-primary: #0A0A0B;
   --bg-secondary: #121214;
   --bg-tertiary: #18181B;
-  --bg-card: #121214;
+  --bg-card: rgba(255, 255, 255, 0.03);
   --card-border: rgba(255, 255, 255, 0.06);
-  --card-blur: 16px;
-  --card-shadow: 0 4px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+  --card-blur: 20px;
+  --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
   
   --text-primary: #FFFFFF;
   --text-secondary: #E2E8F0;
@@ -23,7 +31,7 @@
   --primary: #7C3AED;
   --secondary: #6366F1;
   --accent: #06B6D4;
-  --accent-glow: rgba(124, 58, 237, 0.15);
+  --accent-glow: rgba(124, 58, 237, 0.3);
   
   --green: #10B981;
   --orange: #F59E0B;
@@ -33,14 +41,13 @@
   
   --separator: rgba(255, 255, 255, 0.06);
   
-  --shadow-sm: 0 2px 8px rgba(0,0,0,0.3);
-  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 12px 36px rgba(0, 0, 0, 0.6);
+  --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.5);
   --overlay: rgba(5, 5, 8, 0.85);
   
   --grad-primary: linear-gradient(135deg, #7C3AED, #6366F1);
   --grad-accent: linear-gradient(135deg, #7C3AED, #06B6D4);
-  --grad-oled: none;
 
   --space-xs: 8px;
   --space-sm: 16px;
@@ -48,10 +55,10 @@
   --space-lg: 32px;
   --space-xl: 48px;
 
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
   --radius-full: 50%;
   --radius-pill: 100px;
 
@@ -65,11 +72,42 @@
   --font-2xl: 2.25rem;
   --font-3xl: 3rem;
 
-  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
-  --transition-fast: 0.16s var(--ease-out);
-  --transition-normal: 0.25s var(--ease-out);
+  --ease-magnetic: cubic-bezier(0.25, 1, 0.5, 1);
+  --transition-fast: 0.2s var(--ease-magnetic);
+  --transition-normal: 0.4s var(--ease-magnetic);
 
   color-scheme: dark;
+}
+
+/* Environmental Color Temperature (Accesibilidad Dinámica) */
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg-primary: #101012; /* Warm obsidian for daytime readability */
+  }
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-primary: #0A0A0B; /* Pure obsidian night mode */
+  }
+}
+
+/* ---- Light Theme Explicit Override ---- */
+html[data-theme="light"], body.light-mode {
+  --bg-primary: #F8FAFC;
+  --bg-secondary: #FFFFFF;
+  --bg-tertiary: #F1F5F9;
+  --bg-card: rgba(255, 255, 255, 0.85);
+  --card-border: rgba(15, 23, 42, 0.08);
+  --card-blur: 20px;
+  --card-shadow: 0 10px 30px rgba(15, 23, 42, 0.08), inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
+  --text-primary: #0F172A;
+  --text-secondary: #334155;
+  --text-tertiary: #64748B;
+  --text-muted: #94A3B8;
+  --separator: rgba(15, 23, 42, 0.08);
+  --accent-glow: rgba(124, 58, 237, 0.15);
+  --overlay: rgba(15, 23, 42, 0.5);
+  color-scheme: light;
 }
 
 /* ---- Light Theme Explicit Override ---- */
@@ -232,27 +270,17 @@ p, .profile-bio, .step-subtitle {
   color: var(--text-tertiary);
 }
 
-/* ---- Cards ---- */
-.card {
+/* ---- Cards & Lienzo Infinito Surfaces ---- */
+.card, .ios-group {
   background: var(--bg-card);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--separator);
+  border: 1px solid var(--card-border);
+  box-shadow: var(--card-shadow);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   overflow: hidden;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
 }
 
-/* ---- Grouped List ---- */
-.ios-group {
-  background: var(--bg-card);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--separator);
-  overflow: hidden;
-  margin-bottom: 24px;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-}
 .ios-group-header {
   font-size: var(--font-xs);
   font-weight: 600;
@@ -286,7 +314,7 @@ p, .profile-bio, .step-subtitle {
 .ios-group-item .item-subtitle { font-size: var(--font-sm); color: var(--text-tertiary); margin-top: 2px; }
 .ios-group-item .item-chevron { color: var(--text-muted); font-size: 1rem; }
 
-/* ---- Buttons ---- */
+/* ---- Magnetic Buttons & Predictive Micro-Interactions ---- */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -299,17 +327,38 @@ p, .profile-bio, .step-subtitle {
   font-family: inherit;
   cursor: pointer;
   border: none;
-  transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), background-color 160ms ease, box-shadow 160ms cubic-bezier(0.23, 1, 0.32, 1);
+  transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
   text-decoration: none;
   line-height: 1.2;
 }
-.btn:active { transform: scale(0.96) !important; }
+.btn:hover {
+  transform: scale(1.02) translateY(-2px);
+}
+.btn:active { transform: scale(0.98) translateY(0) !important; }
 
-.btn-primary { background: var(--primary); color: #fff; box-shadow: 0 4px 14px rgba(124, 58, 237, 0.3); }
-.btn-primary:hover { background: #6D28D9; box-shadow: 0 6px 20px rgba(124,58,237,0.45); transform: translateY(-1px); }
+.btn-primary {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.3);
+}
+.btn-primary:hover {
+  background: #6D28D9;
+  box-shadow: 0 0 25px rgba(124, 58, 237, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  transform: scale(1.02) translateY(-2px);
+}
 
-.btn-secondary { background: rgba(255,255,255,0.06); color: var(--text-primary); box-shadow: inset 0 1px 0 0 rgba(255,255,255,0.1), 0 0 0 1px rgba(255,255,255,0.08); }
-.btn-secondary:hover { background: rgba(255,255,255,0.1); box-shadow: inset 0 1px 0 0 rgba(255,255,255,0.15), 0 0 0 1px rgba(255,255,255,0.15); transform: translateY(-1px); }
+.btn-secondary {
+  background: rgba(255,255,255,0.04);
+  color: var(--text-primary);
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+}
+.btn-secondary:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.15);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.1), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+  transform: scale(1.02) translateY(-2px);
+}
 
 .btn-danger { background: var(--red); color: #fff; box-shadow: 0 4px 14px rgba(239, 68, 68, 0.3); }
 .btn-success { background: var(--green); color: #fff; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3); }
@@ -320,11 +369,11 @@ p, .profile-bio, .step-subtitle {
 .btn-sm { padding: 8px 16px; font-size: var(--font-sm); border-radius: var(--radius-sm); }
 .btn-block { width: 100%; }
 .btn-icon { width: 40px; height: 40px; padding: 0; border-radius: var(--radius-full); background: rgba(255,255,255,0.06); color: var(--text-primary); font-size: 1.2rem; box-shadow: inset 0 1px 0 0 rgba(255,255,255,0.1), 0 0 0 1px rgba(255,255,255,0.08); }
-.btn-icon:hover { transform: translateY(-2px); background: rgba(255,255,255,0.12); }
+.btn-icon:hover { transform: scale(1.05) translateY(-2px); background: rgba(255,255,255,0.12); }
 .btn-icon:active { transform: scale(0.96) !important; }
 .btn-pill { border-radius: var(--radius-pill); padding: 12px 28px; }
 .btn-gradient { background: var(--grad-primary); color: #fff; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.35); }
-.btn-gradient:hover { opacity: 0.95; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(255, 107, 107, 0.45); }
+.btn-gradient:hover { opacity: 0.95; transform: scale(1.02) translateY(-2px); box-shadow: 0 0 25px rgba(124, 58, 237, 0.5); }
 
 /* ---- Form Inputs Premium ---- */
 .form-group { margin-bottom: 20px; }
