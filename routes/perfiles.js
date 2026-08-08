@@ -873,25 +873,50 @@ function generateFallbackHTML() {
       position: relative;
       z-index: 1;
     }
-    .section { background: #1a1a2e; border-radius: 12px; padding: 1rem; margin-bottom: 1rem; }
+    .section {
+      background: rgba(255, 255, 255, 0.03) !important;
+      backdrop-filter: blur(20px) !important;
+      -webkit-backdrop-filter: blur(20px) !important;
+      border: none !important;
+      box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.12),
+                  0 0 0 1px rgba(255, 255, 255, 0.06),
+                  0 12px 32px rgba(0, 0, 0, 0.35) !important;
+      border-radius: 16px;
+      padding: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
     .section-title { font-size: 0.75rem; text-transform: uppercase; color: #888; margin-bottom: 0.75rem; letter-spacing: 1px; }
     .action-buttons { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; margin-bottom: 1rem; }
+    .action-btn, .contact-item, .file-item {
+      transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), background-color 160ms ease, box-shadow 160ms cubic-bezier(0.23, 1, 0.32, 1) !important;
+    }
+    .action-btn:active, .contact-item:active, .file-item:active {
+      transform: scale(0.96) !important;
+    }
     .action-btn {
       display: flex; align-items: center; justify-content: center; gap: 0.5rem;
       padding: 0.75rem; border-radius: 10px; text-decoration: none; color: #fff;
-      font-weight: 600; font-size: 0.85rem; transition: transform 0.2s, opacity 0.2s;
+      font-weight: 600; font-size: 0.85rem;
     }
-    .action-btn:hover { transform: scale(1.03); opacity: 0.9; }
+    .action-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px {{color}}40 !important;
+    }
     .action-whatsapp { background: #25D366; }
     .action-call { background: #4A90D9; }
     .action-email { background: #EA4335; }
     .action-save { background: {{color}}; grid-column: 1 / -1; }
     .contact-item {
-      display: flex; align-items: center; padding: 0.75rem; border-radius: 8px;
-      text-decoration: none; color: #e0e0e0; transition: background 0.2s;
-      margin-bottom: 0.25rem;
+      display: flex; align-items: center; padding: 0.75rem; border-radius: 10px;
+      text-decoration: none; color: #e0e0e0; margin-bottom: 0.5rem;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
     }
-    .contact-item:hover { background: rgba(255,255,255,0.05); }
+    .contact-item:hover {
+      background: rgba(255, 255, 255, 0.06);
+      transform: translateY(-2px);
+      box-shadow: 0 0 16px {{color}}30, 0 0 0 1px {{color}} !important;
+    }
     .contact-icon { font-size: 1.3rem; margin-right: 0.75rem; width: 32px; text-align: center; }
     .contact-info { flex: 1; }
     .contact-label { display: block; font-size: 0.7rem; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -899,9 +924,12 @@ function generateFallbackHTML() {
     .contact-arrow { color: #555; font-size: 1.2rem; }
     .file-item {
       display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem;
-      border-radius: 8px; text-decoration: none; color: #e0e0e0; transition: background 0.2s;
+      border-radius: 8px; text-decoration: none; color: #e0e0e0;
     }
-    .file-item:hover { background: rgba(255,255,255,0.05); }
+    .file-item:hover {
+      background: rgba(255,255,255,0.06);
+      transform: translateY(-2px);
+    }
     .file-icon { font-size: 1.3rem; }
     .file-name { flex: 1; font-size: 0.9rem; }
     .file-download { color: {{color}}; }

@@ -660,16 +660,44 @@ body { animation: fadeIn 0.4s ease; }
 
 .block-edit-form { background: var(--bg-secondary); border-radius: var(--radius-md); padding: 24px; margin-bottom: 12px; border: 1px solid var(--primary); box-shadow: var(--shadow-md); }
 
-/* Public profile blocks */
+/* Public profile blocks with Emil Kowalski Design Principles */
 .block-container { display: flex; flex-direction: column; gap: 16px; padding: 24px 0; }
+
+:root {
+  --ease-emil: cubic-bezier(0.23, 1, 0.32, 1);
+  --ambient-glass-bg: rgba(255, 255, 255, 0.03);
+  --ambient-glass-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.12),
+                          0 0 0 1px rgba(255, 255, 255, 0.06),
+                          0 12px 32px rgba(0, 0, 0, 0.35);
+}
+
+.btn, .action-btn, .save-contact-btn, .block-link, .block-whatsapp, .block-social-icons a, .profile-card, .ios-group-item {
+  transition: transform 160ms var(--ease-emil), background-color 160ms ease, box-shadow 160ms var(--ease-emil), border-color 160ms ease !important;
+}
+
+.btn:active, .action-btn:active, .save-contact-btn:active, .block-link:active, .block-whatsapp:active, .block-social-icons a:active, .profile-card:active, .ios-group-item:active {
+  transform: scale(0.96) !important;
+}
+
+.card, .ios-group, .block-link, .block-email-form, .block-countdown, .profile-card {
+  background: var(--ambient-glass-bg) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: none !important;
+  box-shadow: var(--ambient-glass-shadow) !important;
+}
 
 .block-link {
   display: flex; align-items: center; gap: 16px; padding: 16px 20px;
-  background: var(--bg-card); border-radius: var(--radius-lg); border: 1px solid var(--separator);
-  text-decoration: none; color: inherit; transition: all var(--transition-fast);
+  border-radius: var(--radius-lg); text-decoration: none; color: inherit;
 }
-.block-link:hover { transform: translateY(-2px); border-color: var(--primary); box-shadow: var(--shadow-md); }
-.block-link:active { transform: scale(0.98); }
+.block-link:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.2),
+              0 0 0 1px var(--accent, var(--primary)),
+              0 12px 36px rgba(0, 0, 0, 0.45),
+              0 0 24px var(--accent-glow, rgba(124, 58, 237, 0.25)) !important;
+}
 .block-link .bl-icon {
   width: 48px; height: 48px; border-radius: var(--radius-sm); display: flex;
   align-items: center; justify-content: center; font-size: 1.5rem; color: #fff; flex-shrink: 0; background: var(--primary);
