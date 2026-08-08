@@ -995,3 +995,31 @@ input[type="text"], input[type="email"], input[type="password"], input[type="num
     flex-shrink: 0 !important;
   }
 }
+
+/* Guided Tour Driver.js B2B Glassmorphic Popovers */
+.vynk-driver-popover {
+  background: #121214 !important;
+  color: #FFFFFF !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.7) !important;
+  padding: 20px !important;
+}
+.vynk-driver-popover .driver-popover-title {
+  font-weight: 800 !important;
+  font-size: 1.1rem !important;
+  color: #FFFFFF !important;
+}
+.vynk-driver-popover .driver-popover-description {
+  color: var(--text-secondary) !important;
+  font-size: 0.88rem !important;
+  line-height: 1.5 !important;
+  margin-top: 8px !important;
+}
+.vynk-driver-popover .driver-popover-btn-next {
+  background: var(--primary) !important;
+  color: #FFF !important;
+  border: none !important;
+  text-shadow: none !important;
+  border-radius: 8px !important;
+}

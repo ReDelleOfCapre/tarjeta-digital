@@ -18,7 +18,8 @@ CREATE TABLE IF NOT EXISTS usuarios (
   google_id VARCHAR(255),
   apple_id VARCHAR(255),
   microsoft_id VARCHAR(255),
-  terms_accepted BOOLEAN DEFAULT FALSE
+  terms_accepted BOOLEAN DEFAULT FALSE,
+  is_first_login BOOLEAN DEFAULT TRUE
 );
 
 -- Workspaces (Equipos Multi-Tenant B2B)

@@ -241,7 +241,7 @@ router.post('/sso-login', async (req, res) => {
     res.json({
       ok: true,
       token,
-      usuario: { id: user.id, nombre: user.nombre, email: user.email, plan: user.plan, role: user.role, terms_accepted: true }
+      usuario: { id: user.id, nombre: user.nombre, email: user.email, plan: user.plan, role: user.role, terms_accepted: true, is_first_login: user.is_first_login !== false }
     });
   } catch (err) {
     console.error('Error en SSO Login:', err);
@@ -249,8 +249,23 @@ router.post('/sso-login', async (req, res) => {
   }
 });
 
-// Rutas Passport OAuth (Dev / Staging Support)
-router.get('/google', (req, res) => res.redirect('/#auth'));
+// POST /api/auth/complete-tour — Marcar tour de onboarding como completado
+router.post('/complete-tour', auth, async (req, res) => {
+  try {
+    const db = await dbReady;
+    db.prepare('UPDATE usuarios SET is_first_login = FALSE WHERE id = ?').run(req.user.id);
+    res.json({ success: true, message: 'Tour de onboarding completado' });
+  } catch (err) {
+    console.error('Error al completar tour:', err);
+    res.status(500).json({ error: 'Error marcando tour como completado' });
+  }
+});
+
+// Rutas Passport OAuth Google con prompt consent forzado
+router.get('/google', passport.authenticate('google', {
+  scope: ['profile', 'email'],
+  prompt: 'select_account consent'
+}));
 router.get('/apple', (req, res) => res.redirect('/#auth'));
 router.get('/microsoft', (req, res) => res.redirect('/#auth'));
 

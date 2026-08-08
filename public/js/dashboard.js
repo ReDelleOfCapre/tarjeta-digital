@@ -139,4 +139,58 @@
     div.textContent = text;
     return div.innerHTML;
   }
+
+  // Guided Tour Onboarding (FTUE) for First-Time Users
+  var isFirstTime = user.is_first_login !== false && !localStorage.getItem('vynk_tour_completed');
+  if (isFirstTime && window.driver) {
+    setTimeout(startGuidedTour, 800);
+  }
+
+  function startGuidedTour() {
+    try {
+      const driverObj = window.driver.js.driver({
+        showProgress: true,
+        animate: true,
+        popoverClass: 'vynk-driver-popover',
+        steps: [
+          {
+            element: '.navbar',
+            popover: {
+              title: '👋 ¡Bienvenido a tu Centro de Comando!',
+              description: 'Este es tu ecosistema de identidad digital Enterprise. Diseña, gestiona y sincroniza tus e-cards con tecnología NFC y QR.'
+            }
+          },
+          {
+            element: '#btn-create-card',
+            popover: {
+              title: '🪪 Crear Nueva Identidad Digital',
+              description: 'Presiona aquí para desplegar tu primera e-card inteligente con tus redes, catálogo, menú y botón de cobro.'
+            }
+          },
+          {
+            element: '#stats-bar',
+            popover: {
+              title: '📊 Métricas & Conexiones en Tiempo Real',
+              description: 'Monitorea tus interacciones, escaneos NFC y descargas de vCard al instante.'
+            }
+          },
+          {
+            element: '#select-workspace',
+            popover: {
+              title: '💼 Workspaces Multi-Tenant B2B',
+              description: 'Alterna entre tu espacio personal y el corporativo para colaborar con tu equipo.'
+            }
+          }
+        ],
+        onDestroyStarted: function() {
+          localStorage.setItem('vynk_tour_completed', 'true');
+          api('/auth/complete-tour', { method: 'POST' }).catch(function(){});
+          driverObj.destroy();
+        }
+      });
+      driverObj.drive();
+    } catch(e) {
+      console.log('Driver tour notice:', e);
+    }
+  }
 })();
