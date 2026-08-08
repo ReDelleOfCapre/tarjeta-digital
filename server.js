@@ -136,6 +136,31 @@ app.post('/api/invite', async (req, res) => {
 });
 
 // =============================================
+// Stripe Transaccional: Subscripciones Pro y Venta de Hardware NFC
+// =============================================
+const { createCheckoutSession } = require('./services/stripeService');
+
+app.post('/api/create-checkout-session', async (req, res) => {
+  try {
+    const { productId, title, price, type } = req.body || {};
+    const origin = req.headers.origin || `${req.protocol}://${req.get('host')}`;
+
+    const session = await createCheckoutSession({
+      productId,
+      title,
+      price,
+      type: type || (productId && productId.includes('plan') ? 'subscription' : 'payment'),
+      origin
+    });
+
+    res.json({ success: true, url: session.url, isMock: session.isMock });
+  } catch (err) {
+    console.error('❌ Error en Stripe Checkout endpoint:', err);
+    res.status(500).json({ error: 'Error procesando la sesión de pago' });
+  }
+});
+
+// =============================================
 // Ruta pública de perfiles
 // =============================================
 

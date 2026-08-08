@@ -77,11 +77,56 @@ function showToast(message, type = 'info') {
   toast.textContent = message;
   container.appendChild(toast);
 
-  setTimeout(() => {
+  setTimeout(function () {
     toast.style.opacity = '0';
-    setTimeout(() => toast.remove(), 300);
-  }, 3000);
+    toast.style.transform = 'translateY(-10px)';
+    setTimeout(function () { toast.remove(); }, 300);
+  }, 4000);
 }
+
+// ============================================
+// STRIPE CHECKOUT TRANSACTION HELPER
+// ============================================
+window.buyProduct = async function(productId, title, price, type, btnElement) {
+  if (navigator.vibrate) {
+    try { navigator.vibrate(50); } catch(e){}
+  }
+
+  var btn = btnElement || (window.event ? window.event.currentTarget : null);
+  var originalHtml = btn ? btn.innerHTML : '';
+
+  if (btn) {
+    btn.disabled = true;
+    btn.classList.add('loading');
+    btn.innerHTML = '🔒 Redirigiendo a pasarela segura...';
+  }
+
+  try {
+    const res = await api('/create-checkout-session', {
+      method: 'POST',
+      body: JSON.stringify({
+        productId,
+        title,
+        price,
+        type: type || (productId && productId.includes('plan') ? 'subscription' : 'payment')
+      })
+    });
+
+    if (res && res.url) {
+      window.location.href = res.url;
+    } else {
+      throw new Error('No se pudo generar la sesión de Stripe');
+    }
+  } catch (err) {
+    console.error('❌ Error iniciando checkout:', err);
+    showToast(err.error || 'Error conectando con Stripe', 'error');
+    if (btn) {
+      btn.disabled = false;
+      btn.classList.remove('loading');
+      btn.innerHTML = originalHtml;
+    }
+  }
+};
 
 function showUpgradeToast(message) {
   const container = document.getElementById('toast-container');
