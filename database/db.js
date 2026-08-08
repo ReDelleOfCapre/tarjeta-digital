@@ -106,6 +106,9 @@ class PgDatabaseWrapper {
       await this.pool.query("ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS microsoft_id VARCHAR(255)");
       await this.pool.query("ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS terms_accepted BOOLEAN DEFAULT FALSE");
       await this.pool.query("ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS is_first_login BOOLEAN DEFAULT TRUE");
+      await this.pool.query("ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS is_pro BOOLEAN DEFAULT FALSE");
+      await this.pool.query("ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS stripe_customer_id VARCHAR(255)");
+      await this.pool.query("ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS hardware_orders JSONB DEFAULT '[]'::jsonb");
       
       await this.pool.query(`
         CREATE TABLE IF NOT EXISTS workspaces (

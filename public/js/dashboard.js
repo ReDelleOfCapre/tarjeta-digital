@@ -22,12 +22,27 @@
     document.getElementById('btn-admin').classList.remove('hidden');
   }
 
-  // Show Pro badge or upgrade banner
-  if (user.plan === 'paid') {
-    document.getElementById('btn-plan').textContent = '✓ Pro';
-    document.getElementById('btn-plan').style.color = 'var(--green)';
+  // Show Pro badge or upgrade banner, unlock Pro analytics & UI features
+  var isPro = user.isPro || user.is_pro || user.plan === 'paid';
+  if (isPro) {
+    var btnPlan = document.getElementById('btn-plan');
+    if (btnPlan) {
+      btnPlan.textContent = '✓ Pro';
+      btnPlan.style.color = 'var(--green)';
+    }
+    var banner = document.getElementById('upgrade-banner');
+    if (banner) banner.classList.add('hidden');
+
+    // Desbloquear visualmente etiquetas Pro y CTA de suscripción
+    document.querySelectorAll('.pro-badge-lock').forEach(function(el) {
+      el.style.background = 'rgba(16, 185, 129, 0.2)';
+      el.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+      el.style.color = '#10B981';
+      if (el.textContent.includes('Pro')) el.textContent = '✓ Pro Activo';
+    });
   } else {
-    document.getElementById('upgrade-banner').classList.remove('hidden');
+    var banner = document.getElementById('upgrade-banner');
+    if (banner) banner.classList.remove('hidden');
   }
 
   // Check Legal Terms consent

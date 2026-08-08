@@ -238,14 +238,57 @@ router.post('/sso-login', async (req, res) => {
       terms_accepted: true
     });
 
+    const isPro = !!(user.is_pro || user.plan === 'paid');
     res.json({
       ok: true,
       token,
-      usuario: { id: user.id, nombre: user.nombre, email: user.email, plan: user.plan, role: user.role, terms_accepted: true, is_first_login: user.is_first_login !== false }
+      usuario: {
+        id: user.id,
+        nombre: user.nombre,
+        email: user.email,
+        plan: user.plan,
+        role: user.role,
+        isPro: isPro,
+        is_pro: isPro,
+        stripeCustomerId: user.stripe_customer_id || null,
+        hardwareOrders: typeof user.hardware_orders === 'string' ? JSON.parse(user.hardware_orders) : (user.hardware_orders || []),
+        terms_accepted: true,
+        is_first_login: user.is_first_login !== false
+      }
     });
   } catch (err) {
     console.error('Error en SSO Login:', err);
     res.status(500).json({ error: 'Error procesando inicio de sesión SSO' });
+  }
+});
+
+// GET /api/auth/me — Consultar estado de usuario actual
+router.get('/me', auth, async (req, res) => {
+  try {
+    const db = await dbReady;
+    const user = db.prepare('SELECT * FROM usuarios WHERE id = ?').get(req.user.id);
+    if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
+
+    const isPro = !!(user.is_pro || user.plan === 'paid');
+    res.json({
+      usuario: {
+        id: user.id,
+        nombre: user.nombre,
+        email: user.email,
+        telefono: user.telefono,
+        plan: user.plan,
+        role: user.role,
+        isPro: isPro,
+        is_pro: isPro,
+        stripeCustomerId: user.stripe_customer_id || null,
+        hardwareOrders: typeof user.hardware_orders === 'string' ? JSON.parse(user.hardware_orders) : (user.hardware_orders || []),
+        terms_accepted: !!user.terms_accepted,
+        is_first_login: user.is_first_login !== false
+      }
+    });
+  } catch (err) {
+    console.error('Error al obtener usuario actual:', err);
+    res.status(500).json({ error: 'Error al consultar datos de usuario' });
   }
 });
 

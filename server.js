@@ -34,6 +34,79 @@ app.use(helmet({ contentSecurityPolicy: false }));
 // CORS
 app.use(cors());
 
+// =============================================
+// Stripe Webhook (Requiere raw body con express.raw antes de express.json)
+// =============================================
+app.post('/api/webhook/stripe', express.raw({ type: 'application/json' }), async (req, res) => {
+  const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY || 'sk_test_mock');
+  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+  let event = req.body;
+
+  if (endpointSecret) {
+    const signature = req.headers['stripe-signature'];
+    try {
+      event = stripe.webhooks.constructEvent(req.body, signature, endpointSecret);
+    } catch (err) {
+      console.error('⚠️ Error de verificación de firma del Webhook de Stripe:', err.message);
+      return res.status(400).send(`Webhook Error: ${err.message}`);
+    }
+  } else {
+    try {
+      if (Buffer.isBuffer(req.body)) {
+        event = JSON.parse(req.body.toString('utf8'));
+      }
+    } catch(e){}
+  }
+
+  // Responder 200 OK rápidamente para evitar reintentos redundantes de Stripe
+  res.status(200).json({ received: true });
+
+  // Lógica de Cumplimiento Automático (Fulfillment)
+  if (event && event.type === 'checkout.session.completed') {
+    const session = event.data ? event.data.object : {};
+    const { dbReady } = require('./database/db');
+    const db = await dbReady;
+    const customerEmail = session.customer_details?.email || session.customer_email;
+
+    try {
+      if (session.mode === 'subscription') {
+        // Actualizar usuario a Pro en DB
+        console.log(`⚡ Fulfillment Pro activado para ${customerEmail}`);
+        if (customerEmail) {
+          await db.pool.query(
+            "UPDATE usuarios SET is_pro = TRUE, plan = 'paid', stripe_customer_id = $1 WHERE email = $2 OR LOWER(email) = LOWER($2)",
+            [session.customer || '', customerEmail]
+          );
+        }
+      } else if (session.mode === 'payment') {
+        // Registrar orden de Hardware NFC con dirección de envío
+        const shipping = session.shipping_details || session.shipping || {};
+        console.log(`📦 Fulfillment de Hardware NFC registrado para ${customerEmail}:`, shipping);
+
+        const orderRecord = {
+          id: session.id,
+          amount: session.amount_total,
+          currency: session.currency,
+          shipping: shipping,
+          created_at: new Date()
+        };
+
+        if (customerEmail) {
+          await db.pool.query(`
+            UPDATE usuarios
+            SET hardware_orders = COALESCE(hardware_orders, '[]'::jsonb) || $1::jsonb,
+                stripe_customer_id = COALESCE(stripe_customer_id, $2)
+            WHERE email = $3 OR LOWER(email) = LOWER($3)
+          `, [JSON.stringify([orderRecord]), session.customer || '', customerEmail]);
+        }
+      }
+    } catch(e) {
+      console.error('❌ Error en Fulfillment de Webhook:', e);
+    }
+  }
+});
+
 // Parseo de JSON con límite de 10MB
 app.use(express.json({ limit: '10mb' }));
 
