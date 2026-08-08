@@ -1093,3 +1093,41 @@ input[type="text"], input[type="email"], input[type="password"], input[type="num
   transform: translateY(-3px) !important;
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5) !important;
 }
+
+/* Tesla / Bento Live Preview Builder (Configurador de Autos) */
+.builder-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  margin-top: 20px;
+}
+
+@media (min-width: 1025px) {
+  .builder-grid {
+    grid-template-columns: 1fr 400px;
+    gap: 2rem;
+    align-items: start;
+  }
+  .preview-sticky-panel {
+    position: sticky;
+    top: 85px;
+    display: flex;
+    justify-content: center;
+  }
+}
+
+/* Smartphone Simulator Frame */
+.smartphone-mockup {
+  width: 360px;
+  height: 680px;
+  border-radius: 44px;
+  border: 12px solid #1E1E24;
+  background: #0A0A0B;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.8), inset 0 0 0 2px rgba(255, 255, 255, 0.1);
+  overflow-y: auto;
+  position: relative;
+  scroll-behavior: smooth;
+}
+.smartphone-mockup::-webkit-scrollbar {
+  display: none;
+}

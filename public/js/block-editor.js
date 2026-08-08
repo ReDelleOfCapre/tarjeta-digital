@@ -61,44 +61,100 @@
   renderBlockList();
   setupColorPicker();
   setupPhotoUpload();
+  setupLivePreviewListeners();
+  setupSortableDragAndDrop();
 
   if (editId) {
-    document.getElementById('page-title').textContent = 'Editar tarjeta';
+    var titleEl = document.getElementById('page-title');
+    if (titleEl) titleEl.textContent = 'Editar Identidad Digital';
     loadExisting(editId);
   }
 
-  document.getElementById('btn-save').addEventListener('click', saveAll);
-  document.getElementById('btn-final-save').addEventListener('click', saveAll);
+  var btnSave = document.getElementById('btn-save');
+  var btnFinalSave = document.getElementById('btn-final-save');
+  if (btnSave) btnSave.addEventListener('click', saveAll);
+  if (btnFinalSave) btnFinalSave.addEventListener('click', saveAll);
 
-  // ===== STEPS =====
-  window.goStep = function(s) {
-    if (s > 1) {
-      var nombre = gv('nombre_perfil');
-      var inputNombre = document.getElementById('nombre_perfil');
-      if (!nombre || !nombre.trim()) {
-        if (inputNombre) {
-          inputNombre.style.borderColor = 'var(--red)';
-          inputNombre.focus();
+  // ===== REAL-TIME LIVE PREVIEW DATA BINDING =====
+  function setupLivePreviewListeners() {
+    ['nombre_perfil', 'tipo_perfil', 'bio_perfil', 'cumpleanos', 'lugar_estudio', 'pronombres'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('input', updateLivePreview);
+        el.addEventListener('change', updateLivePreview);
+      }
+    });
+  }
+
+  function updateLivePreview() {
+    var nombre = gv('nombre_perfil') || 'Tu Nombre';
+    var tipo = gv('tipo_perfil') || 'personal';
+    var bio = gv('bio_perfil') || 'Tu biografía profesional aparecerá aquí...';
+
+    var prevName = document.getElementById('prev-name');
+    var prevType = document.getElementById('prev-type');
+    var prevBio = document.getElementById('prev-bio');
+    var prevInitials = document.getElementById('prev-avatar-initials');
+    var prevAvatarBox = document.getElementById('prev-avatar-box');
+    var prevBlocksContainer = document.getElementById('prev-blocks');
+
+    if (prevName) prevName.textContent = nombre;
+    if (prevType) prevType.textContent = tipo;
+    if (prevBio) prevBio.textContent = bio;
+
+    if (prevInitials) {
+      var parts = nombre.trim().split(' ');
+      var initials = parts.map(function(p){ return p[0]; }).slice(0, 2).join('').toUpperCase();
+      prevInitials.textContent = initials || 'V';
+    }
+
+    if (prevAvatarBox) {
+      prevAvatarBox.style.borderColor = selectedColor;
+    }
+
+    // Render Live Preview Blocks
+    if (prevBlocksContainer) {
+      if (blocks.length === 0) {
+        prevBlocksContainer.innerHTML = '<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:0.78rem;border:1px dashed rgba(255,255,255,0.1);border-radius:14px">Tus botones y smart blocks aparecerán aquí al instante...</div>';
+      } else {
+        prevBlocksContainer.innerHTML = blocks.map(function(b) {
+          var bt = BLOCK_TYPES.find(function(t){ return t.tipo === b.tipo; }) || { icon: '📎', label: b.tipo, color: '#7C3AED' };
+          var title = b.contenido.titulo || b.contenido.texto || b.contenido.url || bt.label;
+          var url = b.contenido.url || '';
+
+          if (url.includes('open.spotify.com')) {
+            return '<div style="padding:10px;border-radius:12px;background:rgba(29,185,84,0.15);border:1px solid rgba(29,185,84,0.3);color:#1DB954;font-size:0.78rem;font-weight:700;display:flex;align-items:center;gap:8px">🎵 Spotify Smart Player Embebido</div>';
+          }
+          if (url.includes('google.com/maps') || url.includes('maps.google') || title.toLowerCase().includes('ubicacion')) {
+            return '<div style="padding:10px;border-radius:12px;background:rgba(234,67,53,0.15);border:1px solid rgba(234,67,53,0.3);color:#EA4335;font-size:0.78rem;font-weight:700;display:flex;align-items:center;gap:8px">📍 Google Maps Interactivo Embebido</div>';
+          }
+
+          return '<div style="padding:12px 14px;border-radius:14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-left:4px solid ' + selectedColor + ';display:flex;align-items:center;justify-content:space-between;color:#FFF;font-size:0.82rem;font-weight:600">' +
+            '<div style="display:flex;align-items:center;gap:8px"><span>' + bt.icon + '</span> <span>' + escapeHtml(title) + '</span></div>' +
+            '<span style="opacity:0.5">→</span>' +
+          '</div>';
+        }).join('');
+      }
+    }
+  }
+
+  function setupSortableDragAndDrop() {
+    var blockListEl = document.getElementById('block-list');
+    if (blockListEl && window.Sortable) {
+      window.Sortable.create(blockListEl, {
+        animation: 150,
+        handle: '.drag-handle',
+        onEnd: function(evt) {
+          if (evt.oldIndex !== undefined && evt.newIndex !== undefined) {
+            var moved = blocks.splice(evt.oldIndex, 1)[0];
+            blocks.splice(evt.newIndex, 0, moved);
+            blocks.forEach(function(b, idx) { b.orden = idx; });
+            updateLivePreview();
+          }
         }
-        showToast('Por favor ingresa el Nombre para continuar', 'error');
-        return false;
-      } else if (inputNombre) {
-        inputNombre.style.borderColor = '';
-      }
+      });
     }
-
-    for (var i = 1; i <= 3; i++) {
-      var stepEl = document.getElementById('step-' + i);
-      if (stepEl) stepEl.classList.toggle('hidden', i !== s);
-      var dot = document.getElementById('dot-' + i);
-      if (dot) {
-        dot.classList.remove('active', 'done');
-        if (i < s) dot.classList.add('done');
-        if (i === s) dot.classList.add('active');
-      }
-    }
-    window.scrollTo(0, 0);
-  };
+  }
 
   // ===== COLOR PICKER =====
   function setupColorPicker() {
@@ -114,8 +170,9 @@
         el.classList.add('active', 'selected');
         el.style.borderColor = '#FFFFFF';
         el.style.transform = 'scale(1.15)';
-        selectedColor = el.dataset.color || el.getAttribute('data-color') || '#007AFF';
+        selectedColor = el.dataset.color || el.getAttribute('data-color') || '#7C3AED';
         console.log('Color de acento seleccionado:', selectedColor);
+        updateLivePreview();
       });
     });
     // Set initial
@@ -138,6 +195,8 @@
         reader.onload = function(ev) {
           var preview = document.getElementById('photo-preview');
           if (preview) preview.innerHTML = '<img src="' + ev.target.result + '" style="width:100%;height:100%;object-fit:cover">';
+          var prevAvatarBox = document.getElementById('prev-avatar-box');
+          if (prevAvatarBox) prevAvatarBox.innerHTML = '<img src="' + ev.target.result + '" style="width:100%;height:100%;object-fit:cover">';
         };
         reader.readAsDataURL(file);
       });
@@ -164,13 +223,15 @@
     selectedTheme = id;
     console.log('Tema seleccionado:', selectedTheme);
     renderThemes();
+    updateLivePreview();
   };
 
   // ===== BLOCK PALETTE =====
   function renderPalette() {
     var container = document.getElementById('block-palette');
+    if (!container) return;
     container.innerHTML = BLOCK_TYPES.map(function(b){
-      return '<div style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 6px;border-radius:12px;background:var(--bg-tertiary);cursor:pointer;min-width:65px;font-size:var(--font-xs);color:var(--text-secondary)" onclick="showBlockForm(\''+b.tipo+'\')">' +
+      return '<div style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);cursor:pointer;min-width:75px;font-size:var(--font-xs);color:var(--text-secondary)" onclick="showBlockForm(\''+b.tipo+'\')">' +
         '<span style="font-size:1.2rem">'+b.icon+'</span>'+b.label +
       '</div>';
     }).join('');
@@ -280,8 +341,10 @@
   // ===== RENDER BLOCK LIST =====
   function renderBlockList() {
     var container = document.getElementById('block-list');
+    if (!container) return;
     if (blocks.length === 0) {
       container.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:20px 0;font-size:var(--font-sm)">Toca un bloque arriba para añadirlo</p>';
+      updateLivePreview();
       return;
     }
     container.innerHTML = blocks.map(function(b, i){
@@ -289,13 +352,15 @@
       var preview = b.contenido.titulo || b.contenido.url || b.contenido.texto || b.contenido.numero || (b.contenido.redes?b.contenido.redes.length+' redes':'') || '';
       if (preview.length > 40) preview = preview.substring(0,37)+'...';
 
-      return '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:0.5px solid var(--separator)" draggable="true" ondragstart="dragStart(event,'+i+')" ondragover="event.preventDefault()" ondrop="dragDrop(event,'+i+')">' +
-        '<span style="color:var(--text-muted);cursor:grab;font-size:1.1rem">☰</span>' +
+      return '<div class="block-item-row" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:12px" draggable="true" ondragstart="dragStart(event,'+i+')" ondragover="event.preventDefault()" ondrop="dragDrop(event,'+i+')">' +
+        '<span class="drag-handle" style="color:var(--text-muted);cursor:grab;font-size:1.1rem;padding:0 4px">☰</span>' +
         '<div style="width:32px;height:32px;border-radius:8px;background:'+bt.color+';display:flex;align-items:center;justify-content:center;color:#fff;font-size:0.8rem;flex-shrink:0">'+bt.icon+'</div>' +
-        '<div style="flex:1;min-width:0"><div style="font-size:var(--font-xs);color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px">'+bt.label+'</div><div style="font-size:var(--font-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+escapeHtml(preview)+'</div></div>' +
+        '<div style="flex:1;min-width:0"><div style="font-size:var(--font-xs);color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px">'+bt.label+'</div><div style="font-size:var(--font-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#FFF;font-weight:600">'+escapeHtml(preview)+'</div></div>' +
         '<button class="btn btn-sm btn-ghost" onclick="removeBlock('+i+')" style="color:var(--red);font-size:0.8rem">✕</button>' +
       '</div>';
     }).join('');
+
+    updateLivePreview();
   }
 
   // ===== DRAG & DROP =====
@@ -315,91 +380,68 @@
   function saveAll(e) {
     if (e && e.preventDefault) e.preventDefault();
 
-    try {
-      var nombre = gv('nombre_perfil');
-      var inputNombre = document.getElementById('nombre_perfil');
-      if (!nombre || !nombre.trim()) {
-        if (inputNombre) {
-          inputNombre.style.borderColor = 'var(--red)';
-          inputNombre.focus();
-        }
-        showToast('El nombre de la tarjeta es obligatorio', 'error');
-        goStep(1);
-        return;
+    var nombre = gv('nombre_perfil');
+    var inputNombre = document.getElementById('nombre_perfil');
+    if (!nombre || !nombre.trim()) {
+      if (inputNombre) {
+        inputNombre.style.borderColor = 'var(--red)';
+        inputNombre.focus();
       }
-
-      var saveBtn = document.getElementById('btn-final-save');
-      var navSaveBtn = document.getElementById('btn-save');
-      if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Guardando...'; }
-      if (navSaveBtn) { navSaveBtn.disabled = true; navSaveBtn.textContent = 'Guardando...'; }
-
-      var formData = new FormData();
-      formData.append('nombre_perfil', nombre.trim());
-      formData.append('tipo', gv('tipo_perfil') || 'personal');
-      formData.append('color', selectedColor || '#007AFF');
-      formData.append('tema', selectedTheme || 'ios');
-      formData.append('bio', gv('bio_perfil') || '');
-      formData.append('cumpleanos', gv('cumpleanos') || '');
-      formData.append('lugar_estudio', gv('lugar_estudio') || '');
-      formData.append('pronombres', gv('pronombres') || '');
-
-      var fotoInput = document.getElementById('input-foto');
-      if (fotoInput && fotoInput.files && fotoInput.files[0]) {
-        formData.append('foto', fotoInput.files[0]);
-      }
-
-      var bannerInput = document.getElementById('input-banner');
-      if (bannerInput && bannerInput.files && bannerInput.files[0]) {
-        formData.append('banner', bannerInput.files[0]);
-      }
-
-      console.log('Enviando:', {
-        nombre: nombre.trim(),
-        tipo: gv('tipo_perfil'),
-        color: selectedColor,
-        tema: selectedTheme,
-        editId: editId
-      });
-
-      var method = editId ? 'PUT' : 'POST';
-      var url = editId ? '/perfiles/' + editId : '/perfiles';
-
-      api(url, { method: method, body: formData, headers: {} })
-        .then(function(data) {
-          if (!data || data.error) throw data;
-          var perfilId = data.id || editId;
-          profileSlug = data.slug || profileSlug;
-
-          // Save blocks sequentially
-          return saveBlocksSeq(perfilId, 0);
-        })
-        .then(function() {
-          showToast('Tarjeta guardada con éxito', 'success');
-          if (profileSlug) {
-            var previewBtn = document.getElementById('btn-preview');
-            if (previewBtn) {
-              previewBtn.href = '/u/' + profileSlug;
-              previewBtn.classList.remove('hidden');
-            }
-          }
-          if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = '💾 Guardar tarjeta'; }
-          if (navSaveBtn) { navSaveBtn.disabled = false; navSaveBtn.textContent = 'Guardar'; }
-
-          // Redirección inmediata al Dashboard tras guardado exitoso
-          setTimeout(function() {
-            location.href = '/dashboard.html';
-          }, 1000);
-        })
-        .catch(function(err) {
-          console.error('Error al guardar:', err);
-          showToast((err && (err.error || err.mensaje)) || 'Error al guardar la tarjeta', 'error');
-          if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = '💾 Guardar tarjeta'; }
-          if (navSaveBtn) { navSaveBtn.disabled = false; navSaveBtn.textContent = 'Guardar'; }
-        });
-    } catch(err) {
-      console.error('Error inesperado en saveAll:', err);
-      showToast('Ocurrió un error inesperado al procesar la solicitud', 'error');
+      alert('⚠️ El nombre de la tarjeta es obligatorio.');
+      return;
     }
+
+    var saveBtn = document.getElementById('btn-final-save');
+    var navSaveBtn = document.getElementById('btn-save');
+    if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = '⚡ Guardando...'; }
+    if (navSaveBtn) { navSaveBtn.disabled = true; navSaveBtn.textContent = 'Guardando...'; }
+
+    var formData = new FormData();
+    formData.append('nombre_perfil', nombre.trim());
+    formData.append('tipo', gv('tipo_perfil') || 'personal');
+    formData.append('color', selectedColor || '#7C3AED');
+    formData.append('tema', selectedTheme || 'ios');
+    formData.append('bio', gv('bio_perfil') || '');
+    formData.append('cumpleanos', gv('cumpleanos') || '');
+    formData.append('lugar_estudio', gv('lugar_estudio') || '');
+    formData.append('pronombres', gv('pronombres') || '');
+
+    var fotoInput = document.getElementById('input-foto');
+    if (fotoInput && fotoInput.files && fotoInput.files[0]) {
+      formData.append('foto', fotoInput.files[0]);
+    }
+
+    console.log('⚡ Payload enviado al backend:', {
+      nombre: nombre.trim(),
+      tipo: gv('tipo_perfil'),
+      color: selectedColor,
+      tema: selectedTheme,
+      editId: editId
+    });
+
+    var method = editId ? 'PUT' : 'POST';
+    var url = editId ? '/perfiles/' + editId : '/perfiles';
+
+    api(url, { method: method, body: formData, headers: {} })
+      .then(function(data) {
+        if (!data || data.error) throw new Error(data ? (data.error || data.mensaje) : 'Respuesta inválida del servidor');
+        var perfilId = data.id || editId;
+        profileSlug = data.slug || profileSlug;
+
+        return saveBlocksSeq(perfilId, 0);
+      })
+      .then(function() {
+        showToast('¡Tarjeta guardada con éxito!', 'success');
+        setTimeout(function() {
+          window.location.replace('/dashboard.html');
+        }, 400);
+      })
+      .catch(function(err) {
+        console.error('❌ Error exacto en saveAll:', err);
+        alert('❌ Error al guardar la tarjeta: ' + (err.message || err.error || 'Error de conexión'));
+        if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = '⚡ Guardar & Publicar Identidad Digital'; }
+        if (navSaveBtn) { navSaveBtn.disabled = false; navSaveBtn.textContent = '⚡ Guardar'; }
+      });
   }
 
   function saveBlocksSeq(perfilId, idx) {
