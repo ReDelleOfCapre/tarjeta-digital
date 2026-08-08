@@ -1,114 +1,127 @@
 -- ============================================
--- My ID — Database Schema
+-- VYNK — PostgreSQL Database Schema (Neon)
 -- ============================================
-
-PRAGMA foreign_keys = ON;
 
 -- Usuarios
 CREATE TABLE IF NOT EXISTS usuarios (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  telefono TEXT UNIQUE NOT NULL,
-  nombre TEXT NOT NULL,
-  password_hash TEXT NOT NULL,
-  email TEXT,
-  plan TEXT DEFAULT 'free' CHECK(plan IN ('free','paid')),
-  plan_expira TEXT,
-  role TEXT DEFAULT 'user' CHECK(role IN ('user','admin')),
-  fecha_registro TEXT DEFAULT (datetime('now')),
-  acciones_restantes INTEGER DEFAULT 10,
-  ultimo_reset TEXT DEFAULT (datetime('now'))
+  id SERIAL PRIMARY KEY,
+  telefono VARCHAR(20) UNIQUE NOT NULL,
+  nombre VARCHAR(255) NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  email VARCHAR(255),
+  plan VARCHAR(20) DEFAULT 'free' CHECK(plan IN ('free','paid')),
+  plan_expira TIMESTAMP,
+  role VARCHAR(20) DEFAULT 'user' CHECK(role IN ('user','admin')),
+  fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  acciones_restantes INT DEFAULT 10,
+  ultimo_reset TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Perfiles (tarjetas)
 CREATE TABLE IF NOT EXISTS perfiles (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  usuario_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
-  slug TEXT UNIQUE NOT NULL,
-  nombre_perfil TEXT NOT NULL,
-  tipo TEXT DEFAULT 'personal',
+  id SERIAL PRIMARY KEY,
+  usuario_id INT NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+  slug VARCHAR(255) UNIQUE NOT NULL,
+  nombre_perfil VARCHAR(255) NOT NULL,
+  tipo VARCHAR(50) DEFAULT 'personal',
   foto_url TEXT,
-  color TEXT DEFAULT '#007AFF',
-  tema TEXT DEFAULT 'auto',
-  tema_id INTEGER DEFAULT NULL,
+  banner_url TEXT,
+  color VARCHAR(50) DEFAULT '#007AFF',
+  tema VARCHAR(50) DEFAULT 'auto',
+  tema_id INT DEFAULT NULL,
   bio TEXT,
-  cumpleanos TEXT,
-  lugar_estudio TEXT,
-  pronombres TEXT,
-  visitas INTEGER DEFAULT 0,
-  fecha_creacion TEXT DEFAULT (datetime('now'))
+  cumpleanos VARCHAR(50),
+  lugar_estudio VARCHAR(255),
+  pronombres VARCHAR(50),
+  visitas INT DEFAULT 0,
+  fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Campos de contacto (expandido a 30+ tipos)
+-- Campos de contacto
 CREATE TABLE IF NOT EXISTS campos_contacto (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  perfil_id INTEGER NOT NULL REFERENCES perfiles(id) ON DELETE CASCADE,
-  tipo TEXT NOT NULL,
+  id SERIAL PRIMARY KEY,
+  perfil_id INT NOT NULL REFERENCES perfiles(id) ON DELETE CASCADE,
+  tipo VARCHAR(50) NOT NULL,
   valor TEXT NOT NULL,
-  etiqueta TEXT,
-  orden INTEGER DEFAULT 0
+  etiqueta VARCHAR(255),
+  orden INT DEFAULT 0
 );
 
 -- Bloques (v3 block editor)
 CREATE TABLE IF NOT EXISTS bloques (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  perfil_id INTEGER NOT NULL REFERENCES perfiles(id) ON DELETE CASCADE,
-  tipo TEXT NOT NULL,
+  id SERIAL PRIMARY KEY,
+  perfil_id INT NOT NULL REFERENCES perfiles(id) ON DELETE CASCADE,
+  tipo VARCHAR(50) NOT NULL,
   contenido TEXT NOT NULL DEFAULT '{}',
-  orden INTEGER DEFAULT 0,
-  visible INTEGER DEFAULT 1,
-  fecha_creacion TEXT DEFAULT (datetime('now'))
+  orden INT DEFAULT 0,
+  visible INT DEFAULT 1,
+  fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Suscriptores (email capture)
 CREATE TABLE IF NOT EXISTS suscriptores (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  perfil_id INTEGER NOT NULL REFERENCES perfiles(id) ON DELETE CASCADE,
-  email TEXT NOT NULL,
-  nombre TEXT,
-  fecha TEXT DEFAULT (datetime('now')),
+  id SERIAL PRIMARY KEY,
+  perfil_id INT NOT NULL REFERENCES perfiles(id) ON DELETE CASCADE,
+  email VARCHAR(255) NOT NULL,
+  nombre VARCHAR(255),
+  fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   UNIQUE(perfil_id, email)
 );
 
 -- Temas
 CREATE TABLE IF NOT EXISTS temas (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  nombre TEXT NOT NULL,
-  tipo TEXT DEFAULT 'preset',
+  id SERIAL PRIMARY KEY,
+  nombre VARCHAR(255) NOT NULL,
+  tipo VARCHAR(50) DEFAULT 'preset',
   config TEXT NOT NULL DEFAULT '{}',
-  premium INTEGER DEFAULT 0
+  premium INT DEFAULT 0
 );
 
 -- Archivos
 CREATE TABLE IF NOT EXISTS archivos (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  perfil_id INTEGER NOT NULL REFERENCES perfiles(id) ON DELETE CASCADE,
-  tipo TEXT NOT NULL,
-  nombre TEXT NOT NULL,
+  id SERIAL PRIMARY KEY,
+  perfil_id INT NOT NULL REFERENCES perfiles(id) ON DELETE CASCADE,
+  tipo VARCHAR(50) NOT NULL,
+  nombre VARCHAR(255) NOT NULL,
   url TEXT NOT NULL,
-  tamano INTEGER DEFAULT 0,
-  fecha_subida TEXT DEFAULT (datetime('now'))
+  tamano BIGINT DEFAULT 0,
+  fecha_subida TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Estadísticas
 CREATE TABLE IF NOT EXISTS estadisticas (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  perfil_id INTEGER NOT NULL REFERENCES perfiles(id) ON DELETE CASCADE,
-  evento TEXT NOT NULL,
-  ip_hash TEXT,
+  id SERIAL PRIMARY KEY,
+  perfil_id INT NOT NULL REFERENCES perfiles(id) ON DELETE CASCADE,
+  evento VARCHAR(100) NOT NULL,
+  ip_hash VARCHAR(255),
   user_agent TEXT,
-  fecha TEXT DEFAULT (datetime('now'))
+  fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Tarjetas de revendedor (Pro crea tarjetas para clientes)
+-- Tarjetas de revendedor
 CREATE TABLE IF NOT EXISTS tarjetas_revendedor (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  revendedor_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
-  perfil_id INTEGER NOT NULL REFERENCES perfiles(id) ON DELETE CASCADE,
-  cliente_telefono TEXT,
-  cliente_nombre TEXT,
-  codigo_activacion TEXT UNIQUE,
-  estado TEXT DEFAULT 'pendiente' CHECK(estado IN ('pendiente','activada','cancelada')),
-  fecha_creacion TEXT DEFAULT (datetime('now'))
+  id SERIAL PRIMARY KEY,
+  revendedor_id INT NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+  perfil_id INT NOT NULL REFERENCES perfiles(id) ON DELETE CASCADE,
+  cliente_telefono VARCHAR(20),
+  cliente_nombre VARCHAR(255),
+  codigo_activacion VARCHAR(100) UNIQUE,
+  estado VARCHAR(20) DEFAULT 'pendiente' CHECK(estado IN ('pendiente','activada','cancelada')),
+  fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Pagos y suscripciones
+CREATE TABLE IF NOT EXISTS pagos (
+  id SERIAL PRIMARY KEY,
+  usuario_id INT NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+  plan VARCHAR(20) NOT NULL CHECK(plan IN ('mensual','anual')),
+  monto NUMERIC(10,2) NOT NULL,
+  comprobante_url TEXT,
+  estado VARCHAR(20) DEFAULT 'pendiente' CHECK(estado IN ('pendiente','aprobado','rechazado')),
+  motivo_rechazo TEXT,
+  aprobado_por INT REFERENCES usuarios(id),
+  fecha_solicitud TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  fecha_resolucion TIMESTAMP
 );
 
 -- Índices
@@ -121,19 +134,5 @@ CREATE INDEX IF NOT EXISTS idx_estadisticas_perfil ON estadisticas(perfil_id);
 CREATE INDEX IF NOT EXISTS idx_estadisticas_fecha ON estadisticas(fecha);
 CREATE INDEX IF NOT EXISTS idx_usuarios_telefono ON usuarios(telefono);
 CREATE INDEX IF NOT EXISTS idx_revendedor_codigo ON tarjetas_revendedor(codigo_activacion);
-
--- Pagos y suscripciones
-CREATE TABLE IF NOT EXISTS pagos (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  usuario_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
-  plan TEXT NOT NULL CHECK(plan IN ('mensual','anual')),
-  monto REAL NOT NULL,
-  comprobante_url TEXT,
-  estado TEXT DEFAULT 'pendiente' CHECK(estado IN ('pendiente','aprobado','rechazado')),
-  motivo_rechazo TEXT,
-  aprobado_por INTEGER REFERENCES usuarios(id),
-  fecha_solicitud TEXT DEFAULT (datetime('now')),
-  fecha_resolucion TEXT
-);
 CREATE INDEX IF NOT EXISTS idx_pagos_usuario ON pagos(usuario_id);
 CREATE INDEX IF NOT EXISTS idx_pagos_estado ON pagos(estado);

@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "figma": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-figma"],
+      "env": {
+        "FIGMA_API_TOKEN": "FIGMA_API_TOKEN_PLACEHOLDER",
+        "FIGMA_FILE_KEY": "FIGMA_FILE_KEY_PLACEHOLDER"
+      },
+      "disabled": false,
+      "autoApprove": []
+    }
+  }
+}
