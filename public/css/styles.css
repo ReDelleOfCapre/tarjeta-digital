@@ -112,19 +112,28 @@ a:hover { opacity: 0.8; }
 img { display: block; max-width: 100%; }
 ul, ol { list-style: none; }
 
-/* ---- Container ---- */
+/* ---- Container Soft-Skill Whitespace ---- */
 .container {
-  max-width: 480px;
-  margin: 0 auto;
-  padding: 0 16px;
-}
-.container-lg {
-  max-width: 1200px;
+  max-width: 520px;
   margin: 0 auto;
   padding: 0 24px;
 }
+.container-lg {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
 
-/* ---- Typography ---- */
+/* ---- High-End Typography Hierarchy ---- */
+h1, h2, h3, .profile-name, .step-title, .brand {
+  letter-spacing: -0.025em !important;
+  line-height: 1.25 !important;
+}
+p, .profile-bio, .step-subtitle {
+  line-height: 1.65 !important;
+  letter-spacing: -0.005em !important;
+}
+
 .text-muted { color: var(--text-muted); }
 .text-secondary { color: var(--text-secondary); }
 .text-accent { color: var(--accent); }

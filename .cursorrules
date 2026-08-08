@@ -1,13 +1,12 @@
-# Emil Kowalski UI/UX & Design Engineering Directives
-
-This project strictly adheres to Emil Kowalski's Design Engineering philosophy, Apple Fluid Interface guidelines, and advanced animation principles.
+# Hybrid Design Engineering & Anti-Slop Directives
+# (Emil Kowalski Physics & Motion + Leonxlnx High-End Taste & Output Discipline)
 
 ---
 
-## 1. Core Design & Animation Framework
+## 1. Motion & Physics Engine (Emil Kowalski Framework)
 
 ### Easing & Timing Rules
-- **Custom Easing Curves:** NEVER use default browser easings (`ease-in`, `ease-out`). Always use punched-up custom curves:
+- **Custom Easing Curves:** NEVER use default browser easings (`ease-in`, `ease-out`). Always use custom curves:
   - Strong Ease-Out (Entrances, Dropdowns, Menus): `cubic-bezier(0.23, 1, 0.32, 1)`
   - Strong Ease-In-Out (On-screen movement/morphing): `cubic-bezier(0.77, 0, 0.175, 1)`
   - Natural Spring / Drawer Curve: `cubic-bezier(0.32, 0.72, 0, 1)`
@@ -19,55 +18,48 @@ This project strictly adheres to Emil Kowalski's Design Engineering philosophy, 
   - Modals & Drawers: `200ms - 300ms`
 - **Keyboard Actions:** NEVER animate keyboard-driven or repeated actions.
 
----
-
-## 2. Component Craft & Visual Polish
-
-### Buttons & Interactive Elements
+### Buttons & Interactive Tactile Feedback
 - **Instant Press Feedback:** Every clickable button/card MUST respond on pointer-down with scale reduction:
   ```css
   .btn, .card-button {
-    transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), background-color 160ms ease;
+    transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), background-color 160ms ease, box-shadow 160ms cubic-bezier(0.23, 1, 0.32, 1);
   }
   .btn:active, .card-button:active {
-    transform: scale(0.97);
+    transform: scale(0.96) !important;
   }
   ```
 - **Origin-Aware Scales:** Never scale in from `scale(0)`. Elements must animate from `scale(0.95)` with `opacity: 0`.
 
-### Border & Elevation Realism
-- **Replace Solid Borders with Semi-Transparent Shadows:** Avoid harsh 1px solid borders. Use layered, translucent box-shadows for subtle borders and realistic depth:
-  ```css
-  /* Elevated Dark Glass Container */
-  .card-container {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05),
-                0 4px 20px rgba(0, 0, 0, 0.4),
-                0 1px 3px rgba(0, 0, 0, 0.2);
-    backdrop-filter: blur(16px);
-  }
-  ```
+---
+
+## 2. High-End Visual Design & Taste (Leonxlnx Framework)
+
+### Anti-Slop Directive
+- **Ban Generic Boilerplates:** Never output generic, flat, or template-looking UI. Every layout must look like a $150k+ custom agency engineering build.
+- **Serene Whitespace & Breathable Layouts:** Give components generous padding and margins. Avoid tight, crammed cards.
+- **Color Contrast & Soft Ambient Glows:** Use calm, high-contrast typography hierarchy paired with soft, highly-diffused ambient glows (`box-shadow: 0 0 24px var(--glow)`).
+- **Nested Bezel Architecture (Doppelrand):**
+  - **Outer Shell:** Wrapper with subtle background (`rgba(255,255,255,0.03)`), hairline border (`rgba(255,255,255,0.08)`), generous padding, and concentric rounded corners (`rounded-[2rem]`).
+  - **Inner Core:** Content enclosure with inner highlight (`box-shadow: inset 0 1px 0 0 rgba(255,255,255,0.12)`).
 
 ---
 
-## 3. Physical Motion & Fluid Interactions
+## 3. Full Output Enforcement (Leonxlnx Framework)
 
-- **Spatial Consistency:** Elements must enter and exit along symmetric paths (e.g. slide in from bottom -> slide out to bottom).
-- **Interruptibility:** Interactions must carry momentum and allow users to interrupt or redirect mid-motion without sudden jumps or velocity breaks.
-- **Spring Physics Defaults:**
-  - Damping ratio: `1.0` (critically damped, no bounce for clean UI).
-  - Use bounce (`0.15 - 0.25`) only when gestures explicitly carry user momentum (flicks, throws).
+- **Zero Truncation / Zero Placeholders:** TREAT EVERY CODE TASK AS PRODUCTION-CRITICAL.
+- **Banned Shortcuts:**
+  - In code blocks: `// ...`, `// rest of code`, `// implement here`, `// TODO`, `/* ... */`, `// similar to above`, `// add more as needed`
+  - In prose: "I'll leave this as an exercise", "the rest follows the same pattern", "for brevity"
+- **Requirement:** Deliver 100% complete, unabridged, copy-paste ready production files.
 
 ---
 
-## 4. Code Review Checklist (Markdown Table Standard)
-
-Whenever reviewing or refining UI code, evaluate against this reference:
+## 4. Master Design Reference Table
 
 | Before | After | Why |
 | --- | --- | --- |
 | `transition: all 300ms` | `transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1)` | Avoid `all`; specify exact property and strong ease-out curve |
 | `transform: scale(0)` | `transform: scale(0.95); opacity: 0` | Physical objects don't spawn from nothing |
-| `border: 1px solid #333` | `box-shadow: 0 0 0 1px rgba(255,255,255,0.08)` | Semi-transparent borders blend with backdrop blur naturally |
-| Missing `:active` state | `transform: scale(0.97)` on `:active` | Instant tactile feedback on press |
+| Crammed 12px padding | Generous 24px - 32px padding with breathable whitespace | Gives the UI a luxury, unhurried, expensive feel |
+| Harsh 1px solid gray border | Semi-transparent hairline shadow `inset 0 1px 0 0 rgba(255,255,255,0.12)` | Subtle glass depth without harsh borders |
+| `// ... rest of code` | Full unabridged implementation | Production enforcement; zero incomplete code |
