@@ -149,13 +149,37 @@
     </div>
     <div class="user-info">
       <span id="user-name"></span>
-      <button onclick="toggleCommandPalette()" class="btn btn-sm btn-ghost" style="color:var(--text-secondary);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:6px 12px;font-size:0.78rem" title="Abrir Paleta de Comandos (Ctrl + K)">🔍 Buscar <span style="opacity:0.6;font-size:0.7rem">Ctrl+K</span></button>
-      <a href="/planes.html" class="btn btn-sm btn-ghost" id="btn-plan" title="Ver planes Pro">Centro de Control <span class="pro-badge-lock" style="font-size:0.65rem">Pro</span></a>
-      <a href="/analytics.html" class="btn btn-sm btn-ghost" title="Analíticas en Tiempo Real">📊 Métrica</a>
-      <a href="/admin.html" class="btn btn-sm btn-ghost hidden" id="btn-admin" title="Admin Master">⚙ Master</a>
-      <button class="btn btn-sm btn-ghost" id="btn-logout" style="color:var(--red)">Salir</button>
+      <button onclick="toggleCommandPalette()" class="btn btn-sm btn-ghost desktop-nav-item" style="color:var(--text-secondary);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:6px 12px;font-size:0.78rem" title="Abrir Paleta de Comandos (Ctrl + K)">🔍 Buscar <span style="opacity:0.6;font-size:0.7rem">Ctrl+K</span></button>
+      <a href="/planes.html" class="btn btn-sm btn-ghost desktop-nav-item" id="btn-plan" title="Ver planes Pro">Centro de Control <span class="pro-badge-lock" style="font-size:0.65rem">Pro</span></a>
+      <a href="/analytics.html" class="btn btn-sm btn-ghost desktop-nav-item" title="Analíticas en Tiempo Real">📊 Métrica</a>
+      <a href="/admin.html" class="btn btn-sm btn-ghost hidden desktop-nav-item" id="btn-admin" title="Admin Master">⚙ Master</a>
+      <button class="btn btn-sm btn-ghost desktop-nav-item" id="btn-logout" style="color:var(--red)">Salir</button>
+      <button onclick="toggleMobileNavDrawer()" class="btn btn-sm btn-ghost mobile-only-btn" style="font-size:1.4rem;padding:4px 10px;color:#FFF" title="Menú">☰</button>
     </div>
   </nav>
+
+  <!-- Mobile Off-canvas Drawer -->
+  <div id="mobile-nav-backdrop" class="mobile-nav-backdrop" onclick="toggleMobileNavDrawer()"></div>
+  <div id="mobile-nav-drawer" class="mobile-nav-drawer">
+    <div class="mobile-nav-header">
+      <div style="display:flex;align-items:center;gap:8px">
+        <img src="/img/vynk-logo.svg" alt="VYNK Logo" style="height:26px">
+        <span style="font-weight:800;font-size:0.95rem;color:#FFF">Menú VYNK</span>
+      </div>
+      <button onclick="toggleMobileNavDrawer()" class="btn btn-sm btn-ghost" style="font-size:1.2rem;color:#FFF;padding:4px 8px">✕</button>
+    </div>
+    <div class="mobile-nav-body">
+      <button onclick="toggleCommandPalette(); toggleMobileNavDrawer();" class="btn btn-block btn-secondary" style="margin-bottom:8px;padding:12px">🔍 Buscar (Ctrl+K)</button>
+      <a href="/dashboard.html" class="nav-drawer-item">🪪 Mis Tarjetas</a>
+      <a href="/planes.html" class="nav-drawer-item">💎 Centro de Control <span class="pro-badge-lock" style="font-size:0.65rem">Pro</span></a>
+      <a href="/analytics.html" class="nav-drawer-item">📊 Métrica y Analíticas</a>
+      <a href="/compartir.html" class="nav-drawer-item">⚡ Tienda & NFC Tag</a>
+      <a href="/admin.html" class="nav-drawer-item hidden" id="btn-admin-drawer">⚙ Master Admin</a>
+      <div style="margin-top:auto;padding-top:16px">
+        <button onclick="document.getElementById('btn-logout').click()" class="btn btn-block btn-danger" style="padding:14px;font-weight:700">🚪 Salir de la Cuenta</button>
+      </div>
+    </div>
+  </div>
 
   <div class="container container-lg-dashboard">
     <!-- Header / Micro-Copy -->
@@ -489,6 +513,15 @@
   <script src="/js/app.js"></script>
   <script src="/js/dashboard.js"></script>
   <script>
+    function toggleMobileNavDrawer() {
+      var drawer = document.getElementById('mobile-nav-drawer');
+      var backdrop = document.getElementById('mobile-nav-backdrop');
+      if (drawer && backdrop) {
+        drawer.classList.toggle('active');
+        backdrop.classList.toggle('active');
+      }
+    }
+
     function toggleCommandPalette() {
       var overlay = document.getElementById('cmd-palette-overlay');
       overlay.classList.toggle('hidden');
