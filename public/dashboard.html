@@ -3,22 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Dashboard — VYNK</title>
+  <title>Dashboard — VYNK Startup 2027</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.svg">
   <meta name="apple-mobile-web-app-title" content="VYNK">
-  <meta name="theme-color" content="#0F0B1E">
+  <meta name="theme-color" content="#030306">
   <link rel="manifest" href="/manifest.json">
   <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body class="dashboard-page">
   <nav class="navbar">
-    <div class="logo">⚡ VYNK</div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <img src="/img/vynk-logo.svg" alt="VYNK Logo" style="height:32px">
+    </div>
     <div class="user-info">
       <span id="user-name"></span>
-      <a href="/planes.html" class="btn btn-sm btn-ghost" id="btn-plan" title="Ver planes">Pro</a>
+      <a href="/planes.html" class="btn btn-sm btn-ghost" id="btn-plan" title="Ver planes">Pro <span class="pro-badge-lock" style="font-size:0.65rem">Pro</span></a>
       <a href="/analytics.html" class="btn btn-sm btn-ghost" title="Analíticas">📊</a>
-      <a href="/admin.html" class="btn btn-sm btn-ghost hidden" id="btn-admin" title="Admin">⚙</a>
+      <a href="/admin.html" class="btn btn-sm btn-ghost hidden" id="btn-admin" title="Admin Master">⚙ Master</a>
       <button class="btn btn-sm btn-ghost" id="btn-logout" style="color:var(--red)">Salir</button>
     </div>
   </nav>
@@ -28,19 +30,19 @@
     <div class="stats-bar" id="stats-bar">
       <div class="stat-card card">
         <div class="stat-value" id="total-perfiles">0</div>
-        <div class="stat-label">Tarjetas</div>
+        <div class="stat-label">Tarjetas Digitales</div>
       </div>
       <div class="stat-card card">
         <div class="stat-value" id="total-visitas">0</div>
-        <div class="stat-label">Visitas</div>
+        <div class="stat-label">Visitas Totales</div>
       </div>
     </div>
 
     <!-- Upgrade banner (free users only) -->
     <a href="/planes.html" class="upgrade-banner hidden" id="upgrade-banner" style="text-decoration:none;color:#fff">
-      <h3>⚡ Desbloquea VYNK Pro</h3>
-      <p>Tarjetas ilimitadas, GIFs, NFC y más</p>
-      <span style="font-weight:600;font-size:var(--font-sm);opacity:0.9">Ver planes →</span>
+      <h3>⚡ Desbloquea VYNK Pro 2027 <span class="pro-badge-lock">🔒 Pro</span></h3>
+      <p>Tarjetas ilimitadas, NFC Físico, QRs con Logo y Analíticas en tiempo real</p>
+      <span style="font-weight:600;font-size:var(--font-sm);opacity:0.9">Ver planes Pro →</span>
     </a>
 
     <!-- Profile Grid -->
@@ -48,10 +50,10 @@
 
     <!-- Empty State -->
     <div class="empty-state hidden" id="empty-state">
-      <p style="font-size:3rem">🪪</p>
-      <h3>Crea tu primera tarjeta</h3>
-      <p class="text-muted" style="margin-bottom:16px">Comparte tu info de contacto al instante</p>
-      <button class="btn btn-primary btn-pill" onclick="location.href='editor.html'">Crear tarjeta</button>
+      <p style="font-size:3.5rem">🪪</p>
+      <h3>Crea tu primera tarjeta inteligente</h3>
+      <p class="text-muted" style="margin-bottom:20px">Comparte tu identidad digital vía QR, Link o NFC en segundos</p>
+      <button class="btn btn-primary btn-pill" onclick="location.href='editor.html'">+ Crear Tarjeta 2027</button>
     </div>
   </div>
 
@@ -60,8 +62,8 @@
   <!-- Delete Modal -->
   <div class="modal-overlay hidden" id="modal-delete">
     <div class="modal">
-      <h3>¿Eliminar tarjeta?</h3>
-      <p class="text-muted" style="margin:8px 0 16px">Esta acción no se puede deshacer</p>
+      <h3>¿Eliminar tarjeta digital?</h3>
+      <p class="text-muted" style="margin:8px 0 16px">Esta acción eliminará el perfil y sus estadísticas de forma permanente.</p>
       <div class="modal-actions">
         <button class="btn btn-secondary" id="btn-cancel-delete">Cancelar</button>
         <button class="btn btn-danger" id="btn-confirm-delete">Eliminar</button>

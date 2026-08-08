@@ -1,21 +1,28 @@
 const QRCode = require('qrcode');
 
 /**
- * Genera un código QR como Buffer PNG.
+ * Genera un código QR de alta gama estilo Startup 2027 como Buffer PNG.
+ * Usa nivel de corrección de error 'H' (High) y paleta oscura de contraste elevado.
  *
  * @param {string} url - URL a codificar en el QR
+ * @param {object} options - Opciones avanzadas de color y tamaño
  * @returns {Promise<Buffer>} Buffer con la imagen PNG del QR
  */
-async function generateQR(url) {
+async function generateQR(url, options = {}) {
+  const darkColor = options.darkColor || '#7C3AED';
+  const lightColor = options.lightColor || '#08080E';
+
   const buffer = await QRCode.toBuffer(url, {
     type: 'png',
     margin: 2,
-    width: 400,
+    width: options.width || 600,
+    errorCorrectionLevel: 'H',
     color: {
-      dark: '#1a1a2e',
-      light: '#ffffff'
+      dark: darkColor,
+      light: lightColor
     }
   });
+
   return buffer;
 }
 

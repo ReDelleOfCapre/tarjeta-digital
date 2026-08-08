@@ -3,61 +3,121 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Compartir — VYNK</title>
+  <title>Compartir & NFC — VYNK</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    body {
+      background: var(--bg-primary);
+      background-image: var(--grad-oled);
+      min-height: 100dvh;
+    }
+    .share-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(var(--card-blur));
+      -webkit-backdrop-filter: blur(var(--card-blur));
+      border: 1px solid var(--card-border);
+      box-shadow: var(--card-shadow);
+      border-radius: var(--radius-xl);
+      padding: 32px 24px;
+      text-align: center;
+      margin-top: 24px;
+    }
+    .qr-wrapper {
+      position: relative;
+      display: inline-block;
+      padding: 16px;
+      background: #08080E;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 24px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+      margin: 20px 0;
+    }
+    .qr-wrapper img {
+      width: 220px;
+      height: 220px;
+      border-radius: 12px;
+      display: block;
+    }
+    .qr-badge {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 48px;
+      height: 48px;
+      background: #0D0A1A;
+      border: 2px solid #7C3AED;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 16px rgba(124, 58, 237, 0.6);
+    }
+    .qr-badge img {
+      width: 28px;
+      height: 28px;
+    }
+  </style>
 </head>
 <body>
   <nav class="navbar">
-    <div style="display:flex;align-items:center;gap:8px">
+    <div style="display:flex;align-items:center;gap:12px">
       <a href="/dashboard.html" class="btn btn-icon btn-sm">←</a>
-      <span class="logo">Compartir</span>
+      <div style="display:flex;align-items:center;gap:8px">
+        <img src="/img/vynk-logo.svg" alt="VYNK" style="height:26px">
+      </div>
     </div>
   </nav>
 
   <div class="container">
     <div class="share-card">
-      <h2 id="share-name" style="font-size:var(--font-xl);font-weight:700">Mi Tarjeta</h2>
-      <p style="font-size:var(--font-sm);color:var(--text-tertiary)" id="share-url"></p>
+      <h2 id="share-name" style="font-size:var(--font-xl);font-weight:700;letter-spacing:-0.02em">Cargando tarjeta...</h2>
+      <p style="font-size:var(--font-sm);color:var(--text-tertiary);margin-top:6px" id="share-url"></p>
 
-      <!-- QR Code -->
-      <div class="qr-container" id="qr-container">
-        <img id="qr-img" alt="QR Code" style="width:200px;height:200px">
+      <!-- High-End Dynamic QR Container with Central Logo Badge -->
+      <div class="qr-wrapper">
+        <img id="qr-img" alt="Código QR VYNK Startup 2027">
+        <div class="qr-badge">
+          <img src="/favicon.svg" alt="VYNK Logo Center">
+        </div>
       </div>
+      <p style="font-size:var(--font-xs);color:var(--text-muted)">Escanea con la cámara de cualquier smartphone</p>
     </div>
 
     <!-- Actions -->
-    <div class="share-actions" style="margin-top:20px">
-      <!-- NFC (auto-hidden if not supported) -->
-      <button class="btn btn-primary btn-block hidden" id="btn-nfc" onclick="writeNFC()">
-        📱 Compartir con NFC
+    <div class="share-actions" style="margin-top:24px;display:flex;flex-direction:column;gap:12px">
+      <!-- Web NFC Native Write -->
+      <button class="btn btn-primary btn-block" id="btn-nfc" onclick="writeNFC()" style="background:linear-gradient(135deg, #7C3AED, #06B6D4);padding:16px">
+        ⚡ Grabar en Tarjeta NFC Física <span class="pro-badge-lock">Pro</span>
       </button>
 
-      <button class="btn btn-secondary btn-block" onclick="copyLink()">
-        📋 Copiar enlace
+      <button class="btn btn-secondary btn-block" onclick="copyLink()" style="padding:14px">
+        📋 Copiar Enlace Directo
       </button>
 
-      <a class="btn btn-secondary btn-block" id="btn-vcard" href="#">
-        👤 Descargar contacto (.vcf)
+      <a class="btn btn-secondary btn-block" id="btn-vcard" href="#" style="padding:14px">
+        👤 Descargar Contacto (.vcf)
       </a>
 
-      <button class="btn btn-secondary btn-block" onclick="shareNative()">
-        ↗ Compartir vía...
+      <button class="btn btn-secondary btn-block" onclick="shareNative()" style="padding:14px">
+        ↗ Compartir vía Redes...
       </button>
 
-      <a class="btn btn-secondary btn-block" id="btn-qr-download" download="mi-tarjeta-qr.png" href="#">
-        📥 Descargar QR
+      <a class="btn btn-secondary btn-block" id="btn-qr-download" download="vynk-tarjeta-qr.png" href="#" style="padding:14px">
+        📥 Descargar QR de Alta Definición
       </a>
     </div>
 
-    <!-- NFC Status -->
-    <div class="card p-16 mt-16 hidden" id="nfc-status">
-      <p style="text-align:center;font-size:var(--font-sm);color:var(--text-secondary)" id="nfc-message">
-        Acerca tu celular a un tag NFC o al celular del receptor...
+    <!-- NFC Status Panel -->
+    <div class="card p-16 mt-16 hidden" id="nfc-status" style="background:rgba(124,58,237,0.1);border:1px solid rgba(124,58,237,0.3);border-radius:16px;padding:20px;text-align:center">
+      <p style="font-size:var(--font-sm);color:var(--text-secondary);margin:0" id="nfc-message">
+        📱 Acerca tu tarjeta NFC física o sticker al celular...
       </p>
     </div>
 
-    <p style="text-align:center;padding:24px 0;font-size:var(--font-xs);color:var(--text-muted)">
-      El receptor no necesita instalar ninguna app
+    <p style="text-align:center;padding:28px 0;font-size:var(--font-xs);color:var(--text-muted)">
+      VYNK Startup 2027 Engine — El receptor no necesita instalar ninguna aplicación
     </p>
   </div>
 
@@ -77,7 +137,6 @@
       var baseUrl = location.origin;
       var profileUrl = baseUrl + '/u/' + slug;
 
-      // Load profile info
       api('/perfiles').then(function(data) {
         var perfiles = Array.isArray(data) ? data : (data.perfiles || []);
         var perfil = perfiles.find(function(p) { return p.id == id; });
@@ -89,38 +148,29 @@
       document.getElementById('share-url').textContent = profileUrl;
       document.getElementById('btn-vcard').href = '/api/perfiles/' + slug + '/vcard';
 
-      // QR Code
       var qrImg = document.getElementById('qr-img');
       qrImg.src = '/api/perfiles/' + slug + '/qr';
       document.getElementById('btn-qr-download').href = '/api/perfiles/' + slug + '/qr';
 
-      // NFC detection
-      if ('NDEFReader' in window) {
-        document.getElementById('btn-nfc').classList.remove('hidden');
-      }
-
-      // Copy link
       window.copyLink = function() {
         navigator.clipboard.writeText(profileUrl).then(function() {
-          showToast('Enlace copiado', 'success');
+          showToast('Enlace copiado al portapapeles', 'success');
         }).catch(function() {
-          // Fallback
           var input = document.createElement('input');
           input.value = profileUrl;
           document.body.appendChild(input);
           input.select();
           document.execCommand('copy');
           document.body.removeChild(input);
-          showToast('Enlace copiado', 'success');
+          showToast('Enlace copiado al portapapeles', 'success');
         });
       };
 
-      // Native share
       window.shareNative = function() {
         if (navigator.share) {
           navigator.share({
             title: 'VYNK - ' + (document.getElementById('share-name').textContent),
-            text: 'Mira mi tarjeta digital',
+            text: 'Mira mi tarjeta digital inteligente',
             url: profileUrl
           });
         } else {
@@ -128,36 +178,41 @@
         }
       };
 
-      // NFC Write
-      window.writeNFC = function() {
-        if (!('NDEFReader' in window)) {
-          showToast('NFC no disponible en este dispositivo', 'error');
-          return;
-        }
-
+      window.writeNFC = async function() {
         var statusEl = document.getElementById('nfc-status');
         var msgEl = document.getElementById('nfc-message');
         statusEl.classList.remove('hidden');
-        msgEl.textContent = '📱 Acerca tu celular al tag NFC o al otro dispositivo...';
 
-        var ndef = new NDEFReader();
-        ndef.write({
-          records: [{
-            recordType: 'url',
-            data: profileUrl
-          }]
-        }).then(function() {
-          msgEl.textContent = '✅ ¡Tarjeta escrita en NFC! El receptor solo necesita acercar su celular.';
-          msgEl.style.color = 'var(--green)';
-          showToast('NFC escrito exitosamente', 'success');
-        }).catch(function(err) {
+        if (!('NDEFReader' in window)) {
+          msgEl.textContent = '⚠️ Tu navegador o dispositivo no soporta la API Web NFC nativa (Disponible en Android Chrome). Puedes escribir tu URL manualmente: ' + profileUrl;
+          msgEl.style.color = '#FBBF24';
+          return;
+        }
+
+        try {
+          msgEl.textContent = '📱 Acerca tu tarjeta NFC física o llavero al reverso de tu smartphone...';
+          msgEl.style.color = '#7C3AED';
+
+          const ndef = new NDEFReader();
+          await ndef.write({
+            records: [{
+              recordType: 'url',
+              data: profileUrl
+            }]
+          });
+
+          msgEl.textContent = '✅ ¡Tarjeta NFC física programada con éxito con tu perfil ' + profileUrl + '!';
+          msgEl.style.color = '#10B981';
+          showToast('NFC programado con éxito', 'success');
+        } catch (err) {
+          console.error('Error Web NFC:', err);
           if (err.name === 'NotAllowedError') {
-            msgEl.textContent = '⚠️ Permite el acceso a NFC en tu navegador';
+            msgEl.textContent = '⚠️ Permiso denegado. Concede permiso de NFC en la barra de tu navegador.';
           } else {
-            msgEl.textContent = '❌ Error: ' + err.message;
+            msgEl.textContent = '❌ Error grabando NFC: ' + (err.message || 'Verifica que el tag NFC esté desbloqueado');
           }
-          msgEl.style.color = 'var(--red)';
-        });
+          msgEl.style.color = '#EF4444';
+        }
       };
     })();
   </script>
