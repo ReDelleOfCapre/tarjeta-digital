@@ -87,6 +87,17 @@
       transition: background 0.2s;
     }
     .chat-btn-option:hover { background: rgba(124, 58, 237, 0.25); }
+
+    /* Full-width Glassmorphic Create Card CTA */
+    .card-create-cta:hover {
+      background: rgba(124, 58, 237, 0.12) !important;
+      border-color: rgba(124, 58, 237, 0.7) !important;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(124, 58, 237, 0.2);
+    }
+    .card-create-cta:active {
+      transform: scale(0.98);
+    }
   </style>
 </head>
 <body class="dashboard-page">
@@ -125,6 +136,17 @@
       </div>
     </div>
 
+    <!-- Nuevo CTA Integrado Glassmorphism (Crear Nueva Identidad Digital) -->
+    <div class="card-create-cta" id="btn-create-card" onclick="location.href='editor.html'" style="margin-top:20px;margin-bottom:24px;padding:20px 24px;border:2px dashed rgba(124,58,237,0.4);border-radius:24px;background:rgba(124,58,237,0.06);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);display:flex;align-items:center;justify-content:center;gap:14px;cursor:pointer;transition:all 0.25s cubic-bezier(0.23,1,0.32,1)">
+      <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#7C3AED,#06B6D4);display:flex;align-items:center;justify-content:center;font-size:1.6rem;color:#FFF;box-shadow:0 4px 15px rgba(124,58,237,0.4);flex-shrink:0">
+        +
+      </div>
+      <div>
+        <div style="font-size:1.05rem;font-weight:700;color:#FFF;letter-spacing:-0.01em">Crear Nueva Identidad Digital</div>
+        <div style="font-size:0.84rem;color:var(--text-tertiary)">Sincroniza una nueva e-card con QR y tecnología NFC nativa</div>
+      </div>
+    </div>
+
     <!-- Upgrade Banner -->
     <a href="/planes.html" class="upgrade-banner hidden" id="upgrade-banner" style="text-decoration:none;color:#fff">
       <h3>⚡ Potencia tu Red con VYNK Pro <span class="pro-badge-lock">🔒 Pro</span></h3>
@@ -149,8 +171,6 @@
       </button>
     </div>
   </div>
-
-  <button class="fab" id="fab-new" title="Nueva tarjeta">+</button>
 
   <!-- Delete Modal -->
   <div class="modal-overlay hidden" id="modal-delete">

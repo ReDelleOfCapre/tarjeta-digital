@@ -10,9 +10,12 @@
   // UI Setup
   document.getElementById('user-name').textContent = user.nombre;
   document.getElementById('btn-logout').addEventListener('click', logout);
-  document.getElementById('fab-new').addEventListener('click', function() {
-    location.href = '/editor.html';
-  });
+  var fabNew = document.getElementById('fab-new');
+  if (fabNew) {
+    fabNew.addEventListener('click', function() {
+      location.href = '/editor.html';
+    });
+  }
 
   // Show admin button if admin
   if (user.role === 'admin') {
