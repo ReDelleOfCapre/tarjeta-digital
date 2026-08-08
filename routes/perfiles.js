@@ -625,6 +625,19 @@ function perfilPublicoHandler(req, res) {
                 <div>${escapeHtml(bContent?.texto || '')}</div>
               </div>`;
               break;
+            case 'ubicacion':
+            case 'location': {
+              const locationQuery = bContent?.direccion || bContent?.url || bContent?.titulo || 'Ubicación';
+              html += `<div class="block-ubicacion" style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:18px;padding:14px;margin-bottom:12px">
+                <div style="font-weight:700;font-size:0.95rem;margin-bottom:8px;display:flex;align-items:center;gap:8px">📍 <span>${escapeHtml(bContent?.titulo || 'Nuestra Ubicación')}</span></div>
+                <iframe width="100%" height="160" style="border:0;border-radius:12px;margin-bottom:10px" loading="lazy" src="https://maps.google.com/maps?q=${encodeURIComponent(locationQuery)}&output=embed"></iframe>
+                <div style="display:flex;gap:8px">
+                  <a href="https://maps.google.com/?q=${encodeURIComponent(locationQuery)}" target="_blank" rel="noopener" class="btn btn-sm" style="flex:1;background:#EA4335;color:#fff;text-align:center;border-radius:10px;padding:10px;font-weight:700;font-size:0.82rem;text-decoration:none;display:inline-block">🗺️ Abrir en Google Maps</a>
+                  <a href="https://maps.apple.com/?q=${encodeURIComponent(locationQuery)}" target="_blank" rel="noopener" class="btn btn-sm" style="flex:1;background:#007AFF;color:#fff;text-align:center;border-radius:10px;padding:10px;font-weight:700;font-size:0.82rem;text-decoration:none;display:inline-block">🍎 Abrir en Apple Maps</a>
+                </div>
+              </div>`;
+              break;
+            }
             case 'seccion':
               html += `<div class="block-section-title">${escapeHtml(bContent?.titulo || '')}</div>`;
               break;

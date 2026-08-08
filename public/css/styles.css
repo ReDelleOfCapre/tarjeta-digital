@@ -77,10 +77,10 @@
   --transition-normal: 0.4s var(--ease-magnetic);
 
   /* Tamaño base del icono y grosor adaptativo */
-  --icon-size: clamp(1.2rem, 3vw, 1.8rem);
+  --icon-size: clamp(1.1rem, 2.5vw, 1.5rem);
   --icon-stroke: 1.5px;
-  --icon-size-sm: clamp(1rem, 2.2vw, 1.35rem);
-  --icon-size-lg: clamp(1.6rem, 4vw, 2.2rem);
+  --icon-size-sm: clamp(0.95rem, 2.2vw, 1.2rem);
+  --icon-size-lg: clamp(1.5rem, 3.5vw, 2rem);
 
   color-scheme: dark;
 }

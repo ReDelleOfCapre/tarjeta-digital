@@ -7,6 +7,7 @@
   // ===== CONFIG =====
   var BLOCK_TYPES = [
     { tipo:'link', label:'Link', icon:'📎', color:'#007AFF' },
+    { tipo:'ubicacion', label:'Ubicación / Oficina', icon:'📍', color:'#EA4335' },
     { tipo:'whatsapp', label:'WhatsApp CTA', icon:'💬', color:'#25D366' },
     { tipo:'social_icons', label:'Redes', icon:'🔗', color:'#AF52DE' },
     { tipo:'galeria', label:'Fotos / Galería', icon:'📸', color:'#EC4899' },
@@ -236,42 +237,82 @@
 
     var frame = document.getElementById('smartphone-frame');
     if (frame) {
+      frame.setAttribute('data-theme', selectedTheme);
+
       if (selectedTheme === 'neon') {
-        frame.style.background = '#050505';
+        frame.style.background = '#020205';
+        frame.style.color = '#00F0FF';
+        frame.style.border = '2px solid #7C3AED';
+        frame.style.boxShadow = '0 0 25px rgba(124, 58, 237, 0.4)';
+      } else if (selectedTheme === 'ios') {
+        frame.style.background = '#F2F2F7';
+        frame.style.color = '#1C1C1E';
+        frame.style.border = '1px solid rgba(0, 0, 0, 0.1)';
+        frame.style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.15)';
       } else if (selectedTheme === 'minimal') {
-        frame.style.background = '#FAFAFA';
+        frame.style.background = '#0A0A0B';
+        frame.style.color = '#FFFFFF';
+        frame.style.border = '1px solid rgba(255, 255, 255, 0.08)';
+        frame.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.3)';
       } else if (selectedTheme === 'gradient') {
-        frame.style.background = 'linear-gradient(135deg, #7C3AED 0%, #FF6B6B 100%)';
+        frame.style.background = 'linear-gradient(135deg, #7C3AED 0%, #EC4899 100%)';
+        frame.style.color = '#FFFFFF';
+        frame.style.border = 'none';
+        frame.style.boxShadow = '0 15px 35px rgba(236, 72, 153, 0.3)';
       } else if (selectedTheme === 'food') {
         frame.style.background = '#111827';
-      } else if (selectedTheme === 'premium') {
-        frame.style.background = '#020617';
+        frame.style.color = '#F97316';
+        frame.style.border = '2px solid #F97316';
+        frame.style.boxShadow = '0 8px 24px rgba(249, 115, 22, 0.2)';
+      } else if (selectedTheme === 'premium' || selectedTheme === 'luxury') {
+        frame.style.background = '#0B0A09';
+        frame.style.color = '#D4AF37';
+        frame.style.border = '2px solid #D4AF37';
+        frame.style.boxShadow = '0 0 20px rgba(212, 175, 55, 0.3)';
       } else if (selectedTheme === 'auto') {
         var colorHex = autoExtractedColor || selectedColor || '#7C3AED';
         frame.style.background = 'linear-gradient(135deg, ' + colorHex + ' 0%, #0A0A0B 100%)';
+        frame.style.color = '#FFFFFF';
+        frame.style.border = '1px solid ' + colorHex;
+        frame.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.5)';
       } else {
         frame.style.background = '#0A0A0B';
+        frame.style.color = '#FFFFFF';
       }
     }
 
-    // Render Live Preview Blocks
+    // Render Live Preview Blocks (Interactive Maps & Rich Bento UI)
     if (prevBlocksContainer) {
       if (blocks.length === 0) {
         prevBlocksContainer.innerHTML = '<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:0.78rem;border:1px dashed rgba(255,255,255,0.1);border-radius:14px">Tus botones y smart blocks aparecerán aquí al instante...</div>';
       } else {
         prevBlocksContainer.innerHTML = blocks.map(function(b) {
           var bt = BLOCK_TYPES.find(function(t){ return t.tipo === b.tipo; }) || { icon: '📎', label: b.tipo, color: '#7C3AED' };
-          var title = b.contenido.titulo || b.contenido.texto || b.contenido.url || bt.label;
+          var title = b.contenido.titulo || b.contenido.texto || b.contenido.url || b.contenido.numero || bt.label;
           var url = b.contenido.url || '';
 
           if (url.includes('open.spotify.com')) {
-            return '<div style="padding:10px;border-radius:12px;background:rgba(29,185,84,0.15);border:1px solid rgba(29,185,84,0.3);color:#1DB954;font-size:0.78rem;font-weight:700;display:flex;align-items:center;gap:8px">🎵 Spotify Smart Player Embebido</div>';
-          }
-          if (url.includes('google.com/maps') || url.includes('maps.google') || title.toLowerCase().includes('ubicacion')) {
-            return '<div style="padding:10px;border-radius:12px;background:rgba(234,67,53,0.15);border:1px solid rgba(234,67,53,0.3);color:#EA4335;font-size:0.78rem;font-weight:700;display:flex;align-items:center;gap:8px">📍 Sucursal / Ubicación (Nativa Deep-Link)</div>';
+            return '<div style="padding:10px;border-radius:14px;background:rgba(29,185,84,0.12);border:1px solid rgba(29,185,84,0.3);color:#1DB954;font-size:0.78rem;font-weight:700;display:flex;align-items:center;gap:8px">🎵 Spotify Smart Player</div>';
           }
 
-          return '<div style="padding:12px 14px;border-radius:14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-left:4px solid ' + selectedColor + ';display:flex;align-items:center;justify-content:space-between;color:#FFF;font-size:0.82rem;font-weight:600">' +
+          if (b.tipo === 'ubicacion' || url.includes('google.com/maps') || url.includes('maps.google') || title.toLowerCase().includes('ubicacion') || title.toLowerCase().includes('sucursal')) {
+            var locationQuery = b.contenido.direccion || b.contenido.texto || url || title;
+            return '<div class="preview-location-block" style="padding:12px;border-radius:16px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);margin-bottom:8px">' +
+              '<div style="font-size:0.8rem;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:6px">📍 ' + escapeHtml(title) + '</div>' +
+              '<iframe width="100%" height="110" style="border:0;border-radius:10px;margin-bottom:8px" loading="lazy" src="https://maps.google.com/maps?q=' + encodeURIComponent(locationQuery) + '&output=embed"></iframe>' +
+              '<div style="display:flex;gap:6px">' +
+                '<a href="https://maps.google.com/?q=' + encodeURIComponent(locationQuery) + '" target="_blank" style="flex:1;background:#EA4335;color:#fff;text-align:center;border-radius:8px;padding:6px;font-weight:700;font-size:0.72rem;text-decoration:none">🗺️ Google Maps</a>' +
+                '<a href="https://maps.apple.com/?q=' + encodeURIComponent(locationQuery) + '" target="_blank" style="flex:1;background:#007AFF;color:#fff;text-align:center;border-radius:8px;padding:6px;font-weight:700;font-size:0.72rem;text-decoration:none">🍎 Apple Maps</a>' +
+              '</div>' +
+            '</div>';
+          }
+
+          var isLightTheme = (selectedTheme === 'ios');
+          var textColor = isLightTheme ? '#1C1C1E' : '#FFFFFF';
+          var cardBg = isLightTheme ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.06)';
+          var cardBorder = isLightTheme ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.08)';
+
+          return '<div style="padding:12px 14px;border-radius:14px;background:' + cardBg + ';border:1px solid ' + cardBorder + ';border-left:4px solid ' + selectedColor + ';display:flex;align-items:center;justify-content:space-between;color:' + textColor + ';font-size:0.82rem;font-weight:600;margin-bottom:6px">' +
             '<div style="display:flex;align-items:center;gap:8px"><span>' + bt.icon + '</span> <span>' + escapeHtml(title) + '</span></div>' +
             '<span style="opacity:0.5">→</span>' +
           '</div>';
@@ -379,38 +420,47 @@
     }).join('');
   }
 
-  // ===== BLOCK FORM =====
-  window.showBlockForm = function(tipo) {
-    var area = document.getElementById('block-form-area');
-    var html = '<div class="card p-16" style="border:2px solid var(--accent)">';
-    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><strong>'+getBlockLabel(tipo)+'</strong><button class="btn btn-sm btn-ghost" onclick="hideBlockForm()">✕</button></div>';
+  // ===== BLOCK FORM (Add / Edit) =====
+  window.showBlockForm = function(tipo, idx) {
+    if (idx !== undefined) editingBlockIdx = idx;
+    var existing = (editingBlockIdx !== null && blocks[editingBlockIdx]) ? blocks[editingBlockIdx].contenido : null;
 
-    if (tipo === 'link') {
-      html += field('URL *','bf-url','https://...');
-      html += field('Título *','bf-titulo','Mi enlace');
-      html += field('Subtítulo','bf-sub','Descripción corta');
+    var area = document.getElementById('block-form-area');
+    var isEdit = (editingBlockIdx !== null);
+    var html = '<div class="card p-16" style="border:2px solid var(--accent)">';
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><strong>' + (isEdit ? '✏️ Editar ' : '➕ ') + getBlockLabel(tipo) + '</strong><button class="btn btn-sm btn-ghost" onclick="hideBlockForm()">✕</button></div>';
+
+    if (tipo === 'link' || tipo === 'ubicacion') {
+      html += field('URL o Dirección *','bf-url', existing ? (existing.url || existing.direccion || '') : 'https://...');
+      html += field('Título *','bf-titulo', existing ? (existing.titulo || '') : 'Mi enlace / Oficina');
+      html += field('Subtítulo o Descripción','bf-sub', existing ? (existing.subtitulo || '') : 'Descripción corta');
     } else if (tipo === 'spotify' || tipo === 'youtube' || tipo === 'tweet' || tipo === 'tiktok') {
-      html += field('URL *','bf-url','Pega la URL de '+tipo);
+      html += field('URL *','bf-url', existing ? (existing.url || '') : 'Pega la URL de '+tipo);
     } else if (tipo === 'whatsapp') {
-      html += field('Número *','bf-tel','522311556138');
-      html += field('Mensaje','bf-msg','Hola, te contacto desde VYNK');
+      html += field('Número *','bf-tel', existing ? (existing.numero || '') : '522311556138');
+      html += field('Mensaje','bf-msg', existing ? (existing.mensaje_default || '') : 'Hola, te contacto desde VYNK');
     } else if (tipo === 'social_icons') {
       html += '<p style="font-size:var(--font-xs);color:var(--text-muted);margin-bottom:8px">Agrega tus redes (deja vacío las que no uses)</p>';
       SOCIAL_TYPES.forEach(function(s){
-        html += '<div class="form-group" style="margin-bottom:6px"><label class="form-label" style="font-size:var(--font-xs)">'+s.icon+' '+s.label+'</label><input type="text" class="form-input" id="bf-social-'+s.tipo+'" placeholder="@usuario o URL" style="padding:8px 12px;font-size:var(--font-sm)"></div>';
+        var socialVal = '';
+        if (existing && Array.isArray(existing.redes)) {
+          var matched = existing.redes.find(function(r){ return r.tipo === s.tipo; });
+          if (matched) socialVal = matched.url;
+        }
+        html += '<div class="form-group" style="margin-bottom:6px"><label class="form-label" style="font-size:var(--font-xs)">'+s.icon+' '+s.label+'</label><input type="text" class="form-input" id="bf-social-'+s.tipo+'" value="'+escapeHtml(socialVal)+'" placeholder="@usuario o URL" style="padding:8px 12px;font-size:var(--font-sm)"></div>';
       });
     } else if (tipo === 'texto') {
-      html += '<div class="form-group"><label class="form-label">Texto</label><textarea class="form-input" id="bf-texto" rows="3" placeholder="Tu texto aquí"></textarea></div>';
+      html += '<div class="form-group"><label class="form-label">Texto</label><textarea class="form-input" id="bf-texto" rows="3" placeholder="Tu texto aquí">'+escapeHtml(existing ? (existing.texto || '') : '')+'</textarea></div>';
       html += '<div class="form-group"><label class="form-label">Estilo</label><select class="form-select" id="bf-estilo"><option value="normal">Normal</option><option value="titulo">Título</option><option value="cita">Cita</option></select></div>';
     } else if (tipo === 'email_capture') {
-      html += field('Título','bf-titulo','Suscríbete a mi newsletter');
-      html += field('Texto del botón','bf-btn','Suscribirme');
+      html += field('Título','bf-titulo', existing ? (existing.titulo || '') : 'Suscríbete a mi newsletter');
+      html += field('Texto del botón','bf-btn', existing ? (existing.boton_texto || '') : 'Suscribirme');
     } else if (tipo === 'countdown') {
-      html += field('Título','bf-titulo','¡Próximo lanzamiento!');
-      html += '<div class="form-group"><label class="form-label">Fecha</label><input type="datetime-local" class="form-input" id="bf-fecha"></div>';
+      html += field('Título','bf-titulo', existing ? (existing.titulo || '') : '¡Próximo lanzamiento!');
+      html += '<div class="form-group"><label class="form-label">Fecha</label><input type="datetime-local" class="form-input" id="bf-fecha" value="'+(existing ? (existing.fecha_fin || '') : '')+'"></div>';
     }
 
-    html += '<button class="btn btn-primary btn-sm btn-block" style="margin-top:8px" onclick="addBlock(\''+tipo+'\')">Añadir</button>';
+    html += '<button class="btn btn-primary btn-sm btn-block" style="margin-top:8px" onclick="addBlock(\''+tipo+'\')">' + (isEdit ? '✓ Actualizar Bloque' : '➕ Añadir') + '</button>';
     html += '</div>';
     area.innerHTML = html;
     area.classList.remove('hidden');
@@ -419,11 +469,14 @@
   };
 
   window.hideBlockForm = function() {
+    editingBlockIdx = null;
     document.getElementById('block-form-area').classList.add('hidden');
   };
 
-  function field(label, id, placeholder) {
-    return '<div class="form-group"><label class="form-label">'+label+'</label><input type="text" class="form-input" id="'+id+'" placeholder="'+(placeholder||'')+'"></div>';
+  function field(label, id, value) {
+    var valStr = (typeof value === 'string' && !value.startsWith('http') && !value.startsWith('52')) ? value : '';
+    var phStr = (typeof value === 'string' && (value.startsWith('http') || value.startsWith('52'))) ? value : '';
+    return '<div class="form-group"><label class="form-label">'+label+'</label><input type="text" class="form-input" id="'+id+'" value="'+escapeHtml(valStr)+'" placeholder="'+escapeHtml(phStr)+'"></div>';
   }
 
   function getBlockLabel(tipo) {
@@ -431,37 +484,47 @@
     return bt ? bt.icon+' '+bt.label : tipo;
   }
 
-  // ===== ADD BLOCK =====
+  // ===== ADD / UPDATE BLOCK =====
   window.addBlock = function(tipo) {
     var contenido = {};
 
-    if (tipo === 'link') {
-      var url = gv('bf-url'); if (!url){ showToast('URL requerida','error'); return; }
+    if (tipo === 'link' || tipo === 'ubicacion') {
+      var url = gv('bf-url'); if (!url){ showToast('URL o Dirección requerida','error'); return; }
       var tit = gv('bf-titulo') || url;
       var sub = gv('bf-sub') || '';
 
-      contenido = { url: url, titulo: tit, subtitulo: sub };
+      contenido = { url: url, direccion: url, titulo: tit, subtitulo: sub };
       
-      var newBlock = { _tempId: 't'+Date.now(), tipo: tipo, contenido: contenido, orden: blocks.length };
-      blocks.push(newBlock);
+      if (editingBlockIdx !== null && blocks[editingBlockIdx]) {
+        blocks[editingBlockIdx].contenido = contenido;
+        showToast('Bloque actualizado ✓', 'success');
+      } else {
+        var newBlock = { _tempId: 't'+Date.now(), tipo: tipo, contenido: contenido, orden: blocks.length };
+        blocks.push(newBlock);
+        showToast('Bloque añadido ✓', 'success');
+      }
+
       hideBlockForm();
       renderBlockList();
-      showToast('Bloque añadido ✓', 'success');
 
-      // Auto fetch Open Graph metadata safely in background
-      api('/metadata', { method: 'POST', body: JSON.stringify({ url: url }) })
-        .then(function(meta) {
-          if (meta && meta.domain) {
-            if (meta.title && (!tit || tit === url)) newBlock.contenido.titulo = meta.title;
-            if (meta.description && !sub) newBlock.contenido.subtitulo = meta.description;
-            newBlock.contenido.og_title = meta.title;
-            newBlock.contenido.og_description = meta.description;
-            newBlock.contenido.og_image = meta.image;
-            newBlock.contenido.favicon = meta.favicon;
-            newBlock.contenido.domain = meta.domain;
-            renderBlockList();
-          }
-        }).catch(function(){});
+      // Auto fetch metadata in background if URL
+      if (url.startsWith('http')) {
+        var targetBlock = (editingBlockIdx !== null && blocks[editingBlockIdx]) ? blocks[editingBlockIdx] : blocks[blocks.length - 1];
+        api('/metadata', { method: 'POST', body: JSON.stringify({ url: url }) })
+          .then(function(meta) {
+            if (meta && meta.domain && targetBlock) {
+              if (meta.title && (!tit || tit === url)) targetBlock.contenido.titulo = meta.title;
+              if (meta.description && !sub) targetBlock.contenido.subtitulo = meta.description;
+              targetBlock.contenido.og_title = meta.title;
+              targetBlock.contenido.og_description = meta.description;
+              targetBlock.contenido.og_image = meta.image;
+              targetBlock.contenido.favicon = meta.favicon;
+              targetBlock.contenido.domain = meta.domain;
+              renderBlockList();
+            }
+          }).catch(function(){});
+      }
+      editingBlockIdx = null;
       return;
     } else if (tipo==='spotify'||tipo==='youtube'||tipo==='tweet'||tipo==='tiktok') {
       var url = gv('bf-url'); if(!url){showToast('URL requerida','error');return;}
@@ -487,25 +550,50 @@
       contenido = {titulo:gv('bf-titulo')||'', fecha_fin:fecha};
     }
 
-    blocks.push({_tempId:'t'+Date.now(), tipo:tipo, contenido:contenido, orden:blocks.length});
+    if (editingBlockIdx !== null && blocks[editingBlockIdx]) {
+      blocks[editingBlockIdx].contenido = contenido;
+      showToast('Bloque actualizado ✓','success');
+    } else {
+      blocks.push({_tempId:'t'+Date.now(), tipo:tipo, contenido:contenido, orden:blocks.length});
+      showToast('Bloque añadido ✓','success');
+    }
+
+    editingBlockIdx = null;
     hideBlockForm();
     renderBlockList();
-    showToast('Bloque añadido ✓','success');
   };
 
   function gv(id) { var el=document.getElementById(id); return el?el.value.trim():''; }
 
-  // ===== REMOVE BLOCK =====
+  // ===== REMOVE / MOVE / EDIT BLOCK =====
   window.removeBlock = function(idx) {
     var b = blocks[idx];
-    if (b.id && editId) {
+    if (b && b.id && editId) {
       api('/bloques/'+b.id, {method:'DELETE'}).catch(function(){});
     }
     blocks.splice(idx,1);
     renderBlockList();
   };
 
-  // ===== RENDER BLOCK LIST =====
+  window.moveBlock = function(idx, dir) {
+    var newIdx = idx + dir;
+    if (newIdx < 0 || newIdx >= blocks.length) return;
+    var moved = blocks.splice(idx, 1)[0];
+    blocks.splice(newIdx, 0, moved);
+    blocks.forEach(function(b, i){ b.orden = i; });
+    renderBlockList();
+  };
+
+  var editingBlockIdx = null;
+
+  window.editBlock = function(idx) {
+    var b = blocks[idx];
+    if (!b) return;
+    editingBlockIdx = idx;
+    showBlockForm(b.tipo, idx);
+  };
+
+  // ===== RENDER BLOCK LIST (Interactive Controls) =====
   function renderBlockList() {
     var container = document.getElementById('block-list');
     if (!container) return;
@@ -517,13 +605,18 @@
     container.innerHTML = blocks.map(function(b, i){
       var bt = BLOCK_TYPES.find(function(t){return t.tipo===b.tipo;}) || {icon:'•',label:b.tipo,color:'#8E8E93'};
       var preview = b.contenido.titulo || b.contenido.url || b.contenido.texto || b.contenido.numero || (b.contenido.redes?b.contenido.redes.length+' redes':'') || '';
-      if (preview.length > 40) preview = preview.substring(0,37)+'...';
+      if (preview.length > 30) preview = preview.substring(0,27)+'...';
 
-      return '<div class="block-item-row" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:12px" draggable="true" ondragstart="dragStart(event,'+i+')" ondragover="event.preventDefault()" ondrop="dragDrop(event,'+i+')">' +
-        '<span class="drag-handle" style="color:var(--text-muted);cursor:grab;font-size:1.1rem;padding:0 4px">☰</span>' +
+      return '<div class="block-item-row" style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;margin-bottom:8px" draggable="true" ondragstart="dragStart(event,'+i+')" ondragover="event.preventDefault()" ondrop="dragDrop(event,'+i+')">' +
+        '<span class="drag-handle" style="color:var(--text-muted);cursor:grab;font-size:1.1rem;padding:0 2px">☰</span>' +
         '<div style="width:32px;height:32px;border-radius:8px;background:'+bt.color+';display:flex;align-items:center;justify-content:center;color:#fff;font-size:0.8rem;flex-shrink:0">'+bt.icon+'</div>' +
         '<div style="flex:1;min-width:0"><div style="font-size:var(--font-xs);color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px">'+bt.label+'</div><div style="font-size:var(--font-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#FFF;font-weight:600">'+escapeHtml(preview)+'</div></div>' +
-        '<button class="btn btn-sm btn-ghost" onclick="removeBlock('+i+')" style="color:var(--red);font-size:0.8rem">✕</button>' +
+        '<div style="display:flex;align-items:center;gap:4px">' +
+          '<button class="btn btn-sm btn-ghost" onclick="moveBlock('+i+', -1)" style="padding:4px 6px;font-size:0.75rem" ' + (i === 0 ? 'disabled' : '') + '>▲</button>' +
+          '<button class="btn btn-sm btn-ghost" onclick="moveBlock('+i+', 1)" style="padding:4px 6px;font-size:0.75rem" ' + (i === blocks.length - 1 ? 'disabled' : '') + '>▼</button>' +
+          '<button class="btn btn-sm btn-ghost" onclick="editBlock('+i+')" style="padding:4px 6px;font-size:0.8rem;color:var(--accent)">✏️</button>' +
+          '<button class="btn btn-sm btn-ghost" onclick="removeBlock('+i+')" style="padding:4px 6px;font-size:0.8rem;color:var(--red)">✕</button>' +
+        '</div>' +
       '</div>';
     }).join('');
 
@@ -543,7 +636,7 @@
     renderBlockList();
   };
 
-  // ===== SAVE =====
+  // ===== SAVE ALL (Fast Parallel Non-Blocking) =====
   function saveAll(e) {
     if (e && e.preventDefault) e.preventDefault();
     if (navigator.vibrate) { try { navigator.vibrate(50); } catch(e){} }
@@ -580,14 +673,6 @@
       formData.append('foto', fotoInput.files[0]);
     }
 
-    console.log('⚡ Payload enviado al backend:', {
-      nombre: nombre.trim(),
-      tipo: gv('tipo_perfil'),
-      color: selectedColor,
-      tema: selectedTheme,
-      editId: editId
-    });
-
     var method = editId ? 'PUT' : 'POST';
     var url = editId ? '/perfiles/' + editId : '/perfiles';
 
@@ -597,13 +682,29 @@
         var perfilId = data.id || editId;
         profileSlug = data.slug || profileSlug;
 
-        return saveBlocksSeq(perfilId, 0);
+        // Fast Parallel Save (< 500ms)
+        var blockPromises = blocks.map(function(b, idx) {
+          if (b.id) {
+            return api('/bloques/' + b.id, {
+              method: 'PUT',
+              body: JSON.stringify({ tipo: b.tipo, contenido: b.contenido, orden: idx })
+            }).catch(function(){});
+          }
+          return api('/perfiles/' + perfilId + '/bloques', {
+            method: 'POST',
+            body: JSON.stringify({ tipo: b.tipo, contenido: b.contenido, orden: idx })
+          });
+        });
+
+        return Promise.all(blockPromises);
       })
       .then(function() {
+        if (saveBtn) saveBtn.textContent = '¡Guardado con éxito!';
+        if (navSaveBtn) navSaveBtn.textContent = '¡Guardado!';
         showToast('¡Tarjeta guardada con éxito!', 'success');
         setTimeout(function() {
           window.location.replace('/dashboard.html');
-        }, 400);
+        }, 300);
       })
       .catch(function(err) {
         console.error('❌ Error exacto en saveAll:', err);
