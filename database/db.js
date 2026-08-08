@@ -62,6 +62,9 @@ class DatabaseWrapper {
     // Auto-seed database with Admin user and 10 test profiles
     this._seedDatabase();
 
+    // Ensure premium profiles (Cristina y Pequeño Juan) with full blocks
+    this._ensurePremiumProfiles();
+
     return this;
   }
 
@@ -493,6 +496,117 @@ class DatabaseWrapper {
       this._saveToDisk();
     } catch (e) {
       console.error('Error en _seedDatabase:', e);
+    }
+  }
+
+  /**
+   * Garantizar las 2 tarjetas premium hiper-detalladas (Cristina y Pequeño Juan)
+   */
+  _ensurePremiumProfiles() {
+    try {
+      const defaultPassHash = '$2a$10$UL3O/uLxzkBfrOBYqOveAu0P3dq6JTb7xvAQzjESiXw9jl82YOG8.';
+      
+      let admin = this.prepare("SELECT id FROM usuarios WHERE id = 1 OR telefono LIKE '%2311556138%' OR email LIKE '%gpprzrom%'").get();
+      if (!admin) {
+        this.prepare(`
+          INSERT OR IGNORE INTO usuarios (id, telefono, nombre, password_hash, email, plan, role, acciones_restantes)
+          VALUES (1, '2311556138', 'Giovanni Paolo', ?, 'gpprzrom@gmail.com', 'paid', 'admin', 10)
+        `).run(defaultPassHash);
+        admin = { id: 1 };
+      }
+
+      const userId = admin.id;
+
+      // 🌮 1. Cristina Restaurante & Taquería (slug: cristina)
+      let cristinaP = this.prepare("SELECT id FROM perfiles WHERE slug = 'cristina'").get();
+      let cId;
+      const cBio = '👑 El auténtico sabor de Teziutlán. Tacos al pastor, desayunos buffet y platillos típicos en nuestros 3 establecimientos.';
+      if (!cristinaP) {
+        const resC = this.prepare(`
+          INSERT OR IGNORE INTO perfiles (usuario_id, slug, nombre_perfil, tipo, color, tema, bio, foto_url, banner_url)
+          VALUES (?, 'cristina', 'Cristina Restaurante & Taquería', 'negocio', '#E53E3E', 'food', ?, 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=300', 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1000')
+        `).run(userId, cBio);
+        cId = resC.lastInsertRowid;
+      } else {
+        cId = cristinaP.id;
+        this.prepare("UPDATE perfiles SET usuario_id = ?, nombre_perfil = 'Cristina Restaurante & Taquería', tipo = 'negocio', color = '#E53E3E', tema = 'food', bio = ? WHERE id = ?").run(userId, cBio, cId);
+      }
+
+      if (cId) {
+        this.prepare("DELETE FROM bloques WHERE perfil_id = ?").run(cId);
+
+        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'whatsapp', ?, 0)").run(
+          cId, JSON.stringify({ titulo: 'WhatsApp', url: 'https://wa.me/522311556138', numero: '522311556138', texto: 'WhatsApp' })
+        );
+
+        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 1)").run(
+          cId, JSON.stringify({ titulo: '📖 Menú Digital & Carta Completa', subtitulo: 'Tacos al pastor, desayunos buffet, cortes y antojitos típicos', url: 'https://www.ubereats.com/mx/store/cristina-restaurante-%26-taqueria-suc-centro/Yd6UdKQ7WiSBAcOFDE-wOA', icono: '📖', color: '#E53E3E' })
+        );
+
+        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'social_icons', ?, 2)").run(
+          cId, JSON.stringify({ redes: [{ tipo: 'facebook', url: 'https://www.facebook.com/CristinaRestauranteOficial/' }, { tipo: 'instagram', url: 'https://instagram.com/cristinarestaurante' }] })
+        );
+
+        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 3)").run(
+          cId, JSON.stringify({ titulo: '📍 Sucursal 1: Centro — Allende #603', subtitulo: 'Tel: (231) 312-2032 | Servicio 9:00 AM - 11:00 PM', url: 'https://maps.google.com/?q=Cristina+Restaurante+&+Taquería+Allende+603+Teziutlan', icono: '📍', color: '#D97706' })
+        );
+
+        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 4)").run(
+          cId, JSON.stringify({ titulo: '📍 Sucursal 2: La Maquinita — Av. Hidalgo #1718', subtitulo: 'Tel: (231) 688-4065 | El Pinal, Teziutlán', url: 'https://maps.google.com/?q=Av.+Miguel+Hidalgo+1718+Teziutlan', icono: '🚗', color: '#D97706' })
+        );
+
+        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 5)").run(
+          cId, JSON.stringify({ titulo: '📍 Sucursal 3: Mercado Victoria — Calle Mercado #51', subtitulo: 'Sabor tradicional en el corazón comercial de la ciudad', url: 'https://maps.google.com/?q=Mercado+Victoria+Teziutlan', icono: '🏪', color: '#D97706' })
+        );
+
+        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 6)").run(
+          cId, JSON.stringify({ titulo: '🛵 Pedir a Domicilio por Uber Eats', subtitulo: 'Entregas rápidas directo a tu casa u oficina', url: 'https://www.ubereats.com/mx/store/cristina-restaurante-%26-taqueria-suc-centro/Yd6UdKQ7WiSBAcOFDE-wOA', icono: '🛵', color: '#10B981' })
+        );
+
+        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 7)").run(
+          cId, JSON.stringify({ titulo: '⭐ Reseñas & Calificación TripAdvisor', subtitulo: 'Uno de los restaurantes más recomendados de Teziutlán', url: 'https://www.tripadvisor.com/Search?q=Cristina+Restaurante+Teziutlan', icono: '⭐', color: '#F59E0B' })
+        );
+      }
+
+      // 📺 2. Pequeño Juan | Medio Digital Líder (slug: pequeno-juan)
+      let juanP = this.prepare("SELECT id FROM perfiles WHERE slug = 'pequeno-juan'").get();
+      let jId;
+      const jBio = '⭐ 5.0 (226K+ Seguidores) · El medio digital de noticias y comunicación líder en Teziutlán.';
+      if (!juanP) {
+        const resJ = this.prepare(`
+          INSERT OR IGNORE INTO perfiles (usuario_id, slug, nombre_perfil, tipo, color, tema, bio, foto_url, banner_url)
+          VALUES (?, 'pequeno-juan', 'Pequeño Juan | Medio Digital Líder', 'negocio', '#3182CE', 'neon', ?, 'https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?w=300', 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=1000')
+        `).run(userId, jBio);
+        jId = resJ.lastInsertRowid;
+      } else {
+        jId = juanP.id;
+        this.prepare("UPDATE perfiles SET usuario_id = ?, nombre_perfil = 'Pequeño Juan | Medio Digital Líder', tipo = 'negocio', color = '#3182CE', tema = 'neon', bio = ? WHERE id = ?").run(userId, jBio, jId);
+      }
+
+      if (jId) {
+        this.prepare("DELETE FROM bloques WHERE perfil_id = ?").run(jId);
+
+        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'whatsapp', ?, 0)").run(
+          jId, JSON.stringify({ titulo: 'Cotizar Publicidad y Coberturas', url: 'https://wa.me/522311120932', numero: '522311120932', texto: 'Cotizar Publicidad y Coberturas' })
+        );
+
+        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 1)").run(
+          jId, JSON.stringify({ titulo: '📘 Página Oficial de Facebook', subtitulo: 'Únete a nuestros más de 226,000 seguidores', url: 'https://www.facebook.com/Pequeño-Juan-Teziutlán-Centro', icono: '📘', color: '#1877F2' })
+        );
+
+        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 2)").run(
+          jId, JSON.stringify({ titulo: '📞 Llamar a Redacción', subtitulo: 'Atención y coberturas 24/7 (231 112 0932)', url: 'tel:2311120932', icono: '📞', color: '#3182CE' })
+        );
+
+        this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 3)").run(
+          jId, JSON.stringify({ titulo: '📍 Oficinas Centrales', subtitulo: 'Av. Benito Juárez 1510-A, Centro, Teziutlán', url: 'https://maps.google.com/?q=Av.+Benito+Juárez+1510-A+Teziutlan', icono: '📍', color: '#3182CE' })
+        );
+      }
+
+      console.log('✅ Tarjetas premium garantizadas (Cristina y Pequeño Juan)');
+      this._saveToDisk();
+    } catch (e) {
+      console.error('Error en _ensurePremiumProfiles:', e);
     }
   }
 
