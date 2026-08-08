@@ -180,7 +180,7 @@
 
   // ===== REAL-TIME LIVE PREVIEW DATA BINDING =====
   function setupLivePreviewListeners() {
-    ['nombre_perfil', 'tipo_perfil', 'bio_perfil', 'cumpleanos', 'lugar_estudio', 'pronombres'].forEach(function(id) {
+    ['nombre_perfil', 'tipo_perfil', 'bio_perfil', 'cumpleanos', 'lugar_estudio', 'pronombres', 'marco_estilo'].forEach(function(id) {
       var el = document.getElementById(id);
       if (el) {
         el.addEventListener('input', updateLivePreview);
@@ -193,6 +193,7 @@
     var nombre = gv('nombre_perfil') || 'Tu Nombre';
     var tipo = gv('tipo_perfil') || 'personal';
     var bio = gv('bio_perfil') || 'Tu biografía profesional aparecerá aquí...';
+    var marcoEstilo = gv('marco_estilo') || 'solid';
 
     if (selectedTheme === 'auto' && autoExtractedColor) {
       selectedColor = autoExtractedColor;
@@ -216,7 +217,21 @@
     }
 
     if (prevAvatarBox) {
-      prevAvatarBox.style.borderColor = selectedColor;
+      if (marcoEstilo === 'gradient') {
+        prevAvatarBox.style.border = 'none';
+        prevAvatarBox.style.padding = '4px';
+        prevAvatarBox.style.background = 'linear-gradient(135deg, ' + selectedColor + ', #EC4899)';
+      } else if (marcoEstilo === 'none') {
+        prevAvatarBox.style.border = 'none';
+        prevAvatarBox.style.padding = '0';
+        prevAvatarBox.style.background = 'transparent';
+        prevAvatarBox.style.boxShadow = 'none';
+      } else { // solid
+        prevAvatarBox.style.border = '3px solid ' + selectedColor;
+        prevAvatarBox.style.padding = '0';
+        prevAvatarBox.style.background = '#18181B';
+        prevAvatarBox.style.boxShadow = '0 8px 24px rgba(0,0,0,0.6)';
+      }
     }
 
     var frame = document.getElementById('smartphone-frame');
@@ -553,6 +568,7 @@
     formData.append('tipo', gv('tipo_perfil') || 'personal');
     formData.append('color', selectedColor || '#7C3AED');
     formData.append('tema', selectedTheme || 'ios');
+    formData.append('marco_estilo', gv('marco_estilo') || 'solid');
     formData.append('bio', gv('bio_perfil') || '');
     formData.append('cumpleanos', gv('cumpleanos') || '');
     formData.append('lugar_estudio', gv('lugar_estudio') || '');
@@ -620,6 +636,8 @@
       document.getElementById('cumpleanos').value = p.cumpleanos || '';
       document.getElementById('lugar_estudio').value = p.lugar_estudio || '';
       document.getElementById('pronombres').value = p.pronombres || '';
+      var elMarco = document.getElementById('marco_estilo');
+      if (elMarco && p.marco_estilo) elMarco.value = p.marco_estilo;
       profileSlug = p.slug;
 
       if (p.color) {

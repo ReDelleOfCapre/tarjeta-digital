@@ -386,20 +386,34 @@ function perfilPublicoHandler(req, res) {
       }
     `;
 
-    // --- Avatar HTML ---
+    // --- Avatar HTML & Marco Independiente ---
+    const marcoStyle = perfil.marco_estilo || 'solid';
+    let wrapperStyle = '';
+    if (marcoStyle === 'gradient') {
+      wrapperStyle = `border: none; padding: 4px; background: linear-gradient(135deg, ${color}, #EC4899); box-shadow: 0 8px 24px rgba(0,0,0,0.5);`;
+    } else if (marcoStyle === 'none') {
+      wrapperStyle = `border: none; padding: 0; background: transparent; box-shadow: none;`;
+    } else {
+      wrapperStyle = `border: 3px solid ${color}; padding: 0; background: var(--bg-primary); box-shadow: 0 8px 24px rgba(0,0,0,0.5);`;
+    }
+
     let avatar_html;
     let fotoSrc = '';
     if (perfil.foto_url) {
       fotoSrc = (perfil.foto_url.startsWith('http') || perfil.foto_url.startsWith('data:image'))
         ? perfil.foto_url
         : `${BASE_URL}${perfil.foto_url}`;
-      avatar_html = `<div class="avatar" style="width:110px;height:110px;border:3px solid ${color}">
-        <img src="${fotoSrc}" alt="${escapeHtml(perfil.nombre_perfil || '')}">
+      avatar_html = `<div class="avatar-wrapper" style="${wrapperStyle}">
+        <div class="avatar">
+          <img src="${fotoSrc}" alt="${escapeHtml(perfil.nombre_perfil || '')}">
+        </div>
       </div>`;
     } else {
       const initials = (perfil.nombre_perfil || 'V')
         .split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
-      avatar_html = `<div class="avatar" style="width:110px;height:110px;background:${color};font-size:2.5rem">${initials}</div>`;
+      avatar_html = `<div class="avatar-wrapper" style="${wrapperStyle}">
+        <div class="avatar" style="background:${color};font-size:2.5rem">${initials}</div>
+      </div>`;
     }
 
     // --- Bio HTML ---
@@ -436,7 +450,8 @@ function perfilPublicoHandler(req, res) {
           }
 
           const blockType = bloque.block_type || bloque.tipo || 'link';
-          let html = `<div class="block-wrapper block-${escapeHtml(blockType)}" data-bloque-id="${bId}">`;
+          const hasRichImage = (bContent?.og_image || bContent?.image) ? ' has-bento-rich' : '';
+          let html = `<div class="block-wrapper block-${escapeHtml(blockType)}${hasRichImage}" data-bloque-id="${bId}">`;
           
           switch (blockType) {
             case 'link': {

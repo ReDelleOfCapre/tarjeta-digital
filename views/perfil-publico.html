@@ -104,7 +104,7 @@
       overflow-x: hidden;
     }
     
-    /* HEADER */
+    /* HEADER & AVATAR INTEGRITY (Cero Filtros en Imagen) */
     .header {
       text-align: center;
       padding-top: 48px;
@@ -120,25 +120,27 @@
       margin: 0 auto 20px;
       border-radius: 50%;
       padding: 4px;
-      background: linear-gradient(135deg, var(--profile-color), transparent);
-      animation: spin-glow 4s linear infinite;
-    }
-    
-    @keyframes spin-glow {
-      0% { filter: drop-shadow(0 0 10px rgba(255,255,255,0.1)) hue-rotate(0deg); }
-      100% { filter: drop-shadow(0 0 20px var(--profile-color)) hue-rotate(360deg); }
+      background: var(--profile-color);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
     }
     
     .avatar {
       width: 100% !important; height: 100% !important;
       border-radius: 50%;
-      border: 2px solid var(--bg-primary) !important;
+      border: 3px solid var(--bg-primary) !important;
       overflow: hidden;
       background: var(--bg-primary);
       display: flex; align-items: center; justify-content: center;
       font-size: 2.5rem !important; font-weight: 800;
+      filter: none !important;
+      mix-blend-mode: normal !important;
     }
-    .avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .avatar img {
+      width: 100%; height: 100%; object-fit: cover;
+      filter: none !important;
+      mix-blend-mode: normal !important;
+      opacity: 1 !important;
+    }
     
     .name {
       font-size: 2rem; font-weight: 800;
@@ -167,8 +169,33 @@
       border: 1px solid var(--border-color);
     }
     
-    /* BLOCKS SECTION */
+    /* BLOCKS SECTION & BENTO GRID LAYOUT FOR DESKTOP */
     .blocks-section { display: flex; flex-direction: column; gap: 16px; width: 100%; }
+
+    @media (min-width: 1024px) {
+      .container {
+        max-width: 900px !important;
+        padding: 0 32px !important;
+      }
+      .blocks-section {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 16px !important;
+        align-items: start !important;
+      }
+      .block-wrapper.has-bento-rich,
+      .block-wrapper.block-spotify,
+      .block-wrapper.block-youtube,
+      .block-wrapper.block-tweet,
+      .block-wrapper.block-tiktok,
+      .block-wrapper.block-seccion,
+      .block-wrapper.block-pdf,
+      .block-wrapper.block-galeria,
+      .block-wrapper.block-countdown,
+      .block-wrapper.block-pago {
+        grid-column: span 2 !important;
+      }
+    }
     
     .block-wrapper {
       width: 100%;
