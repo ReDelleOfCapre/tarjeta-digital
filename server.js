@@ -51,6 +51,15 @@ app.get(['/admin', '/admin.html'], (req, res) => {
   res.sendFile(path.join(process.cwd(), 'views', 'admin.html'));
 });
 
+// Rutas Legales
+app.get(['/privacidad', '/privacidad.html'], (req, res) => {
+  res.sendFile(path.join(process.cwd(), 'views', 'privacidad.html'));
+});
+
+app.get(['/terminos', '/terminos.html'], (req, res) => {
+  res.sendFile(path.join(process.cwd(), 'views', 'terminos.html'));
+});
+
 // =============================================
 // Archivos estáticos
 // =============================================

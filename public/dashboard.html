@@ -3,13 +3,91 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Dashboard — VYNK Startup 2027</title>
+  <title>Centro de Comando — VYNK</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.svg">
   <meta name="apple-mobile-web-app-title" content="VYNK">
   <meta name="theme-color" content="#030306">
   <link rel="manifest" href="/manifest.json">
   <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    /* Glassmorphic Floating Support Chatbot */
+    #chat-bubble {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 999;
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #7C3AED, #06B6D4);
+      box-shadow: 0 10px 30px rgba(124, 58, 237, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.2s cubic-bezier(0.23,1,0.32,1);
+    }
+    #chat-bubble:active { transform: scale(0.92); }
+    #chat-window {
+      position: fixed;
+      bottom: 96px;
+      right: 24px;
+      z-index: 1000;
+      width: 360px;
+      max-width: 90vw;
+      background: rgba(8, 8, 14, 0.92);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 24px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .chat-header {
+      padding: 16px 20px;
+      background: rgba(124, 58, 237, 0.15);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .chat-body {
+      padding: 20px;
+      max-height: 340px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .chat-msg {
+      padding: 12px 16px;
+      border-radius: 16px;
+      font-size: 0.88rem;
+      line-height: 1.5;
+    }
+    .chat-bot {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-secondary);
+      align-self: flex-start;
+    }
+    .chat-btn-option {
+      background: rgba(124, 58, 237, 0.12);
+      border: 1px solid rgba(124, 58, 237, 0.3);
+      color: #FFF;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 0.84rem;
+      font-weight: 500;
+      cursor: pointer;
+      text-align: left;
+      transition: background 0.2s;
+    }
+    .chat-btn-option:hover { background: rgba(124, 58, 237, 0.25); }
+  </style>
 </head>
 <body class="dashboard-page">
   <nav class="navbar">
@@ -18,42 +96,57 @@
     </div>
     <div class="user-info">
       <span id="user-name"></span>
-      <a href="/planes.html" class="btn btn-sm btn-ghost" id="btn-plan" title="Ver planes">Pro <span class="pro-badge-lock" style="font-size:0.65rem">Pro</span></a>
-      <a href="/analytics.html" class="btn btn-sm btn-ghost" title="Analíticas">📊</a>
+      <a href="/planes.html" class="btn btn-sm btn-ghost" id="btn-plan" title="Ver planes Pro">Centro de Control <span class="pro-badge-lock" style="font-size:0.65rem">Pro</span></a>
+      <a href="/analytics.html" class="btn btn-sm btn-ghost" title="Analíticas en Tiempo Real">📊 Métrica</a>
       <a href="/admin.html" class="btn btn-sm btn-ghost hidden" id="btn-admin" title="Admin Master">⚙ Master</a>
       <button class="btn btn-sm btn-ghost" id="btn-logout" style="color:var(--red)">Salir</button>
     </div>
   </nav>
 
   <div class="container">
-    <!-- Stats -->
+    <!-- Header / Micro-Copy -->
+    <div style="margin-top:24px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <h1 style="font-size:1.8rem;font-weight:800;letter-spacing:-0.03em">Centro de Comando</h1>
+        <p style="font-size:0.88rem;color:var(--text-tertiary)">Gestiona tu identidad digital y sincronizaciones NFC en tiempo real</p>
+      </div>
+      <span class="pro-badge-lock" style="padding:6px 12px;font-size:0.75rem">Sincronización NFC Activa</span>
+    </div>
+
+    <!-- Stats Bar -->
     <div class="stats-bar" id="stats-bar">
       <div class="stat-card card">
         <div class="stat-value" id="total-perfiles">0</div>
-        <div class="stat-label">Tarjetas Digitales</div>
+        <div class="stat-label">Identidades Digitales</div>
       </div>
       <div class="stat-card card">
         <div class="stat-value" id="total-visitas">0</div>
-        <div class="stat-label">Visitas Totales</div>
+        <div class="stat-label">Conexiones Recibidas</div>
       </div>
     </div>
 
-    <!-- Upgrade banner (free users only) -->
+    <!-- Upgrade Banner -->
     <a href="/planes.html" class="upgrade-banner hidden" id="upgrade-banner" style="text-decoration:none;color:#fff">
-      <h3>⚡ Desbloquea VYNK Pro 2027 <span class="pro-badge-lock">🔒 Pro</span></h3>
-      <p>Tarjetas ilimitadas, NFC Físico, QRs con Logo y Analíticas en tiempo real</p>
-      <span style="font-weight:600;font-size:var(--font-sm);opacity:0.9">Ver planes Pro →</span>
+      <h3>⚡ Potencia tu Red con VYNK Pro <span class="pro-badge-lock">🔒 Pro</span></h3>
+      <p>Reclama enlaces ilimitados, analíticas avanzadas de clics y grabación NFC directa</p>
+      <span style="font-weight:600;font-size:var(--font-sm);opacity:0.9">Elevar mi nivel Pro →</span>
     </a>
 
     <!-- Profile Grid -->
     <div class="profile-grid" id="profile-grid"></div>
 
-    <!-- Empty State -->
-    <div class="empty-state hidden" id="empty-state">
-      <p style="font-size:3.5rem">🪪</p>
-      <h3>Crea tu primera tarjeta inteligente</h3>
-      <p class="text-muted" style="margin-bottom:20px">Comparte tu identidad digital vía QR, Link o NFC en segundos</p>
-      <button class="btn btn-primary btn-pill" onclick="location.href='editor.html'">+ Crear Tarjeta 2027</button>
+    <!-- Onboarding Mechanics: Glassmorphic Empty State -->
+    <div class="empty-state hidden" id="empty-state" style="background:var(--bg-card);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid var(--card-border);border-radius:28px;padding:48px 24px;text-align:center;box-shadow:var(--card-shadow);margin-top:24px">
+      <div style="width:80px;height:80px;margin:0 auto 20px;background:rgba(124,58,237,0.15);border:1px solid rgba(124,58,237,0.4);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2.5rem;box-shadow:0 0 30px rgba(124,58,237,0.3)">
+        ⚡
+      </div>
+      <h2 style="font-size:1.6rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:8px">Crea tu primera tarjeta My ID y conecta con el mundo</h2>
+      <p class="text-muted" style="max-width:500px;margin:0 auto 28px;line-height:1.6;font-size:0.95rem">
+        Transmite la calidad de tu marca al instante. Diseña tu perfil inteligente, genera tu QR dinámico y grábalo en tu tarjeta física NFC.
+      </p>
+      <button class="btn btn-primary btn-pill" onclick="location.href='editor.html'" style="padding:16px 36px;font-size:1.05rem;background:linear-gradient(135deg,#7C3AED,#06B6D4);box-shadow:0 10px 30px rgba(124,58,237,0.4)">
+        + Desplegar Mi Primera Tarjeta My ID 2027
+      </button>
     </div>
   </div>
 
@@ -62,8 +155,8 @@
   <!-- Delete Modal -->
   <div class="modal-overlay hidden" id="modal-delete">
     <div class="modal">
-      <h3>¿Eliminar tarjeta digital?</h3>
-      <p class="text-muted" style="margin:8px 0 16px">Esta acción eliminará el perfil y sus estadísticas de forma permanente.</p>
+      <h3>¿Eliminar identidad digital?</h3>
+      <p class="text-muted" style="margin:8px 0 16px">Esta acción purgará el perfil y sus métricas del servidor permanentemente.</p>
       <div class="modal-actions">
         <button class="btn btn-secondary" id="btn-cancel-delete">Cancelar</button>
         <button class="btn btn-danger" id="btn-confirm-delete">Eliminar</button>
@@ -77,17 +170,72 @@
       <div style="font-size:2.8rem;margin-bottom:12px">⚖️</div>
       <h2 style="font-size:1.4rem;font-weight:700;letter-spacing:-0.02em;margin-bottom:8px;color:#FFF">Términos de Servicio & Privacidad</h2>
       <p class="text-muted" style="font-size:0.9rem;line-height:1.6;margin-bottom:20px">
-        Para garantizar la seguridad de tu identidad digital y cumplir con la regulación de protección de datos, debes revisar y aceptar nuestros <a href="/legal.html" target="_blank" style="color:var(--accent);text-decoration:underline">Términos y Condiciones</a> y el <a href="/legal.html" target="_blank" style="color:var(--accent);text-decoration:underline">Aviso de Privacidad</a>.
+        Para garantizar la seguridad de tu identidad digital y cumplir con la regulación de protección de datos, debes revisar y aceptar nuestros <a href="/terminos" target="_blank" style="color:var(--accent);text-decoration:underline">Términos y Condiciones</a> y el <a href="/privacidad" target="_blank" style="color:var(--accent);text-decoration:underline">Aviso de Privacidad</a>.
       </p>
       <button class="btn btn-primary btn-block" id="btn-accept-terms" style="padding:14px;border-radius:14px;font-weight:600;background:linear-gradient(135deg,#7C3AED,#6366F1)">
-        ✓ Aceptar y Desbloquear Dashboard
+        ✓ Aceptar y Desbloquear Centro de Comando
       </button>
     </div>
   </div>
+
+  <!-- Floating Glassmorphic Support Chatbot Widget -->
+  <div id="chat-bubble" onclick="toggleSupportChat()" title="Soporte Inteligente VYNK">
+    <span style="font-size:1.6rem">💬</span>
+  </div>
+
+  <div id="chat-window" class="hidden">
+    <div class="chat-header">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:1.2rem">🤖</span>
+        <div>
+          <div style="font-weight:700;font-size:0.9rem;color:#FFF">Asistente VYNK AI</div>
+          <div style="font-size:0.72rem;color:var(--green)">● En Línea</div>
+        </div>
+      </div>
+      <button onclick="toggleSupportChat()" style="background:none;border:none;color:var(--text-muted);font-size:1.2rem;cursor:pointer">✕</button>
+    </div>
+    <div class="chat-body" id="chat-body">
+      <div class="chat-msg chat-bot">
+        👋 ¡Hola! Soy tu asistente de soporte VYNK. ¿En qué te puedo ayudar hoy?
+      </div>
+      <div class="chat-btn-option" onclick="askChat('nfc')">📱 ¿Cómo grabo mi tarjeta NFC?</div>
+      <div class="chat-btn-option" onclick="askChat('pro')">⚡ ¿Qué beneficios incluye el plan Pro?</div>
+      <div class="chat-btn-option" onclick="askChat('human')">💬 Contactar a un agente humano</div>
+    </div>
+  </div>
+
+  <footer style="text-align:center;padding:36px 0;color:var(--text-muted);font-size:0.85rem;border-top:1px solid var(--separator);margin-top:60px">
+    <div class="container">
+      <p>© 2026 VYNK Platform Inc. | <a href="/terminos" style="color:var(--text-secondary)">Términos de Servicio</a> | <a href="/privacidad" style="color:var(--text-secondary)">Aviso de Privacidad</a></p>
+    </div>
+  </footer>
 
   <div class="toast-container" id="toast-container"></div>
 
   <script src="/js/app.js"></script>
   <script src="/js/dashboard.js"></script>
+  <script>
+    function toggleSupportChat() {
+      var win = document.getElementById('chat-window');
+      win.classList.toggle('hidden');
+    }
+
+    function askChat(topic) {
+      var body = document.getElementById('chat-body');
+      var reply = document.createElement('div');
+      reply.className = 'chat-msg chat-bot';
+
+      if (topic === 'nfc') {
+        reply.innerHTML = '📱 <strong>Para grabar tu tarjeta NFC física:</strong><br>1. Entra a tu tarjeta y presiona el ícono <strong>⚡</strong>.<br>2. Presiona <i>Grabar en Tarjeta NFC Física</i>.<br>3. Acerca tu tarjeta o llavero NFC al reverso de tu celular.';
+      } else if (topic === 'pro') {
+        reply.innerHTML = '⚡ <strong>El plan VYNK Pro incluye:</strong><br>• Identidades digitales e-card ilimitadas.<br>• Programación NFC nativa en 1 clic.<br>• Analíticas de clics y descargas vCard.<br>• Dominios y marcas personalizadas.';
+      } else if (topic === 'human') {
+        reply.innerHTML = '💬 <strong>Soporte Humano 24/7:</strong><br>Escríbenos directamente por WhatsApp: <br><a href="https://wa.me/522311556138?text=Hola,%20necesito%20asistencia%20humana%20con%20mi%20cuenta%20VYNK" target="_blank" style="color:var(--accent);font-weight:700">📱 Abrir WhatsApp de Soporte</a>';
+      }
+
+      body.appendChild(reply);
+      body.scrollTop = body.scrollHeight;
+    }
+  </script>
 </body>
 </html>
