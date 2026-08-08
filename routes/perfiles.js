@@ -450,13 +450,24 @@ function perfilPublicoHandler(req, res) {
                 if (!spotifyPath.startsWith('embed/')) spotifyPath = 'embed/' + spotifyPath;
                 html += `<iframe class="smart-player" src="https://open.spotify.com/${escapeHtml(spotifyPath)}" width="100%" height="152" frameborder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
               }
-              // Smart Embed: Google Maps / Ubicación
-              else if (url.includes('maps.google.com') || url.includes('google.com/maps') || (titulo && titulo.toLowerCase().includes('ubicacion')) || (titulo && titulo.toLowerCase().includes('mapa'))) {
-                let mapUrl = url;
-                if (!mapUrl.includes('output=embed')) {
-                  mapUrl = `https://maps.google.com/maps?q=${encodeURIComponent(titulo || 'Ubicación')}&output=embed`;
-                }
-                html += `<iframe class="smart-map" src="${escapeHtml(mapUrl)}" width="100%" height="220" style="border:0;border-radius:20px;" allowfullscreen="" loading="lazy"></iframe>`;
+              // Smart Component: Mapas Nativos Acordeón con Deep Linking (Sin iframes)
+              else if (url.includes('maps.google.com') || url.includes('google.com/maps') || (titulo && titulo.toLowerCase().includes('ubicacion')) || (titulo && titulo.toLowerCase().includes('mapa')) || (titulo && titulo.toLowerCase().includes('sucursal'))) {
+                const deepLinkUrl = url.includes('http') ? url : `https://maps.google.com/?q=${encodeURIComponent(titulo || 'Ubicación')}`;
+                html += `<details class="smart-accordion" open>
+                  <summary style="border-left:4px solid #EA4335">
+                    <span><i class="fas fa-map-location-dot" style="color:#EA4335;margin-right:8px"></i> 📍 ${escapeHtml(titulo)}</span>
+                  </summary>
+                  <div class="smart-accordion-content">
+                    ${subtitulo ? `<div style="font-size:0.82rem;color:rgba(255,255,255,0.7);margin-bottom:6px">${escapeHtml(subtitulo)}</div>` : ''}
+                    <a href="${escapeHtml(deepLinkUrl)}" target="_blank" rel="noopener" class="smart-location-item">
+                      <div style="display:flex;align-items:center;gap:8px">
+                        <i class="fas fa-location-arrow" style="color:#EA4335"></i>
+                        <span>Abrir en Mapas Nativos del Sistema</span>
+                      </div>
+                      <i class="fas fa-external-link-alt" style="opacity:0.6;font-size:0.8rem"></i>
+                    </a>
+                  </div>
+                </details>`;
               }
               else {
                 const icon = getSmartIcon(titulo, url);

@@ -24,6 +24,7 @@
   ];
 
   var THEMES = [
+    { id:'auto', name:'Camaleón / Auto 🦎', bg:'linear-gradient(135deg, #7C3AED, #EC4899)', fg:'#FFF', accent:'#7C3AED' },
     { id:'ios', name:'iOS Glass', bg:'#F2F2F7', fg:'#1C1C1E', accent:'#007AFF' },
     { id:'neon', name:'Neon Dark', bg:'#0a0a0f', fg:'#00f0ff', accent:'#00f0ff' },
     { id:'minimal', name:'Minimal Clean', bg:'#fafafa', fg:'#111', accent:'#111' },
@@ -50,10 +51,112 @@
 
   // ===== STATE =====
   var editId = new URLSearchParams(location.search).get('id');
-  var selectedColor = '#007AFF';
+  var selectedColor = '#7C3AED';
   var selectedTheme = 'ios';
   var blocks = []; // [{_tempId, tipo, contenido, id?}]
   var profileSlug = null;
+  var currentStep = 1;
+  var autoExtractedColor = null;
+
+  // ===== WIZARD STEPPER NAVIGATION =====
+  window.goStep = function(s) {
+    if (s < 1 || s > 3) return;
+
+    if (s > 1) {
+      var nombre = gv('nombre_perfil');
+      var inputNombre = document.getElementById('nombre_perfil');
+      if (!nombre || !nombre.trim()) {
+        if (inputNombre) {
+          inputNombre.style.borderColor = 'var(--red)';
+          inputNombre.focus();
+        }
+        showToast('Por favor ingresa el Nombre para continuar', 'error');
+        return false;
+      } else if (inputNombre) {
+        inputNombre.style.borderColor = '';
+      }
+    }
+
+    currentStep = s;
+
+    var track = document.getElementById('wizard-track');
+    if (track) {
+      var offset = (s - 1) * -33.33333;
+      track.style.transform = 'translateX(' + offset + '%)';
+    }
+
+    for (var i = 1; i <= 3; i++) {
+      var dot = document.getElementById('dot-' + i);
+      if (dot) {
+        dot.classList.remove('active', 'done');
+        if (i < s) dot.classList.add('done');
+        if (i === s) dot.classList.add('active');
+      }
+    }
+
+    var btnPrev = document.getElementById('btn-prev-step');
+    var btnNext = document.getElementById('btn-next-step');
+
+    if (btnPrev) {
+      btnPrev.disabled = (s === 1);
+    }
+    if (btnNext) {
+      if (s === 3) {
+        btnNext.textContent = '⚡ Guardar & Publicar';
+      } else {
+        btnNext.textContent = 'Siguiente →';
+      }
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  window.nextStep = function() {
+    if (currentStep === 3) {
+      saveAll();
+    } else {
+      goStep(currentStep + 1);
+    }
+  };
+
+  window.prevStep = function() {
+    if (currentStep > 1) {
+      goStep(currentStep - 1);
+    }
+  };
+
+  // ===== AUTO / CHAMELEON THEME ENGINE =====
+  function extractDominantColorFromImage(imgEl) {
+    if (!imgEl) return;
+    try {
+      var canvas = document.createElement('canvas');
+      var ctx = canvas.getContext('2d');
+      canvas.width = 50;
+      canvas.height = 50;
+      ctx.drawImage(imgEl, 0, 0, 50, 50);
+      var data = ctx.getImageData(0, 0, 50, 50).data;
+      var r = 0, g = 0, b = 0, count = 0;
+      for (var i = 0; i < data.length; i += 16) {
+        var cr = data[i], cg = data[i+1], cb = data[i+2], ca = data[i+3];
+        if (ca > 128 && !(cr > 240 && cg > 240 && cb > 240) && !(cr < 25 && cg < 25 && cb < 25)) {
+          r += cr; g += cg; b += cb; count++;
+        }
+      }
+      if (count > 0) {
+        r = Math.round(r / count);
+        g = Math.round(g / count);
+        b = Math.round(b / count);
+        autoExtractedColor = '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
+        console.log('🎨 Color Camaleón Auto extraído:', autoExtractedColor);
+        if (selectedTheme === 'auto') {
+          selectedColor = autoExtractedColor;
+          updateLivePreview();
+        }
+      }
+    } catch(e) {
+      console.error('Error calculando color dominante:', e);
+    }
+  }
 
   // ===== INIT =====
   renderThemes();
@@ -91,6 +194,10 @@
     var tipo = gv('tipo_perfil') || 'personal';
     var bio = gv('bio_perfil') || 'Tu biografía profesional aparecerá aquí...';
 
+    if (selectedTheme === 'auto' && autoExtractedColor) {
+      selectedColor = autoExtractedColor;
+    }
+
     var prevName = document.getElementById('prev-name');
     var prevType = document.getElementById('prev-type');
     var prevBio = document.getElementById('prev-bio');
@@ -112,6 +219,26 @@
       prevAvatarBox.style.borderColor = selectedColor;
     }
 
+    var frame = document.getElementById('smartphone-frame');
+    if (frame) {
+      if (selectedTheme === 'neon') {
+        frame.style.background = '#050505';
+      } else if (selectedTheme === 'minimal') {
+        frame.style.background = '#FAFAFA';
+      } else if (selectedTheme === 'gradient') {
+        frame.style.background = 'linear-gradient(135deg, #7C3AED 0%, #FF6B6B 100%)';
+      } else if (selectedTheme === 'food') {
+        frame.style.background = '#111827';
+      } else if (selectedTheme === 'premium') {
+        frame.style.background = '#020617';
+      } else if (selectedTheme === 'auto') {
+        var colorHex = autoExtractedColor || selectedColor || '#7C3AED';
+        frame.style.background = 'linear-gradient(135deg, ' + colorHex + ' 0%, #0A0A0B 100%)';
+      } else {
+        frame.style.background = '#0A0A0B';
+      }
+    }
+
     // Render Live Preview Blocks
     if (prevBlocksContainer) {
       if (blocks.length === 0) {
@@ -126,7 +253,7 @@
             return '<div style="padding:10px;border-radius:12px;background:rgba(29,185,84,0.15);border:1px solid rgba(29,185,84,0.3);color:#1DB954;font-size:0.78rem;font-weight:700;display:flex;align-items:center;gap:8px">🎵 Spotify Smart Player Embebido</div>';
           }
           if (url.includes('google.com/maps') || url.includes('maps.google') || title.toLowerCase().includes('ubicacion')) {
-            return '<div style="padding:10px;border-radius:12px;background:rgba(234,67,53,0.15);border:1px solid rgba(234,67,53,0.3);color:#EA4335;font-size:0.78rem;font-weight:700;display:flex;align-items:center;gap:8px">📍 Google Maps Interactivo Embebido</div>';
+            return '<div style="padding:10px;border-radius:12px;background:rgba(234,67,53,0.15);border:1px solid rgba(234,67,53,0.3);color:#EA4335;font-size:0.78rem;font-weight:700;display:flex;align-items:center;gap:8px">📍 Sucursal / Ubicación (Nativa Deep-Link)</div>';
           }
 
           return '<div style="padding:12px 14px;border-radius:14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-left:4px solid ' + selectedColor + ';display:flex;align-items:center;justify-content:space-between;color:#FFF;font-size:0.82rem;font-weight:600">' +
