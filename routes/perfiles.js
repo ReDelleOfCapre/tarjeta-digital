@@ -425,14 +425,35 @@ function perfilPublicoHandler(req, res) {
       
       switch (bloque.tipo) {
         case 'link':
-          html += `<a href="${escapeHtml(bContent.url)}" target="_blank" rel="noopener" class="block-link">
-            ${bContent.icono ? `<div class="bl-icon" style="color: ${escapeHtml(bContent.color || 'var(--text-primary)')}">${escapeHtml(bContent.icono)}</div>` : ''}
-            <div class="bl-text">
-              <div class="bl-title">${escapeHtml(bContent.titulo)}</div>
-              ${bContent.subtitulo ? `<div class="bl-sub">${escapeHtml(bContent.subtitulo)}</div>` : ''}
-            </div>
-            <i class="fas fa-chevron-right bl-arrow"></i>
-          </a>`;
+          const url = bContent.url || '';
+          const titulo = bContent.titulo || '';
+
+          // Smart Embed: Spotify
+          if (url.includes('open.spotify.com')) {
+            let spotifyPath = url.replace('https://open.spotify.com/', '').replace('http://open.spotify.com/', '');
+            if (!spotifyPath.startsWith('embed/')) spotifyPath = 'embed/' + spotifyPath;
+            html += `<iframe class="smart-player" src="https://open.spotify.com/${escapeHtml(spotifyPath)}" width="100%" height="152" frameborder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
+          }
+          // Smart Embed: Google Maps / Ubicación
+          else if (url.includes('maps.google.com') || url.includes('google.com/maps') || titulo.toLowerCase().includes('ubicacion') || titulo.toLowerCase().includes('mapa')) {
+            let mapUrl = url;
+            if (!mapUrl.includes('output=embed')) {
+              mapUrl = `https://maps.google.com/maps?q=${encodeURIComponent(titulo || 'Ubicación')}&output=embed`;
+            }
+            html += `<iframe class="smart-map" src="${escapeHtml(mapUrl)}" width="100%" height="220" style="border:0;border-radius:20px;" allowfullscreen="" loading="lazy"></iframe>`;
+          }
+          else {
+            const icon = getSmartIcon(titulo, url);
+            const brandColor = getSmartBrandColor(titulo, url) || bContent.color || 'var(--text-primary)';
+            html += `<a href="${escapeHtml(url)}" target="_blank" rel="noopener" class="block-link" style="border-left: 4px solid ${brandColor};">
+              <div class="bl-icon" style="color: ${brandColor}">${icon}</div>
+              <div class="bl-text">
+                <div class="bl-title">${escapeHtml(titulo)}</div>
+                ${bContent.subtitulo ? `<div class="bl-sub">${escapeHtml(bContent.subtitulo)}</div>` : ''}
+              </div>
+              <i class="fas fa-chevron-right bl-arrow"></i>
+            </a>`;
+          }
           break;
         case 'spotify':
         case 'youtube':
