@@ -43,6 +43,24 @@ function signToken(user) {
   );
 }
 
+async function verifyCaptcha(captchaToken) {
+  const secretKey = process.env.RECAPTCHA_SECRET_KEY;
+  if (!secretKey || process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
+    return true;
+  }
+  if (!captchaToken) return false;
+
+  try {
+    const fetch = require('node-fetch');
+    const response = await fetch(`https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${captchaToken}`, { method: 'POST' });
+    const data = await response.json();
+    return !!data.success;
+  } catch (e) {
+    console.error('Error verificando reCAPTCHA:', e);
+    return true;
+  }
+}
+
 // POST /api/auth/registro
 router.post('/registro', [
   body('telefono').notEmpty().isLength({ min: 7, max: 15 }).withMessage('Teléfono inválido'),
@@ -54,6 +72,10 @@ router.post('/registro', [
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ error: errors.array()[0].msg });
+    }
+
+    if (process.env.RECAPTCHA_SECRET_KEY && !(await verifyCaptcha(req.body.captchaToken))) {
+      return res.status(400).json({ error: 'Verificación Captcha Anti-Bot requerida' });
     }
 
     const db = await dbReady;

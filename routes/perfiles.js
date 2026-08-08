@@ -38,24 +38,11 @@ router.post('/inicializar', auth, (req, res) => {
 });
 router.get('/', auth, (req, res) => {
   res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
-  console.log('API FETCH USER:', req.user);
 
-  // Asegurar que el usuario autenticado tenga asignadas sus tarjetas empresariales de marca
-  try {
-    const userId = req.user ? req.user.id : 1;
-    db.prepare(`
-      UPDATE perfiles 
-      SET usuario_id = ? 
-      WHERE slug IN ('cristina', 'pequeno-juan', 'giovanni')
-    `).run(userId);
-    if (db._saveToDisk) db._saveToDisk();
-  } catch (e) {
-    console.error('Error actualizando usuario_id de perfiles:', e);
-  }
-
-  const activeUserId = req.user ? req.user.id : 1;
+  // Aislamiento estricto de usuario (Tenant Isolation Anti-IDOR)
+  const activeUserId = req.user.id;
   const perfiles = db.prepare(
-    'SELECT * FROM perfiles WHERE usuario_id = ? ORDER BY fecha_creacion DESC'
+    'SELECT * FROM perfiles WHERE usuario_id = ? ORDER BY id DESC'
   ).all(activeUserId);
 
   const result = perfiles.map(perfil => {

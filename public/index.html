@@ -666,9 +666,10 @@
         });
         if(res.token) {
           localStorage.setItem('token', res.token);
+          localStorage.setItem('user', JSON.stringify(res.usuario));
           localStorage.setItem('usuario', JSON.stringify(res.usuario));
           showToast('Bienvenido de vuelta', 'success');
-          setTimeout(() => window.location.href = '/dashboard.html', 1000);
+          setTimeout(() => window.location.href = '/dashboard.html', 300);
         }
       } catch (err) {
         showToast(err.error || err.message || 'Error al iniciar sesión', 'error');
@@ -694,9 +695,10 @@
         });
         if(res.token) {
           localStorage.setItem('token', res.token);
+          localStorage.setItem('user', JSON.stringify(res.usuario));
           localStorage.setItem('usuario', JSON.stringify(res.usuario));
           showToast('Cuenta creada con éxito', 'success');
-          setTimeout(() => window.location.href = '/dashboard.html', 1000);
+          setTimeout(() => window.location.href = '/dashboard.html', 300);
         }
       } catch (err) {
         showToast(err.error || err.message || 'Error al registrar', 'error');
