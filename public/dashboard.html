@@ -149,6 +149,7 @@
     </div>
     <div class="user-info">
       <span id="user-name"></span>
+      <button onclick="toggleCommandPalette()" class="btn btn-sm btn-ghost" style="color:var(--text-secondary);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:6px 12px;font-size:0.78rem" title="Abrir Paleta de Comandos (Ctrl + K)">🔍 Buscar <span style="opacity:0.6;font-size:0.7rem">Ctrl+K</span></button>
       <a href="/planes.html" class="btn btn-sm btn-ghost" id="btn-plan" title="Ver planes Pro">Centro de Control <span class="pro-badge-lock" style="font-size:0.65rem">Pro</span></a>
       <a href="/analytics.html" class="btn btn-sm btn-ghost" title="Analíticas en Tiempo Real">📊 Métrica</a>
       <a href="/admin.html" class="btn btn-sm btn-ghost hidden" id="btn-admin" title="Admin Master">⚙ Master</a>
@@ -219,6 +220,18 @@
 
       <!-- COLUMNA CENTRAL: Main Content (Stats, CTA, Escaparate Social Selling, Cards Grid) -->
       <main class="main-panel">
+        <!-- UI Predictiva: Lienzo Inteligente de Sugerencias AI -->
+        <div class="card p-20" style="padding:16px 20px;margin-bottom:16px;background:rgba(124,58,237,0.08)!important;border:1px solid rgba(124,58,237,0.25)!important;display:flex;align-items:center;justify-content:space-between;gap:12px">
+          <div style="display:flex;align-items:center;gap:12px">
+            <span style="font-size:1.3rem">🤖</span>
+            <div>
+              <div style="font-size:0.88rem;font-weight:700;color:#FFF">Sugerencia Inteligente VYNK AI</div>
+              <div style="font-size:0.8rem;color:var(--text-secondary)">Tu tarjeta inteligente tiene un <strong>35% nuevo de tráfico</strong> este fin de semana. Revisa tus analíticas o graba una nueva tag NFC.</div>
+            </div>
+          </div>
+          <a href="/analytics.html" class="btn btn-sm btn-ghost" style="color:var(--accent);font-weight:600;white-space:nowrap">Revisar →</a>
+        </div>
+
         <!-- Stats Bar -->
         <div class="stats-bar" id="stats-bar" style="margin-top:0">
           <div class="stat-card card">
@@ -444,9 +457,65 @@
 
   <div class="toast-container" id="toast-container"></div>
 
+  <!-- Command Palette Modal (Ctrl + K) Spotlight Styling -->
+  <div class="modal-overlay hidden" id="cmd-palette-overlay" style="background:rgba(5,5,8,0.88);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);z-index:99999;align-items:flex-start;padding-top:10vh">
+    <div class="modal card" style="max-width:600px;width:92%;background:#121214;border:1px solid rgba(255,255,255,0.15);border-radius:20px;padding:0;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.8)">
+      <div style="display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid rgba(255,255,255,0.08)">
+        <span style="font-size:1.2rem;color:var(--text-tertiary)">🔍</span>
+        <input type="text" id="cmd-search-input" placeholder="Buscar comando o acción (Ctrl + K)..." style="background:none!important;border:none!important;box-shadow:none!important;font-size:1.05rem;color:#FFF;width:100%">
+        <span style="font-size:0.75rem;padding:4px 8px;border-radius:6px;background:rgba(255,255,255,0.08);color:var(--text-tertiary)">ESC</span>
+      </div>
+      <div style="padding:12px;display:flex;flex-direction:column;gap:6px" id="cmd-results">
+        <div class="cmd-item" onclick="location.href='/editor.html'">
+          <span>🪪 Crear nueva identidad digital</span>
+          <span style="font-size:0.72rem;color:var(--text-muted)">Acceso directo</span>
+        </div>
+        <div class="cmd-item" onclick="location.href='/analytics.html'">
+          <span>📊 Ver analíticas pro en tiempo real</span>
+          <span style="font-size:0.72rem;color:var(--text-muted)">Métricas</span>
+        </div>
+        <div class="cmd-item" onclick="location.href='/compartir.html?nfc=true'">
+          <span>⚡ Grabar en tarjeta NFC física</span>
+          <span style="font-size:0.72rem;color:var(--text-muted)">Hardware NFC</span>
+        </div>
+        <div class="cmd-item" onclick="toggleFocusMode()">
+          <span>🎯 Activar Modo Concentración OLED</span>
+          <span style="font-size:0.72rem;color:var(--text-muted)">UI Focus</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="/js/app.js"></script>
   <script src="/js/dashboard.js"></script>
   <script>
+    function toggleCommandPalette() {
+      var overlay = document.getElementById('cmd-palette-overlay');
+      overlay.classList.toggle('hidden');
+      if (!overlay.classList.contains('hidden')) {
+        document.getElementById('cmd-search-input').focus();
+      }
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        toggleCommandPalette();
+      }
+      if (e.key === 'Escape') {
+        var overlay = document.getElementById('cmd-palette-overlay');
+        if (overlay && !overlay.classList.contains('hidden')) {
+          overlay.classList.add('hidden');
+        }
+      }
+    });
+
+    function toggleFocusMode() {
+      document.body.classList.toggle('focus-mode');
+      showToast('Modo Concentración Trazado', 'info');
+      toggleCommandPalette();
+    }
+
     function openTeamModal() {
       document.getElementById('modal-team-members').classList.remove('hidden');
     }
