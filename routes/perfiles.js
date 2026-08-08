@@ -450,12 +450,15 @@ function perfilPublicoHandler(req, res) {
           }
 
           const blockType = bloque.block_type || bloque.tipo || 'link';
-          const hasRichImage = (bContent?.og_image || bContent?.image) ? ' has-bento-rich' : '';
+          const urlStr = bContent?.url || '';
+          const titStr = bContent?.titulo || '';
+          const isLocationBlock = urlStr.includes('maps.google.com') || urlStr.includes('google.com/maps') || (titStr && (titStr.toLowerCase().includes('ubicacion') || titStr.toLowerCase().includes('mapa') || titStr.toLowerCase().includes('sucursal')));
+          const hasRichImage = (bContent?.og_image || bContent?.image || isLocationBlock) ? ' has-bento-rich' : '';
           let html = `<div class="block-wrapper block-${escapeHtml(blockType)}${hasRichImage}" data-bloque-id="${bId}">`;
           
           switch (blockType) {
             case 'link': {
-              const url = bContent?.url || '';
+              const url = urlStr;
               const titulo = bContent?.titulo || 'Enlace';
               const subtitulo = bContent?.subtitulo || '';
 
@@ -466,20 +469,21 @@ function perfilPublicoHandler(req, res) {
                 html += `<iframe class="smart-player" src="https://open.spotify.com/${escapeHtml(spotifyPath)}" width="100%" height="152" frameborder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
               }
               // Smart Component: Mapas Nativos Acordeón con Deep Linking (Sin iframes)
-              else if (url.includes('maps.google.com') || url.includes('google.com/maps') || (titulo && titulo.toLowerCase().includes('ubicacion')) || (titulo && titulo.toLowerCase().includes('mapa')) || (titulo && titulo.toLowerCase().includes('sucursal'))) {
+              else if (isLocationBlock) {
                 const deepLinkUrl = url.includes('http') ? url : `https://maps.google.com/?q=${encodeURIComponent(titulo || 'Ubicación')}`;
                 html += `<details class="smart-accordion" open>
                   <summary style="border-left:4px solid #EA4335">
-                    <span><i class="fas fa-map-location-dot" style="color:#EA4335;margin-right:8px"></i> 📍 ${escapeHtml(titulo)}</span>
+                    <div style="display:flex;align-items:center;gap:10px">
+                      <i class="fas fa-map-location-dot" style="color:#EA4335;font-size:1rem"></i>
+                      <span style="font-weight:700;font-size:0.95rem;color:#FFF;white-space:normal;line-height:1.4">📍 ${escapeHtml(titulo)}</span>
+                    </div>
                   </summary>
-                  <div class="smart-accordion-content">
-                    ${subtitulo ? `<div style="font-size:0.82rem;color:rgba(255,255,255,0.7);margin-bottom:6px">${escapeHtml(subtitulo)}</div>` : ''}
-                    <a href="${escapeHtml(deepLinkUrl)}" target="_blank" rel="noopener" class="smart-location-item">
-                      <div style="display:flex;align-items:center;gap:8px">
-                        <i class="fas fa-location-arrow" style="color:#EA4335"></i>
-                        <span>Abrir en Mapas Nativos del Sistema</span>
-                      </div>
-                      <i class="fas fa-external-link-alt" style="opacity:0.6;font-size:0.8rem"></i>
+                  <div class="smart-accordion-content" style="padding:16px 20px 20px 20px;display:flex;flex-direction:column;gap:12px">
+                    ${subtitulo ? `<div style="font-size:0.88rem;color:rgba(255,255,255,0.75);line-height:1.5;white-space:normal;word-break:break-word">${escapeHtml(subtitulo)}</div>` : ''}
+                    <a href="${escapeHtml(deepLinkUrl)}" target="_blank" rel="noopener" class="btn btn-secondary btn-block" style="margin-top:6px;padding:12px 16px;font-size:0.85rem;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;border-radius:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#FFF">
+                      <i class="fas fa-location-arrow" style="color:#EA4335;font-size:0.9rem"></i>
+                      <span>Abrir en Mapas Nativos del Sistema</span>
+                      <i class="fas fa-external-link-alt" style="opacity:0.6;font-size:0.75rem;margin-left:auto"></i>
                     </a>
                   </div>
                 </details>`;

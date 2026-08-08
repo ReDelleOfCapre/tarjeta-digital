@@ -1401,3 +1401,23 @@ input[type="text"], input[type="email"], input[type="password"], input[type="num
   height: 14px;
   border-radius: 3px;
 }
+
+/* ============================================
+   TRUE MOBILE-FIRST HEADER CLEANUP & ROUTE OF ESCAPE
+   ============================================ */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 10px 16px !important;
+  }
+  .navbar button[onclick*="toggleCommandPalette"],
+  .navbar #btn-plan,
+  .navbar a[href="/analytics.html"],
+  .navbar #btn-admin,
+  .navbar .pro-badge-lock,
+  .navbar .user-info span#user-name {
+    display: none !important;
+  }
+  .navbar .user-info {
+    gap: 8px !important;
+  }
+}
