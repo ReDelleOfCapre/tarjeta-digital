@@ -42,6 +42,12 @@
   --grad-accent: linear-gradient(135deg, #7C3AED, #06B6D4);
   --grad-oled: none;
 
+  --space-xs: 8px;
+  --space-sm: 16px;
+  --space-md: 24px;
+  --space-lg: 32px;
+  --space-xl: 48px;
+
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
@@ -952,7 +958,7 @@ input[type="text"], input[type="email"], input[type="password"], input[type="num
 
 @media (min-width: 1025px) {
   .container-lg-dashboard {
-    max-width: 1600px !important;
+    max-width: 1800px !important;
     width: 95% !important;
     margin: 0 auto;
     padding: 0 32px;
@@ -974,5 +980,18 @@ input[type="text"], input[type="email"], input[type="password"], input[type="num
 @media (max-width: 1024px) {
   .sidebar-panel, .insights-panel {
     display: none !important;
+  }
+  .selling-showcase-container {
+    display: flex !important;
+    overflow-x: auto !important;
+    scroll-snap-type: x mandatory !important;
+    gap: 16px !important;
+    padding-bottom: 8px !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  .selling-card-item {
+    min-width: 140px !important;
+    scroll-snap-align: start !important;
+    flex-shrink: 0 !important;
   }
 }
