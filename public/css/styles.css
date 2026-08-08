@@ -76,6 +76,12 @@
   --transition-fast: 0.2s var(--ease-magnetic);
   --transition-normal: 0.4s var(--ease-magnetic);
 
+  /* Tamaño base del icono y grosor adaptativo */
+  --icon-size: clamp(1.2rem, 3vw, 1.8rem);
+  --icon-stroke: 1.5px;
+  --icon-size-sm: clamp(1rem, 2.2vw, 1.35rem);
+  --icon-size-lg: clamp(1.6rem, 4vw, 2.2rem);
+
   color-scheme: dark;
 }
 
@@ -198,6 +204,46 @@ a { color: var(--accent); text-decoration: none; }
 a:hover { opacity: 0.8; }
 img { display: block; max-width: 100%; }
 ul, ol { list-style: none; }
+
+/* ============================================
+   SISTEMA DE ICONOS ADAPTATIVOS 2026
+   ============================================ */
+.icon, .btn-icon, .action-icon, .nav-icon, .card-icon, .stat-icon, .block-icon, .ui-icon, svg.icon-svg {
+  width: var(--icon-size);
+  height: var(--icon-size);
+  min-width: var(--icon-size);
+  min-height: var(--icon-size);
+  stroke-width: var(--icon-stroke);
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  box-sizing: border-box;
+}
+
+.icon-sm {
+  width: var(--icon-size-sm);
+  height: var(--icon-size-sm);
+  min-width: var(--icon-size-sm);
+  min-height: var(--icon-size-sm);
+}
+
+.icon-lg {
+  width: var(--icon-size-lg);
+  height: var(--icon-size-lg);
+  min-width: var(--icon-size-lg);
+  min-height: var(--icon-size-lg);
+}
+
+svg, svg *, svg.icon, svg.btn-icon, svg.action-icon, svg.ui-icon {
+  stroke-width: var(--icon-stroke);
+  transition: stroke-width 0.2s ease, stroke 0.2s ease, fill 0.2s ease, transform 0.2s ease;
+}
+
+.btn-icon:hover, .action-icon:hover, .icon:hover {
+  transform: scale(1.06);
+}
 
 /* ---- Container Soft-Skill Whitespace ---- */
 .container {
