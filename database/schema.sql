@@ -14,7 +14,11 @@ CREATE TABLE IF NOT EXISTS usuarios (
   role VARCHAR(20) DEFAULT 'user' CHECK(role IN ('user','admin')),
   fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   acciones_restantes INT DEFAULT 10,
-  ultimo_reset TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  ultimo_reset TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  google_id VARCHAR(255),
+  apple_id VARCHAR(255),
+  microsoft_id VARCHAR(255),
+  terms_accepted BOOLEAN DEFAULT FALSE
 );
 
 -- Perfiles (tarjetas)

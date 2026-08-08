@@ -85,6 +85,7 @@ class PgDatabaseWrapper {
       const schemaPath = path.join(__dirname, 'schema.sql');
       const schemaSql = fs.readFileSync(schemaPath, 'utf-8');
       await this.pool.query(schemaSql);
+      await this._runMigrations();
       console.log('✅ Base de datos Neon PostgreSQL (Cloud) conectada e inicializada con esquema');
 
       await this._seedDatabase();
@@ -95,6 +96,17 @@ class PgDatabaseWrapper {
     } catch (err) {
       console.error('❌ Error inicializando Neon PostgreSQL:', err);
       throw err;
+    }
+  }
+
+  async _runMigrations() {
+    try {
+      await this.pool.query("ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS google_id VARCHAR(255)");
+      await this.pool.query("ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS apple_id VARCHAR(255)");
+      await this.pool.query("ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS microsoft_id VARCHAR(255)");
+      await this.pool.query("ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS terms_accepted BOOLEAN DEFAULT FALSE");
+    } catch (e) {
+      console.error('Error corriendo migraciones PG:', e);
     }
   }
 

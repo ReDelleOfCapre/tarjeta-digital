@@ -114,6 +114,17 @@ router.post('/', auth, requireQuota, checkPlanLimit('perfil'), (req, res) => {
 
     const perfil = db.prepare('SELECT * FROM perfiles WHERE id = ?').get(result.lastInsertRowid);
 
+    // Disparar correo motivacional tras crear la tarjeta si el usuario tiene email registrado
+    try {
+      const user = db.prepare('SELECT email, nombre FROM usuarios WHERE id = ?').get(req.user.id);
+      if (user && user.email) {
+        const { sendFirstCardNotification } = require('../utils/email');
+        sendFirstCardNotification(user.email, user.nombre, slug);
+      }
+    } catch (e) {
+      console.error('Error disparando correo de tarjeta:', e);
+    }
+
     res.status(201).json(perfil);
   });
 });

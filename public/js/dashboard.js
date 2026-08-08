@@ -27,6 +27,25 @@
     document.getElementById('upgrade-banner').classList.remove('hidden');
   }
 
+  // Check Legal Terms consent
+  var legalModal = document.getElementById('modal-legal-terms');
+  if (legalModal && user.terms_accepted === false) {
+    legalModal.classList.remove('hidden');
+    document.getElementById('btn-accept-terms').addEventListener('click', function() {
+      api('/auth/accept-terms', { method: 'POST' }).then(function(res) {
+        if (res.token) {
+          localStorage.setItem('token', res.token);
+        }
+        user.terms_accepted = true;
+        localStorage.setItem('user', JSON.stringify(user));
+        legalModal.classList.add('hidden');
+        showToast('Términos aceptados correctamente', 'success');
+      }).catch(function(err) {
+        showToast('Error aceptando términos', 'error');
+      });
+    });
+  }
+
   // Load profiles
   loadProfiles();
 

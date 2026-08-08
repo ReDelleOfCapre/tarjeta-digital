@@ -1,19 +1,21 @@
 // ============================================
-// VYNK — Auth Routes
+// VYNK — Auth Routes (SaaS Core SSO & Legal)
 // ============================================
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const passport = require('passport');
 const { body, validationResult } = require('express-validator');
 const { dbReady } = require('../database/db');
 const rateLimit = require('../middleware/rateLimit');
+const auth = require('../middleware/auth');
+const { sendWelcomeEmail } = require('../utils/email');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'vynk-default-secret';
-const OWNER_PHONE = (process.env.OWNER_PHONE || '').replace(/[^0-9]/g, '');
 
 function normalizePhone(phone) {
-  return phone.replace(/[^0-9]/g, '');
+  return (phone || '').replace(/[^0-9]/g, '');
 }
 
 function isOwner(telefono, email) {
@@ -27,7 +29,15 @@ function isOwner(telefono, email) {
 
 function signToken(user) {
   return jwt.sign(
-    { id: user.id, telefono: user.telefono, plan: user.plan, plan_expira: user.plan_expira, nombre: user.nombre, role: user.role },
+    {
+      id: user.id,
+      telefono: user.telefono,
+      plan: user.plan,
+      plan_expira: user.plan_expira,
+      nombre: user.nombre,
+      role: user.role,
+      terms_accepted: !!user.terms_accepted
+    },
     JWT_SECRET,
     { expiresIn: '7d' }
   );
@@ -50,26 +60,29 @@ router.post('/registro', [
     const { telefono, nombre, password, email, legal_aceptado } = req.body;
     const telefonoNorm = normalizePhone(telefono);
 
-    // Check if already registered
     const existing = db.prepare('SELECT id FROM usuarios WHERE telefono = ?').get(telefonoNorm);
     if (existing) {
       return res.status(409).json({ error: 'Este teléfono ya está registrado' });
     }
 
     const password_hash = await bcrypt.hash(password, 10);
-
-    // Todos los usuarios nuevos obtienen 30 días de prueba Pro
     const ownerDetected = isOwner(telefonoNorm, email);
     const plan = 'paid';
     const plan_expira = ownerDetected ? null : new Date(Date.now() + 30*24*60*60*1000).toISOString();
     const role = ownerDetected ? 'admin' : 'user';
+    const termsAccepted = legal_aceptado ? true : false;
 
     const result = db.prepare(
-      "INSERT INTO usuarios (telefono, nombre, password_hash, plan, plan_expira, role, email) VALUES (?, ?, ?, ?, ?, ?, ?)"
-    ).run(telefonoNorm, nombre.trim(), password_hash, plan, plan_expira, role, email || null);
+      "INSERT INTO usuarios (telefono, nombre, password_hash, plan, plan_expira, role, email, terms_accepted) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+    ).run(telefonoNorm, nombre.trim(), password_hash, plan, plan_expira, role, email || null, termsAccepted);
 
-    const user = { id: result.lastInsertRowid, telefono: telefonoNorm, nombre: nombre.trim(), plan, plan_expira, role };
+    const user = { id: result.lastInsertRowid, telefono: telefonoNorm, nombre: nombre.trim(), plan, plan_expira, role, terms_accepted: termsAccepted };
     const token = signToken(user);
+
+    // Disparar correo de bienvenida asíncrono
+    if (email) {
+      sendWelcomeEmail(email, nombre.trim());
+    }
 
     res.status(201).json({ token, usuario: user });
   } catch (err) {
@@ -103,23 +116,120 @@ router.post('/login', rateLimit(10, 15 * 60 * 1000), [
       return res.status(401).json({ error: 'Teléfono o contraseña incorrectos' });
     }
 
-    // Auto-upgrade owner if needed
     if (isOwner(telefonoNorm, user.email) && (user.plan !== 'paid' || user.role !== 'admin')) {
       db.prepare('UPDATE usuarios SET plan = ?, role = ? WHERE id = ?').run('paid', 'admin', user.id);
       user.plan = 'paid';
       user.role = 'admin';
     }
 
-    const token = signToken({ id: user.id, telefono: user.telefono, plan: user.plan, plan_expira: user.plan_expira, nombre: user.nombre, role: user.role });
+    const token = signToken({
+      id: user.id,
+      telefono: user.telefono,
+      plan: user.plan,
+      plan_expira: user.plan_expira,
+      nombre: user.nombre,
+      role: user.role,
+      terms_accepted: !!user.terms_accepted
+    });
 
     res.json({
       token,
-      usuario: { id: user.id, nombre: user.nombre, telefono: user.telefono, plan: user.plan, plan_expira: user.plan_expira, role: user.role }
+      usuario: {
+        id: user.id,
+        nombre: user.nombre,
+        telefono: user.telefono,
+        plan: user.plan,
+        plan_expira: user.plan_expira,
+        role: user.role,
+        terms_accepted: !!user.terms_accepted
+      }
     });
   } catch (err) {
     console.error('Error en login:', err);
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 });
+
+// POST /api/auth/accept-terms — Aceptar Términos & Aviso de Privacidad
+router.post('/accept-terms', auth, async (req, res) => {
+  try {
+    const db = await dbReady;
+    db.prepare('UPDATE usuarios SET terms_accepted = TRUE WHERE id = ?').run(req.user.id);
+    
+    const user = db.prepare('SELECT * FROM usuarios WHERE id = ?').get(req.user.id);
+    const newToken = signToken({
+      id: user.id,
+      telefono: user.telefono,
+      plan: user.plan,
+      plan_expira: user.plan_expira,
+      nombre: user.nombre,
+      role: user.role,
+      terms_accepted: true
+    });
+
+    res.json({
+      ok: true,
+      mensaje: 'Términos de servicio y aviso de privacidad aceptados',
+      token: newToken,
+      usuario: { ...req.user, terms_accepted: true }
+    });
+  } catch (err) {
+    console.error('Error al aceptar términos:', err);
+    res.status(500).json({ error: 'Error al actualizar consentimiento legal' });
+  }
+});
+
+// POST /api/auth/sso-login — Autenticación SSO 1-Click (Google, Apple, Microsoft)
+router.post('/sso-login', async (req, res) => {
+  try {
+    const { provider, email, nombre, providerId } = req.body;
+    if (!email || !provider) {
+      return res.status(400).json({ error: 'Datos de SSO incompletos' });
+    }
+
+    const db = await dbReady;
+    let user = db.prepare('SELECT * FROM usuarios WHERE email = ? OR google_id = ? OR apple_id = ? OR microsoft_id = ?').get(email, providerId || '', providerId || '', providerId || '');
+
+    if (!user) {
+      // Crear cuenta automática para SSO con 30 días Pro
+      const randomTel = '559' + Math.floor(1000000 + Math.random() * 9000000);
+      const randomPass = await bcrypt.hash('sso_' + Date.now(), 10);
+      const plan_expira = new Date(Date.now() + 30*24*60*60*1000).toISOString();
+      const colId = provider === 'google' ? 'google_id' : provider === 'apple' ? 'apple_id' : 'microsoft_id';
+
+      const ins = db.prepare(`
+        INSERT INTO usuarios (telefono, nombre, password_hash, email, plan, plan_expira, role, ${colId}, terms_accepted)
+        VALUES (?, ?, ?, ?, 'paid', ?, 'user', ?, TRUE)
+      `).run(randomTel, nombre || 'Usuario ' + provider.toUpperCase(), randomPass, email, plan_expira, providerId || email);
+
+      user = { id: ins.lastInsertRowid, telefono: randomTel, nombre: nombre || 'Usuario ' + provider.toUpperCase(), plan: 'paid', plan_expira, role: 'user', terms_accepted: true };
+      sendWelcomeEmail(email, user.nombre);
+    }
+
+    const token = signToken({
+      id: user.id,
+      telefono: user.telefono,
+      plan: user.plan,
+      plan_expira: user.plan_expira,
+      nombre: user.nombre,
+      role: user.role,
+      terms_accepted: true
+    });
+
+    res.json({
+      ok: true,
+      token,
+      usuario: { id: user.id, nombre: user.nombre, email: user.email, plan: user.plan, role: user.role, terms_accepted: true }
+    });
+  } catch (err) {
+    console.error('Error en SSO Login:', err);
+    res.status(500).json({ error: 'Error procesando inicio de sesión SSO' });
+  }
+});
+
+// Rutas Passport OAuth (Dev / Staging Support)
+router.get('/google', (req, res) => res.redirect('/#auth'));
+router.get('/apple', (req, res) => res.redirect('/#auth'));
+router.get('/microsoft', (req, res) => res.redirect('/#auth'));
 
 module.exports = router;
