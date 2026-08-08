@@ -1523,3 +1523,101 @@ html, body, .dashboard-page {
   background: rgba(124, 58, 237, 0.15);
   border-color: rgba(124, 58, 237, 0.3);
 }
+
+/* ============================================
+   WEB NFC RIPPLE MODAL & HARDWARE INTEGRATION
+   ============================================ */
+.nfc-modal-card {
+  background: rgba(10, 10, 14, 0.96);
+  border: 1px solid rgba(124, 58, 237, 0.3);
+  border-radius: 28px;
+  padding: 32px 24px;
+  width: 100%;
+  max-width: 380px;
+  text-align: center;
+  position: relative;
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7), 0 0 30px rgba(124, 58, 237, 0.2);
+}
+.nfc-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.nfc-ripple-container {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 20px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.nfc-center-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #7C3AED, #06B6D4);
+  box-shadow: 0 0 25px rgba(124, 58, 237, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  color: #FFF;
+  z-index: 2;
+}
+.nfc-ripple-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 2px solid rgba(124, 58, 237, 0.6);
+  animation: nfc-ripple 2s infinite cubic-bezier(0, 0.2, 0.8, 1);
+  z-index: 1;
+}
+.ring-2 { animation-delay: -0.6s; }
+.ring-3 { animation-delay: -1.2s; }
+
+@keyframes nfc-ripple {
+  0% {
+    width: 64px;
+    height: 64px;
+    opacity: 1;
+    border-color: rgba(124, 58, 237, 0.8);
+  }
+  100% {
+    width: 140px;
+    height: 140px;
+    opacity: 0;
+    border-color: rgba(6, 182, 212, 0);
+  }
+}
+
+.nfc-modal-card.success-state {
+  border-color: rgba(16, 185, 129, 0.5);
+  box-shadow: 0 0 35px rgba(16, 185, 129, 0.3);
+}
+.nfc-modal-card.success-state .nfc-center-icon {
+  background: #10B981;
+  box-shadow: 0 0 25px rgba(16, 185, 129, 0.6);
+}
+
+.nfc-modal-card.error-state {
+  border-color: rgba(239, 68, 68, 0.5);
+  box-shadow: 0 0 35px rgba(239, 68, 68, 0.3);
+}
+.nfc-modal-card.error-state .nfc-center-icon {
+  background: #EF4444;
+  box-shadow: 0 0 25px rgba(239, 68, 68, 0.6);
+}

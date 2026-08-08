@@ -193,4 +193,140 @@
       console.log('Driver tour notice:', e);
     }
   }
+
+  // ===== WEB NFC API HARDWARE INTEGRATION ENGINE =====
+  var nfcAbortController = null;
+
+  window.writeNfcTag = async function(targetUrl, userSlug) {
+    // 1. Hardware Detection & Fallback
+    if (!('NDEFReader' in window)) {
+      showToast('La sincronización NFC física requiere Chrome para Android. Usa tu celular para grabar tu tarjeta.', 'info');
+      return;
+    }
+
+    var finalUrl = targetUrl;
+    if (!finalUrl) {
+      var slug = userSlug || (window.perfilesList && window.perfilesList[0] ? window.perfilesList[0].slug : null);
+      if (slug) {
+        finalUrl = window.location.origin + '/u/' + slug;
+      } else {
+        showToast('Crea primero una tarjeta digital para sincronizar tu tag NFC', 'error');
+        return;
+      }
+    }
+
+    if (!finalUrl.startsWith('http://') && !finalUrl.startsWith('https://')) {
+      finalUrl = 'https://' + finalUrl;
+    }
+
+    // 2. Open NFC Ripple Modal
+    openNfcModal(finalUrl);
+
+    try {
+      nfcAbortController = new AbortController();
+      const ndef = new NDEFReader();
+
+      // Execute NDEF write
+      await ndef.write({
+        records: [{ recordType: 'url', data: finalUrl }]
+      }, { signal: nfcAbortController.signal });
+
+      // 3. Success Haptic Feedback
+      if (navigator.vibrate) {
+        try { navigator.vibrate(200); } catch(e){}
+      }
+
+      updateNfcModalState('success', '¡Tarjeta Sincronizada!', 'Se grabó exitosamente ' + finalUrl + ' en la tag NFC.');
+      setTimeout(closeNfcModal, 2200);
+
+    } catch (error) {
+      if (error.name === 'AbortError') {
+        console.log('Sincronización NFC cancelada por el usuario.');
+        closeNfcModal();
+        return;
+      }
+
+      // 4. Error Double Haptic Vibration & Modal Error State
+      if (navigator.vibrate) {
+        try { navigator.vibrate([100, 50, 100]); } catch(e){}
+      }
+
+      console.error('❌ Error de escritura Web NFC:', error);
+      updateNfcModalState('error', 'Error de Grabación NFC', 'Ocurrió una interrupción al leer la tarjeta. Acerca la tarjeta nuevamente sin moverla.', finalUrl);
+    }
+  };
+
+  function openNfcModal(url) {
+    let overlay = document.getElementById('nfc-modal-overlay');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.id = 'nfc-modal-overlay';
+      overlay.className = 'modal-overlay';
+      overlay.innerHTML = `
+        <div class="nfc-modal-card" id="nfc-modal-card">
+          <button class="nfc-modal-close" onclick="cancelNfcWriting()">✕</button>
+          <div class="nfc-ripple-container">
+            <div class="nfc-ripple-ring ring-1"></div>
+            <div class="nfc-ripple-ring ring-2"></div>
+            <div class="nfc-ripple-ring ring-3"></div>
+            <div class="nfc-center-icon" id="nfc-modal-icon">⚡</div>
+          </div>
+          <h3 id="nfc-modal-title" style="font-size:1.2rem;font-weight:800;color:#FFF;margin-bottom:8px">Sincronización NFC Activa</h3>
+          <p id="nfc-modal-status" style="font-size:0.88rem;color:var(--text-secondary);line-height:1.5">Acerca tu VYNK Card o Sticker a la parte trasera de tu celular...</p>
+          <div id="nfc-modal-actions" style="margin-top:20px">
+            <button class="btn btn-secondary btn-sm" onclick="cancelNfcWriting()">Cancelar</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+    }
+
+    var card = document.getElementById('nfc-modal-card');
+    if (card) {
+      card.className = 'nfc-modal-card';
+    }
+    document.getElementById('nfc-modal-icon').textContent = '⚡';
+    document.getElementById('nfc-modal-title').textContent = 'Sincronización NFC Activa';
+    document.getElementById('nfc-modal-status').textContent = 'Acerca tu VYNK Card o Sticker a la parte trasera de tu celular...';
+    document.getElementById('nfc-modal-actions').innerHTML = '<button class="btn btn-secondary btn-sm" onclick="cancelNfcWriting()">Cancelar</button>';
+
+    overlay.classList.remove('hidden');
+  }
+
+  function updateNfcModalState(state, title, message, retryUrl) {
+    var card = document.getElementById('nfc-modal-card');
+    var icon = document.getElementById('nfc-modal-icon');
+    var titleEl = document.getElementById('nfc-modal-title');
+    var statusEl = document.getElementById('nfc-modal-status');
+    var actionsEl = document.getElementById('nfc-modal-actions');
+
+    if (state === 'success') {
+      if (card) card.className = 'nfc-modal-card success-state';
+      if (icon) icon.textContent = '✅';
+      if (titleEl) titleEl.textContent = title;
+      if (statusEl) statusEl.textContent = message;
+      if (actionsEl) actionsEl.innerHTML = '<span style="font-size:0.8rem;color:var(--green);font-weight:700">✓ Guardado correctamente</span>';
+    } else if (state === 'error') {
+      if (card) card.className = 'nfc-modal-card error-state';
+      if (icon) icon.textContent = '⚠️';
+      if (titleEl) titleEl.textContent = title;
+      if (statusEl) statusEl.textContent = message;
+      if (actionsEl) {
+        actionsEl.innerHTML = '<div style="display:flex;gap:10px;justify-content:center"><button class="btn btn-primary btn-sm" onclick="writeNfcTag(\'' + (retryUrl || '') + '\')">Reintentar</button><button class="btn btn-secondary btn-sm" onclick="closeNfcModal()">Cerrar</button></div>';
+      }
+    }
+  }
+
+  window.cancelNfcWriting = function() {
+    if (nfcAbortController) {
+      nfcAbortController.abort();
+      nfcAbortController = null;
+    }
+    closeNfcModal();
+  };
+
+  window.closeNfcModal = function() {
+    var overlay = document.getElementById('nfc-modal-overlay');
+    if (overlay) overlay.classList.add('hidden');
+  };
 })();
