@@ -40,14 +40,13 @@ router.get('/', auth, (req, res) => {
   res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
   console.log('API FETCH USER:', req.user);
 
-  // Asegurar que el usuario autenticado (especialmente el Admin / Giovanni Paolo) tenga asignadas las tarjetas empresariales
+  // Asegurar que el usuario autenticado tenga asignadas sus tarjetas empresariales de marca
   try {
     const userId = req.user ? req.user.id : 1;
-    // Re-asignar incondicionalmente las tarjetas empresariales al usuario_id real en sesión
     db.prepare(`
       UPDATE perfiles 
       SET usuario_id = ? 
-      WHERE slug IN ('cristina', 'cristina-teziutlan', 'cristina-taqueria', 'pequeno-juan', 'peque-juan', 'pequeno-juan-medio-digital', 'giovanni')
+      WHERE slug IN ('cristina', 'pequeno-juan', 'giovanni')
     `).run(userId);
     if (db._saveToDisk) db._saveToDisk();
   } catch (e) {
@@ -55,14 +54,9 @@ router.get('/', auth, (req, res) => {
   }
 
   const activeUserId = req.user ? req.user.id : 1;
-  let perfiles = db.prepare(
+  const perfiles = db.prepare(
     'SELECT * FROM perfiles WHERE usuario_id = ? ORDER BY fecha_creacion DESC'
   ).all(activeUserId);
-
-  // Fallback definitivo para admin o si el arreglo viniera con menos de 2 perfiles
-  if (!perfiles || perfiles.length < 2) {
-    perfiles = db.prepare('SELECT * FROM perfiles ORDER BY id DESC').all();
-  }
 
   const result = perfiles.map(perfil => {
     const camposCount = db.prepare(

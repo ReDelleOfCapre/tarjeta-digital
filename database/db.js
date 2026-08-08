@@ -65,6 +65,9 @@ class DatabaseWrapper {
     // Ensure premium profiles (Cristina y Pequeño Juan) with full blocks
     this._ensurePremiumProfiles();
 
+    // Automatic Cleanup of Empty Clones and Invalid Duplicate Slugs
+    this._cleanupDuplicateProfiles();
+
     return this;
   }
 
@@ -310,27 +313,7 @@ class DatabaseWrapper {
 
       const targetUserId = admin.id;
 
-      // Re-asignar incondicionalmente las 7 tarjetas al usuario principal
-      const seedCards = [
-        { slug: 'giovanni', nombre: 'Giovanni Paolo — VYNK Director', tipo: 'personal', color: '#7C3AED', tema: 'neon', bio: 'Fundador de VYNK. Creando la mejor plataforma de identidad digital.' },
-        { slug: 'cristina', nombre: 'Cristina Restaurante & Taquería', tipo: 'negocio', color: '#B91C1C', tema: 'food', bio: '⭐ 4.2 (1,300+ opiniones) · 📍 3 Sucursales en Teziutlán' },
-        { slug: 'cristina-teziutlan', nombre: 'Cristina Restaurante & Taquería', tipo: 'negocio', color: '#B91C1C', tema: 'food', bio: '⭐ 4.2 (1,300+ opiniones) · 📍 3 Sucursales en Teziutlán' },
-        { slug: 'cristina-taqueria', nombre: 'Cristina Restaurante & Taquería', tipo: 'negocio', color: '#B91C1C', tema: 'food', bio: '⭐ 4.2 (1,300+ opiniones) · 📍 3 Sucursales en Teziutlán' },
-        { slug: 'pequeno-juan', nombre: 'Pequeño Juan | Medio Digital Líder', tipo: 'negocio', color: '#E11D48', tema: 'neon', bio: '⭐ 5.0 (226K+ Seguidores) · El Medio Digital Mejor Posicionado de Teziutlán' },
-        { slug: 'peque-juan', nombre: 'Pequeño Juan | Medio Digital Líder', tipo: 'negocio', color: '#E11D48', tema: 'neon', bio: '⭐ 5.0 (226K+ Seguidores) · El Medio Digital Mejor Posicionado de Teziutlán' },
-        { slug: 'pequeno-juan-medio-digital', nombre: 'Pequeño Juan | Medio Digital Líder', tipo: 'negocio', color: '#E11D48', tema: 'neon', bio: '⭐ 5.0 (226K+ Seguidores) · El Medio Digital Mejor Posicionado de Teziutlán' }
-      ];
-
-      for (const card of seedCards) {
-        this.prepare(`
-          INSERT OR IGNORE INTO perfiles (usuario_id, slug, nombre_perfil, tipo, color, tema, bio)
-          VALUES (?, ?, ?, ?, ?, ?, ?)
-        `).run(targetUserId, card.slug, card.nombre, card.tipo, card.color, card.tema, card.bio);
-
-        this.prepare("UPDATE perfiles SET usuario_id = ? WHERE slug = ?").run(targetUserId, card.slug);
-      }
-
-      // Perfil oficial del Admin
+      // Perfil oficial del Admin (giovanni)
       let adminP = this.prepare("SELECT id FROM perfiles WHERE slug = 'giovanni'").get();
       if (!adminP) {
         const resP = this.prepare(`
@@ -340,110 +323,6 @@ class DatabaseWrapper {
         const pId = resP.lastInsertRowid;
         this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'whatsapp', ?, 0)").run(pId, JSON.stringify({ numero: '522311556138', mensaje_default: 'Hola Giovanni!' }));
         this.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'social_icons', ?, 1)").run(pId, JSON.stringify({ redes: [{ tipo: 'instagram', url: 'https://instagram.com' }, { tipo: 'linkedin', url: 'https://linkedin.com' }] }));
-      }
-
-      // Crear / Actualizar tarjetas de Cristina Teziutlán ( slugs: 'cristina-teziutlan', 'cristina' y 'cristina-taqueria' )
-      const cristinaSlugs = ['cristina-teziutlan', 'cristina', 'cristina-taqueria'];
-      for (const slug of cristinaSlugs) {
-        let cristinaP = this.prepare("SELECT id FROM perfiles WHERE slug = ?").get(slug);
-        let cId;
-        const bioText = '⭐ 4.2 (1,300+ opiniones) · 📍 3 Sucursales en Teziutlán · Tacos al pastor, árabes, cortes y desayunos.';
-        if (!cristinaP) {
-          const resC = this.prepare(`
-            INSERT OR IGNORE INTO perfiles (usuario_id, slug, nombre_perfil, tipo, color, tema, bio, foto_url, banner_url)
-            VALUES (?, ?, 'Cristina Restaurante & Taquería', 'negocio', '#B91C1C', 'food', ?, 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=300', 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1000')
-          `).run(targetUserId, slug, bioText);
-          cId = resC.lastInsertRowid;
-        } else {
-          cId = cristinaP.id;
-          this.prepare(`
-            UPDATE perfiles SET 
-              usuario_id = ?,
-              banner_url = 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1000',
-              foto_url = 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=300',
-              color = '#B91C1C',
-              tema = 'food',
-              bio = ?
-            WHERE id = ?
-          `).run(targetUserId, bioText, cId);
-        }
-
-        // Limpiar y sembrar bloques de Cristina Restaurante & Taquería
-        this.prepare("DELETE FROM bloques WHERE perfil_id = ?").run(cId);
-
-        this.prepare("INSERT OR IGNORE INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'whatsapp', ?, 0)").run(
-          cId, JSON.stringify({ titulo: 'Pedir por WhatsApp / Domicilio', url: 'https://wa.me/522311556138', numero: '522311556138', texto: 'Pedir por WhatsApp / Domicilio' })
-        );
-
-        this.prepare("INSERT OR IGNORE INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 1)").run(
-          cId, JSON.stringify({ titulo: 'Ver Menú en Uber Eats', url: 'https://www.ubereats.com/mx/store/cristina-restaurante-%26-taqueria-suc-centro/Yd6UdKQ7WiSBAcOFDE-wOA', icono: '🛵', color: '#10B981' })
-        );
-
-        this.prepare("INSERT OR IGNORE INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'seccion', ?, 2)").run(
-          cId, JSON.stringify({ titulo: 'Nuestras 3 Sucursales en Teziutlán' })
-        );
-
-        this.prepare("INSERT OR IGNORE INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 3)").run(
-          cId, JSON.stringify({ titulo: 'Sucursal Centro (Allende #603)', url: 'https://maps.google.com/?q=Cristina+Restaurante+&+Taquería+Allende+603+Teziutlan', icono: '📍', color: '#D97706' })
-        );
-
-        this.prepare("INSERT OR IGNORE INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 4)").run(
-          cId, JSON.stringify({ titulo: 'Sucursal Av. Hidalgo #1718', url: 'https://maps.google.com/?q=Av.+Miguel+Hidalgo+1718+Teziutlan', icono: '🚗', color: '#D97706' })
-        );
-
-        this.prepare("INSERT OR IGNORE INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 5)").run(
-          cId, JSON.stringify({ titulo: 'Sucursal Mercado Victoria (#51)', url: 'https://maps.google.com/?q=Mercado+Victoria+Teziutlan', icono: '🏪', color: '#D97706' })
-        );
-      }
-
-      // Perfil Empresarial: Pequeño Juan Medio Digital — Teziutlán
-      const juanSlugs = ['pequeno-juan', 'peque-juan', 'pequeno-juan-medio-digital'];
-      for (const slug of juanSlugs) {
-        let juanP = this.prepare("SELECT id FROM perfiles WHERE slug = ?").get(slug);
-        let jId;
-        const bioText = '⭐ 5.0 (226K+ Seguidores) · El medio digital de noticias y comunicación líder en Teziutlán.';
-        if (!juanP) {
-          const resJ = this.prepare(`
-            INSERT OR IGNORE INTO perfiles (usuario_id, slug, nombre_perfil, tipo, color, tema, bio, foto_url, banner_url)
-            VALUES (?, ?, 'Pequeño Juan | Medio Digital Líder', 'negocio', '#E11D48', 'neon', ?, 'https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?w=300', 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=1000')
-          `).run(targetUserId, slug, bioText);
-          jId = resJ.lastInsertRowid;
-        } else {
-          jId = juanP.id;
-          this.prepare(`
-            UPDATE perfiles SET 
-              usuario_id = ?,
-              banner_url = 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=1000',
-              foto_url = 'https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?w=300',
-              color = '#E11D48',
-              tema = 'neon',
-              bio = ?
-            WHERE id = ?
-          `).run(targetUserId, bioText, jId);
-        }
-
-        // Limpiar y sembrar bloques de Pequeño Juan
-        this.prepare("DELETE FROM bloques WHERE perfil_id = ?").run(jId);
-
-        this.prepare("INSERT OR IGNORE INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'whatsapp', ?, 0)").run(
-          jId, JSON.stringify({ titulo: 'Cotizar Publicidad y Coberturas', url: 'https://wa.me/522311120932', numero: '522311120932', texto: 'Cotizar Publicidad y Coberturas' })
-        );
-
-        this.prepare("INSERT OR IGNORE INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 1)").run(
-          jId, JSON.stringify({ titulo: 'Página Oficial de Facebook', url: 'https://www.facebook.com/Pequeño-Juan-Teziutlán-Centro', icono: '📱', color: '#1877F2' })
-        );
-
-        this.prepare("INSERT OR IGNORE INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 2)").run(
-          jId, JSON.stringify({ titulo: 'Llamar a Redacción (tel:2311120932)', url: 'tel:2311120932', icono: '📞', color: '#0284C7' })
-        );
-
-        this.prepare("INSERT OR IGNORE INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'seccion', ?, 3)").run(
-          jId, JSON.stringify({ titulo: 'Ubicación de Oficinas' })
-        );
-
-        this.prepare("INSERT OR IGNORE INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 4)").run(
-          jId, JSON.stringify({ titulo: 'Oficinas Av. Benito Juárez 1510-A, Centro', url: 'https://maps.google.com/?q=Av.+Benito+Juárez+1510-A+Teziutlan', icono: '📍', color: '#E11D48' })
-        );
       }
 
       // 2. Definir los 5 Usuarios Free y 5 Usuarios Pro
@@ -625,6 +504,52 @@ class DatabaseWrapper {
       this._saveToDisk();
     } catch (e) {
       console.error('Error en _ensurePremiumProfiles:', e);
+    }
+  }
+
+  /**
+   * Limpieza automática de duplicados vacíos y slugs obsoletos
+   */
+  _cleanupDuplicateProfiles() {
+    try {
+      // 1. Eliminar cualquier perfil que tenga slugs alternativos no deseados
+      const invalidSlugs = ['cristina-teziutlan', 'cristina-taqueria', 'peque-juan', 'pequeno-juan-medio-digital'];
+      for (const slug of invalidSlugs) {
+        const rows = this.prepare("SELECT id FROM perfiles WHERE slug = ?").all(slug);
+        for (const r of rows) {
+          this.prepare("DELETE FROM bloques WHERE perfil_id = ?").run(r.id);
+          this.prepare("DELETE FROM perfiles WHERE id = ?").run(r.id);
+          console.log(`🧹 Eliminado perfil alternativo no deseado: ID ${r.id} (${slug})`);
+        }
+      }
+
+      // 2. Buscar clones vacíos de 'Cristina' o 'Pequeño Juan' que tengan 0 bloques y eliminarlos
+      const allPremiumRows = this.prepare(`
+        SELECT p.id, p.slug, p.nombre_perfil, (SELECT COUNT(*) FROM bloques WHERE perfil_id = p.id) as total_bloques
+        FROM perfiles p
+        WHERE p.slug IN ('cristina', 'pequeno-juan') OR p.nombre_perfil LIKE '%Cristina%' OR p.nombre_perfil LIKE '%Pequeño Juan%'
+      `).all();
+
+      for (const slug of ['cristina', 'pequeno-juan']) {
+        const profilesForSlug = allPremiumRows.filter(p => p.slug === slug || (slug === 'cristina' && p.nombre_perfil.includes('Cristina')) || (slug === 'pequeno-juan' && p.nombre_perfil.includes('Pequeño Juan')));
+        if (profilesForSlug.length > 1) {
+          // Ordenar: los que tienen 0 bloques primero para eliminarlos
+          profilesForSlug.sort((a, b) => a.total_bloques - b.total_bloques);
+          // Eliminar todos excepto el que tiene bloques (> 0)
+          for (let i = 0; i < profilesForSlug.length - 1; i++) {
+            const dup = profilesForSlug[i];
+            if (dup.total_bloques === 0) {
+              this.prepare("DELETE FROM bloques WHERE perfil_id = ?").run(dup.id);
+              this.prepare("DELETE FROM perfiles WHERE id = ?").run(dup.id);
+              console.log(`🧹 Eliminado clon vacío duplicado: ID ${dup.id} (${dup.nombre_perfil} - ${dup.total_bloques} bloques)`);
+            }
+          }
+        }
+      }
+
+      this._saveToDisk();
+    } catch (e) {
+      console.error('Error en _cleanupDuplicateProfiles:', e);
     }
   }
 

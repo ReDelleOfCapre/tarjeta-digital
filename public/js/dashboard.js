@@ -55,23 +55,11 @@
     document.getElementById('modal-delete').classList.remove('hidden');
   };
 
-  function loadProfiles(isRetry) {
+  function loadProfiles() {
     api('/perfiles?_t=' + Date.now()).then(function(data) {
       if (!data || data.error) return;
 
       var perfiles = Array.isArray(data) ? data : (data.perfiles || []);
-
-      // Si la API devuelve sólo 1 tarjeta o menos y no es un reintento, forzar inicialización de las 7 tarjetas
-      if (perfiles.length <= 1 && !isRetry) {
-        console.log('🔄 Ejecutando auto-inicialización de 7 tarjetas en dashboard...');
-        api('/perfiles/inicializar', { method: 'POST' }).then(function() {
-          loadProfiles(true);
-        }).catch(function() {
-          renderGrid(perfiles);
-        });
-        return;
-      }
-
       renderGrid(perfiles);
     }).catch(function(err) {
       showToast('Error cargando tarjetas', 'error');
