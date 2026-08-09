@@ -27,6 +27,39 @@ document.addEventListener('DOMContentLoaded', () => {
   }, observerOptions);
   document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
 
+  // Explicit Auth Link Smooth Scrolling & Tab Switching
+  document.querySelectorAll('a[href="#auth"]').forEach(link => {
+    link.addEventListener('click', (e) => {
+      const tab = link.getAttribute('data-tab') || (link.textContent.toLowerCase().includes('iniciar') ? 'login' : 'register');
+      switchTab(tab);
+      const authSec = document.getElementById('auth');
+      if (authSec) {
+        e.preventDefault();
+        authSec.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  });
+
+  document.querySelectorAll('a[href="#features"]').forEach(link => {
+    link.addEventListener('click', (e) => {
+      const feat = document.getElementById('features');
+      if (feat) {
+        e.preventDefault();
+        feat.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  });
+
+  document.querySelectorAll('a[href="#precios"]').forEach(link => {
+    link.addEventListener('click', (e) => {
+      const price = document.getElementById('precios');
+      if (price) {
+        e.preventDefault();
+        price.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  });
+
   // Global Event Delegation for buttons & tabs
   document.addEventListener('click', (e) => {
     const actionBtn = e.target.closest('[data-action]');

@@ -222,8 +222,8 @@
         <a href="#auth">Acceso</a>
       </div>
       <div class="nav-auth">
-        <a href="#auth" class="btn btn-text" onclick="switchTab('login')">Iniciar sesión</a>
-        <a href="#auth" class="btn btn-primary" onclick="switchTab('register')">Crear cuenta gratis</a>
+        <a href="#auth" class="btn btn-text" data-action="switch-tab" data-tab="login" onclick="switchTab('login')">Iniciar sesión</a>
+        <a href="#auth" class="btn btn-primary" data-action="switch-tab" data-tab="register" onclick="switchTab('register')">Crear cuenta gratis</a>
       </div>
     </div>
   </nav>
@@ -233,8 +233,8 @@
     <h1 class="fade-in">Tu identidad digital.<br>Sin límites.</h1>
     <p class="fade-in">Crea tu tarjeta digital, comparte por NFC, cobra por tus productos. Todo en un link. Diseñado para creadores y profesionales que exigen más.</p>
     <div class="hero-cta fade-in">
-      <a href="#auth" class="btn btn-primary" onclick="switchTab('register')">Crear cuenta gratis</a>
-      <a href="#features" class="btn btn-ghost">Ver demo &rarr;</a>
+      <a href="#auth" class="btn btn-primary" data-action="switch-tab" data-tab="register" onclick="switchTab('register')">Crear cuenta gratis</a>
+      <a href="#features" class="btn btn-ghost" id="btn-hero-demo">Ver demo &rarr;</a>
     </div>
     
     <div class="phone-mockup fade-in">
