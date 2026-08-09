@@ -501,7 +501,17 @@
       {{bloques_html}}
     </div>
     {{archivos_section_html}}
-    {{action_buttons_html}}
+    <!-- Captura de Leads / Boletín -->
+    <div class="block-wrapper block-email" style="margin-top:24px">
+      <div style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:20px;padding:20px">
+        <h3 style="font-size:1.05rem;font-weight:700;color:var(--text-primary);margin-bottom:6px">📬 Suscribirse al Boletín</h3>
+        <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:14px">Recibe novedades y actualizaciones directamente en tu correo.</p>
+        <form class="lead-subscription-form" style="display:flex;gap:8px">
+          <input type="email" required placeholder="tu.email@correo.com" style="flex:1;padding:12px 14px;border-radius:12px;border:1px solid var(--border-color);background:rgba(255,255,255,0.05);color:var(--text-primary);font-size:0.9rem">
+          <button type="submit" class="btn-sm" style="background:var(--profile-color,#7C3AED);color:#fff;border:none;border-radius:12px;padding:12px 18px;font-weight:700;cursor:pointer">Suscribir</button>
+        </form>
+      </div>
+    </div>
     
     <p class="brand">Creado con <a href="{{base_url}}">VYNK</a></p>
   </main>
@@ -529,9 +539,6 @@
       document.querySelector('.header').classList.add('visible');
       
       document.querySelectorAll('.block-wrapper, .section, .block-link, .block-wa, .block-embed, .block-text, .block-email, .block-countdown, .block-gallery, .block-socials').forEach(el => {
-        if (!el.classList.contains('block-wrapper')) {
-           // wait, block-wrapper is applied to all
-        }
         observer.observe(el.closest('.block-wrapper') || el);
       });
     });
@@ -557,21 +564,30 @@
 
   <!-- Email capture -->
   <script>
-    document.querySelectorAll('.block-email form').forEach(function(f){
+    document.querySelectorAll('.block-email form, .lead-subscription-form').forEach(function(f){
       f.addEventListener('submit', function(e){
         e.preventDefault();
-        var email = f.querySelector('input[type=email]').value;
+        var emailInput = f.querySelector('input[type=email]');
+        if (!emailInput) return;
+        var email = emailInput.value;
         var pid = "{{perfil_id}}";
         var btn = f.querySelector('button');
-        var ogText = btn.textContent;
-        btn.textContent = 'Enviando...';
-        btn.disabled = true;
-        fetch('/api/perfiles/' + pid + '/suscribir', {
-          method: 'POST', headers: {'Content-Type':'application/json'},
+        var ogText = btn ? btn.textContent : 'Suscribir';
+        if (btn) { btn.textContent = 'Enviando...'; btn.disabled = true; }
+        fetch('/api/suscriptores/perfiles/' + pid + '/suscribir', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
           body: JSON.stringify({email: email})
         }).then(function(r){ return r.json(); }).then(function(d){
-          if(d.ok){ f.innerHTML = '<p style="padding:16px;color:var(--profile-color);font-weight:bold;font-size:1.1rem;">✅ ¡Suscrito exitosamente!</p>'; }
-          else { alert(d.error || 'Error'); btn.textContent = ogText; btn.disabled = false; }
+          if(d.ok || d.success){
+            f.innerHTML = '<p style="padding:16px;color:var(--profile-color,#10B981);font-weight:bold;font-size:1.05rem;">✅ ¡Suscrito al boletín exitosamente!</p>';
+          } else {
+            alert(d.error || 'Error suscribiendo');
+            if (btn) { btn.textContent = ogText; btn.disabled = false; }
+          }
+        }).catch(function(){
+          alert('Error de conexión al suscribirse');
+          if (btn) { btn.textContent = ogText; btn.disabled = false; }
         });
       });
     });

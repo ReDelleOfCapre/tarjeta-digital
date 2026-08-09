@@ -134,45 +134,7 @@
     </form>
   </div>
 
-  <script>
-    document.getElementById('admin-login-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const keyInput = document.getElementById('admin-key').value;
-      const errorBox = document.getElementById('error-box');
-      const btnSubmit = document.getElementById('btn-submit');
-
-      errorBox.style.display = 'none';
-      btnSubmit.disabled = true;
-      btnSubmit.textContent = 'Verificando...';
-
-      try {
-        const res = await fetch('/api/admin/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ key: keyInput })
-        });
-        
-        const data = await res.json();
-
-        if (!res.ok) {
-          throw new Error(data.error || 'Acceso denegado.');
-        }
-
-        // Guardar token maestro de Admin y redirigir
-        localStorage.setItem('admin_token', data.token);
-        localStorage.setItem('token', data.token);
-        if (data.usuario) {
-          localStorage.setItem('user', JSON.stringify(data.usuario));
-        }
-
-        location.href = '/admin.html';
-      } catch (err) {
-        errorBox.textContent = err.message;
-        errorBox.style.display = 'block';
-        btnSubmit.disabled = false;
-        btnSubmit.textContent = 'Desbloquear Panel';
-      }
-    });
-  </script>
+  <script src="/js/app.js"></script>
+  <script src="/js/admin.js"></script>
 </body>
 </html>

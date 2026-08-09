@@ -780,7 +780,8 @@
         renderBlockList();
       }
     }).catch(function(err){
-      console.warn('Error loading:', err);
+      console.error(err);
+      alert('Error al cargar datos. Reintente.');
     });
   }
 

@@ -146,18 +146,23 @@
   window.sendInvite = function() {
     var emailInput = document.getElementById('invite-email');
     var roleInput = document.getElementById('invite-role');
+    var selectWorkspace = document.getElementById('select-workspace');
     if (!emailInput) return;
     var email = emailInput.value.trim();
     var role = roleInput ? roleInput.value : 'Editor';
+    var workspaceId = (selectWorkspace && selectWorkspace.value && selectWorkspace.value !== 'personal' && selectWorkspace.value !== 'new') ? selectWorkspace.value : 1;
 
     if (!email) { showToast('Ingresa un correo electrónico', 'error'); return; }
 
     var senderName = user ? user.nombre : 'Colega VYNK';
 
-    api('/invite', {
+    // Persistir relación RBAC en Workspace vía POST /api/workspaces/:id/members
+    api('/workspaces/' + workspaceId + '/members', {
       method: 'POST',
-      body: JSON.stringify({ email: email, senderName: senderName })
+      body: JSON.stringify({ email: email, role: role })
     }).then(function(res) {
+      api('/invite', { method: 'POST', body: JSON.stringify({ email: email, senderName: senderName }) }).catch(function(){});
+
       var list = document.getElementById('team-members-list');
       if (list) {
         var item = document.createElement('div');
@@ -166,10 +171,25 @@
         list.appendChild(item);
       }
       emailInput.value = '';
-      showToast('Invitación enviada con rol ' + role, 'success');
+      showToast('Miembro guardado en Workspace RBAC', 'success');
     }).catch(function(err) {
-      console.error('Fallo en la petición:', err);
-      showToast('Error enviando invitación', 'error');
+      // Si no existe aún en DB, despachar correo de registro
+      api('/invite', { method: 'POST', body: JSON.stringify({ email: email, senderName: senderName }) })
+        .then(function() {
+          var list = document.getElementById('team-members-list');
+          if (list) {
+            var item = document.createElement('div');
+            item.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:12px;background:rgba(255,255,255,0.04);border-radius:12px;margin-top:4px';
+            item.innerHTML = '<div><div style="font-weight:700;color:#FFF;font-size:0.88rem">' + escapeHtml(email.split('@')[0]) + '</div><div style="font-size:0.75rem;color:var(--text-tertiary)">' + escapeHtml(email) + '</div></div><span class="pro-badge-lock" style="background:rgba(6,182,212,0.2);color:#38BDF8;border-color:rgba(6,182,212,0.4)">' + escapeHtml(role) + ' (Pendiente)</span>';
+            list.appendChild(item);
+          }
+          emailInput.value = '';
+          showToast('Invitación de registro enviada a ' + email, 'success');
+        })
+        .catch(function(e) {
+          console.error('Fallo enviando invitación:', e);
+          showToast('Error asignando miembro en Workspace', 'error');
+        });
     });
   };
 

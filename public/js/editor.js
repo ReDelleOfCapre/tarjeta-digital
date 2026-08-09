@@ -185,10 +185,47 @@
     var removed = addedFields[index];
     // If it has an ID, delete from server
     if (removed.id && editId) {
-      api('/campos/' + removed.id, { method: 'DELETE' });
+      api('/campos/' + removed.id, { method: 'DELETE' })
+        .then(function() {
+          showToast('Campo eliminado', 'success');
+        })
+        .catch(function(err) {
+          console.error(err);
+          alert('Fallo al eliminar en la nube');
+        });
     }
     addedFields.splice(index, 1);
     renderAddedFields();
+  };
+
+  // Delegación global de eventos de interfaz
+  document.addEventListener('click', function(e) {
+    var target = e.target.closest('[data-action]');
+    if (!target) return;
+    var action = target.getAttribute('data-action');
+    if (action === 'trigger-avatar-upload') {
+      var input = document.getElementById('input-foto');
+      if (input) input.click();
+    }
+  });
+
+  // Servicio de subida de archivos adjuntos core (/api/perfiles/:id/archivos)
+  window.uploadPerfilArchivo = function(perfilId, file) {
+    if (!perfilId || !file) return Promise.reject(new Error('Perfil o archivo inválido'));
+    var formData = new FormData();
+    formData.append('archivo', file);
+
+    return api('/perfiles/' + perfilId + '/archivos', {
+      method: 'POST',
+      body: formData,
+      headers: {}
+    }).then(function(res) {
+      showToast('Archivo adjunto guardado en la nube', 'success');
+      return res;
+    }).catch(function(err) {
+      console.error('Error subiendo archivo adjunto:', err);
+      alert('Fallo al subir el archivo adjunto');
+    });
   };
 
   function renderAddedFields() {

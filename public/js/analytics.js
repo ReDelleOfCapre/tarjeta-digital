@@ -64,28 +64,28 @@
       // Populate selector
       profileSelect.innerHTML = '';
       perfiles.forEach(function(p) {
-        var option = document.createElement('option');
-        option.value = p.id;
-        option.textContent = p.nombre_perfil;
-        if (preselectedId && p.id == preselectedId) {
-          option.selected = true;
+        var opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = p.nombre_perfil + ' (' + (p.tipo || 'personal') + ')';
+        if (preselectedId && String(p.id) === String(preselectedId)) {
+          opt.selected = true;
         }
-        profileSelect.appendChild(option);
+        profileSelect.appendChild(opt);
       });
 
       if (perfiles.length > 1) {
         profileSelect.classList.remove('hidden');
       }
 
-      // Initial load
+      // Load analytics for current/selected profile
       loadAnalytics(profileSelect.value);
-
       // Handle change
       profileSelect.addEventListener('change', function() {
         loadAnalytics(this.value);
       });
     }).catch(function(err) {
-      showToast('Error cargando tarjetas', 'error');
+      console.error(err);
+      alert('Error al cargar datos. Reintente.');
     });
   }
 

@@ -436,22 +436,7 @@
       }
     }
 
-    function closePerfilesModal() {
-      document.getElementById('modal-perfiles').classList.remove('active');
-    }
-
-    async function deletePerfilAdmin(perfilId) {
-      if(!confirm('¿Seguro que deseas eliminar permanentemente esta tarjeta digital? Esta acción no se puede deshacer.')) return;
-      try {
-        const res = await api(`/api/admin/perfiles/${perfilId}`, { method: 'DELETE' });
-        if(res.ok) {
-          document.getElementById(`perfil-item-${perfilId}`).remove();
-          loadDashboardData(); 
-        } else {
-          alert('Error: ' + res.error);
-        }
-      } catch(e) { alert('Error de conexión'); }
-    }
-  </script>
+  <script src="/js/app.js"></script>
+  <script src="/js/admin.js"></script>
 </body>
 </html>
