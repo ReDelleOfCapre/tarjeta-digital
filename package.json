@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "test": "npx playwright test"
+    "test": "npx playwright test",
+    "prepush": "npx playwright test"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

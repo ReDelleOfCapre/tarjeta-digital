@@ -2071,9 +2071,14 @@ h1, h2, h3, h4, h5, h6, .brand, .card-name, .nav-brand, .admin-title, .name {
 /* Interactivity & Pointer-Events Guard */
 .bg-mesh,
 .bg-gradient-blur,
-.bg-decor {
+.bg-decor,
+.driver-overlay,
+.driver-overlay-animated,
+svg.driver-overlay,
+svg.driver-overlay *,
+.driver-active .driver-overlay,
+.driver-active .driver-overlay * {
   pointer-events: none !important;
-  z-index: 0 !important;
 }
 
 button,
