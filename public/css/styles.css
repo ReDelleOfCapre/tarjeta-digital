@@ -1,53 +1,55 @@
 /* ============================================
    VYNK — Premium Digital Identity Platform
-   Auto dark/light via prefers-color-scheme
+   Design System 2.0 (SaaS Premium Refero/OpenHero Style)
    ============================================ */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&family=Inter:wght@400;500;600&display=swap');
 
-/* ---- CSS Custom Properties (Arquitectura 2026: Design Tokens & Lienzo Infinito) ---- */
+/* ---- CSS Custom Properties (VYNK Design System 2.0 Tokens) ---- */
 :root {
-  /* Fluid Spacing & Typography Tokens via clamp() */
-  --gap-sm: clamp(0.5rem, 1.2vw, 0.85rem);
-  --gap-md: clamp(1rem, 2.5vw, 1.75rem);
-  --gap-lg: clamp(1.75rem, 4vw, 3rem);
+  --bg-base: #09090B;
+  --bg-surface: #18181B;
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --accent-gradient: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+  --text-main: #FAFAFA;
+  --text-muted: #A1A1AA;
 
-  --font-h1: clamp(1.8rem, 4.5vw, 3.2rem);
-  --font-h2: clamp(1.35rem, 3vw, 2.2rem);
+  /* Mapeo estandarizado */
+  --bg-primary: var(--bg-base);
+  --bg-secondary: #121215;
+  --bg-tertiary: var(--bg-surface);
+  --bg-card: var(--bg-surface);
+  --card-border: var(--border-subtle);
+  --card-blur: 24px;
+  --card-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 8px 24px rgba(0, 0, 0, 0.4);
 
-  /* Obsidian B2B Minimal Palette & Glass Surfaces */
-  --bg-primary: #0A0A0B;
-  --bg-secondary: #121214;
-  --bg-tertiary: #18181B;
-  --bg-card: rgba(255, 255, 255, 0.03);
-  --card-border: rgba(255, 255, 255, 0.06);
-  --card-blur: 20px;
-  --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
-  
-  --text-primary: #FFFFFF;
+  --text-primary: var(--text-main);
   --text-secondary: #E2E8F0;
-  --text-tertiary: #94A3B8;
-  --text-muted: #64748B;
-  
-  --primary: #7C3AED;
-  --secondary: #6366F1;
+  --text-tertiary: var(--text-muted);
+
+  --primary: #6366F1;
+  --secondary: #8B5CF6;
   --accent: #06B6D4;
-  --accent-glow: rgba(124, 58, 237, 0.3);
-  
+  --accent-glow: rgba(99, 102, 241, 0.35);
+
   --green: #10B981;
   --orange: #F59E0B;
   --red: #EF4444;
   --purple: #8B5CF6;
   --pink: #EC4899;
-  
-  --separator: rgba(255, 255, 255, 0.06);
-  
+
+  --separator: rgba(255, 255, 255, 0.08);
+
   --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.2);
-  --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.3);
+  --shadow-md: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 8px 24px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.5);
   --overlay: rgba(5, 5, 8, 0.85);
-  
-  --grad-primary: linear-gradient(135deg, #7C3AED, #6366F1);
-  --grad-accent: linear-gradient(135deg, #7C3AED, #06B6D4);
+
+  --grad-primary: var(--accent-gradient);
+  --grad-accent: var(--accent-gradient);
+
+  --font-heading: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-family: var(--font-body);
 
   --space-xs: 8px;
   --space-sm: 16px;
@@ -55,9 +57,12 @@
   --space-lg: 32px;
   --space-xl: 48px;
 
-  --radius-sm: 10px;
-  --radius-md: 14px;
-  --radius-lg: 20px;
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
+  --radius-full: 50%;
+  --radius-pill: 9999px;
   --radius-xl: 28px;
   --radius-full: 50%;
   --radius-pill: 100px;
@@ -258,14 +263,79 @@ svg, svg *, svg.icon, svg.btn-icon, svg.action-icon, svg.ui-icon {
   padding: 0 32px;
 }
 
-/* ---- High-End Typography Hierarchy ---- */
-h1, h2, h3, .profile-name, .step-title, .brand {
+/* ---- VYNK Design System 2.0 Typography Hierarchy ---- */
+h1, h2, h3, .title, .font-heading, .brand, .plan-name, .profile-name, .hero h1, .nav-brand {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif !important;
   letter-spacing: -0.025em !important;
   line-height: 1.25 !important;
 }
-p, .profile-bio, .step-subtitle {
+
+body, p, span, input, select, textarea, button, .profile-bio, .step-subtitle {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
   line-height: 1.65 !important;
   letter-spacing: -0.005em !important;
+}
+
+/* ---- Bento Box & Glassmorphism 2.0 (Refero / OpenHero Aesthetic) ---- */
+.card,
+.dashboard-panel,
+.config-container,
+.selling-card-item,
+.stat-card,
+.block-item-row,
+.email-card,
+.bento-card,
+.profile-card {
+  background-color: var(--bg-surface) !important;
+  border: 1px solid var(--border-subtle) !important;
+  border-radius: 24px !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s ease !important;
+}
+
+/* ---- Botones de Alta Conversión (Pill-Shape & Micro-interacciones) ---- */
+.btn-primary,
+.btn-cta,
+.btn-action,
+#btn-save,
+#btn-final-save,
+#btn-pro-plan {
+  background: var(--accent-gradient) !important;
+  color: #FFFFFF !important;
+  border-radius: 9999px !important;
+  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  font-weight: 700 !important;
+  border: none !important;
+  padding: 12px 26px !important;
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.35) !important;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease, opacity 0.2s ease !important;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-primary:hover,
+.btn-cta:hover,
+.btn-action:hover,
+#btn-save:hover,
+#btn-final-save:hover,
+#btn-pro-plan:hover {
+  transform: scale(0.98) !important;
+  box-shadow: 0 6px 24px rgba(99, 102, 241, 0.5) !important;
+  opacity: 0.95;
+}
+
+.btn-primary:active,
+.btn-cta:active,
+.btn-action:active,
+#btn-save:active,
+#btn-final-save:active,
+#btn-pro-plan:active {
+  transform: scale(0.95) !important;
 }
 
 .text-muted { color: var(--text-muted); }
@@ -276,7 +346,7 @@ p, .profile-bio, .step-subtitle {
 .text-xs { font-size: var(--font-xs); }
 .text-center { text-align: center; }
 .font-semibold { font-weight: 600; }
-.font-bold { font-weight: 700; }
+.font-bold { font-weight: 700; font-family: 'Plus Jakarta Sans', sans-serif !important; }
 
 /* ---- Navigation Bar ---- */
 .navbar {
