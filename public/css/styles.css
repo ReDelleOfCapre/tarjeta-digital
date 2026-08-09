@@ -1,35 +1,34 @@
 /* ============================================
-   VYNK — Premium Digital Identity Platform
-   Design System 2.0 (SaaS Premium Refero/OpenHero Style)
+   VYNK — Technical & Minimalist Platform
+   Design System 3.0 (Shadcn/ui & Strict Typography)
    ============================================ */
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap');
 
-/* ---- CSS Custom Properties (VYNK Design System 2.0 Tokens) ---- */
+/* ---- CSS Custom Properties (Shadcn Dark Palette Tokens) ---- */
 :root {
-  --bg-base: #09090B;
-  --bg-surface: #18181B;
-  --border-subtle: rgba(255, 255, 255, 0.08);
-  --accent-gradient: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
-  --text-main: #FAFAFA;
-  --text-muted: #A1A1AA;
+  --bg-base: #12161B;
+  --bg-surface: #1A1F26;
+  --border-subtle: #2A313A;
+  --text-main: #EEEAE0;
+  --text-muted: #8C96A3;
 
   /* Mapeo estandarizado */
   --bg-primary: var(--bg-base);
-  --bg-secondary: #121215;
+  --bg-secondary: #161B22;
   --bg-tertiary: var(--bg-surface);
   --bg-card: var(--bg-surface);
   --card-border: var(--border-subtle);
-  --card-blur: 24px;
-  --card-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 8px 24px rgba(0, 0, 0, 0.4);
+  --card-blur: 0px;
+  --card-shadow: none;
 
   --text-primary: var(--text-main);
-  --text-secondary: #E2E8F0;
+  --text-secondary: #C9D1D9;
   --text-tertiary: var(--text-muted);
 
-  --primary: #6366F1;
-  --secondary: #8B5CF6;
-  --accent: #06B6D4;
-  --accent-glow: rgba(99, 102, 241, 0.35);
+  --primary: #EEEAE0;
+  --secondary: #2A313A;
+  --accent: #EEEAE0;
+  --accent-glow: rgba(238, 234, 224, 0.15);
 
   --green: #10B981;
   --orange: #F59E0B;
@@ -37,17 +36,17 @@
   --purple: #8B5CF6;
   --pink: #EC4899;
 
-  --separator: rgba(255, 255, 255, 0.08);
+  --separator: #2A313A;
 
-  --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.2);
-  --shadow-md: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 8px 24px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.5);
-  --overlay: rgba(5, 5, 8, 0.85);
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.5);
+  --overlay: rgba(18, 22, 27, 0.85);
 
-  --grad-primary: var(--accent-gradient);
-  --grad-accent: var(--accent-gradient);
-
-  --font-heading: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-heading: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-family: var(--font-body);
   --font-body: 'Inter', system-ui, -apple-system, sans-serif;
   --font-family: var(--font-body);
 
@@ -1930,21 +1929,48 @@ main, .main-panel, .controls-panel, .builder-grid, .config-container, .dashboard
 }
 
 /* ============================================
-   VYNK DESIGN SYSTEM 2.0 & SAAS DESKTOP LAYOUT
+   VYNK DESIGN SYSTEM 3.0 (SHADCN/UI & STRICT TYPOGRAPHY)
    ============================================ */
 
 /* 1. Global Typography & Premium Background */
 body {
-  background-color: var(--bg-base, #09090B) !important;
-  color: var(--text-main, #FAFAFA) !important;
+  background-color: var(--bg-base, #12161B) !important;
+  color: var(--text-main, #EEEAE0) !important;
   font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
   margin: 0;
   padding: 0;
 }
 
-h1, h2, h3, h4, h5, h6, .brand, .card-name, .nav-brand, .admin-title {
-  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif !important;
-  letter-spacing: -0.02em;
+/* Encabezados estrictos en Space Grotesk */
+h1, h2, h3, h4, h5, h6, .brand, .card-name, .nav-brand, .admin-title, .name {
+  font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif !important;
+  letter-spacing: -0.02em !important;
+  font-weight: 700 !important;
+  color: #EEEAE0 !important;
+}
+
+/* Métricas en Space Grotesk gigante */
+.stat-number {
+  font-family: 'Space Grotesk', sans-serif !important;
+  font-size: 2.2rem !important;
+  font-weight: 700 !important;
+  color: #EEEAE0 !important;
+  line-height: 1.1 !important;
+}
+
+/* Subtítulos de métricas, tags, metadata y nav en IBM Plex Mono */
+.stat-label,
+.card-meta,
+.card-meta span,
+.pro-badge-lock,
+.nav-side-item,
+.tag,
+.activity-date {
+  font-family: 'IBM Plex Mono', monospace !important;
+  font-size: 11px !important;
+  letter-spacing: 0.04em !important;
+  text-transform: uppercase !important;
+  color: var(--text-muted, #8C96A3) !important;
 }
 
 /* 2. Desktop SaaS Layout (>= 1024px) */
@@ -1978,7 +2004,7 @@ h1, h2, h3, h4, h5, h6, .brand, .card-name, .nav-brand, .admin-title {
   #profile-grid {
     display: grid !important;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)) !important;
-    gap: 24px !important;
+    gap: 20px !important;
   }
 }
 
@@ -1997,25 +2023,30 @@ h1, h2, h3, h4, h5, h6, .brand, .card-name, .nav-brand, .admin-title {
   }
 }
 
-/* 3. Profile Card Internal Bento Layout */
-.profile-card {
-  background: var(--bg-surface, #18181B) !important;
-  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08)) !important;
-  border-radius: 24px !important;
+/* 3. Cards Estilo Shadcn/ui (12px Radius, Solid Border, No Excessive Glow) */
+.card,
+.profile-card,
+.bento-card,
+.stat-card,
+.admin-card {
+  background: var(--bg-surface, #1A1F26) !important;
+  border: 1px solid var(--border-subtle, #2A313A) !important;
+  border-radius: 12px !important;
   padding: 20px !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+  box-shadow: none !important;
   display: flex !important;
   flex-direction: column !important;
   justify-content: space-between !important;
   gap: 16px !important;
-  transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1), border-color 200ms ease, box-shadow 200ms ease !important;
+  transition: border-color 160ms ease, background-color 160ms ease !important;
   cursor: pointer !important;
 }
 
-.profile-card:hover {
-  transform: translateY(-2px) !important;
-  border-color: rgba(99, 102, 241, 0.35) !important;
-  box-shadow: 0 12px 32px rgba(99, 102, 241, 0.18) !important;
+.card:hover,
+.profile-card:hover,
+.bento-card:hover {
+  border-color: #485362 !important;
+  background-color: #212730 !important;
 }
 
 .card-actions,
@@ -2027,7 +2058,7 @@ h1, h2, h3, h4, h5, h6, .brand, .card-name, .nav-brand, .admin-title {
   width: max-content !important;
   margin-left: auto !important;
   padding-top: 12px !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
+  border-top: 1px solid var(--border-subtle, #2A313A) !important;
 }
 
 .card-actions .btn,
@@ -2041,12 +2072,21 @@ h1, h2, h3, h4, h5, h6, .brand, .card-name, .nav-brand, .admin-title {
   max-width: 34px !important;
   flex: 0 0 34px !important;
   box-sizing: border-box !important;
-  border-radius: 10px !important;
+  border-radius: 6px !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
   text-decoration: none !important;
   padding: 0 !important;
+  background: transparent !important;
+  border: 1px solid var(--border-subtle, #2A313A) !important;
+  color: var(--text-main, #EEEAE0) !important;
+}
+
+.card-actions .btn:hover,
+.card-actions a:hover,
+.card-actions button:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
 }
 
 /* 4. Public Profile Link-in-Bio Phone Container on Desktop */
@@ -2054,10 +2094,10 @@ h1, h2, h3, h4, h5, h6, .brand, .card-name, .nav-brand, .admin-title {
   max-width: 480px !important;
   margin: 32px auto !important;
   min-height: calc(100vh - 64px) !important;
-  background: var(--bg-surface, #18181B) !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  border-radius: 36px !important;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7), 0 0 50px rgba(99, 102, 241, 0.15) !important;
+  background: var(--bg-surface, #1A1F26) !important;
+  border: 1px solid var(--border-subtle, #2A313A) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6) !important;
   overflow: hidden !important;
   position: relative !important;
 }
@@ -2072,20 +2112,20 @@ h1, h2, h3, h4, h5, h6, .brand, .card-name, .nav-brand, .admin-title {
   }
 }
 
-/* Pill-shaped Primary Buttons */
+/* 5. Minimalist Shadcn Buttons (6px Radius, High Contrast White/Dark Primary) */
 .btn-primary,
 .btn-primary-gradient,
 .btn-submit,
 .save-btn {
-  background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%) !important;
-  border-radius: 9999px !important;
-  border: none !important;
-  color: #FFFFFF !important;
+  background: #EEEAE0 !important;
+  border-radius: 6px !important;
+  border: 1px solid #EEEAE0 !important;
+  color: #12161B !important;
   font-weight: 700 !important;
-  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif !important;
-  padding: 12px 24px !important;
-  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.35) !important;
-  transition: transform 160ms cubic-bezier(0.16, 1, 0.3, 1), opacity 160ms ease, box-shadow 160ms ease !important;
+  font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif !important;
+  padding: 10px 20px !important;
+  box-shadow: none !important;
+  transition: opacity 160ms ease, transform 160ms ease !important;
   cursor: pointer !important;
 }
 
@@ -2098,6 +2138,15 @@ h1, h2, h3, h4, h5, h6, .brand, .card-name, .nav-brand, .admin-title {
 .btn-primary:hover,
 .btn-primary-gradient:hover,
 .btn-submit:hover {
-  box-shadow: 0 6px 24px rgba(139, 92, 246, 0.5) !important;
-  opacity: 0.95 !important;
+  opacity: 0.9 !important;
+}
+
+.btn-secondary,
+.btn-ghost {
+  background: transparent !important;
+  border-radius: 6px !important;
+  border: 1px solid var(--border-subtle, #2A313A) !important;
+  color: var(--text-main, #EEEAE0) !important;
+  font-weight: 600 !important;
+  padding: 10px 20px !important;
 }
