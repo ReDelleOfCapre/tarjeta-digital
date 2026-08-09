@@ -41,13 +41,140 @@
       if (el.textContent.includes('Pro')) el.textContent = '✓ Pro Activo';
     });
   } else {
-    var banner = document.getElementById('upgrade-banner');
-    if (banner) banner.classList.remove('hidden');
-  }
+  // Global Functions & Event Listeners (Zero Inline JS)
+  window.toggleMobileNavDrawer = function() {
+    var drawer = document.getElementById('mobile-nav-drawer');
+    var backdrop = document.getElementById('mobile-nav-backdrop');
+    if (drawer && backdrop) {
+      drawer.classList.toggle('active');
+      backdrop.classList.toggle('active');
+    }
+  };
 
-  // Check Legal Terms consent
-  var legalModal = document.getElementById('modal-legal-terms');
-  if (legalModal && user.terms_accepted === false) {
+  window.toggleCommandPalette = function() {
+    var overlay = document.getElementById('cmd-palette-overlay');
+    if (overlay) {
+      overlay.classList.toggle('hidden');
+      if (!overlay.classList.contains('hidden')) {
+        var input = document.getElementById('cmd-search-input');
+        if (input) input.focus();
+      }
+    }
+  };
+
+  window.toggleFocusMode = function() {
+    document.body.classList.toggle('focus-mode');
+    showToast('Modo Concentración Trazado', 'info');
+    toggleCommandPalette();
+  };
+
+  window.switchWorkspace = function(val) {
+    if (val === 'new') {
+      var name = prompt('Nombre del nuevo Company Workspace:');
+      if (name) {
+        api('/workspaces', { method: 'POST', body: JSON.stringify({ nombre: name, tipo: 'company' }) })
+          .then(function() {
+            showToast('Workspace corporativo creado', 'success');
+            setTimeout(function() { location.reload(); }, 400);
+          });
+      }
+    } else {
+      showToast('Cambiado a ' + (val === 'company' ? 'Company Workspace B2B' : 'Personal Workspace'), 'info');
+    }
+  };
+
+  document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+      e.preventDefault();
+      toggleCommandPalette();
+    }
+    if (e.key === 'Escape') {
+      var overlay = document.getElementById('cmd-palette-overlay');
+      if (overlay && !overlay.classList.contains('hidden')) {
+        overlay.classList.add('hidden');
+      }
+    }
+  });
+
+  window.openTeamModal = function() {
+    var modal = document.getElementById('modal-team-rbac') || document.getElementById('modal-team-members');
+    if (modal) modal.classList.remove('hidden');
+  };
+
+  window.closeTeamModal = function() {
+    var modal = document.getElementById('modal-team-rbac') || document.getElementById('modal-team-members');
+    if (modal) modal.classList.add('hidden');
+  };
+
+  window.openNfcModal = function() {
+    var modal = document.getElementById('modal-nfc-writer');
+    if (modal) modal.classList.remove('hidden');
+  };
+
+  window.closeNfcModal = function() {
+    var modal = document.getElementById('modal-nfc-writer');
+    if (modal) modal.classList.add('hidden');
+  };
+
+  window.toggleSupportChat = function() {
+    var win = document.getElementById('chat-window');
+    if (win) win.classList.toggle('hidden');
+  };
+
+  window.askChat = function(topic) {
+    var body = document.getElementById('chat-body');
+    if (!body) return;
+    var reply = document.createElement('div');
+    reply.className = 'chat-msg chat-bot';
+
+    if (topic === 'nfc') {
+      reply.innerHTML = '📱 <strong>Para grabar tu tarjeta NFC física:</strong><br>1. Entra a tu tarjeta y presiona el ícono <strong>⚡</strong>.<br>2. Presiona <i>Grabar en Tarjeta NFC Física</i>.<br>3. Acerca tu tarjeta o llavero NFC al reverso de tu celular.';
+    } else if (topic === 'pro') {
+      reply.innerHTML = '⚡ <strong>El plan VYNK Pro incluye:</strong><br>• Identidades digitales e-card ilimitadas.<br>• Programación NFC nativa en 1 clic.<br>• Analíticas de clics y descargas vCard.<br>• Dominios y marcas personalizadas.';
+    } else if (topic === 'human') {
+      reply.innerHTML = '💬 <strong>Soporte Humano 24/7:</strong><br>Escríbenos directamente por WhatsApp: <br><a href="https://wa.me/522311556138?text=Hola,%20necesito%20asistencia%20humana%20con%20mi%20cuenta%20VYNK" target="_blank" style="color:var(--accent);font-weight:700">📱 Abrir WhatsApp de Soporte</a>';
+    }
+
+    body.appendChild(reply);
+    body.scrollTop = body.scrollHeight;
+  };
+
+  window.sendInvite = function() {
+    var emailInput = document.getElementById('invite-email');
+    var roleInput = document.getElementById('invite-role');
+    if (!emailInput) return;
+    var email = emailInput.value.trim();
+    var role = roleInput ? roleInput.value : 'Editor';
+
+    if (!email) { showToast('Ingresa un correo electrónico', 'error'); return; }
+
+    var list = document.getElementById('team-members-list');
+    if (list) {
+      var item = document.createElement('div');
+      item.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:12px;background:rgba(255,255,255,0.04);border-radius:12px;margin-top:4px';
+      item.innerHTML = '<div><div style="font-weight:700;color:#FFF;font-size:0.88rem">' + escapeHtml(email.split('@')[0]) + '</div><div style="font-size:0.75rem;color:var(--text-tertiary)">' + escapeHtml(email) + '</div></div><span class="pro-badge-lock" style="background:rgba(6,182,212,0.2);color:#38BDF8;border-color:rgba(6,182,212,0.4)">' + escapeHtml(role) + '</span>';
+      list.appendChild(item);
+    }
+    emailInput.value = '';
+    showToast('Invitación enviada con rol ' + role, 'success');
+  };
+
+  document.addEventListener('click', function(e) {
+    var btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    var action = btn.getAttribute('data-action');
+    if (action === 'open-team') openTeamModal();
+    else if (action === 'close-team') closeTeamModal();
+    else if (action === 'open-nfc') openNfcModal();
+    else if (action === 'close-nfc') closeNfcModal();
+    else if (action === 'toggle-chat') toggleSupportChat();
+    else if (action === 'toggle-drawer') toggleMobileNavDrawer();
+    else if (action === 'toggle-cmd') toggleCommandPalette();
+    else if (action === 'toggle-focus') toggleFocusMode();
+    else if (action === 'ask-chat') askChat(btn.getAttribute('data-topic'));
+    else if (action === 'send-invite') sendInvite();
+    else if (action === 'logout') logout();
+  });
     legalModal.classList.remove('hidden');
     document.getElementById('btn-accept-terms').addEventListener('click', function() {
       api('/auth/accept-terms', { method: 'POST' }).then(function(res) {

@@ -278,7 +278,7 @@
         <li>Marca de agua 'Creado con VYNK'</li>
         <li>QR básico</li>
       </ul>
-      <button class="btn btn-outline" id="btn-free-plan" onclick="window.location.href='/dashboard.html'">Tu plan actual</button>
+      <button class="btn btn-outline" id="btn-free-plan" data-action="goto-dashboard">Tu plan actual</button>
     </div>
 
     <!-- Plan Pro -->
@@ -299,7 +299,7 @@
         <li>Email capture ilimitado</li>
         <li>Soporte prioritario</li>
       </ul>
-      <button class="btn btn-primary" id="btn-pro-plan" onclick="buyProduct('plan_pro', 'Plan VYNK Pro', 149, 'subscription', this)" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;font-weight:700">⚡ Contratar Pro con Stripe ($149 MXN)</button>
+      <button class="btn btn-primary" id="btn-pro-plan" data-action="buy-pro" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;font-weight:700">⚡ Contratar Pro con Stripe ($149 MXN)</button>
     </div>
   </div>
 
@@ -308,17 +308,17 @@
     <div class="modal-content">
       <div class="modal-header">
         <h2>Contratar VYNK Pro</h2>
-        <button class="close-modal" onclick="closePaymentModal()">&times;</button>
+        <button type="button" class="close-modal" data-action="close-payment">&times;</button>
       </div>
 
       <div class="plan-selector">
-        <input type="radio" id="planMensual" name="planTipo" value="mensual" checked onchange="updatePaymentDetails()">
+        <input type="radio" id="planMensual" name="planTipo" value="mensual" checked>
         <label for="planMensual">
           <strong>Mensual</strong><br>
           $149 MXN
         </label>
         
-        <input type="radio" id="planAnual" name="planTipo" value="anual" onchange="updatePaymentDetails()">
+        <input type="radio" id="planAnual" name="planTipo" value="anual">
         <label for="planAnual">
           <strong>Anual</strong><br>
           $1,499 MXN<br>
@@ -353,80 +353,6 @@
   </div>
 
   <script src="/js/app.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      if (!localStorage.getItem('token')) {
-        window.location.href = '/';
-        return;
-      }
-      const user = getUser();
-      if (user && user.plan === 'paid') {
-        const freeBtn = document.getElementById('btn-free-plan');
-        const proBtn = document.getElementById('btn-pro-plan');
-        if (freeBtn) {
-          freeBtn.textContent = 'Plan Básico';
-        }
-        if (proBtn) {
-          proBtn.textContent = '★ Tu plan Pro Activo';
-          proBtn.className = 'btn btn-outline';
-          proBtn.onclick = () => window.location.href = '/dashboard.html';
-          proBtn.style.background = 'rgba(16, 185, 129, 0.2)';
-          proBtn.style.borderColor = '#10B981';
-          proBtn.style.color = '#10B981';
-        }
-      }
-    });
-
-    function openPaymentModal() {
-      const user = getUser();
-      if(user) {
-        document.getElementById('conceptoPago').textContent = `VYNK-PRO-${user.telefono}`;
-      }
-      document.getElementById('paymentModal').classList.add('active');
-    }
-
-    function closePaymentModal() {
-      document.getElementById('paymentModal').classList.remove('active');
-    }
-
-    function updatePaymentDetails() {
-      const isAnual = document.getElementById('planAnual').checked;
-      document.getElementById('montoPago').textContent = isAnual ? '$1,499.00 MXN' : '$149.00 MXN';
-    }
-
-    document.getElementById('paymentForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      const plan = document.querySelector('input[name="planTipo"]:checked').value;
-      const url = document.getElementById('comprobanteUrl').value;
-      const btn = document.getElementById('btnSubmitPayment');
-
-      try {
-        btn.textContent = 'Enviando...';
-        btn.disabled = true;
-
-        const res = await api('/api/pagos/solicitar', {
-          method: 'POST',
-          body: JSON.stringify({
-            plan: plan,
-            comprobante_url: url
-          })
-        });
-
-        if (res.ok) {
-          alert('Tu pago será verificado en las próximas 24 horas. Recibirás confirmación por WhatsApp.');
-          closePaymentModal();
-          window.location.href = '/dashboard.html';
-        } else {
-          alert('Error: ' + (res.error || 'No se pudo enviar'));
-        }
-      } catch (err) {
-        alert('Error de conexión');
-      } finally {
-        btn.textContent = 'Enviar Comprobante';
-        btn.disabled = false;
-      }
-    });
-  </script>
+  <script src="/js/planes.js"></script>
 </body>
 </html>

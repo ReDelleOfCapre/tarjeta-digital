@@ -28,8 +28,21 @@ const UPLOAD_DIR = process.env.UPLOAD_DIR || './uploads';
 // Middlewares globales
 // =============================================
 
-// Seguridad HTTP (CSP deshabilitado para permitir inline styles/scripts en perfil público)
-app.use(helmet({ contentSecurityPolicy: false }));
+// Seguridad HTTP con CSP robusto (Permite inline scripts/styles pero prohíbe unsafe-eval)
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://js.stripe.com", "https://cdn.jsdelivr.net", "https://kit.fontawesome.com"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://use.fontawesome.com", "https://cdnjs.cloudflare.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com", "https://use.fontawesome.com", "https://cdnjs.cloudflare.com", "data:"],
+      imgSrc: ["'self'", "data:", "blob:", "https:", "http:"],
+      frameSrc: ["'self'", "https://js.stripe.com", "https://hooks.stripe.com", "https://maps.google.com", "https://www.google.com", "https://www.youtube.com", "https://open.spotify.com"],
+      connectSrc: ["'self'", "https://api.stripe.com", "https://maps.google.com"],
+      objectSrc: ["'none'"]
+    }
+  }
+}));
 
 // CORS
 app.use(cors());
