@@ -14,17 +14,28 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
+  // Ignorar peticiones no-HTTP/HTTPS (extensiones de navegador chrome-extension://, moz-extension://)
+  if (!e.request.url.startsWith('http://') && !e.request.url.startsWith('https://')) return;
+
   const url = new URL(e.request.url);
-  // Network-first for everything to ensure latest VYNK design & features
+
+  // Network-first para garantizar diseño y funciones VYNK en tiempo real con fallback seguro
   e.respondWith(
     fetch(e.request)
       .then(response => {
-        if (response.status === 200 && e.request.method === 'GET' && !url.pathname.startsWith('/api/')) {
+        if (response && response.status === 200 && e.request.method === 'GET' && !url.pathname.startsWith('/api/')) {
           const resClone = response.clone();
-          caches.open(CACHE).then(cache => cache.put(e.request, resClone));
+          caches.open(CACHE).then(cache => cache.put(e.request, resClone)).catch(function(){});
         }
         return response;
       })
-      .catch(() => caches.match(e.request))
+      .catch(function(err) {
+        return caches.match(e.request).then(function(cached) {
+          if (cached) return cached;
+          return new Response('Red no disponible', { status: 503, statusText: 'Offline' });
+        }).catch(function() {
+          return new Response('Red no disponible', { status: 503 });
+        });
+      })
   );
 });
