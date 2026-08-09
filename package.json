@@ -25,7 +25,7 @@
     "passport-microsoft": "^2.1.0",
     "pg": "^8.22.0",
     "qrcode": "^1.5.3",
-    "stripe": "^22.4.0"
+    "stripe": "^17.5.0"
   },
   "engines": {
     "node": ">=18.0.0"

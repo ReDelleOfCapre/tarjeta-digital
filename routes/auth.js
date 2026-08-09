@@ -304,11 +304,13 @@ router.post('/complete-tour', auth, async (req, res) => {
   }
 });
 
-// Rutas Passport OAuth Google con prompt consent forzado
-router.get('/google', passport.authenticate('google', {
-  scope: ['profile', 'email'],
-  prompt: 'select_account consent'
-}));
+// Rutas Passport OAuth Google con guarda segura en producción
+router.get('/google', (req, res, next) => {
+  if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+    return passport.authenticate('google', { scope: ['profile', 'email'], prompt: 'select_account consent' })(req, res, next);
+  }
+  res.redirect('/#auth');
+});
 router.get('/apple', (req, res) => res.redirect('/#auth'));
 router.get('/microsoft', (req, res) => res.redirect('/#auth'));
 
