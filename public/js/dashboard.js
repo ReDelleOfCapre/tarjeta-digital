@@ -1,6 +1,107 @@
 // ============================================
-// My ID — Dashboard Logic
+// E-COMMERCE B2C & B2B DUAL PIVOT LOGIC (Global Handlers)
 // ============================================
+var currentCheckoutProductId = 'card-nfc-single';
+var currentCheckoutItemTitle = 'Tarjeta NFC Personalizada';
+var currentCheckoutItemPrice = 19.99;
+
+window.switchDashboardTab = function(tabName) {
+  var tabs = ['tarjetas', 'tienda', 'inventario'];
+  tabs.forEach(function(t) {
+    var viewEl = document.getElementById('view-tab-' + t);
+    var navEl = document.getElementById('nav-item-' + t);
+    if (viewEl) viewEl.classList.toggle('hidden', t !== tabName);
+    if (navEl) navEl.classList.toggle('active', t === tabName);
+  });
+};
+
+document.addEventListener('click', function(e) {
+  var target = e.target ? e.target.closest('[data-tab]') : null;
+  if (target) {
+    e.preventDefault();
+    var tab = target.getAttribute('data-tab');
+    if (tab && typeof window.switchDashboardTab === 'function') {
+      window.switchDashboardTab(tab);
+    }
+  }
+});
+
+window.openCheckoutModal = function(productId, title, price) {
+  currentCheckoutProductId = productId || 'card-nfc-single';
+  currentCheckoutItemTitle = title || 'Tarjeta NFC Personalizada VYNK';
+  currentCheckoutItemPrice = price || 19.99;
+
+  var titleEl = document.getElementById('checkout-item-title');
+  var priceEl = document.getElementById('checkout-item-price');
+  if (titleEl) titleEl.textContent = currentCheckoutItemTitle;
+  if (priceEl) priceEl.textContent = '$' + currentCheckoutItemPrice + ' USD';
+
+  var modal = document.getElementById('modal-checkout-nfc');
+  if (modal) modal.classList.remove('hidden');
+};
+
+window.closeCheckoutModal = function() {
+  var modal = document.getElementById('modal-checkout-nfc');
+  if (modal) modal.classList.add('hidden');
+};
+
+window.executeCheckout = async function(e) {
+  if (e) e.preventDefault();
+  var name = document.getElementById('checkout-name').value;
+  var address = document.getElementById('checkout-address').value;
+
+  if (typeof showToast === 'function') showToast('Enviando datos de envío...', 'info');
+  closeCheckoutModal();
+
+  if (window.buyProduct) {
+    window.buyProduct(currentCheckoutProductId, currentCheckoutItemTitle, currentCheckoutItemPrice, 'payment');
+  }
+};
+
+window.openAssignClientModal = function() {
+  var modal = document.getElementById('modal-assign-client');
+  if (modal) modal.classList.remove('hidden');
+};
+
+window.closeAssignClientModal = function() {
+  var modal = document.getElementById('modal-assign-client');
+  if (modal) modal.classList.add('hidden');
+};
+
+window.executeAssignClient = async function(e) {
+  if (e) e.preventDefault();
+  var name = document.getElementById('assign-client-name').value;
+  var slug = document.getElementById('assign-client-slug').value;
+
+  try {
+    if (typeof showToast === 'function') showToast('Creando perfil para cliente ' + name + '...', 'info');
+    if (typeof api === 'function') {
+      await api('/perfiles', {
+        method: 'POST',
+        body: JSON.stringify({ nombre_perfil: name, slug: slug, tipo: 'personal', bio: 'Perfil activado por distribuidor' })
+      });
+    }
+
+    closeAssignClientModal();
+    
+    var stockEl = document.getElementById('reseller-stock-count');
+    var assignedEl = document.getElementById('reseller-assigned-count');
+    if (stockEl) {
+      var currStock = parseInt(stockEl.textContent || '10', 10);
+      if (currStock > 0) stockEl.textContent = currStock - 1;
+    }
+    if (assignedEl) {
+      var currAssigned = parseInt(assignedEl.textContent || '0', 10);
+      assignedEl.textContent = currAssigned + 1;
+    }
+
+    if (typeof showToast === 'function') showToast('✅ Perfil creado. Inicie la grabación Web NFC.', 'success');
+    if (typeof writeNfcTag === 'function') writeNfcTag('/' + slug);
+  } catch (err) {
+    if (typeof showToast === 'function') showToast(err.error || 'Error asignando tarjeta a cliente', 'error');
+  }
+};
+
 (function() {
   if (!checkAuth()) return;
 
@@ -529,5 +630,102 @@
   window.closeNfcModal = function() {
     var overlay = document.getElementById('nfc-modal-overlay');
     if (overlay) overlay.classList.add('hidden');
+  };
+
+  // ============================================
+  // E-COMMERCE B2C & B2B DUAL PIVOT LOGIC
+  // ============================================
+  var currentCheckoutProductId = 'card-nfc-single';
+  var currentCheckoutItemTitle = 'Tarjeta NFC Personalizada';
+  var currentCheckoutItemPrice = 19.99;
+
+  window.switchDashboardTab = function(tabName) {
+    var tabs = ['tarjetas', 'tienda', 'inventario'];
+    tabs.forEach(function(t) {
+      var viewEl = document.getElementById('view-tab-' + t);
+      var navEl = document.getElementById('nav-item-' + t);
+      if (viewEl) viewEl.classList.toggle('hidden', t !== tabName);
+      if (navEl) navEl.classList.toggle('active', t === tabName);
+    });
+  };
+
+  window.openCheckoutModal = function(productId, title, price) {
+    currentCheckoutProductId = productId || 'card-nfc-single';
+    currentCheckoutItemTitle = title || 'Tarjeta NFC Personalizada VYNK';
+    currentCheckoutItemPrice = price || 19.99;
+
+    var titleEl = document.getElementById('checkout-item-title');
+    var priceEl = document.getElementById('checkout-item-price');
+    if (titleEl) titleEl.textContent = currentCheckoutItemTitle;
+    if (priceEl) priceEl.textContent = '$' + currentCheckoutItemPrice + ' USD';
+
+    var modal = document.getElementById('modal-checkout-nfc');
+    if (modal) modal.classList.remove('hidden');
+  };
+
+  window.closeCheckoutModal = function() {
+    var modal = document.getElementById('modal-checkout-nfc');
+    if (modal) modal.classList.add('hidden');
+  };
+
+  window.executeCheckout = async function(e) {
+    if (e) e.preventDefault();
+    var name = document.getElementById('checkout-name').value;
+    var address = document.getElementById('checkout-address').value;
+    var city = document.getElementById('checkout-city').value;
+    var zip = document.getElementById('checkout-zip').value;
+
+    showToast('Enviando datos de envío...', 'info');
+    closeCheckoutModal();
+
+    if (window.buyProduct) {
+      window.buyProduct(currentCheckoutProductId, currentCheckoutItemTitle, currentCheckoutItemPrice, 'payment');
+    } else {
+      showToast('Pedido registrado con éxito. Redirigiendo a Stripe...', 'success');
+    }
+  };
+
+  window.openAssignClientModal = function() {
+    var modal = document.getElementById('modal-assign-client');
+    if (modal) modal.classList.remove('hidden');
+  };
+
+  window.closeAssignClientModal = function() {
+    var modal = document.getElementById('modal-assign-client');
+    if (modal) modal.classList.add('hidden');
+  };
+
+  window.executeAssignClient = async function(e) {
+    if (e) e.preventDefault();
+    var name = document.getElementById('assign-client-name').value;
+    var slug = document.getElementById('assign-client-slug').value;
+    var email = document.getElementById('assign-client-email').value;
+
+    try {
+      showToast('Creando perfil para cliente ' + name + '...', 'info');
+      const res = await api('/perfiles', {
+        method: 'POST',
+        body: JSON.stringify({ nombre_perfil: name, slug: slug, tipo: 'personal', bio: 'Perfil activado por distribuidor' })
+      });
+
+      closeAssignClientModal();
+      
+      // Update Stock Counter
+      var stockEl = document.getElementById('reseller-stock-count');
+      var assignedEl = document.getElementById('reseller-assigned-count');
+      if (stockEl) {
+        var currStock = parseInt(stockEl.textContent || '10', 10);
+        if (currStock > 0) stockEl.textContent = currStock - 1;
+      }
+      if (assignedEl) {
+        var currAssigned = parseInt(assignedEl.textContent || '0', 10);
+        assignedEl.textContent = currAssigned + 1;
+      }
+
+      showToast('✅ Perfil creado. Inicie la grabación Web NFC acercando la tarjeta física.', 'success');
+      writeNfcTag('/' + slug);
+    } catch (err) {
+      showToast(err.error || 'Error asignando tarjeta a cliente', 'error');
+    }
   };
 })();

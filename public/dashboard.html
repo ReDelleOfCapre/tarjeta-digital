@@ -194,139 +194,165 @@
     <!-- 3-Column Desktop Grid Architecture -->
     <div class="dashboard-grid-container">
 
-      <!-- COLUMNA IZQUIERDA: Workspace Selector, Sidebar Nav & Retention / UGC Circular Progress Widget -->
+      <!-- COLUMNA IZQUIERDA: Sidebar Nav (3 Clean E-Commerce Sections) -->
       <aside class="sidebar-panel">
-        <!-- Selector de Espacios de Trabajo (Multi-Tenant B2B Dropdown) -->
-        <div class="card p-20" style="padding:16px;margin-bottom:4px;background:rgba(124,58,237,0.1)!important;border:1px solid rgba(124,58,237,0.3)!important">
-          <div style="font-size:0.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Espacio de Trabajo</div>
-          <select id="select-workspace" onchange="switchWorkspace(this.value)" style="width:100%;padding:10px;border-radius:12px;background:#08080E;color:#FFF;font-size:0.85rem;font-weight:600;border:1px solid rgba(255,255,255,0.15);cursor:pointer">
-            <option value="personal">🏢 Personal Workspace (Tú)</option>
-            <option value="company">💼 Company Workspace B2B</option>
-            <option value="new">+ Crear nuevo Workspace...</option>
-          </select>
-        </div>
-
         <div class="card p-20" style="padding:20px">
-          <div style="font-size:0.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Navegación</div>
+          <div style="font-size:0.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">E-Commerce & VYNK NFC</div>
           <nav style="display:flex;flex-direction:column;gap:6px">
-            <a href="/dashboard.html" class="nav-side-item active">🪪 Mis Tarjetas</a>
-            <a href="/analytics.html" class="nav-side-item">📊 Analíticas Pro</a>
-            <a href="javascript:void(0)" data-action="open-team" class="nav-side-item">👥 Miembros del Equipo <span class="pro-badge-lock" style="font-size:0.6rem">RBAC</span></a>
-            <a href="/compartir.html" class="nav-side-item">⚡ Tienda & Tag NFC</a>
-            <a href="/planes.html" class="nav-side-item">💎 Suscripción Pro</a>
+            <a href="javascript:void(0)" data-tab="tarjetas" onclick="switchDashboardTab('tarjetas')" class="nav-side-item active" id="nav-item-tarjetas">🪪 Mis Tarjetas</a>
+            <a href="javascript:void(0)" data-tab="tienda" onclick="switchDashboardTab('tienda')" class="nav-side-item" id="nav-item-tienda">⚡ Tienda & Pedir NFC</a>
+            <a href="javascript:void(0)" data-tab="inventario" onclick="switchDashboardTab('inventario')" class="nav-side-item" id="nav-item-inventario">📦 Mi Inventario (Distribuidores)</a>
           </nav>
         </div>
 
-        <!-- Widget de Retención / UGC Circular Progress -->
-        <div class="card p-20" style="padding:20px;text-align:center">
-          <div style="font-size:0.85rem;font-weight:700;margin-bottom:12px;color:#FFF">Nivel de Retención & UGC</div>
-          <div style="position:relative;width:90px;height:90px;margin:0 auto 12px">
-            <svg width="90" height="90" viewBox="0 0 100 100">
-              <circle cx="50" cy="50" r="40" stroke="rgba(255,255,255,0.08)" stroke-width="10" fill="none"/>
-              <circle cx="50" cy="50" r="40" stroke="url(#ugc-grad)" stroke-width="10" fill="none" stroke-dasharray="251" stroke-dashoffset="62" stroke-linecap="round"/>
-              <defs>
-                <linearGradient id="ugc-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#7C3AED"/>
-                  <stop offset="100%" stop-color="#06B6D4"/>
-                </linearGradient>
-              </defs>
-            </svg>
-            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-weight:800;font-size:1.1rem;color:#FFF">75%</div>
-          </div>
-          <p style="font-size:0.78rem;color:var(--text-tertiary);line-height:1.4;margin-bottom:14px">
-            Sube fotos de colaboración auténtica o testimonios de clientes para alcanzar el 100%.
-          </p>
-          <a href="/editor.html" class="btn btn-sm btn-block" style="background:rgba(124,58,237,0.15);border:1px solid rgba(124,58,237,0.3);color:#FFF;font-size:0.75rem;padding:8px">
-            + Añadir Testimonios / UGC
-          </a>
+        <!-- Banner de Distribuidor B2B -->
+        <div class="card p-20" style="padding:20px;background:var(--bg-surface);border:1px solid var(--border-subtle)">
+          <div style="font-size:0.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:6px">Red de Revendedores B2B</div>
+          <div style="font-size:0.9rem;font-weight:700;color:var(--text-main);font-family:'Space Grotesk',sans-serif;margin-bottom:6px">¿Eres Distribuidor?</div>
+          <p style="font-size:0.8rem;color:var(--text-muted);line-height:1.4;margin-bottom:12px">Adquiere packs de tarjetas en blanco con hasta 40% de descuento y prográmalas en vivo para tus clientes.</p>
+          <button onclick="switchDashboardTab('tienda')" class="btn btn-secondary btn-sm btn-block" style="width:100%">Ver Packs Mayoristas →</button>
         </div>
       </aside>
 
-      <!-- COLUMNA CENTRAL: Main Content (Stats, CTA, Escaparate Social Selling, Cards Grid) -->
+      <!-- COLUMNA CENTRAL: Main Content Panel (Tabbed Views) -->
       <main class="main-panel">
-        <!-- UI Predictiva: Lienzo Inteligente de Sugerencias AI -->
-        <div class="card p-20" style="padding:16px 20px;margin-bottom:16px;background:rgba(124,58,237,0.08)!important;border:1px solid rgba(124,58,237,0.25)!important;display:flex;align-items:center;justify-content:space-between;gap:12px">
-          <div style="display:flex;align-items:center;gap:12px">
-            <span style="font-size:1.3rem">🤖</span>
-            <div>
-              <div style="font-size:0.88rem;font-weight:700;color:#FFF">Sugerencia Inteligente VYNK AI</div>
-              <div style="font-size:0.8rem;color:var(--text-secondary)">Tu tarjeta inteligente tiene un <strong>35% nuevo de tráfico</strong> este fin de semana. Revisa tus analíticas o graba una nueva tag NFC.</div>
+        
+        <!-- TAB 1: MIS TARJETAS (B2C Visual Creator & Profile List) -->
+        <div id="view-tab-tarjetas" class="tab-view-content">
+          <!-- Stats Bar -->
+          <div class="stats-bar" id="stats-bar" style="margin-top:0">
+            <div class="stat-card card">
+              <div class="stat-value" id="total-perfiles">0</div>
+              <div class="stat-label">Identidades Digitales</div>
+            </div>
+            <div class="stat-card card">
+              <div class="stat-value" id="total-visitas">0</div>
+              <div class="stat-label">Conexiones Recibidas</div>
             </div>
           </div>
-          <a href="/analytics.html" class="btn btn-sm btn-ghost" style="color:var(--accent);font-weight:600;white-space:nowrap">Revisar →</a>
-        </div>
 
-        <!-- Stats Bar -->
-        <div class="stats-bar" id="stats-bar" style="margin-top:0">
-          <div class="stat-card card">
-            <div class="stat-value" id="total-perfiles">0</div>
-            <div class="stat-label">Identidades Digitales</div>
+          <!-- B2C Prominent CTA: Pedir Tarjeta Física NFC -->
+          <div class="card p-20" style="padding:18px 24px;margin-top:16px;margin-bottom:20px;background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:12px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+            <div style="display:flex;align-items:center;gap:14px">
+              <div style="font-size:2.2rem">💳</div>
+              <div>
+                <div style="font-size:1.05rem;font-weight:700;color:var(--text-main);font-family:'Space Grotesk',sans-serif">¿Quieres recibir tu Tarjeta Física NFC personalizada?</div>
+                <div style="font-size:0.75rem;color:var(--text-muted);font-family:'IBM Plex Mono',monospace">ENVÍO INTERNACIONAL DIRECTO A TU DOMICILIO</div>
+              </div>
+            </div>
+            <button class="btn btn-primary" onclick="openCheckoutModal('card-nfc-single', 'Tarjeta NFC Personalizada VYNK', 19.99)" style="white-space:nowrap;font-size:0.9rem">💳 Pedir Tarjeta Física NFC ($19.99 USD)</button>
           </div>
-          <div class="stat-card card">
-            <div class="stat-value" id="total-visitas">0</div>
-            <div class="stat-label">Conexiones Recibidas</div>
-          </div>
-        </div>
 
-        <!-- CTA Integrado Glassmorphism (Crear Nueva Identidad Digital) -->
-        <div class="card-create-cta" id="btn-create-card" onclick="location.href='editor.html'" style="margin-top:16px;margin-bottom:20px;padding:20px 24px;border:2px dashed rgba(124,58,237,0.4);border-radius:24px;background:rgba(124,58,237,0.06);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);display:flex;align-items:center;justify-content:center;gap:14px;cursor:pointer;transition:all 0.25s cubic-bezier(0.23,1,0.32,1)">
-          <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#7C3AED,#06B6D4);display:flex;align-items:center;justify-content:center;font-size:1.6rem;color:#FFF;box-shadow:0 4px 15px rgba(124,58,237,0.4);flex-shrink:0">
-            +
+          <!-- CTA Integrado (Crear Nueva Identidad Digital) -->
+          <div class="card-create-cta" id="btn-create-card" onclick="location.href='editor.html'" style="margin-bottom:20px;padding:20px 24px;border:2px dashed var(--border-subtle);border-radius:12px;background:var(--bg-surface);display:flex;align-items:center;justify-content:center;gap:14px;cursor:pointer">
+            <div style="width:38px;height:38px;border-radius:6px;background:var(--text-main);display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:#12161B;font-weight:700">
+              +
+            </div>
+            <div>
+              <div style="font-size:1.05rem;font-weight:700;color:var(--text-main);font-family:'Space Grotesk',sans-serif">Crear Nueva Identidad Digital</div>
+              <div style="font-size:0.8rem;color:var(--text-muted);font-family:'IBM Plex Mono',monospace">DISÉÑALA VISUALMENTE Y GENERA TU LINK Y QR</div>
+            </div>
           </div>
-          <div>
-            <div style="font-size:1.05rem;font-weight:700;color:#FFF;letter-spacing:-0.01em">Crear Nueva Identidad Digital</div>
-            <div style="font-size:0.84rem;color:var(--text-tertiary)">Sincroniza una nueva e-card con QR y tecnología NFC nativa</div>
-          </div>
-        </div>
 
-        <!-- Bloque de Catálogo Nativo (Escaparate de Social Selling Showcase) -->
-        <div class="card p-20" style="padding:20px;margin-bottom:20px">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-            <div style="font-size:0.9rem;font-weight:700;color:#FFF">🛍️ Escaparate de Social Selling (Venta Nativa)</div>
-            <span class="pro-badge-lock" style="font-size:0.65rem">Pro Showcase</span>
-          </div>
-          <div class="selling-showcase-container">
-            <button class="selling-card-item btn-ghost" onclick="buyProduct('nfc_card', 'Tarjeta NFC VYNK', 399, 'payment', this)" style="border:none;background:rgba(255,255,255,0.03);cursor:pointer;padding:12px;border-radius:14px;text-align:center">
-              <div style="font-size:1.8rem;margin-bottom:6px">💳</div>
-              <div style="font-size:0.8rem;font-weight:700;color:#FFF">Tarjeta NFC VYNK</div>
-              <div style="font-size:0.75rem;color:var(--green);font-weight:800;margin-top:4px">$399 MXN</div>
-            </button>
-            <button class="selling-card-item btn-ghost" onclick="buyProduct('nfc_sticker', 'Sticker NFC 3M', 199, 'payment', this)" style="border:none;background:rgba(255,255,255,0.03);cursor:pointer;padding:12px;border-radius:14px;text-align:center">
-              <div style="font-size:1.8rem;margin-bottom:6px">🏷️</div>
-              <div style="font-size:0.8rem;font-weight:700;color:#FFF">Sticker NFC 3M</div>
-              <div style="font-size:0.75rem;color:var(--green);font-weight:800;margin-top:4px">$199 MXN</div>
-            </button>
-            <button class="selling-card-item btn-ghost" onclick="buyProduct('nfc_keychain', 'Llavero Smart Pro', 249, 'payment', this)" style="border:none;background:rgba(255,255,255,0.03);cursor:pointer;padding:12px;border-radius:14px;text-align:center">
-              <div style="font-size:1.8rem;margin-bottom:6px">🔑</div>
-              <div style="font-size:0.8rem;font-weight:700;color:#FFF">Llavero Smart Pro</div>
-              <div style="font-size:0.75rem;color:var(--green);font-weight:800;margin-top:4px">$249 MXN</div>
+          <!-- Profile Grid -->
+          <div class="profile-grid" id="profile-grid" style="margin-top:0"></div>
+
+          <!-- Empty State -->
+          <div class="empty-state hidden" id="empty-state" style="background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:12px;padding:48px 24px;text-align:center;margin-top:16px">
+            <div style="font-size:2.5rem;margin-bottom:12px">⚡</div>
+            <h2 style="font-size:1.4rem;font-weight:700;margin-bottom:8px;font-family:'Space Grotesk',sans-serif">Diseña tu primera e-Card inteligente</h2>
+            <p style="max-width:480px;margin:0 auto 24px;color:var(--text-muted);font-size:0.9rem;line-height:1.5">
+              Crea tu perfil inteligente, conecta tus redes, catálogo o archivos y recíbela grabada en tu tarjeta NFC física.
+            </p>
+            <button class="btn btn-primary" onclick="location.href='editor.html'">
+              + Crear Mi Primera Tarjeta
             </button>
           </div>
         </div>
 
-        <!-- Upgrade Banner -->
-        <a href="/planes.html" class="upgrade-banner hidden" id="upgrade-banner" style="text-decoration:none;color:#fff">
-          <h3>⚡ Potencia tu Red con VYNK Pro <span class="pro-badge-lock">🔒 Pro</span></h3>
-          <p>Reclama enlaces ilimitados, analíticas avanzadas de clics y grabación NFC directa</p>
-          <span style="font-weight:600;font-size:var(--font-sm);opacity:0.9">Elevar mi nivel Pro →</span>
-        </a>
-
-        <!-- Profile Grid -->
-        <div class="profile-grid" id="profile-grid" style="margin-top:0"></div>
-
-        <!-- Onboarding Mechanics: Glassmorphic Empty State -->
-        <div class="empty-state hidden" id="empty-state" style="background:var(--bg-card);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid var(--card-border);border-radius:28px;padding:48px 24px;text-align:center;box-shadow:var(--card-shadow);margin-top:16px">
-          <div style="width:80px;height:80px;margin:0 auto 20px;background:rgba(124,58,237,0.15);border:1px solid rgba(124,58,237,0.4);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2.5rem;box-shadow:0 0 30px rgba(124,58,237,0.3)">
-            ⚡
+        <!-- TAB 2: TIENDA & PEDIR NFC (B2C & B2B E-Commerce Catalog) -->
+        <div id="view-tab-tienda" class="tab-view-content hidden">
+          <div style="margin-bottom:20px">
+            <h2 style="font-size:1.4rem;font-weight:700;font-family:'Space Grotesk',sans-serif">Tienda VYNK NFC</h2>
+            <p style="font-size:0.85rem;color:var(--text-muted);font-family:'IBM Plex Mono',monospace">COMPRA TARJETAS INDIVIDUALES O PACKS MAYORISTAS EN BLANCO</p>
           </div>
-          <h2 style="font-size:1.6rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:8px">Crea tu primera tarjeta My ID y conecta con el mundo</h2>
-          <p class="text-muted" style="max-width:500px;margin:0 auto 28px;line-height:1.6;font-size:0.95rem">
-            Transmite la calidad de tu marca al instante. Diseña tu perfil inteligente, genera tu QR dinámico y grábalo en tu tarjeta física NFC.
-          </p>
-          <button class="btn btn-primary btn-pill" onclick="location.href='editor.html'" style="padding:16px 36px;font-size:1.05rem;background:linear-gradient(135deg,#7C3AED,#06B6D4);box-shadow:0 10px 30px rgba(124,58,237,0.4)">
-            + Desplegar Mi Primera Tarjeta My ID 2027
-          </button>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));gap:16px;margin-bottom:24px">
+            <!-- B2C Item -->
+            <div class="card p-20" style="display:flex;flex-direction:column;justify-content:space-between;gap:16px">
+              <div>
+                <span class="pro-badge-lock" style="font-size:0.65rem">Cliente B2C</span>
+                <div style="font-size:2.2rem;margin:12px 0 6px">💳</div>
+                <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:4px">Tarjeta NFC Individual</h3>
+                <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.4">Impresa a color con tu perfil digital pre-grabado de fábrica.</p>
+              </div>
+              <div>
+                <div style="font-size:1.4rem;font-weight:700;color:var(--text-main);font-family:'Space Grotesk',sans-serif;margin-bottom:12px">$19.99 USD</div>
+                <button class="btn btn-primary btn-block" onclick="openCheckoutModal('card-nfc-single', 'Tarjeta NFC Individual VYNK', 19.99)">Pedir Tarjeta →</button>
+              </div>
+            </div>
+
+            <!-- B2B Pack 10 -->
+            <div class="card p-20" style="display:flex;flex-direction:column;justify-content:space-between;gap:16px;border-color:#6366F1!important">
+              <div>
+                <span class="pro-badge-lock" style="font-size:0.65rem;color:#818CF8;border-color:#818CF8">Pack Mayorista B2B (25% OFF)</span>
+                <div style="font-size:2.2rem;margin:12px 0 6px">📦</div>
+                <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:4px">Pack de 10 Tarjetas NFC en Blanco</h3>
+                <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.4">10 Tarjetas vírgenes listas para ser programadas en vivo con tu celular para tus clientes.</p>
+              </div>
+              <div>
+                <div style="font-size:1.4rem;font-weight:700;color:var(--text-main);font-family:'Space Grotesk',sans-serif;margin-bottom:12px">$149.00 USD</div>
+                <button class="btn btn-primary btn-block" onclick="openCheckoutModal('pack-10-b2b', 'Pack 10 Tarjetas NFC Vírgenes B2B', 149.00)">Comprar Pack 10 →</button>
+              </div>
+            </div>
+
+            <!-- B2B Pack 50 -->
+            <div class="card p-20" style="display:flex;flex-direction:column;justify-content:space-between;gap:16px;border-color:#10B981!important">
+              <div>
+                <span class="pro-badge-lock" style="font-size:0.65rem;color:#10B981;border-color:#10B981">Pack Distribuidor Pro (40% OFF)</span>
+                <div style="font-size:2.2rem;margin:12px 0 6px">🏬</div>
+                <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:4px">Pack de 50 Tarjetas NFC en Blanco</h3>
+                <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.4">Lote mayorista para agencias y revendedores. Incluye soporte de Web NFC API.</p>
+              </div>
+              <div>
+                <div style="font-size:1.4rem;font-weight:700;color:var(--text-main);font-family:'Space Grotesk',sans-serif;margin-bottom:12px">$599.00 USD</div>
+                <button class="btn btn-primary btn-block" onclick="openCheckoutModal('pack-50-b2b', 'Pack 50 Tarjetas NFC Vírgenes B2B', 599.00)">Comprar Pack 50 →</button>
+              </div>
+            </div>
+          </div>
         </div>
+
+        <!-- TAB 3: MI INVENTARIO B2B (Reseller Stock & Client Assignment) -->
+        <div id="view-tab-inventario" class="tab-view-content hidden">
+          <div style="margin-bottom:20px">
+            <h2 style="font-size:1.4rem;font-weight:700;font-family:'Space Grotesk',sans-serif">Mi Inventario de Distribuidor</h2>
+            <p style="font-size:0.85rem;color:var(--text-muted);font-family:'IBM Plex Mono',monospace">ADMINISTRA Y ASIGNA TUS TARJETAS EN BLANCO A CLIENTES EN TIEMPO REAL</p>
+          </div>
+
+          <div class="stats-bar" style="margin-top:0;margin-bottom:20px">
+            <div class="stat-card card">
+              <div class="stat-value" id="reseller-stock-count" style="color:#10B981!important">10</div>
+              <div class="stat-label">Tarjetas Vírgenes Disponibles</div>
+            </div>
+            <div class="stat-card card">
+              <div class="stat-value" id="reseller-assigned-count">2</div>
+              <div class="stat-label">Tarjetas Asignadas a Clientes</div>
+            </div>
+          </div>
+
+          <div class="card p-20" style="padding:24px;background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:12px;margin-bottom:20px">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+              <div>
+                <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:6px">Asignar Tarjeta NFC en Vivo</h3>
+                <p style="font-size:0.85rem;color:var(--text-muted);max-width:500px">
+                  Crea un nuevo perfil para tu cliente y grábalo directamente en su tarjeta física NFC usando la antena de tu dispositivo.
+                </p>
+              </div>
+              <button class="btn btn-primary" onclick="openAssignClientModal()" style="font-size:0.9rem">📲 Asignar a Cliente (Vía Web NFC)</button>
+            </div>
+          </div>
+        </div>
+
       </main>
 
       <!-- COLUMNA DERECHA: Insights & Live Smartphone Preview Mockup -->
@@ -507,6 +533,76 @@
           <span style="font-size:0.72rem;color:var(--text-muted)">UI Focus</span>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Modal Checkout de Envío B2C / B2B (Stripe Checkout Integration) -->
+  <div class="modal-overlay hidden" id="modal-checkout-nfc" style="z-index:10000;background:rgba(18,22,27,0.85)">
+    <div class="modal card" style="max-width:500px;width:92%;background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:12px;padding:24px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <h3 style="font-size:1.2rem;font-weight:700;font-family:'Space Grotesk',sans-serif">💳 Finalizar Pedido NFC</h3>
+        <button onclick="closeCheckoutModal()" class="btn btn-ghost btn-sm" style="padding:4px 8px">✕</button>
+      </div>
+
+      <div style="padding:12px;background:rgba(255,255,255,0.04);border-radius:8px;margin-bottom:16px">
+        <div style="font-size:0.75rem;color:var(--text-muted);font-family:'IBM Plex Mono',monospace">PRODUCTO SELECCIONADO</div>
+        <div style="font-size:1rem;font-weight:700;color:var(--text-main)" id="checkout-item-title">Tarjeta NFC Personalizada</div>
+        <div style="font-size:1.2rem;font-weight:700;color:var(--green);font-family:'Space Grotesk',sans-serif;margin-top:4px" id="checkout-item-price">$19.99 USD</div>
+      </div>
+
+      <form id="form-checkout-nfc" onsubmit="executeCheckout(event)">
+        <div style="margin-bottom:12px">
+          <label style="display:block;font-size:0.75rem;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;margin-bottom:4px">NOMBRE COMPLETO</label>
+          <input type="text" id="checkout-name" required placeholder="Ej. Giovanni Paolo" style="width:100%;padding:10px 12px;border-radius:6px;border:1px solid var(--border-subtle);background:rgba(255,255,255,0.05);color:var(--text-main);box-sizing:border-box">
+        </div>
+
+        <div style="margin-bottom:12px">
+          <label style="display:block;font-size:0.75rem;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;margin-bottom:4px">DIRECCIÓN DE ENVÍO</label>
+          <input type="text" id="checkout-address" required placeholder="Calle, Número, Colonia" style="width:100%;padding:10px 12px;border-radius:6px;border:1px solid var(--border-subtle);background:rgba(255,255,255,0.05);color:var(--text-main);box-sizing:border-box">
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+          <div>
+            <label style="display:block;font-size:0.75rem;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;margin-bottom:4px">CIUDAD / CIUDAD</label>
+            <input type="text" id="checkout-city" required placeholder="Ciudad" style="width:100%;padding:10px 12px;border-radius:6px;border:1px solid var(--border-subtle);background:rgba(255,255,255,0.05);color:var(--text-main);box-sizing:border-box">
+          </div>
+          <div>
+            <label style="display:block;font-size:0.75rem;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;margin-bottom:4px">CÓDIGO POSTAL</label>
+            <input type="text" id="checkout-zip" required placeholder="CP 00000" style="width:100%;padding:10px 12px;border-radius:6px;border:1px solid var(--border-subtle);background:rgba(255,255,255,0.05);color:var(--text-main);box-sizing:border-box">
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block" style="width:100%;padding:12px">🔒 Confirmar y Ir a Pasarela Stripe</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Asignación de Cliente B2B (Reseller Live Web NFC Writer) -->
+  <div class="modal-overlay hidden" id="modal-assign-client" style="z-index:10000;background:rgba(18,22,27,0.85)">
+    <div class="modal card" style="max-width:480px;width:92%;background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:12px;padding:24px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <h3 style="font-size:1.2rem;font-weight:700;font-family:'Space Grotesk',sans-serif">📲 Asignar Tarjeta NFC en Vivo</h3>
+        <button onclick="closeAssignClientModal()" class="btn btn-ghost btn-sm" style="padding:4px 8px">✕</button>
+      </div>
+
+      <form id="form-assign-client" onsubmit="executeAssignClient(event)">
+        <div style="margin-bottom:12px">
+          <label style="display:block;font-size:0.75rem;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;margin-bottom:4px">NOMBRE DEL CLIENTE</label>
+          <input type="text" id="assign-client-name" required placeholder="Ej. Carlos Mendoza" style="width:100%;padding:10px 12px;border-radius:6px;border:1px solid var(--border-subtle);background:rgba(255,255,255,0.05);color:var(--text-main);box-sizing:border-box">
+        </div>
+
+        <div style="margin-bottom:12px">
+          <label style="display:block;font-size:0.75rem;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;margin-bottom:4px">SLUG / URL DEL PERFIL</label>
+          <input type="text" id="assign-client-slug" required placeholder="carlos-mendoza" style="width:100%;padding:10px 12px;border-radius:6px;border:1px solid var(--border-subtle);background:rgba(255,255,255,0.05);color:var(--text-main);box-sizing:border-box">
+        </div>
+
+        <div style="margin-bottom:16px">
+          <label style="display:block;font-size:0.75rem;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;margin-bottom:4px">CORREO DEL CLIENTE</label>
+          <input type="email" id="assign-client-email" required placeholder="cliente@correo.com" style="width:100%;padding:10px 12px;border-radius:6px;border:1px solid var(--border-subtle);background:rgba(255,255,255,0.05);color:var(--text-main);box-sizing:border-box">
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block" style="width:100%;padding:12px">⚡ Crear Perfil y Grabar Tag NFC</button>
+      </form>
     </div>
   </div>
 
