@@ -485,42 +485,44 @@
 <body>
   <div class="bg-mesh"></div>
   
-  {{banner_html}}
+  <div class="public-profile-frame">
+    {{banner_html}}
 
-  <header class="header" style="{{banner_html ? 'margin-top: -60px;' : ''}}">
-    <div class="avatar-wrapper">
-      {{avatar_html}}
-    </div>
-    <h1 class="name">{{nombre_perfil}}</h1>
-    {{bio_html}}
-    {{tags_html}}
-  </header>
-
-  <main class="container">
-    <div class="blocks-section">
-      {{bloques_html}}
-    </div>
-    {{archivos_section_html}}
-    <!-- Captura de Leads / Boletín -->
-    <div class="block-wrapper block-email" style="margin-top:24px">
-      <div style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:20px;padding:20px">
-        <h3 style="font-size:1.05rem;font-weight:700;color:var(--text-primary);margin-bottom:6px">📬 Suscribirse al Boletín</h3>
-        <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:14px">Recibe novedades y actualizaciones directamente en tu correo.</p>
-        <form class="lead-subscription-form" style="display:flex;gap:8px">
-          <input type="email" required placeholder="tu.email@correo.com" style="flex:1;padding:12px 14px;border-radius:12px;border:1px solid var(--border-color);background:rgba(255,255,255,0.05);color:var(--text-primary);font-size:0.9rem">
-          <button type="submit" class="btn-sm" style="background:var(--profile-color,#7C3AED);color:#fff;border:none;border-radius:12px;padding:12px 18px;font-weight:700;cursor:pointer">Suscribir</button>
-        </form>
+    <header class="header" style="{{banner_html ? 'margin-top: -60px;' : ''}}">
+      <div class="avatar-wrapper">
+        {{avatar_html}}
       </div>
-    </div>
-    
-    <p class="brand">Creado con <a href="{{base_url}}">VYNK</a></p>
-  </main>
+      <h1 class="name">{{nombre_perfil}}</h1>
+      {{bio_html}}
+      {{tags_html}}
+    </header>
 
-  <footer class="save-bar">
-    <a href="/api/perfiles/{{slug}}/vcard" class="save-btn">
-      <i class="fas fa-address-card"></i> Guardar contacto
-    </a>
-  </footer>
+    <main class="container">
+      <div class="blocks-section">
+        {{bloques_html}}
+      </div>
+      {{archivos_section_html}}
+      <!-- Captura de Leads / Boletín -->
+      <div class="block-wrapper block-email" style="margin-top:24px">
+        <div style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:20px;padding:20px">
+          <h3 style="font-size:1.05rem;font-weight:700;color:var(--text-primary);margin-bottom:6px">📬 Suscribirse al Boletín</h3>
+          <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:14px">Recibe novedades y actualizaciones directamente en tu correo.</p>
+          <form class="lead-subscription-form" style="display:flex;gap:8px">
+            <input type="email" required placeholder="tu.email@correo.com" style="flex:1;padding:12px 14px;border-radius:12px;border:1px solid var(--border-color);background:rgba(255,255,255,0.05);color:var(--text-primary);font-size:0.9rem">
+            <button type="submit" class="btn-sm" style="background:var(--profile-color,#7C3AED);color:#fff;border:none;border-radius:12px;padding:12px 18px;font-weight:700;cursor:pointer">Suscribir</button>
+          </form>
+        </div>
+      </div>
+      
+      <p class="brand">Creado con <a href="{{base_url}}">VYNK</a></p>
+    </main>
+
+    <footer class="save-bar">
+      <a href="/api/perfiles/{{slug}}/vcard" class="save-btn">
+        <i class="fas fa-address-card"></i> Guardar contacto
+      </a>
+    </footer>
+  </div>
 
   <!-- Intersection Observer for Scroll Animations -->
   <script>

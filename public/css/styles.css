@@ -1912,13 +1912,6 @@ main, .main-panel, .controls-panel, .builder-grid, .config-container, .dashboard
     align-items: start !important;
   }
 
-  .dashboard-grid-container {
-    display: grid !important;
-    grid-template-columns: repeat(12, 1fr) !important;
-    gap: 20px !important;
-    padding: 24px 32px !important;
-  }
-
   /* Single Codebase Transformation: Same Bottom Sheet DOM Node becomes a Static Sidebar in Desktop */
   .adaptive-sheet,
   .nav-drawer,
@@ -1934,4 +1927,177 @@ main, .main-panel, .controls-panel, .builder-grid, .config-container, .dashboard
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
     transform: none !important;
   }
+}
+
+/* ============================================
+   VYNK DESIGN SYSTEM 2.0 & SAAS DESKTOP LAYOUT
+   ============================================ */
+
+/* 1. Global Typography & Premium Background */
+body {
+  background-color: var(--bg-base, #09090B) !important;
+  color: var(--text-main, #FAFAFA) !important;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+  margin: 0;
+  padding: 0;
+}
+
+h1, h2, h3, h4, h5, h6, .brand, .card-name, .nav-brand, .admin-title {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif !important;
+  letter-spacing: -0.02em;
+}
+
+/* 2. Desktop SaaS Layout (>= 1024px) */
+@media (min-width: 1024px) {
+  .container-lg-dashboard {
+    max-width: 1400px !important;
+    padding: 0 32px !important;
+  }
+
+  .dashboard-grid-container {
+    display: grid !important;
+    grid-template-columns: 280px 1fr !important;
+    gap: 32px !important;
+    align-items: start !important;
+    padding: 0 !important;
+  }
+
+  .sidebar-panel {
+    position: sticky !important;
+    top: 24px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+  }
+
+  .main-panel {
+    min-width: 0 !important;
+  }
+
+  /* Bento Grid for Profile Cards */
+  #profile-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)) !important;
+    gap: 24px !important;
+  }
+}
+
+/* Mobile & Tablet Layout (< 1024px) */
+@media (max-width: 1023px) {
+  .dashboard-grid-container {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 20px !important;
+  }
+
+  #profile-grid {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+}
+
+/* 3. Profile Card Internal Bento Layout */
+.profile-card {
+  background: var(--bg-surface, #18181B) !important;
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08)) !important;
+  border-radius: 24px !important;
+  padding: 20px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  gap: 16px !important;
+  transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1), border-color 200ms ease, box-shadow 200ms ease !important;
+  cursor: pointer !important;
+}
+
+.profile-card:hover {
+  transform: translateY(-2px) !important;
+  border-color: rgba(99, 102, 241, 0.35) !important;
+  box-shadow: 0 12px 32px rgba(99, 102, 241, 0.18) !important;
+}
+
+.card-actions,
+.profile-card .card-actions {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 6px !important;
+  width: max-content !important;
+  margin-left: auto !important;
+  padding-top: 12px !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
+}
+
+.card-actions .btn,
+.card-actions a,
+.card-actions button,
+.profile-card .card-actions a,
+.profile-card .card-actions button {
+  width: 34px !important;
+  height: 34px !important;
+  min-width: 34px !important;
+  max-width: 34px !important;
+  flex: 0 0 34px !important;
+  box-sizing: border-box !important;
+  border-radius: 10px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-decoration: none !important;
+  padding: 0 !important;
+}
+
+/* 4. Public Profile Link-in-Bio Phone Container on Desktop */
+.public-profile-frame {
+  max-width: 480px !important;
+  margin: 32px auto !important;
+  min-height: calc(100vh - 64px) !important;
+  background: var(--bg-surface, #18181B) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 36px !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7), 0 0 50px rgba(99, 102, 241, 0.15) !important;
+  overflow: hidden !important;
+  position: relative !important;
+}
+
+@media (max-width: 520px) {
+  .public-profile-frame {
+    max-width: 100% !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+}
+
+/* Pill-shaped Primary Buttons */
+.btn-primary,
+.btn-primary-gradient,
+.btn-submit,
+.save-btn {
+  background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%) !important;
+  border-radius: 9999px !important;
+  border: none !important;
+  color: #FFFFFF !important;
+  font-weight: 700 !important;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif !important;
+  padding: 12px 24px !important;
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.35) !important;
+  transition: transform 160ms cubic-bezier(0.16, 1, 0.3, 1), opacity 160ms ease, box-shadow 160ms ease !important;
+  cursor: pointer !important;
+}
+
+.btn-primary:active,
+.btn-primary-gradient:active,
+.btn-submit:active {
+  transform: scale(0.98) !important;
+}
+
+.btn-primary:hover,
+.btn-primary-gradient:hover,
+.btn-submit:hover {
+  box-shadow: 0 6px 24px rgba(139, 92, 246, 0.5) !important;
+  opacity: 0.95 !important;
 }
