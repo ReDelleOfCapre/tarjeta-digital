@@ -60,8 +60,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const action = btn.getAttribute('data-action');
 
     if (action === 'admin-logout') {
-      localStorage.removeItem('admin_token');
-      localStorage.removeItem('token');
+      api('/auth/logout', { method: 'POST' }).catch(function(){});
+      localStorage.clear();
+      sessionStorage.clear();
       window.location.href = '/admin-login.html';
     } else if (action === 'export-csv') {
       exportUsersCsv();

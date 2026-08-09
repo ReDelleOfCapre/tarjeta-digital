@@ -276,20 +276,27 @@
     var grid = document.getElementById('profile-grid');
     var empty = document.getElementById('empty-state');
 
-    // Stats
-    document.getElementById('total-perfiles').textContent = perfiles.length;
-    var totalVisitas = perfiles.reduce(function(sum, p) { return sum + (p.visitas || 0); }, 0);
-    document.getElementById('total-visitas').textContent = totalVisitas;
-
-    if (perfiles.length === 0) {
-      grid.innerHTML = '';
-      empty.classList.remove('hidden');
+    if (!perfiles || !Array.isArray(perfiles) || perfiles.length === 0) {
+      if (grid) grid.innerHTML = '';
+      if (empty) empty.classList.remove('hidden');
+      var totalP = document.getElementById('total-perfiles');
+      var totalV = document.getElementById('total-visitas');
+      if (totalP) totalP.textContent = '0';
+      if (totalV) totalV.textContent = '0';
       return;
     }
 
-    empty.classList.add('hidden');
+    // Stats
+    var totalP = document.getElementById('total-perfiles');
+    var totalV = document.getElementById('total-visitas');
+    if (totalP) totalP.textContent = perfiles.length;
+    var totalVisitas = perfiles.reduce(function(sum, p) { return sum + ((p && p.visitas) || 0); }, 0);
+    if (totalV) totalV.textContent = totalVisitas;
+
+    if (empty) empty.classList.add('hidden');
     grid.innerHTML = perfiles.map(function(p) {
-      var initials = p.nombre_perfil.split(' ').map(function(w){ return w[0]; }).slice(0,2).join('').toUpperCase();
+      if (!p) return '';
+      var initials = (p.nombre_perfil || 'V').split(' ').map(function(w){ return w[0]; }).slice(0,2).join('').toUpperCase();
       var color = p.color || 'var(--accent)';
       var fotoUrl = p.foto_url
         ? (p.foto_url.startsWith('http') || p.foto_url.startsWith('data:image') ? p.foto_url : (p.foto_url.startsWith('/') ? p.foto_url : '/' + p.foto_url))
@@ -301,9 +308,9 @@
       return '<div class="profile-card" onclick="location.href=\'/editor.html?id=' + p.id + '\'">' +
         avatarHtml +
         '<div class="card-info" style="flex:1;min-width:0;padding:0 8px">' +
-          '<div class="card-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + escapeHtml(p.nombre_perfil) + '</div>' +
+          '<div class="card-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + escapeHtml(p.nombre_perfil || '') + '</div>' +
           '<div class="card-meta">' +
-            '<span>' + (p.tipo || 'personal') + '</span>' +
+            '<span>' + escapeHtml(p.tipo || 'personal') + '</span>' +
             '<span>·</span>' +
             '<span>' + (p.visitas || 0) + ' visitas</span>' +
             '<span>·</span>' +
@@ -429,6 +436,13 @@
     } catch (error) {
       if (error.name === 'AbortError') {
         console.log('Sincronización NFC cancelada por el usuario.');
+        closeNfcModal();
+        return;
+      }
+
+      if (error.name === 'NotAllowedError') {
+        console.warn('Permiso NDEF NFC denegado por el usuario.');
+        showToast('Permiso de NFC denegado en el dispositivo', 'error');
         closeNfcModal();
         return;
       }

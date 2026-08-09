@@ -287,35 +287,42 @@
         prevBlocksContainer.innerHTML = '<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:0.78rem;border:1px dashed rgba(255,255,255,0.1);border-radius:14px">Tus botones y smart blocks aparecerán aquí al instante...</div>';
       } else {
         prevBlocksContainer.innerHTML = blocks.map(function(b) {
-          var bt = BLOCK_TYPES.find(function(t){ return t.tipo === b.tipo; }) || { icon: '📎', label: b.tipo, color: '#7C3AED' };
-          var title = b.contenido.titulo || b.contenido.texto || b.contenido.url || b.contenido.numero || bt.label;
-          var url = b.contenido.url || '';
+          try {
+            if (!b || !b.tipo) return '';
+            var bCont = b.contenido || {};
+            var bt = BLOCK_TYPES.find(function(t){ return t.tipo === b.tipo; }) || { icon: '📎', label: b.tipo || 'Bloque', color: '#7C3AED' };
+            var title = bCont.titulo || bCont.texto || bCont.url || bCont.numero || bt.label;
+            var url = bCont.url || '';
 
-          if (url.includes('open.spotify.com')) {
-            return '<div style="padding:10px;border-radius:14px;background:rgba(29,185,84,0.12);border:1px solid rgba(29,185,84,0.3);color:#1DB954;font-size:0.78rem;font-weight:700;display:flex;align-items:center;gap:8px">🎵 Spotify Smart Player</div>';
-          }
+            if (url.includes('open.spotify.com')) {
+              return '<div style="padding:10px;border-radius:14px;background:rgba(29,185,84,0.12);border:1px solid rgba(29,185,84,0.3);color:#1DB954;font-size:0.78rem;font-weight:700;display:flex;align-items:center;gap:8px">🎵 Spotify Smart Player</div>';
+            }
 
-          if (b.tipo === 'ubicacion' || url.includes('google.com/maps') || url.includes('maps.google') || title.toLowerCase().includes('ubicacion') || title.toLowerCase().includes('sucursal')) {
-            var locationQuery = b.contenido.direccion || b.contenido.texto || url || title;
-            return '<div class="preview-location-block" style="padding:12px;border-radius:16px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);margin-bottom:8px">' +
-              '<div style="font-size:0.8rem;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:6px">📍 ' + escapeHtml(title) + '</div>' +
-              '<iframe width="100%" height="110" style="border:0;border-radius:10px;margin-bottom:8px" loading="lazy" src="https://maps.google.com/maps?q=' + encodeURIComponent(locationQuery) + '&output=embed"></iframe>' +
-              '<div style="display:flex;gap:6px">' +
-                '<a href="https://maps.google.com/?q=' + encodeURIComponent(locationQuery) + '" target="_blank" style="flex:1;background:#EA4335;color:#fff;text-align:center;border-radius:8px;padding:6px;font-weight:700;font-size:0.72rem;text-decoration:none">🗺️ Google Maps</a>' +
-                '<a href="https://maps.apple.com/?q=' + encodeURIComponent(locationQuery) + '" target="_blank" style="flex:1;background:#007AFF;color:#fff;text-align:center;border-radius:8px;padding:6px;font-weight:700;font-size:0.72rem;text-decoration:none">🍎 Apple Maps</a>' +
-              '</div>' +
+            if (b.tipo === 'ubicacion' || url.includes('google.com/maps') || url.includes('maps.google') || (title && (title.toLowerCase().includes('ubicacion') || title.toLowerCase().includes('sucursal')))) {
+              var locationQuery = bCont.direccion || bCont.texto || url || title;
+              return '<div class="preview-location-block" style="padding:12px;border-radius:16px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);margin-bottom:8px">' +
+                '<div style="font-size:0.8rem;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:6px">📍 ' + escapeHtml(title) + '</div>' +
+                '<iframe width="100%" height="110" style="border:0;border-radius:10px;margin-bottom:8px" loading="lazy" src="https://maps.google.com/maps?q=' + encodeURIComponent(locationQuery) + '&output=embed"></iframe>' +
+                '<div style="display:flex;gap:6px">' +
+                  '<a href="https://maps.google.com/?q=' + encodeURIComponent(locationQuery) + '" target="_blank" style="flex:1;background:#EA4335;color:#fff;text-align:center;border-radius:8px;padding:6px;font-weight:700;font-size:0.72rem;text-decoration:none">🗺️ Google Maps</a>' +
+                  '<a href="https://maps.apple.com/?q=' + encodeURIComponent(locationQuery) + '" target="_blank" style="flex:1;background:#007AFF;color:#fff;text-align:center;border-radius:8px;padding:6px;font-weight:700;font-size:0.72rem;text-decoration:none">🍎 Apple Maps</a>' +
+                '</div>' +
+              '</div>';
+            }
+
+            var isLightTheme = (selectedTheme === 'ios');
+            var textColor = isLightTheme ? '#1C1C1E' : '#FFFFFF';
+            var cardBg = isLightTheme ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.06)';
+            var cardBorder = isLightTheme ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.08)';
+
+            return '<div style="padding:12px 14px;border-radius:14px;background:' + cardBg + ';border:1px solid ' + cardBorder + ';border-left:4px solid ' + selectedColor + ';display:flex;align-items:center;justify-content:space-between;color:' + textColor + ';font-size:0.82rem;font-weight:600;margin-bottom:6px">' +
+              '<div style="display:flex;align-items:center;gap:8px"><span>' + bt.icon + '</span> <span>' + escapeHtml(title) + '</span></div>' +
+              '<span style="opacity:0.5">→</span>' +
             '</div>';
+          } catch(e) {
+            console.error('Error al mapear bloque preview individual:', e);
+            return '';
           }
-
-          var isLightTheme = (selectedTheme === 'ios');
-          var textColor = isLightTheme ? '#1C1C1E' : '#FFFFFF';
-          var cardBg = isLightTheme ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.06)';
-          var cardBorder = isLightTheme ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.08)';
-
-          return '<div style="padding:12px 14px;border-radius:14px;background:' + cardBg + ';border:1px solid ' + cardBorder + ';border-left:4px solid ' + selectedColor + ';display:flex;align-items:center;justify-content:space-between;color:' + textColor + ';font-size:0.82rem;font-weight:600;margin-bottom:6px">' +
-            '<div style="display:flex;align-items:center;gap:8px"><span>' + bt.icon + '</span> <span>' + escapeHtml(title) + '</span></div>' +
-            '<span style="opacity:0.5">→</span>' +
-          '</div>';
         }).join('');
       }
     }
@@ -613,21 +620,28 @@
       return;
     }
     container.innerHTML = blocks.map(function(b, i){
-      var bt = BLOCK_TYPES.find(function(t){return t.tipo===b.tipo;}) || {icon:'•',label:b.tipo,color:'#8E8E93'};
-      var preview = b.contenido.titulo || b.contenido.url || b.contenido.texto || b.contenido.numero || (b.contenido.redes?b.contenido.redes.length+' redes':'') || '';
-      if (preview.length > 30) preview = preview.substring(0,27)+'...';
+      try {
+        if (!b || !b.tipo) return '';
+        var bCont = b.contenido || {};
+        var bt = BLOCK_TYPES.find(function(t){return t.tipo===b.tipo;}) || {icon:'•',label:b.tipo || 'Bloque',color:'#8E8E93'};
+        var preview = bCont.titulo || bCont.url || bCont.texto || bCont.numero || (bCont.redes?bCont.redes.length+' redes':'') || '';
+        if (preview.length > 30) preview = preview.substring(0,27)+'...';
 
-      return '<div class="block-item-row" style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;margin-bottom:8px" draggable="true" ondragstart="dragStart(event,'+i+')" ondragover="event.preventDefault()" ondrop="dragDrop(event,'+i+')">' +
-        '<span class="drag-handle" style="color:var(--text-muted);cursor:grab;font-size:1.1rem;padding:0 2px">☰</span>' +
-        '<div style="width:32px;height:32px;border-radius:8px;background:'+bt.color+';display:flex;align-items:center;justify-content:center;color:#fff;font-size:0.8rem;flex-shrink:0">'+bt.icon+'</div>' +
-        '<div style="flex:1;min-width:0"><div style="font-size:var(--font-xs);color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px">'+bt.label+'</div><div style="font-size:var(--font-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#FFF;font-weight:600">'+escapeHtml(preview)+'</div></div>' +
-        '<div style="display:flex;align-items:center;gap:4px">' +
-          '<button class="btn btn-sm btn-ghost" onclick="moveBlock('+i+', -1)" style="padding:4px 6px;font-size:0.75rem" ' + (i === 0 ? 'disabled' : '') + '>▲</button>' +
-          '<button class="btn btn-sm btn-ghost" onclick="moveBlock('+i+', 1)" style="padding:4px 6px;font-size:0.75rem" ' + (i === blocks.length - 1 ? 'disabled' : '') + '>▼</button>' +
-          '<button class="btn btn-sm btn-ghost" onclick="editBlock('+i+')" style="padding:4px 6px;font-size:0.8rem;color:var(--accent)">✏️</button>' +
-          '<button class="btn btn-sm btn-ghost" onclick="removeBlock('+i+')" style="padding:4px 6px;font-size:0.8rem;color:var(--red)">✕</button>' +
-        '</div>' +
-      '</div>';
+        return '<div class="block-item-row" style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;margin-bottom:8px" draggable="true" ondragstart="dragStart(event,'+i+')" ondragover="event.preventDefault()" ondrop="dragDrop(event,'+i+')">' +
+          '<span class="drag-handle" style="color:var(--text-muted);cursor:grab;font-size:1.1rem;padding:0 2px">☰</span>' +
+          '<div style="width:32px;height:32px;border-radius:8px;background:'+bt.color+';display:flex;align-items:center;justify-content:center;color:#fff;font-size:0.8rem;flex-shrink:0">'+bt.icon+'</div>' +
+          '<div style="flex:1;min-width:0"><div style="font-size:var(--font-xs);color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px">'+bt.label+'</div><div style="font-size:var(--font-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#FFF;font-weight:600">'+escapeHtml(preview)+'</div></div>' +
+          '<div style="display:flex;align-items:center;gap:4px">' +
+            '<button class="btn btn-sm btn-ghost" onclick="moveBlock('+i+', -1)" style="padding:4px 6px;font-size:0.75rem" ' + (i === 0 ? 'disabled' : '') + '>▲</button>' +
+            '<button class="btn btn-sm btn-ghost" onclick="moveBlock('+i+', 1)" style="padding:4px 6px;font-size:0.75rem" ' + (i === blocks.length - 1 ? 'disabled' : '') + '>▼</button>' +
+            '<button class="btn btn-sm btn-ghost" onclick="editBlock('+i+')" style="padding:4px 6px;font-size:0.8rem;color:var(--accent)">✏️</button>' +
+            '<button class="btn btn-sm btn-ghost" onclick="removeBlock('+i+')" style="padding:4px 6px;font-size:0.8rem;color:var(--red)">✕</button>' +
+          '</div>' +
+        '</div>';
+      } catch(e) {
+        console.error('Error al renderizar bloque individual:', e);
+        return '';
+      }
     }).join('');
 
     updateLivePreview();

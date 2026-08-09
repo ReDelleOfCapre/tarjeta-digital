@@ -164,7 +164,15 @@ function matchFaviconTag(html) {
 
 function cleanText(text) {
   if (!text) return '';
-  return text.replace(/[\r\n\t]+/g, ' ').replace(/\s+/g, ' ').trim();
+  return text
+    .replace(/[\r\n\t]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;')
+    .trim();
 }
 
 module.exports = {

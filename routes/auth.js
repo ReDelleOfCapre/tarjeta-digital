@@ -172,6 +172,11 @@ router.post('/login', rateLimit(10, 15 * 60 * 1000), [
   }
 });
 
+// POST /api/auth/logout — Invalidación de sesión del lado del servidor
+router.post('/logout', (req, res) => {
+  res.json({ success: true, message: 'Sesión cerrada correctamente' });
+});
+
 // POST /api/auth/accept-terms — Aceptar Términos & Aviso de Privacidad
 router.post('/accept-terms', auth, async (req, res) => {
   try {

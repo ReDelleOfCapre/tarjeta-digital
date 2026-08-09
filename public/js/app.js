@@ -146,7 +146,9 @@ function checkAuth() {
 }
 
 function logout() {
+  api('/auth/logout', { method: 'POST' }).catch(function(){});
   localStorage.clear();
+  sessionStorage.clear();
   location.href = '/';
 }
 
