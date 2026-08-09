@@ -76,7 +76,7 @@
   --transition-fast: 0.2s var(--ease-magnetic);
   --transition-normal: 0.4s var(--ease-magnetic);
 
-  /* Tamaño base del icono y grosor adaptativo */
+  /* UI/UX Polish 2026: Tamaño base de icono fluido y grosor uniforme */
   --icon-size: clamp(1.1rem, 2.5vw, 1.5rem);
   --icon-stroke: 1.5px;
   --icon-size-sm: clamp(0.95rem, 2.2vw, 1.2rem);
