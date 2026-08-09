@@ -36,6 +36,31 @@
   const nombre = params.get('nombre');
   const tipo = params.get('tipo');
 
+  // Bloqueo de clics prematuros hasta que se complete la hidratación de datos
+  const btnVcard = document.getElementById('btn-vcard');
+  const btnQrDownload = document.getElementById('btn-qr-download') || document.getElementById('btn-download-qr');
+
+  if (btnVcard) {
+    btnVcard.style.pointerEvents = 'none';
+    btnVcard.style.opacity = '0.6';
+  }
+  if (btnQrDownload) {
+    btnQrDownload.style.pointerEvents = 'none';
+    btnQrDownload.style.opacity = '0.6';
+  }
+
+  function enableButtons() {
+    if (btnVcard) {
+      btnVcard.href = '/api/perfiles/' + slug + '/vcard';
+      btnVcard.style.pointerEvents = 'auto';
+      btnVcard.style.opacity = '1';
+    }
+    if (btnQrDownload) {
+      btnQrDownload.style.pointerEvents = 'auto';
+      btnQrDownload.style.opacity = '1';
+    }
+  }
+
   if (nombre) {
     shareNombre.textContent = nombre;
   }
@@ -46,17 +71,25 @@
   // If no name/tipo in params, try fetching
   if (!nombre || !tipo) {
     loadProfileInfo();
+  } else {
+    enableButtons();
   }
 
   async function loadProfileInfo() {
-    const data = await api('/perfiles/slug/' + slug, { method: 'GET' });
-    if (data && !data.error) {
-      const perfil = data.perfil || data;
-      shareNombre.textContent = perfil.nombre_perfil || slug;
-      shareTipo.textContent = perfil.tipo || 'personal';
-    } else {
+    try {
+      const data = await api('/perfiles/slug/' + slug, { method: 'GET' });
+      if (data && !data.error) {
+        const perfil = data.perfil || data;
+        shareNombre.textContent = perfil.nombre_perfil || slug;
+        shareTipo.textContent = perfil.tipo || 'personal';
+      } else {
+        shareNombre.textContent = slug;
+        shareTipo.textContent = 'Tarjeta';
+      }
+    } catch(e) {
       shareNombre.textContent = slug;
-      shareTipo.textContent = 'Tarjeta';
+    } finally {
+      enableButtons();
     }
   }
 

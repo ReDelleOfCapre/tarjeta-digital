@@ -76,6 +76,10 @@
           .then(function() {
             showToast('Workspace corporativo creado', 'success');
             setTimeout(function() { location.reload(); }, 400);
+          })
+          .catch(function(err) {
+            console.error('Fallo en la petición:', err);
+            alert('Ocurrió un error en el servidor.');
           });
       }
     } else {
@@ -148,15 +152,25 @@
 
     if (!email) { showToast('Ingresa un correo electrónico', 'error'); return; }
 
-    var list = document.getElementById('team-members-list');
-    if (list) {
-      var item = document.createElement('div');
-      item.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:12px;background:rgba(255,255,255,0.04);border-radius:12px;margin-top:4px';
-      item.innerHTML = '<div><div style="font-weight:700;color:#FFF;font-size:0.88rem">' + escapeHtml(email.split('@')[0]) + '</div><div style="font-size:0.75rem;color:var(--text-tertiary)">' + escapeHtml(email) + '</div></div><span class="pro-badge-lock" style="background:rgba(6,182,212,0.2);color:#38BDF8;border-color:rgba(6,182,212,0.4)">' + escapeHtml(role) + '</span>';
-      list.appendChild(item);
-    }
-    emailInput.value = '';
-    showToast('Invitación enviada con rol ' + role, 'success');
+    var senderName = user ? user.nombre : 'Colega VYNK';
+
+    api('/invite', {
+      method: 'POST',
+      body: JSON.stringify({ email: email, senderName: senderName })
+    }).then(function(res) {
+      var list = document.getElementById('team-members-list');
+      if (list) {
+        var item = document.createElement('div');
+        item.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:12px;background:rgba(255,255,255,0.04);border-radius:12px;margin-top:4px';
+        item.innerHTML = '<div><div style="font-weight:700;color:#FFF;font-size:0.88rem">' + escapeHtml(email.split('@')[0]) + '</div><div style="font-size:0.75rem;color:var(--text-tertiary)">' + escapeHtml(email) + '</div></div><span class="pro-badge-lock" style="background:rgba(6,182,212,0.2);color:#38BDF8;border-color:rgba(6,182,212,0.4)">' + escapeHtml(role) + '</span>';
+        list.appendChild(item);
+      }
+      emailInput.value = '';
+      showToast('Invitación enviada con rol ' + role, 'success');
+    }).catch(function(err) {
+      console.error('Fallo en la petición:', err);
+      showToast('Error enviando invitación', 'error');
+    });
   };
 
   document.addEventListener('click', function(e) {
@@ -186,7 +200,8 @@
         legalModal.classList.add('hidden');
         showToast('Términos aceptados correctamente', 'success');
       }).catch(function(err) {
-        showToast('Error aceptando términos', 'error');
+        console.error('Fallo en la petición:', err);
+        alert('Ocurrió un error en el servidor.');
       });
     });
   }

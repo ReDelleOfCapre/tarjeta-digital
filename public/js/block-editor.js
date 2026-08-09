@@ -510,6 +510,9 @@
       // Auto fetch metadata in background if URL
       if (url.startsWith('http')) {
         var targetBlock = (editingBlockIdx !== null && blocks[editingBlockIdx]) ? blocks[editingBlockIdx] : blocks[blocks.length - 1];
+        var spinner = document.getElementById('spinner-metadata') || document.getElementById('bf-spinner');
+        if (spinner) spinner.style.display = 'inline-block';
+
         api('/metadata', { method: 'POST', body: JSON.stringify({ url: url }) })
           .then(function(meta) {
             if (meta && meta.domain && targetBlock) {
@@ -522,7 +525,14 @@
               targetBlock.contenido.domain = meta.domain;
               renderBlockList();
             }
-          }).catch(function(){});
+          })
+          .catch(function(err) {
+            console.error('Fallo obteniendo metadata:', err);
+            showToast('No se pudo cargar la vista previa del enlace', 'info');
+          })
+          .finally(function() {
+            if (spinner) spinner.style.display = 'none';
+          });
       }
       editingBlockIdx = null;
       return;

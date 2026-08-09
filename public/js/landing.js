@@ -132,6 +132,13 @@ document.addEventListener('DOMContentLoaded', () => {
           localStorage.setItem('user', JSON.stringify(res.usuario));
           localStorage.setItem('usuario', JSON.stringify(res.usuario));
           showToast('Cuenta creada con éxito', 'success');
+
+          // Despachar correo de onboarding asíncronamente
+          api('/onboarding', {
+            method: 'POST',
+            body: JSON.stringify({ email: email, nombre: nombre })
+          }).catch(err => console.error('Onboarding async email error:', err));
+
           setTimeout(() => window.location.href = '/dashboard.html', 300);
         }
       } catch (err) {
@@ -182,6 +189,13 @@ async function ssoLogin(provider) {
       localStorage.setItem('user', JSON.stringify(res.usuario));
       localStorage.setItem('usuario', JSON.stringify(res.usuario));
       showToast('¡Sesión iniciada con ' + provider.toUpperCase() + '!', 'success');
+
+      // Despachar correo de onboarding asíncronamente
+      api('/onboarding', {
+        method: 'POST',
+        body: JSON.stringify({ email: res.usuario?.email || dummyEmail, nombre: res.usuario?.nombre || 'Usuario' })
+      }).catch(err => console.error('Onboarding SSO async email error:', err));
+
       window.location.href = '/dashboard.html';
     }
   } catch (err) {
@@ -191,7 +205,11 @@ async function ssoLogin(provider) {
 
 function openHelpModal() {
   const helpModal = document.getElementById('helpModal');
-  if (helpModal) helpModal.style.display = 'flex';
+  if (helpModal) {
+    helpModal.style.display = 'flex';
+  } else {
+    alert('Instrucciones de recuperación enviadas a tu correo.');
+  }
 }
 
 function closeHelpModal() {
