@@ -1977,15 +1977,20 @@ h1, h2, h3, h4, h5, h6, .brand, .card-name, .nav-brand, .admin-title, .name {
 @media (min-width: 1024px) {
   .container-lg-dashboard {
     max-width: 1400px !important;
+    margin: 0 auto !important;
     padding: 0 32px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
 
   .dashboard-grid-container {
     display: grid !important;
     grid-template-columns: 280px 1fr !important;
-    gap: 32px !important;
+    gap: 24px !important;
     align-items: start !important;
     padding: 0 !important;
+    position: relative !important;
+    z-index: 1 !important;
   }
 
   .sidebar-panel {
@@ -1994,17 +1999,22 @@ h1, h2, h3, h4, h5, h6, .brand, .card-name, .nav-brand, .admin-title, .name {
     display: flex !important;
     flex-direction: column !important;
     gap: 16px !important;
+    z-index: 10 !important;
   }
 
   .main-panel {
+    position: relative !important;
+    z-index: 5 !important;
     min-width: 0 !important;
   }
 
-  /* Bento Grid for Profile Cards */
+  /* Compact Bento Grid for Profile Cards */
   #profile-grid {
     display: grid !important;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)) !important;
-    gap: 20px !important;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
+    gap: 16px !important;
+    align-content: start !important;
+    align-items: start !important;
   }
 }
 
@@ -2014,16 +2024,20 @@ h1, h2, h3, h4, h5, h6, .brand, .card-name, .nav-brand, .admin-title, .name {
     display: flex !important;
     flex-direction: column !important;
     gap: 20px !important;
+    position: relative !important;
+    z-index: 1 !important;
   }
 
   #profile-grid {
     display: grid !important;
     grid-template-columns: 1fr !important;
     gap: 16px !important;
+    align-content: start !important;
+    align-items: start !important;
   }
 }
 
-/* 3. Cards Estilo Shadcn/ui (12px Radius, Solid Border, No Excessive Glow) */
+/* 3. Cards Estilo Shadcn/ui (Compact Auto Height & Pointer Events Fix) */
 .card,
 .profile-card,
 .bento-card,
@@ -2032,14 +2046,19 @@ h1, h2, h3, h4, h5, h6, .brand, .card-name, .nav-brand, .admin-title, .name {
   background: var(--bg-surface, #1A1F26) !important;
   border: 1px solid var(--border-subtle, #2A313A) !important;
   border-radius: 12px !important;
-  padding: 20px !important;
+  padding: 16px 20px !important;
   box-shadow: none !important;
   display: flex !important;
   flex-direction: column !important;
   justify-content: space-between !important;
-  gap: 16px !important;
+  gap: 14px !important;
+  align-self: start !important;
+  height: auto !important;
+  max-height: none !important;
   transition: border-color 160ms ease, background-color 160ms ease !important;
   cursor: pointer !important;
+  position: relative !important;
+  z-index: 2 !important;
 }
 
 .card:hover,
@@ -2047,6 +2066,34 @@ h1, h2, h3, h4, h5, h6, .brand, .card-name, .nav-brand, .admin-title, .name {
 .bento-card:hover {
   border-color: #485362 !important;
   background-color: #212730 !important;
+}
+
+/* Interactivity & Pointer-Events Guard */
+.bg-mesh,
+.bg-gradient-blur,
+.bg-decor {
+  pointer-events: none !important;
+  z-index: 0 !important;
+}
+
+button,
+a,
+input,
+select,
+.btn,
+.card-actions,
+.card-actions * {
+  pointer-events: auto !important;
+}
+
+.modal-overlay,
+.modal-nfc-overlay,
+#nfc-modal-overlay,
+#modal-delete,
+#modal-team,
+#modal-perfiles {
+  z-index: 10000 !important;
+  pointer-events: auto !important;
 }
 
 .card-actions,
@@ -2059,6 +2106,8 @@ h1, h2, h3, h4, h5, h6, .brand, .card-name, .nav-brand, .admin-title, .name {
   margin-left: auto !important;
   padding-top: 12px !important;
   border-top: 1px solid var(--border-subtle, #2A313A) !important;
+  position: relative !important;
+  z-index: 10 !important;
 }
 
 .card-actions .btn,
@@ -2081,6 +2130,8 @@ h1, h2, h3, h4, h5, h6, .brand, .card-name, .nav-brand, .admin-title, .name {
   background: transparent !important;
   border: 1px solid var(--border-subtle, #2A313A) !important;
   color: var(--text-main, #EEEAE0) !important;
+  position: relative !important;
+  z-index: 15 !important;
 }
 
 .card-actions .btn:hover,
@@ -2100,6 +2151,7 @@ h1, h2, h3, h4, h5, h6, .brand, .card-name, .nav-brand, .admin-title, .name {
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6) !important;
   overflow: hidden !important;
   position: relative !important;
+  z-index: 1 !important;
 }
 
 @media (max-width: 520px) {
@@ -2127,6 +2179,8 @@ h1, h2, h3, h4, h5, h6, .brand, .card-name, .nav-brand, .admin-title, .name {
   box-shadow: none !important;
   transition: opacity 160ms ease, transform 160ms ease !important;
   cursor: pointer !important;
+  position: relative !important;
+  z-index: 5 !important;
 }
 
 .btn-primary:active,
@@ -2149,4 +2203,6 @@ h1, h2, h3, h4, h5, h6, .brand, .card-name, .nav-brand, .admin-title, .name {
   color: var(--text-main, #EEEAE0) !important;
   font-weight: 600 !important;
   padding: 10px 20px !important;
+  position: relative !important;
+  z-index: 5 !important;
 }
