@@ -338,6 +338,32 @@ body, p, span, input, select, textarea, button, .profile-bio, .step-subtitle {
   transform: scale(0.95) !important;
 }
 
+/* Fix Layout Dashboard: Contención estricta de botones de acción para prevenir deformaciones */
+.card-actions {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  width: max-content !important;
+  max-width: fit-content !important;
+  flex-shrink: 0 !important;
+}
+
+.card-actions .btn-icon,
+.card-actions button,
+.card-actions a {
+  width: 34px !important;
+  height: 34px !important;
+  min-width: 34px !important;
+  max-width: 34px !important;
+  flex: 0 0 34px !important;
+  border-radius: 10px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+}
+
 .text-muted { color: var(--text-muted); }
 .text-secondary { color: var(--text-secondary); }
 .text-accent { color: var(--accent); }

@@ -402,10 +402,10 @@ function perfilPublicoHandler(req, res) {
     if (perfil.foto_url) {
       fotoSrc = (perfil.foto_url.startsWith('http') || perfil.foto_url.startsWith('data:image'))
         ? perfil.foto_url
-        : `${BASE_URL}${perfil.foto_url}`;
+        : (perfil.foto_url.startsWith('/') ? `${BASE_URL}${perfil.foto_url}` : `${BASE_URL}/${perfil.foto_url}`);
       avatar_html = `<div class="avatar-wrapper" style="${wrapperStyle}">
         <div class="avatar">
-          <img src="${fotoSrc}" alt="${escapeHtml(perfil.nombre_perfil || '')}">
+          <img src="${fotoSrc}" alt="${escapeHtml(perfil.nombre_perfil || '')}" onerror="this.onerror=null;this.src='/img/logo.svg';">
         </div>
       </div>`;
     } else {
@@ -734,7 +734,7 @@ function perfilPublicoHandler(req, res) {
     const tema = perfil.tema || 'ios';
 
     const banner_html = perfil.banner_url
-      ? `<div class="hero-banner"><img src="${escapeHtml(perfil.banner_url)}" alt="Portada"></div>`
+      ? `<div class="hero-banner"><img src="${escapeHtml(perfil.banner_url.startsWith('http') || perfil.banner_url.startsWith('/') ? perfil.banner_url : '/' + perfil.banner_url)}" alt="Portada" onerror="this.onerror=null;this.src='/img/hero-bg.jpg';"></div>`
       : '';
 
     html = html

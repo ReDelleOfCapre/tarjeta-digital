@@ -256,14 +256,17 @@
     grid.innerHTML = perfiles.map(function(p) {
       var initials = p.nombre_perfil.split(' ').map(function(w){ return w[0]; }).slice(0,2).join('').toUpperCase();
       var color = p.color || 'var(--accent)';
-      var avatarHtml = p.foto_url
-        ? '<div class="avatar avatar-md" style="border:2px solid ' + color + '"><img src="' + p.foto_url + '" alt=""></div>'
-        : '<div class="avatar avatar-md" style="background:' + color + '">' + initials + '</div>';
+      var fotoUrl = p.foto_url
+        ? (p.foto_url.startsWith('http') || p.foto_url.startsWith('data:image') ? p.foto_url : (p.foto_url.startsWith('/') ? p.foto_url : '/' + p.foto_url))
+        : '';
+      var avatarHtml = fotoUrl
+        ? '<div class="avatar avatar-md" style="border:2px solid ' + color + ';flex-shrink:0"><img src="' + fotoUrl + '" alt="" onerror="this.onerror=null;this.src=\'/img/logo.svg\';"></div>'
+        : '<div class="avatar avatar-md" style="background:' + color + ';flex-shrink:0">' + initials + '</div>';
 
       return '<div class="profile-card" onclick="location.href=\'/editor.html?id=' + p.id + '\'">' +
         avatarHtml +
-        '<div class="card-info">' +
-          '<div class="card-name">' + escapeHtml(p.nombre_perfil) + '</div>' +
+        '<div class="card-info" style="flex:1;min-width:0;padding:0 8px">' +
+          '<div class="card-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + escapeHtml(p.nombre_perfil) + '</div>' +
           '<div class="card-meta">' +
             '<span>' + (p.tipo || 'personal') + '</span>' +
             '<span>·</span>' +
@@ -272,12 +275,12 @@
             '<span>' + (p.total_campos || 0) + ' campos</span>' +
           '</div>' +
         '</div>' +
-        '<div class="card-actions">' +
-          '<a href="/u/' + p.slug + '" class="btn btn-icon btn-sm" onclick="event.stopPropagation()" target="_blank" title="Ver perfil público">👁</a>' +
-          '<a href="/analytics.html?id=' + p.id + '" class="btn btn-icon btn-sm" onclick="event.stopPropagation()" title="Analíticas">📊</a>' +
-          '<a href="/compartir.html?id=' + p.id + '&slug=' + p.slug + '" class="btn btn-icon btn-sm" onclick="event.stopPropagation()" title="Compartir & QR">↗</a>' +
-          '<a href="/compartir.html?id=' + p.id + '&slug=' + p.slug + '&nfc=true" class="btn btn-icon btn-sm" onclick="event.stopPropagation()" title="Grabar en NFC Física" style="color:#06B6D4">⚡</a>' +
-          '<button class="btn btn-icon btn-sm" onclick="event.stopPropagation();confirmDelete(' + p.id + ')" title="Eliminar" style="color:var(--red)">✕</button>' +
+        '<div class="card-actions" style="display:flex;align-items:center;justify-content:center;gap:6px;width:max-content;flex-shrink:0">' +
+          '<a href="/u/' + p.slug + '" class="btn btn-icon btn-sm" onclick="event.stopPropagation()" target="_blank" title="Ver perfil público" style="width:34px;height:34px;min-width:34px;flex:0 0 34px;display:inline-flex;align-items:center;justify-content:center">👁</a>' +
+          '<a href="/analytics.html?id=' + p.id + '" class="btn btn-icon btn-sm" onclick="event.stopPropagation()" title="Analíticas" style="width:34px;height:34px;min-width:34px;flex:0 0 34px;display:inline-flex;align-items:center;justify-content:center">📊</a>' +
+          '<a href="/compartir.html?id=' + p.id + '&slug=' + p.slug + '" class="btn btn-icon btn-sm" onclick="event.stopPropagation()" title="Compartir & QR" style="width:34px;height:34px;min-width:34px;flex:0 0 34px;display:inline-flex;align-items:center;justify-content:center">↗</a>' +
+          '<a href="/compartir.html?id=' + p.id + '&slug=' + p.slug + '&nfc=true" class="btn btn-icon btn-sm" onclick="event.stopPropagation()" title="Grabar en NFC Física" style="width:34px;height:34px;min-width:34px;flex:0 0 34px;display:inline-flex;align-items:center;justify-content:center;color:#06B6D4">⚡</a>' +
+          '<button class="btn btn-icon btn-sm" onclick="event.stopPropagation();confirmDelete(' + p.id + ')" title="Eliminar" style="width:34px;height:34px;min-width:34px;flex:0 0 34px;display:inline-flex;align-items:center;justify-content:center;color:var(--red)">✕</button>' +
         '</div>' +
       '</div>';
     }).join('');
