@@ -740,76 +740,389 @@ window.executeCreatePerfil = async function(e) {
   };
 
   // ============================================
-  // WYSIWYG REAL-TIME VISUAL CARD EDITOR LISTENERS
+  // MOTOR DE THEMING — VYNK SMART PROFILE ENGINE
   // ============================================
-  function initWysiwygEditorListeners() {
-    var inputName = document.getElementById('editor-input-name');
-    var inputBio = document.getElementById('editor-input-bio');
-    var prevName = document.getElementById('preview-name');
-    var prevBio = document.getElementById('preview-bio');
-    var prevAvatar = document.getElementById('preview-avatar-box');
+  function initVynkThemingEngine() {
+    const phone = document.getElementById('phone');
+    if (!phone) return;
 
-    if (inputName && prevName) {
-      inputName.addEventListener('input', function() {
-        var val = inputName.value.trim() || 'Tu Nombre o Negocio';
-        prevName.textContent = val;
-        
-        if (prevAvatar) {
-          var initials = val.split(' ').map(function(w) { return w[0]; }).filter(Boolean).slice(0, 2).join('').toUpperCase() || 'V';
-          prevAvatar.textContent = initials;
-        }
-      });
+    const ICONS = {
+      mapPin:  '<path d="M12 21s7-7.5 7-12a7 7 0 1 0-14 0c0 4.5 7 12 7 12z"/><circle cx="12" cy="9" r="2.4"/>',
+      clock:   '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.3 2"/>',
+      book:    '<path d="M2 5c2-1 5-1 7 0v14c-2-1-5-1-7 0V5z"/><path d="M22 5c-2-1-5-1-7 0v14c2-1 5-1 7 0V5z"/>',
+      truck:   '<rect x="1" y="7" width="13" height="9" rx="1"/><path d="M14 10h4l3 3v3h-7z"/><circle cx="5" cy="18" r="1.6"/><circle cx="17" cy="18" r="1.6"/>',
+      star:    '<path d="M12 2l2.9 6.3 6.9.7-5.2 4.6 1.6 6.8L12 16.9 5.8 20.4l1.6-6.8L2.2 9l6.9-.7L12 2z"/>',
+      user:    '<circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4.5 5-6.5 8-6.5s6.5 2 8 6.5"/>',
+      share:   '<circle cx="6" cy="12" r="2.1"/><circle cx="18" cy="6" r="2.1"/><circle cx="18" cy="18" r="2.1"/><path d="M8 10.8l8-4.6M8 13.2l8 4.6"/>',
+      briefcase:'<rect x="2" y="7" width="20" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>',
+      chev:    '<path d="M9 5l7 7-7 7"/>'
+    };
+
+    function svg(name) {
+      return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + (ICONS[name] || '') + '</svg>';
     }
 
-    if (inputBio && prevBio) {
-      inputBio.addEventListener('input', function() {
-        prevBio.textContent = inputBio.value.trim() || 'Descripción corta o bio...';
-      });
+    function hexToRgb(hex) {
+      hex = hex.replace('#','');
+      if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+      const n = parseInt(hex, 16);
+      return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
     }
 
-    // Toggles de contenido en tiempo real
-    var toggleMap = [
-      { input: 'toggle-mapa', target: 'prev-mod-mapa' },
-      { input: 'toggle-horario', target: 'prev-mod-horario' },
-      { input: 'toggle-catalogo', target: 'prev-mod-catalogo' },
-      { input: 'toggle-delivery', target: 'prev-mod-delivery' },
-      { input: 'toggle-resenas', target: 'prev-mod-resenas' }
+    function rgbToHex(r, g, b) {
+      return '#' + [r, g, b].map(v => {
+        v = Math.max(0, Math.min(255, Math.round(v)));
+        return v.toString(16).padStart(2, '0');
+      }).join('');
+    }
+
+    function mix(hexA, hexB, t) {
+      const a = hexToRgb(hexA), b = hexToRgb(hexB);
+      return rgbToHex(a.r + (b.r - a.r) * t, a.g + (b.g - a.g) * t, a.b + (b.b - a.b) * t);
+    }
+
+    function luminance(hex) {
+      const { r, g, b } = hexToRgb(hex);
+      const chan = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+      return 0.2126 * chan(r) + 0.7152 * chan(g) + 0.0722 * chan(b);
+    }
+
+    function textColorFor(bgHex) {
+      return luminance(bgHex) > 0.42 ? '#171620' : '#F5F3EF';
+    }
+
+    function dist(hexA, hexB) {
+      const a = hexToRgb(hexA), b = hexToRgb(hexB);
+      return Math.sqrt((a.r - b.r) ** 2 + (a.g - b.g) ** 2 + (a.b - b.b) ** 2);
+    }
+
+    function generateTheme(raw) {
+      const primary = raw[0];
+      const secondary = raw[1] || mix(primary, '#FFFFFF', 0.35);
+      const background = mix(primary, '#14131A', 0.87);
+      const surface = mix(primary, '#201F26', 0.90);
+      return {
+        primary, secondary, background, surface,
+        onBg: textColorFor(background),
+        onBgMuted: mix(textColorFor(background), background, 0.42),
+        onPrimary: textColorFor(primary)
+      };
+    }
+
+    const SAMPLES = [
+      { id: 'taqueria', type: 'negocio', name: 'Cristina Restaurante', tag: 'Tacos al pastor y desayunos', raw: ['#C2410C', '#FBBF24'] },
+      { id: 'clinica',  type: 'negocio', name: 'Dra. Ibarra', tag: 'Consultorio de nutrición clínica', raw: ['#0F766E', '#5EEAD4'] },
+      { id: 'foto',     type: 'negocio', name: 'Estudio Nocturno', tag: 'Fotografía de retrato y producto', raw: ['#D4AF37', '#4B4B52'] },
+      { id: 'personal', type: 'personal', name: 'Paolo G.', tag: 'Desarrollador · diseño de producto', raw: ['#4338CA', '#818CF8'] }
     ];
 
-    toggleMap.forEach(function(item) {
-      var checkEl = document.getElementById(item.input);
-      var modEl = document.getElementById(item.target);
-      if (checkEl && modEl) {
-        checkEl.addEventListener('change', function() {
-          if (checkEl.checked) {
-            modEl.classList.remove('hidden');
-            modEl.style.display = 'flex';
-          } else {
-            modEl.classList.add('hidden');
-            modEl.style.display = 'none';
-          }
+    const BLOCKS = {
+      personal: [
+        { id: 'contact',   label: 'Guardar contacto', hint: 'vCard con foto y datos', icon: 'user' },
+        { id: 'social',    label: 'Redes sociales',   hint: 'Instagram, LinkedIn…',  icon: 'share' },
+        { id: 'portfolio', label: 'Portafolio',       hint: 'Trabajos o servicios',  icon: 'briefcase' }
+      ],
+      negocio: [
+        { id: 'location', label: 'Sucursales', hint: 'Dirección + mapa',      icon: 'mapPin' },
+        { id: 'hours',    label: 'Horario',    hint: 'Días y horas de servicio', icon: 'clock' },
+        { id: 'menu',     label: 'Catálogo',   hint: 'Productos o platillos', icon: 'book' },
+        { id: 'delivery', label: 'Delivery',   hint: 'Uber Eats, Rappi…',     icon: 'truck' },
+        { id: 'reviews',  label: 'Reseñas',    hint: 'Google, TripAdvisor',   icon: 'star' }
+      ]
+    };
+    const DEFAULT_BLOCKS = { personal: ['contact', 'social', 'portfolio'], negocio: ['location', 'hours', 'menu'] };
+
+    const state = {
+      cardType: 'negocio',
+      sampleId: 'taqueria',
+      uploadedRaw: null,
+      name: 'Cristina Restaurante',
+      tag: 'Tacos al pastor y desayunos',
+      activeBlocks: new Set(DEFAULT_BLOCKS.negocio)
+    };
+
+    function currentRaw() {
+      if (state.uploadedRaw) return state.uploadedRaw;
+      const s = SAMPLES.find(s => s.id === state.sampleId);
+      return s ? s.raw : ['#C2410C', '#FBBF24'];
+    }
+
+    function applyThemeToDOM() {
+      const t = generateTheme(currentRaw());
+      phone.style.setProperty('--card-bg', t.background);
+      phone.style.setProperty('--card-surface', t.surface);
+      phone.style.setProperty('--card-primary', t.primary);
+      phone.style.setProperty('--card-secondary', t.secondary);
+      phone.style.setProperty('--card-text', t.onBg);
+      phone.style.setProperty('--card-text-muted', t.onBgMuted);
+      phone.style.setProperty('--card-on-primary', t.onPrimary);
+      return t;
+    }
+
+    function initials(name) {
+      return name.trim().split(/\s+/).slice(0, 2).map(w => w[0] || '').join('').toUpperCase() || '—';
+    }
+
+    function renderIdentity() {
+      const pAvatar = document.getElementById('pAvatar');
+      const pName = document.getElementById('pName');
+      const pTag = document.getElementById('pTag');
+      const pBadge = document.getElementById('pBadge');
+
+      if (pAvatar) pAvatar.textContent = initials(state.name);
+      if (pName) pName.textContent = state.name || 'Tu nombre';
+      if (pTag) pTag.textContent = state.tag || '';
+      if (pBadge) pBadge.textContent = state.cardType;
+    }
+
+    function renderBlocksPreview() {
+      const list = BLOCKS[state.cardType].filter(b => state.activeBlocks.has(b.id));
+      const primaryCtaWrap = document.getElementById('pPrimaryCta');
+      const listWrap = document.getElementById('pListBlocks');
+      if (!listWrap || !primaryCtaWrap) return;
+      listWrap.innerHTML = '';
+      primaryCtaWrap.innerHTML = '';
+
+      if (list.length === 0) return;
+      const [first, ...rest] = list;
+      primaryCtaWrap.innerHTML = `<div class="primary-cta">${svg(first.icon)}${first.label}</div>`;
+      rest.forEach(b => {
+        const row = document.createElement('div');
+        row.className = 'list-block';
+        row.innerHTML = `
+          <div class="list-icon">${svg(b.icon)}</div>
+          <div class="list-text">
+            <div class="l-label">${b.label}</div>
+            <div class="l-hint">${b.hint}</div>
+          </div>
+          <div class="list-chev">${svg('chev')}</div>`;
+        listWrap.appendChild(row);
+      });
+    }
+
+    function renderChecklist() {
+      const wrap = document.getElementById('blocksList');
+      if (!wrap) return;
+      wrap.innerHTML = '';
+      BLOCKS[state.cardType].forEach(b => {
+        const row = document.createElement('label');
+        row.className = 'block-row';
+        const checked = state.activeBlocks.has(b.id);
+        row.innerHTML = `
+          <input type="checkbox" data-block="${b.id}" ${checked ? 'checked' : ''}/>
+          <div class="block-icon">${svg(b.icon)}</div>
+          <div class="block-text">
+            <div class="b-label">${b.label}</div>
+            <div class="b-hint">${b.hint}</div>
+          </div>`;
+        wrap.appendChild(row);
+      });
+      wrap.querySelectorAll('input[type=checkbox]').forEach(cb => {
+        cb.addEventListener('change', e => {
+          const id = e.target.getAttribute('data-block');
+          if (e.target.checked) state.activeBlocks.add(id); else state.activeBlocks.delete(id);
+          renderBlocksPreview();
+          renderSchema();
         });
-      }
+      });
+    }
+
+    function renderSamples() {
+      const wrap = document.getElementById('samplesWrap');
+      if (!wrap) return;
+      wrap.innerHTML = '';
+      SAMPLES.forEach(s => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'sample-btn' + (!state.uploadedRaw && s.id === state.sampleId ? ' active' : '');
+        btn.style.background = `linear-gradient(135deg, ${s.raw[0]}, ${s.raw[1] || s.raw[0]})`;
+        btn.textContent = initials(s.name);
+        btn.title = s.name;
+        btn.addEventListener('click', () => {
+          state.uploadedRaw = null;
+          state.sampleId = s.id;
+          state.cardType = s.type;
+          state.name = s.name;
+          state.tag = s.tag;
+          state.activeBlocks = new Set(DEFAULT_BLOCKS[s.type]);
+          const note = document.getElementById('uploadNote');
+          if (note) note.textContent = '';
+          const inputName = document.getElementById('nameInput');
+          const inputTag = document.getElementById('tagInput');
+          if (inputName) inputName.value = state.name;
+          if (inputTag) inputTag.value = state.tag;
+          syncSegmented();
+          fullRender();
+        });
+        wrap.appendChild(btn);
+      });
+    }
+
+    function syncSegmented() {
+      const btnP = document.getElementById('btnPersonal');
+      const btnN = document.getElementById('btnNegocio');
+      if (btnP) btnP.classList.toggle('active', state.cardType === 'personal');
+      if (btnN) btnN.classList.toggle('active', state.cardType === 'negocio');
+    }
+
+    function renderPalette() {
+      const t = generateTheme(currentRaw());
+      const strip = document.getElementById('paletteStrip');
+      const meta = document.getElementById('paletteMeta');
+      if (!strip || !meta) return;
+      strip.innerHTML = '';
+      [t.primary, t.secondary, t.background].forEach(c => {
+        const chip = document.createElement('div');
+        chip.className = 'chip';
+        chip.style.background = c;
+        chip.title = c;
+        strip.appendChild(chip);
+      });
+      meta.innerHTML = `<b>${t.primary}</b> · <b>${t.secondary}</b> · fondo <b>${t.background}</b> — generado automáticamente`;
+    }
+
+    function renderSchema() {
+      const t = generateTheme(currentRaw());
+      const blocks = BLOCKS[state.cardType]
+        .filter(b => state.activeBlocks.has(b.id))
+        .map(b => `    { "type": "${b.id}", "icon": "auto" }`)
+        .join(',\n');
+      const json =
+`{
+  "card_type": "${state.cardType}",
+  "theme": {
+    "source": "${state.uploadedRaw ? 'logo_upload' : 'sample_logo'}",
+    "primary": "${t.primary}",
+    "secondary": "${t.secondary}",
+    "background": "${t.background}",
+    "text": "auto_contrast"
+  },
+  "blocks": [
+${blocks || '    // ninguno seleccionado'}
+  ]
+}`;
+      const pre = document.getElementById('schemaPre');
+      if (pre) pre.textContent = json;
+    }
+
+    function fullRender() {
+      applyThemeToDOM();
+      renderIdentity();
+      renderChecklist();
+      renderBlocksPreview();
+      renderSamples();
+      renderPalette();
+      renderSchema();
+    }
+
+    // Events
+    const btnP = document.getElementById('btnPersonal');
+    const btnN = document.getElementById('btnNegocio');
+    if (btnP) btnP.addEventListener('click', () => {
+      state.cardType = 'personal';
+      state.activeBlocks = new Set(DEFAULT_BLOCKS.personal);
+      syncSegmented(); fullRender();
+    });
+    if (btnN) btnN.addEventListener('click', () => {
+      state.cardType = 'negocio';
+      state.activeBlocks = new Set(DEFAULT_BLOCKS.negocio);
+      syncSegmented(); fullRender();
     });
 
-    // Selector de Tipo (Personal vs Negocio)
-    window.setEditorProfileType = function(type) {
-      var btnPersonal = document.getElementById('btn-type-personal');
-      var btnNegocio = document.getElementById('btn-type-negocio');
-      if (type === 'personal') {
-        if (btnPersonal) { btnPersonal.style.background = '#7C3AED'; btnPersonal.style.color = '#FFF'; }
-        if (btnNegocio) { btnNegocio.style.background = 'transparent'; btnNegocio.style.color = 'var(--text-muted)'; }
-        if (prevAvatar) prevAvatar.style.background = 'linear-gradient(135deg, #7C3AED, #6366F1)';
-      } else {
-        if (btnNegocio) { btnNegocio.style.background = '#7C3AED'; btnNegocio.style.color = '#FFF'; }
-        if (btnPersonal) { btnPersonal.style.background = 'transparent'; btnPersonal.style.color = 'var(--text-muted)'; }
-        if (prevAvatar) prevAvatar.style.background = '#EF6C00';
+    const inputName = document.getElementById('nameInput');
+    const inputTag = document.getElementById('tagInput');
+    if (inputName) inputName.addEventListener('input', e => {
+      state.name = e.target.value; renderIdentity(); renderSchema();
+    });
+    if (inputTag) inputTag.addEventListener('input', e => {
+      state.tag = e.target.value; renderIdentity();
+    });
+
+    const schemaToggle = document.getElementById('schemaToggle');
+    if (schemaToggle) schemaToggle.addEventListener('click', () => {
+      const sb = document.getElementById('schemaBlock');
+      if (sb) sb.classList.toggle('show');
+    });
+
+    // Upload & color extraction
+    function extractColors(img) {
+      const size = 48;
+      const canvas = document.createElement('canvas');
+      canvas.width = size; canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, size, size);
+      let data;
+      try { data = ctx.getImageData(0, 0, size, size).data; }
+      catch(e) { return null; }
+
+      const buckets = {};
+      for (let i = 0; i < data.length; i += 4) {
+        const r = data[i], g = data[i+1], b = data[i+2], a = data[i+3];
+        if (a < 128) continue;
+        const max = Math.max(r, g, b), min = Math.min(r, g, b);
+        const sat = max === 0 ? 0 : (max - min) / max;
+        if (sat < 0.18) continue;
+        const key = [Math.round(r/24)*24, Math.round(g/24)*24, Math.round(b/24)*24].join(',');
+        buckets[key] = (buckets[key] || 0) + 1;
       }
-    };
+      const sorted = Object.entries(buckets).sort((a, b) => b[1] - a[1]);
+      if (sorted.length === 0) return null;
+      const top = sorted.slice(0, 8).map(([k]) => {
+        const [r, g, b] = k.split(',').map(Number);
+        return rgbToHex(r, g, b);
+      });
+      const distinct = [];
+      for (const c of top) {
+        if (distinct.every(d => dist(d, c) > 55)) distinct.push(c);
+        if (distinct.length >= 3) break;
+      }
+      return distinct.length ? distinct : top.slice(0, 2);
+    }
+
+    function handleFile(file) {
+      if (!file || !file.type.startsWith('image/')) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        const img = new Image();
+        img.onload = () => {
+          const colors = extractColors(img);
+          const note = document.getElementById('uploadNote');
+          if (colors && colors.length) {
+            state.uploadedRaw = colors;
+            if (note) note.textContent = 'Colores extraídos: ' + colors.join(' · ');
+          } else {
+            state.uploadedRaw = ['#6D6875', '#B5A8B0'];
+            if (note) note.textContent = 'No se detectaron colores dominantes claros — se usó una paleta neutra.';
+          }
+          if (inputName) inputName.value = state.name = state.cardType === 'negocio' ? 'Tu Negocio' : 'Tu Nombre';
+          if (inputTag) inputTag.value = state.tag = 'Descripción corta aquí';
+          document.querySelectorAll('.sample-btn').forEach(b => b.classList.remove('active'));
+          fullRender();
+        };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    const dz = document.getElementById('dropzone');
+    const fileInput = document.getElementById('fileInput');
+    if (dz && fileInput) {
+      dz.addEventListener('click', () => fileInput.click());
+      dz.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') fileInput.click(); });
+      fileInput.addEventListener('change', e => handleFile(e.target.files[0]));
+      ['dragover', 'dragenter'].forEach(evt => dz.addEventListener(evt, e => { e.preventDefault(); dz.classList.add('drag'); }));
+      ['dragleave', 'drop'].forEach(evt => dz.addEventListener(evt, e => { e.preventDefault(); dz.classList.remove('drag'); }));
+      dz.addEventListener('drop', e => { handleFile(e.dataTransfer.files[0]); });
+    }
+
+    // Init values
+    if (inputName) inputName.value = state.name;
+    if (inputTag) inputTag.value = state.tag;
+    fullRender();
   }
 
-  document.addEventListener('DOMContentLoaded', initWysiwygEditorListeners);
+  document.addEventListener('DOMContentLoaded', initVynkThemingEngine);
   if (document.readyState === 'interactive' || document.readyState === 'complete') {
-    initWysiwygEditorListeners();
+    initVynkThemingEngine();
   }
 })();

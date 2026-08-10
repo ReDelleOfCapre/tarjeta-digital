@@ -254,118 +254,81 @@
             </div>
           </div>
 
-          <!-- Creador Visual WYSIWYG de Dos Columnas -->
-          <div class="editor-layout" style="margin-bottom:28px">
-            
-            <!-- COLUMNA IZQUIERDA: Panel de Controles Premium -->
-            <div class="editor-controls-panel">
-              <div style="margin-bottom:20px">
-                <h2 style="font-size:1.4rem;font-weight:700;font-family:'Space Grotesk',sans-serif">Editor Visual e-Card WYSIWYG</h2>
-                <p style="font-size:0.82rem;color:var(--text-muted);font-family:'IBM Plex Mono',monospace">PERSONALIZA TU PERFIL EN TIEMPO REAL CON VISTA PREVIA EN VIVO</p>
+          <!-- Motor de Theming: Creador Visual WYSIWYG VYNK -->
+          <div class="vynk-theming-container" style="margin-bottom:28px">
+            <p class="eyebrow">Motor de theming · VYNK Smart Profile</p>
+            <h2 style="font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:700;margin:0 0 6px">De un logo a una tarjeta completa</h2>
+            <p class="lede">Elige un ejemplo o sube tu propio logo: el sistema extrae la paleta, arma un tema legible automáticamente y aplica la estructura de bloques correcta según el tipo de tarjeta.</p>
+
+            <div class="console">
+              <!-- CONTROL PANEL -->
+              <div>
+                <div class="panel">
+                  <p class="panel-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.5 5.5L19 9l-5.5 1.5L12 16l-1.5-5.5L5 9l5.5-1.5L12 2z"/></svg>
+                    Tipo de tarjeta
+                  </p>
+                  <div class="segmented">
+                    <button id="btnPersonal" data-type="personal" type="button">Personal</button>
+                    <button id="btnNegocio" data-type="negocio" class="active" type="button">Negocio</button>
+                  </div>
+
+                  <p class="panel-title" style="margin-top:4px;">Logo / marca</p>
+                  <div class="samples-grid-wrap" id="samplesWrap"></div>
+
+                  <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="Subir tu logo">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
+                    <p><b>Sube tu logo</b> — la paleta se extrae al vuelo</p>
+                  </div>
+                  <input type="file" id="fileInput" accept="image/*" />
+                  <p class="upload-note" id="uploadNote"></p>
+
+                  <div class="field" style="margin-top:14px;">
+                    <label for="nameInput">Nombre en la tarjeta</label>
+                    <input type="text" id="nameInput" />
+                  </div>
+                  <div class="field">
+                    <label for="tagInput">Descripción corta</label>
+                    <input type="text" id="tagInput" />
+                  </div>
+                </div>
+
+                <div class="panel">
+                  <p class="panel-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg>
+                    Bloques de contenido
+                  </p>
+                  <div id="blocksList"></div>
+                </div>
               </div>
 
-              <!-- 1. Selector de Tipo -->
-              <div class="card p-24" style="background:#1A1F26;border:1px solid #2A313A;border-radius:16px;padding:24px;margin-bottom:20px">
-                <label style="display:block;font-size:0.8rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:12px;font-family:'IBM Plex Mono',monospace">Tipo de Perfil</label>
-                <div class="segmented-control" style="display:flex;background:#12161B;padding:4px;border-radius:12px;border:1px solid #2A313A">
-                  <button type="button" class="btn-segmented active" id="btn-type-personal" onclick="setEditorProfileType('personal')" style="flex:1;padding:10px;border:none;border-radius:8px;background:#7C3AED;color:#FFF;font-weight:700;font-size:0.85rem;cursor:pointer;transition:all 0.2s">👤 Personal</button>
-                  <button type="button" class="btn-segmented" id="btn-type-negocio" onclick="setEditorProfileType('negocio')" style="flex:1;padding:10px;border:none;border-radius:8px;background:transparent;color:var(--text-muted);font-weight:700;font-size:0.85rem;cursor:pointer;transition:all 0.2s">🏬 Negocio</button>
-                </div>
-              </div>
+              <!-- PREVIEW -->
+              <div class="preview-col">
+                <div class="phone" id="phone">
+                  <div class="avatar" id="pAvatar">CR</div>
+                  <p class="card-name" id="pName">—</p>
+                  <p class="card-tag" id="pTag">—</p>
+                  <span class="card-badge" id="pBadge">negocio</span>
 
-              <!-- 2. Datos Base -->
-              <div class="card p-24" style="background:#1A1F26;border:1px solid #2A313A;border-radius:16px;padding:24px;margin-bottom:20px">
-                <label style="display:block;font-size:0.8rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:16px;font-family:'IBM Plex Mono',monospace">Datos Principales</label>
-                
-                <div style="margin-bottom:16px">
-                  <label style="display:block;font-size:0.85rem;font-weight:600;color:#EEEAE0;margin-bottom:6px">Nombre en la tarjeta</label>
-                  <input type="text" id="editor-input-name" value="Cristina Restaurante" placeholder="Ej. Cristina Restaurante" style="width:100%;padding:12px 14px;border-radius:10px;border:1px solid #2A313A;background:#12161B;color:#EEEAE0;font-size:0.9rem;box-sizing:border-box">
-                </div>
+                  <div id="pPrimaryCta"></div>
+                  <div id="pListBlocks"></div>
 
-                <div>
-                  <label style="display:block;font-size:0.85rem;font-weight:600;color:#EEEAE0;margin-bottom:6px">Descripción corta / Bio</label>
-                  <textarea id="editor-input-bio" rows="2" placeholder="Ej. El auténtico sabor de Teziutlán..." style="width:100%;padding:12px 14px;border-radius:10px;border:1px solid #2A313A;background:#12161B;color:#EEEAE0;font-size:0.9rem;box-sizing:border-box;resize:vertical">⭐ 4.8 (120+ opiniones) · Desde 1985 · El auténtico sabor de Teziutlán</textarea>
-                </div>
-              </div>
-
-              <!-- 3. Bloques de Contenido (Toggles) -->
-              <div class="card p-24" style="background:#1A1F26;border:1px solid #2A313A;border-radius:16px;padding:24px;margin-bottom:20px">
-                <label style="display:block;font-size:0.8rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:16px;font-family:'IBM Plex Mono',monospace">Módulos & Bloques de Contenido</label>
-                
-                <div class="toggle-list" style="display:flex;flex-direction:column;gap:12px">
-                  <label class="bento-toggle-item" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#12161B;border:1px solid #2A313A;border-radius:12px;cursor:pointer">
-                    <span style="font-size:0.9rem;font-weight:600;color:#EEEAE0">📍 Sucursales (Mapa)</span>
-                    <input type="checkbox" id="toggle-mapa" checked style="width:18px;height:18px;accent-color:#7C3AED;cursor:pointer">
-                  </label>
-
-                  <label class="bento-toggle-item" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#12161B;border:1px solid #2A313A;border-radius:12px;cursor:pointer">
-                    <span style="font-size:0.9rem;font-weight:600;color:#EEEAE0">🕒 Horario</span>
-                    <input type="checkbox" id="toggle-horario" checked style="width:18px;height:18px;accent-color:#7C3AED;cursor:pointer">
-                  </label>
-
-                  <label class="bento-toggle-item" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#12161B;border:1px solid #2A313A;border-radius:12px;cursor:pointer">
-                    <span style="font-size:0.9rem;font-weight:600;color:#EEEAE0">📖 Catálogo / Menú</span>
-                    <input type="checkbox" id="toggle-catalogo" checked style="width:18px;height:18px;accent-color:#7C3AED;cursor:pointer">
-                  </label>
-
-                  <label class="bento-toggle-item" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#12161B;border:1px solid #2A313A;border-radius:12px;cursor:pointer">
-                    <span style="font-size:0.9rem;font-weight:600;color:#EEEAE0">🛵 Delivery</span>
-                    <input type="checkbox" id="toggle-delivery" checked style="width:18px;height:18px;accent-color:#7C3AED;cursor:pointer">
-                  </label>
-
-                  <label class="bento-toggle-item" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#12161B;border:1px solid #2A313A;border-radius:12px;cursor:pointer">
-                    <span style="font-size:0.9rem;font-weight:600;color:#EEEAE0">⭐ Reseñas</span>
-                    <input type="checkbox" id="toggle-resenas" checked style="width:18px;height:18px;accent-color:#7C3AED;cursor:pointer">
-                  </label>
-                </div>
-              </div>
-            </div>
-
-            <!-- COLUMNA DERECHA: Vista Previa en Vivo (Live Preview Smartphone Mockup) -->
-            <div class="editor-preview-panel">
-              <div class="live-preview-phone" style="position:sticky;top:24px;width:100%;max-width:360px;margin:0 auto;background:#12161B;border:3px solid rgba(255,255,255,0.15);border-radius:36px;padding:24px 18px 20px 18px;box-shadow:0 20px 50px rgba(0,0,0,0.7);display:flex;flex-direction:column;align-items:center;position:relative;box-sizing:border-box">
-                <!-- Notch / Camera hole -->
-                <div style="width:60px;height:5px;background:rgba(255,255,255,0.2);border-radius:4px;margin-bottom:20px"></div>
-
-                <!-- Avatar con Resplandor Naranja Masivo -->
-                <div class="preview-avatar-glow" id="preview-avatar-box" style="width:80px;height:80px;border-radius:50%;background:#EF6C00;color:#FFF;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-size:1.8rem;font-weight:800;box-shadow:0 0 40px rgba(239, 108, 0, 0.4);margin-bottom:14px;border:3px solid #12161B;flex-shrink:0">
-                  CR
-                </div>
-
-                <!-- Nombre & Bio en Vivo -->
-                <h3 id="preview-name" style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.15rem;color:#EEEAE0;margin:0 0 6px;text-align:center;line-height:1.2">Cristina Restaurante</h3>
-                <p id="preview-bio" style="font-family:'Inter',sans-serif;font-size:0.78rem;color:#8C96A3;margin:0 0 18px;text-align:center;line-height:1.4">⭐ 4.8 (120+ opiniones) · Desde 1985 · El auténtico sabor de Teziutlán</p>
-
-                <!-- Módulos Apilados Bento (Toggles en Vivo) -->
-                <div class="preview-modules-stack" style="width:100%;display:flex;flex-direction:column;gap:10px;margin-bottom:24px">
-                  <div id="prev-mod-mapa" class="preview-bento-btn" style="background:#1A1F26;border:1px solid #7C3AED;border-radius:12px;padding:12px 14px;color:#EEEAE0;font-size:0.82rem;font-weight:700;display:flex;align-items:center;gap:10px;box-shadow:0 4px 12px rgba(124,58,237,0.25)">
-                    <span>📍</span> <span>Sucursales (Mapa Interactivo)</span>
-                  </div>
-
-                  <div id="prev-mod-horario" class="preview-bento-btn" style="background:#1A1F26;border:1px solid #2A313A;border-radius:12px;padding:12px 14px;color:#EEEAE0;font-size:0.82rem;font-weight:600;display:flex;align-items:center;gap:10px">
-                    <span>🕒</span> <span>Horario · Mar–Dom 14:00–22:00</span>
-                  </div>
-
-                  <div id="prev-mod-catalogo" class="preview-bento-btn" style="background:#1A1F26;border:1px solid #2A313A;border-radius:12px;padding:12px 14px;color:#EEEAE0;font-size:0.82rem;font-weight:600;display:flex;align-items:center;gap:10px">
-                    <span>📖</span> <span>Catálogo / Menú Digital</span>
-                  </div>
-
-                  <div id="prev-mod-delivery" class="preview-bento-btn" style="background:#1A1F26;border:1px solid #2A313A;border-radius:12px;padding:12px 14px;color:#EEEAE0;font-size:0.82rem;font-weight:600;display:flex;align-items:center;gap:10px">
-                    <span>🛵</span> <span>Pedir por Uber Eats</span>
-                  </div>
-
-                  <div id="prev-mod-resenas" class="preview-bento-btn" style="background:#1A1F26;border:1px solid #2A313A;border-radius:12px;padding:12px 14px;color:#EEEAE0;font-size:0.82rem;font-weight:600;display:flex;align-items:center;gap:10px">
-                    <span>⭐</span> <span>Reseñas de Clientes (4.8 ★)</span>
+                  <div class="card-footer" id="pFooter">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4.5 5-6.5 8-6.5s6.5 2 8 6.5"/></svg>
+                    Guardar contacto
                   </div>
                 </div>
 
-                <!-- Botón Primario Fijo y Brillante -->
-                <button type="button" style="width:100%;padding:14px;border-radius:14px;border:none;background:linear-gradient(135deg, #7C3AED, #6366F1);color:#FFF;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.9rem;cursor:pointer;box-shadow:0 8px 24px rgba(124,58,237,0.5);display:flex;align-items:center;justify-content:center;gap:8px">
-                  👤 Guardar contacto
+                <div class="palette-strip" id="paletteStrip"></div>
+                <p class="palette-meta" id="paletteMeta">paleta extraída del logo</p>
+
+                <button class="schema-toggle" id="schemaToggle" type="button">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6L4 12l5 6M15 6l5 6-5 6"/></svg>
+                  Ver estructura de datos
                 </button>
+                <div class="schema-block" id="schemaBlock"><pre id="schemaPre"></pre></div>
               </div>
             </div>
-
           </div>
 
           <!-- Profile Grid -->
