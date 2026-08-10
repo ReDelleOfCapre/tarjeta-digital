@@ -1,808 +1,116 @@
 <!DOCTYPE html>
-<html lang="es" data-theme="{{tema}}">
+<html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>{{nombre_perfil}} — VYNK</title>
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <link rel="apple-touch-icon" sizes="180x180" href="/favicon.svg">
-  <link rel="manifest" href="/manifest.json">
-  <meta name="apple-mobile-web-app-title" content="VYNK">
-  <meta name="description" content="{{bio_text}}">
-  <meta property="og:title" content="{{nombre_perfil}}">
-  <meta property="og:description" content="{{bio_text}}">
-  <meta property="og:image" content="{{og_image}}">
-  <meta property="og:url" content="{{base_url}}/u/{{slug}}">
-  <meta property="og:type" content="profile">
-  <meta name="twitter:card" content="summary">
-  <meta name="theme-color" content="{{color}}" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#1C1C1E" media="(prefers-color-scheme: dark)">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&family=IBM+Plex+Mono:wght@400;600;700&display=swap');
-    
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    
-    :root {
-      --profile-color: {{color}};
-      --bg-primary: #0F0B1E;
-      --bg-card: rgba(255,255,255,0.06);
-      --text-primary: #FFFFFF;
-      --text-secondary: rgba(255,255,255,0.7);
-      --border-color: rgba(255,255,255,0.1);
-      --shadow-color: rgba(0,0,0,0.5);
-      --glass-bg: rgba(15, 11, 30, 0.7);
-    }
-    
-    @media (prefers-color-scheme: light) {
-      :root {
-        --bg-primary: #F5F5F7;
-        --bg-card: rgba(0,0,0,0.04);
-        --text-primary: #1C1C1E;
-        --text-secondary: rgba(0,0,0,0.6);
-        --border-color: rgba(0,0,0,0.08);
-        --shadow-color: rgba(0,0,0,0.1);
-        --glass-bg: rgba(245, 245, 247, 0.7);
-      }
-    }
-    
-    /* THEME OVERRIDES */
-    {{tema_css}}
-    
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: var(--bg-primary);
-      color: var(--text-primary);
-      line-height: 1.5;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      overflow-x: hidden;
-      position: relative;
-      width: 100%;
-    }
-    
-    /* Animated Background Mesh */
-    .bg-mesh {
-      position: fixed;
-      top: 0; left: 0; width: 100vw; height: 100vh;
-      z-index: -1;
-      overflow: hidden;
-      background: var(--bg-primary);
-    }
-    .bg-mesh::before, .bg-mesh::after {
-      content: '';
-      position: absolute;
-      width: 60vmax; height: 60vmax;
-      border-radius: 50%;
-      background: var(--profile-color);
-      opacity: 0.15;
-      filter: blur(100px);
-      animation: float 20s infinite alternate ease-in-out;
-    }
-    .bg-mesh::before { top: -20%; left: -10%; }
-    .bg-mesh::after { bottom: -20%; right: -10%; animation-delay: -10s; }
-    
-    @keyframes float {
-      0% { transform: translate(0, 0) scale(1); }
-      100% { transform: translate(10%, 20%) scale(1.2); }
-    }
-    
-    a { color: inherit; text-decoration: none; }
-    
-    .container {
-      max-width: 480px;
-      margin: 0 auto;
-      padding: 0 16px;
-      width: 100%;
-      box-sizing: border-box;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      padding-bottom: 100px;
-      overflow-x: hidden;
-    }
-    
-    /* HEADER & AVATAR INTEGRITY (Cero Filtros en Imagen) */
-    .header {
-      text-align: center;
-      padding-top: 48px;
-      opacity: 0;
-      transform: translateY(20px);
-      transition: opacity 0.8s ease, transform 0.8s ease;
-    }
-    .header.visible { opacity: 1; transform: translateY(0); }
-    
-    .avatar-wrapper {
-      position: relative;
-      width: 120px; height: 120px;
-      margin: 0 auto 20px;
-      border-radius: 50%;
-      padding: 4px;
-      background: var(--profile-color);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-    }
-    
-    .avatar {
-      width: 100% !important; height: 100% !important;
-      border-radius: 50%;
-      border: 3px solid var(--bg-primary) !important;
-      overflow: hidden;
-      background: var(--bg-primary);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 2.5rem !important; font-weight: 800;
-      filter: none !important;
-      mix-blend-mode: normal !important;
-    }
-    .avatar img {
-      width: 100%; height: 100%; object-fit: cover;
-      filter: none !important;
-      mix-blend-mode: normal !important;
-      opacity: 1 !important;
-    }
-    
-    .name {
-      font-size: 2rem; font-weight: 800;
-      letter-spacing: -0.5px;
-      margin-bottom: 8px;
-      background: linear-gradient(to right, var(--text-primary), var(--profile-color));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .bio {
-      font-size: 1rem; color: var(--text-secondary);
-      max-width: 380px; margin: 0 auto; line-height: 1.6;
-    }
-    
-    .tags {
-      display: flex; justify-content: center; gap: 8px;
-      margin-top: 16px; flex-wrap: wrap;
-    }
-    .tag {
-      background: var(--bg-card);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      padding: 6px 14px; border-radius: 20px;
-      font-size: 0.8rem; font-weight: 600;
-      color: var(--text-primary);
-      border: 1px solid var(--border-color);
-    }
-    
-    /* BLOCKS SECTION & BENTO GRID LAYOUT FOR DESKTOP */
-    .blocks-section { display: flex; flex-direction: column; gap: 16px; width: 100%; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VYNK Profile</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0F1115;
+            --bento-bg: #1A1D24;
+            --bento-hover: #22262F;
+            --border-color: rgba(255,255,255,0.08);
+            --accent: #EF6F7C; /* Mantenemos tu coral para el mapa */
+            --text-main: #FFFFFF;
+            --text-muted: #8E95A3;
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            --font-mono: 'IBM Plex Mono', monospace;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: var(--bg-dark); color: var(--text-main); font-family: var(--font-body); padding: 40px 20px; display: flex; justify-content: center; min-height: 100vh; }
+        
+        /* Contenedor Principal (Simula celular en PC) */
+        .vynk-profile { max-width: 480px; width: 100%; display: flex; flex-direction: column; gap: 24px; }
+        
+        /* Cabecera / Hero */
+        .hero { text-align: center; animation: fadeUp 0.6s ease; }
+        .avatar-container { position: relative; width: 100px; height: 100px; margin: 0 auto 16px; }
+        .avatar { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2px solid var(--bento-bg); box-shadow: 0 0 30px rgba(239, 111, 124, 0.2); }
+        .hero h1 { font-family: var(--font-display); font-size: 24px; line-height: 1.2; margin-bottom: 6px; }
+        .hero p { color: var(--text-muted); font-size: 14px; }
 
-    @media (min-width: 1024px) {
-      .container {
-        max-width: 900px !important;
-        padding: 0 32px !important;
-      }
-      .blocks-section {
-        display: grid !important;
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 16px !important;
-        align-items: start !important;
-      }
-      .block-wrapper.has-bento-rich,
-      .block-wrapper.block-spotify,
-      .block-wrapper.block-youtube,
-      .block-wrapper.block-tweet,
-      .block-wrapper.block-tiktok,
-      .block-wrapper.block-seccion,
-      .block-wrapper.block-pdf,
-      .block-wrapper.block-galeria,
-      .block-wrapper.block-countdown,
-      .block-wrapper.block-pago {
-        grid-column: span 2 !important;
-      }
-    }
-    
-    .block-wrapper {
-      width: 100%;
-      box-sizing: border-box;
-      opacity: 0; transform: translateY(20px);
-      transition: opacity 0.5s ease, transform 0.5s ease;
-      background: transparent !important;
-      border: none !important;
-      padding: 0 !important;
-      margin: 0 !important;
-      overflow: hidden;
-    }
-    .block-wrapper.visible { opacity: 1; transform: translateY(0); }
-    
-    /* Link Block */
-    .block-link {
-      display: flex; align-items: center; gap: 14px;
-      padding: 16px; border-radius: 20px;
-      width: 100%; box-sizing: border-box;
-      background: var(--bg-card);
-      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-      border: 1px solid var(--border-color);
-      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-      box-shadow: 0 4px 12px var(--shadow-color);
-      cursor: pointer; overflow: hidden;
-      text-decoration: none;
-    }
-    .block-link:hover {
-      transform: translateY(-3px);
-      border-color: var(--profile-color);
-      box-shadow: 0 8px 20px var(--shadow-color);
-    }
-    .block-link:active { transform: scale(0.98); }
-    
-    .bl-icon {
-      width: 44px; height: 44px; border-radius: 12px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.4rem; background: rgba(255,255,255,0.08);
-      color: var(--text-primary);
-      flex-shrink: 0;
-    }
-    .bl-text { flex: 1; min-width: 0; overflow: hidden; }
-    .bl-title { font-weight: 700; font-size: 1rem; color: var(--text-primary); line-height: 1.3; word-break: break-word; overflow-wrap: break-word; }
-    .bl-sub { font-size: 0.825rem; color: var(--text-secondary); margin-top: 3px; line-height: 1.3; word-break: break-word; overflow-wrap: break-word; }
-    .bl-arrow { color: var(--text-secondary); opacity: 0.5; transition: transform 0.3s; flex-shrink: 0; }
-    .block-link:hover .bl-arrow { transform: translateX(4px); opacity: 1; }
-    
-    /* WhatsApp Block */
-    .block-wa {
-      display: flex; align-items: center; justify-content: center; gap: 12px;
-      padding: 18px; border-radius: 20px;
-      background: linear-gradient(135deg, #25D366, #128C7E);
-      color: #fff; font-weight: 700; font-size: 1.2rem;
-      box-shadow: 0 10px 20px rgba(37,211,102,0.3);
-      transition: all 0.3s ease;
-      position: relative; overflow: hidden;
-    }
-    .block-wa::after {
-      content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
-      background: linear-gradient(to right, transparent, rgba(255,255,255,0.3), transparent);
-      transform: skewX(-20deg); animation: shine 3s infinite;
-    }
-    @keyframes shine { 0% { left: -100%; } 20% { left: 200%; } 100% { left: 200%; } }
-    .block-wa:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 15px 25px rgba(37,211,102,0.4); }
-    
-    /* Social Icons Block */
-    .block-socials { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; padding: 10px 0; }
-    .social-icon {
-      width: 56px; height: 56px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.5rem; color: #fff;
-      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-      position: relative;
-    }
-    .social-icon::before {
-      content: ''; position: absolute; inset: -4px; border-radius: 50%;
-      border: 2px solid transparent; transition: all 0.3s;
-    }
-    .social-icon:hover { transform: translateY(-6px) scale(1.1); }
-    .social-icon:hover::before { border-color: inherit; transform: scale(1.1); opacity: 0; }
-    
-    /* Embed Block */
-    .block-embed {
-      border-radius: 20px; overflow: hidden;
-      box-shadow: 0 8px 24px var(--shadow-color);
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-    }
-    .block-embed iframe { width: 100%; border: none; display: block; }
-    
-    /* Text Block */
-    .block-text {
-      padding: 20px; border-radius: 20px;
-      background: var(--bg-card); backdrop-filter: blur(10px);
-      border: 1px solid var(--border-color);
-      color: var(--text-secondary); line-height: 1.7; font-size: 1.05rem;
-    }
-    .block-text.t-titulo { font-size: 1.5rem; font-weight: 800; color: var(--text-primary); background: transparent; border: none; padding: 10px 0 0; }
-    .block-text.t-cita {
-      font-style: italic; border-left: 4px solid var(--profile-color);
-      border-radius: 0 20px 20px 0; font-size: 1.1rem;
-    }
-    
-    /* Email Capture Block */
-    .block-email {
-      padding: 24px; border-radius: 20px;
-      background: var(--bg-card); backdrop-filter: blur(12px);
-      border: 1px solid var(--border-color); text-align: center;
-      box-shadow: 0 10px 30px var(--shadow-color);
-    }
-    .block-email h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 16px; color: var(--text-primary); }
-    .email-form-group { display: flex; gap: 12px; flex-direction: column; }
-    @media (min-width: 400px) { .email-form-group { flex-direction: row; } }
-    .block-email input {
-      flex: 1; padding: 14px 20px; border-radius: 12px;
-      border: 1px solid var(--border-color);
-      background: rgba(255,255,255,0.05); color: var(--text-primary);
-      font-family: inherit; font-size: 1rem; outline: none; transition: all 0.3s;
-    }
-    .block-email input:focus { border-color: var(--profile-color); background: rgba(255,255,255,0.1); }
-    .block-email button {
-      padding: 14px 24px; border-radius: 12px; border: none;
-      background: linear-gradient(135deg, var(--profile-color), var(--text-primary));
-      color: var(--bg-primary); font-weight: 700; font-size: 1rem;
-      cursor: pointer; transition: all 0.3s;
-    }
-    .block-email button:hover { transform: translateY(-2px); box-shadow: 0 4px 12px var(--profile-color); }
-    
-    /* Countdown Block */
-    .block-countdown {
-      padding: 24px; border-radius: 20px; text-align: center;
-      background: var(--bg-card); backdrop-filter: blur(10px);
-      border: 1px solid var(--border-color);
-    }
-    .block-countdown h3 { font-size: 1rem; color: var(--text-secondary); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px; }
-    .cd-digits { display: flex; justify-content: center; gap: 16px; }
-    .cd-unit {
-      background: rgba(0,0,0,0.2); padding: 12px; border-radius: 12px;
-      min-width: 70px; border: 1px solid rgba(255,255,255,0.05);
-    }
-    @media (prefers-color-scheme: light) { .cd-unit { background: rgba(255,255,255,0.5); } }
-    .cd-num { font-size: 2.5rem; font-weight: 800; color: var(--profile-color); line-height: 1; }
-    .cd-lbl { font-size: 0.7rem; text-transform: uppercase; color: var(--text-secondary); margin-top: 4px; font-weight: 600; }
-    
-    /* Gallery Block */
-    .block-gallery { display: flex; gap: 16px; overflow-x: auto; padding: 10px 0; scroll-snap-type: x mandatory; scrollbar-width: none; }
-    .block-gallery::-webkit-scrollbar { display: none; }
-    .gallery-item {
-      flex: 0 0 85%; scroll-snap-align: center; border-radius: 20px;
-      overflow: hidden; position: relative; box-shadow: 0 8px 20px var(--shadow-color);
-      border: 1px solid var(--border-color);
-    }
-    .gallery-item img { width: 100%; height: 260px; object-fit: cover; transition: transform 0.5s; }
-    .gallery-item:hover img { transform: scale(1.05); }
-    .gallery-caption {
-      position: absolute; bottom: 0; left: 0; right: 0; padding: 20px;
-      background: linear-gradient(transparent, rgba(0,0,0,0.9));
-      color: #fff; font-size: 1rem; font-weight: 600;
-    }
-    
-    /* Contact and Files sections (if any) */
-    .section {
-      background: var(--bg-card); backdrop-filter: blur(10px);
-      border-radius: 20px; padding: 24px; border: 1px solid var(--border-color);
-      margin-top: 16px;
-    }
-    .section-title { font-size: 0.9rem; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 20px; letter-spacing: 1px; font-weight: 700; }
-    
-    /* Save Bar */
-    .save-bar {
-      position: fixed; bottom: 0; left: 0; right: 0;
-      padding: 20px; padding-bottom: max(20px, env(safe-area-inset-bottom));
-      z-index: 50;
-      background: var(--glass-bg);
-      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-      border-top: 1px solid var(--border-color);
-      display: flex; justify-content: center;
-    }
-    .save-btn {
-      display: flex; align-items: center; justify-content: center; gap: 10px;
-      width: 100%; max-width: 400px; padding: 16px 24px; border-radius: 50px;
-      font-weight: 700; font-size: 1.1rem;
-      background: linear-gradient(135deg, var(--profile-color), #fff);
-      color: #000; text-decoration: none;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-    .save-btn:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 12px 30px rgba(255,255,255,0.2); }
-    
-    /* HERO BANNER PORTADA */
-    .hero-banner {
-      width: 100%;
-      height: 160px;
-      overflow: hidden;
-      position: relative;
-    }
-    .hero-banner img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    .hero-banner::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(to bottom, transparent 30%, var(--bg-primary) 100%);
-    }
+        /* Bento Grid Links */
+        .bento-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; animation: fadeUp 0.8s ease; }
+        .bento-item { background: var(--bento-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 16px; text-decoration: none; color: var(--text-main); transition: transform 0.2s, background 0.2s; display: flex; flex-direction: column; justify-content: center; }
+        .bento-item:hover { transform: translateY(-3px); background: var(--bento-hover); }
+        .span-2 { grid-column: span 2; flex-direction: row; align-items: center; justify-content: space-between; padding: 20px; }
+        
+        .bento-icon { font-size: 24px; margin-bottom: 8px; }
+        .bento-title { font-weight: 600; font-size: 14px; }
+        .span-2 .bento-title { font-size: 16px; margin-bottom: 4px;}
+        .bento-meta { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); }
+        .badge { background: rgba(239,111,124,0.15); color: var(--accent); padding: 4px 8px; border-radius: 8px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
 
-    /* SECTION TITLE HEADERS */
-    .block-section-title {
-      font-size: 0.85rem;
-      font-weight: 800;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: var(--profile-color);
-      margin: 16px 0 6px 4px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .block-section-title::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: linear-gradient(to right, var(--border-color), transparent);
-    }
+        /* Widget Mapa VYNK (Adaptado a Dark Mode) */
+        .map-widget { background: var(--bento-bg); border: 1px solid var(--border-color); border-radius: 20px; overflow: hidden; animation: fadeUp 1s ease; }
+        .map-header { padding: 20px; text-align: center; border-bottom: 1px solid var(--border-color); }
+        .map-header h2 { font-family: var(--font-display); font-size: 18px; margin-bottom: 4px; }
+        .map-header p { font-size: 12px; color: var(--text-muted); }
+        
+        .map-panel { position: relative; aspect-ratio: 4/3; background: #12141A; }
+        .ticket-dark { padding: 20px; background: var(--bg-dark); }
+        .distance-value { font-family: var(--font-mono); font-size: 28px; font-weight: 700; margin: 10px 0; }
+        .distance-value small { font-size: 12px; color: var(--text-muted); }
+        
+        .btn-primary { width: 100%; padding: 14px; background: var(--text-main); color: var(--bg-dark); border: none; border-radius: 12px; font-weight: 600; font-family: var(--font-body); cursor: pointer; margin-top: 10px; transition: transform 0.2s; }
+        .btn-primary:hover { transform: translateY(-2px); }
 
-    /* PAGO / TRANSFERENCIA CARD */
-    .block-pago {
-      background: var(--bg-card);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid var(--border-color);
-      border-radius: 20px;
-      padding: 18px;
-      box-shadow: 0 4px 12px var(--shadow-color);
-    }
-    .pago-header {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      margin-bottom: 12px;
-    }
-    .pago-icon {
-      width: 44px; height: 44px; border-radius: 12px;
-      background: rgba(16, 185, 129, 0.15); color: #10B981;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.3rem; flex-shrink: 0;
-    }
-    .pago-title { font-weight: 700; font-size: 1rem; color: var(--text-primary); }
-    .pago-sub { font-size: 0.825rem; color: var(--text-secondary); }
-    .pago-clabe-box {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: rgba(0,0,0,0.25);
-      border: 1px dashed var(--border-color);
-      padding: 10px 14px;
-      border-radius: 12px;
-    }
-    .clabe-num { font-family: monospace; font-size: 0.95rem; font-weight: 700; color: #10B981; letter-spacing: 1px; }
-    .btn-copy-clabe {
-      background: #10B981; color: #fff; border: none; padding: 6px 14px;
-      border-radius: 8px; font-weight: 700; font-size: 0.8rem; cursor: pointer;
-      transition: all 0.2s;
-    }
-    .btn-copy-clabe:hover { transform: scale(1.05); }
-
-    /* NOTA CARD */
-    .block-nota {
-      background: rgba(245, 158, 11, 0.1);
-      border: 1px solid rgba(245, 158, 11, 0.3);
-      border-radius: 16px; padding: 14px 18px;
-      color: var(--text-primary); font-size: 0.9rem;
-      display: flex; align-items: center; gap: 12px;
-    }
-    .nota-icon { color: #F59E0B; font-size: 1.2rem; flex-shrink: 0; }
-
-    .brand {
-      text-align: center; color: var(--text-secondary);
-      font-size: 0.8rem; padding: 20px; font-weight: 500;
-    }
-    .brand a { color: var(--profile-color); font-weight: 700; }
-  </style>
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
 </head>
 <body>
-  <div class="bg-mesh"></div>
-  
-  <div class="public-profile-frame">
-    {{banner_html}}
+    <div class="vynk-profile" id="profileData">
+        <!-- Hero -->
+        <div class="hero">
+            <div class="avatar-container">
+                <img src="/img/default-avatar.png" alt="Avatar" class="avatar" id="dyn-avatar">
+            </div>
+            <h1 id="dyn-name">Nombre del Negocio</h1>
+            <p id="dyn-bio">Descripción profesional y directa</p>
+        </div>
 
-    <header class="header" style="{{banner_html ? 'margin-top: -60px;' : ''}}">
-      <div class="avatar-wrapper">
-        {{avatar_html}}
-      </div>
-      <h1 class="name">{{nombre_perfil}}</h1>
-      {{bio_html}}
-      {{tags_html}}
-    </header>
+        <!-- Bento Links -->
+        <div class="bento-grid" id="dyn-links">
+            <!-- Botón Principal -->
+            <a href="#" class="bento-item span-2">
+                <div>
+                    <div class="bento-title">WhatsApp Directo</div>
+                    <div class="bento-meta">Atención inmediata</div>
+                </div>
+                <span class="badge">⚡ Responde Rápido</span>
+            </a>
+            <!-- Redes Secundarias -->
+            <a href="#" class="bento-item">
+                <span class="bento-icon">📸</span>
+                <span class="bento-title">Instagram</span>
+                <span class="bento-meta">@usuario</span>
+            </a>
+            <a href="#" class="bento-item">
+                <span class="bento-icon">📄</span>
+                <span class="bento-title">Menú / Catálogo</span>
+                <span class="bento-meta">PDF</span>
+            </a>
+        </div>
 
-    <main class="container">
-      <div class="blocks-section bento-links-grid">
-        {{bloques_html}}
-      </div>
-      {{archivos_section_html}}
-
-      <!-- Módulo Bento: Mapa Interactivo & Geolocalización de Sedes -->
-      <div class="block-wrapper bento-module" style="margin-top:24px">
-        <div class="bento-map-card">
-          
-          <!-- Step 1: Prompt & Filtro de Intención -->
-          <div class="stage step-prompt" id="vynkStepPrompt" style="text-align:center;padding:16px 8px">
-            <span class="eyebrow" style="font-family:'IBM Plex Mono',monospace;font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;color:#A78BFA;background:rgba(124,58,237,0.15);padding:4px 12px;border-radius:999px;display:inline-block;margin-bottom:12px">📍 Ubicación & Sedes</span>
-            <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.25rem;color:#EEEAE0;margin:0 0 8px;line-height:1.2">¿A qué distancia estamos?</h2>
-            <p style="font-size:0.82rem;color:#8C96A3;margin:0 auto 16px;max-width:360px;line-height:1.4">Calcula la ruta exacta y la distancia en tiempo real desde tu ubicación actual.</p>
-            <button class="cta-location-btn" id="vynkRevealBtn" style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.88rem;color:#12161B;background:#EEEAE0;border:none;padding:12px 22px;border-radius:12px;cursor:pointer;width:100%;transition:transform 0.15s ease, opacity 0.15s ease">📍 ¿A qué distancia estamos? Calcular ruta →</button>
-          </div>
-
-          <!-- Step 2: Mapa Interactivo + Ticket Bento -->
-          <div class="stage step-map" id="vynkStepMap" style="display:none;opacity:0;transform:translateY(10px);transition:opacity 0.4s ease, transform 0.4s ease;flex-direction:column;gap:16px">
+        <!-- Widget Mapa VYNK -->
+        <div class="map-widget">
+            <div class="map-header">
+                <h2>📍 Nuestras Sucursales</h2>
+                <p>Calcula la ruta exacta desde tu ubicación actual.</p>
+            </div>
             <div class="map-panel">
-              <div class="dotgrid"></div>
-              <div class="blob-violet"></div>
-              <div class="blob-cyan"></div>
-              <svg class="route" id="vynkRouteSvg" style="position:absolute;inset:0;width:100%;height:100%;stroke:#8C96A3;stroke-opacity:0.4;stroke-width:2;stroke-dasharray:6 8;fill:none"></svg>
-              <div id="vynkPinsLayer" style="position:absolute;inset:0"></div>
+                <!-- Aquí va el SVG o iframe real -->
+                <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color: #8E95A3; font-family: 'IBM Plex Mono'; font-size:12px;">[ Mapa Interactivo ]</div>
             </div>
-
-            <!-- Bento Ticket info card -->
-            <div class="ticket-bento" id="vynkTicket">
-              <div class="ticket-empty" id="vynkTicketEmpty" style="margin:auto;text-align:center;color:#8C96A3;font-size:0.85rem">
-                <strong style="display:block;font-family:'Space Grotesk',sans-serif;color:#EEEAE0;font-size:1rem;margin-bottom:4px">Selecciona una sede</strong>
-                Toca una ubicación en el mapa para calcular tu ruta.
-              </div>
+            <div class="ticket-dark">
+                <div style="font-weight:600; margin-bottom: 4px;">Sede Principal</div>
+                <div class="bento-meta">Teziutlán, Puebla</div>
+                <div class="distance-value" id="distDisplay">— <small>km</small></div>
+                <button class="btn-primary" onclick="alert('Calculando GPS...')">Calcular mi distancia</button>
             </div>
-          </div>
-
         </div>
-      </div>
-
-      <!-- Captura de Leads / Boletín -->
-      <div class="block-wrapper block-email" style="margin-top:24px">
-        <div style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:20px;padding:20px">
-          <h3 style="font-size:1.05rem;font-weight:700;color:var(--text-primary);margin-bottom:6px">📬 Suscribirse al Boletín</h3>
-          <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:14px">Recibe novedades y actualizaciones directamente en tu correo.</p>
-          <form class="lead-subscription-form" style="display:flex;gap:8px">
-            <input type="email" required placeholder="tu.email@correo.com" style="flex:1;padding:12px 14px;border-radius:12px;border:1px solid var(--border-color);background:rgba(255,255,255,0.05);color:var(--text-primary);font-size:0.9rem">
-            <button type="submit" class="btn-sm" style="background:var(--profile-color,#7C3AED);color:#fff;border:none;border-radius:12px;padding:12px 18px;font-weight:700;cursor:pointer">Suscribir</button>
-          </form>
-        </div>
-      </div>
-      
-      <p class="brand">Creado con <a href="{{base_url}}">VYNK</a></p>
-    </main>
-
-    <footer class="save-bar">
-      <a href="/api/perfiles/{{slug}}/vcard" class="save-btn">
-        <i class="fas fa-address-card"></i> Guardar contacto
-      </a>
-    </footer>
-  </div>
-
-  <!-- Staggered Cascading Animations & Intersection Observer -->
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const header = document.querySelector('.header');
-      if (header) {
-        header.style.animationDelay = '0.1s';
-        header.classList.add('animate-fade-up');
-        header.classList.add('visible');
-      }
-
-      const blocks = document.querySelectorAll('.block-wrapper, .bento-module, .block-email');
-      blocks.forEach((el, index) => {
-        el.style.animationDelay = (0.2 + (index * 0.1)).toFixed(2) + 's';
-        el.classList.add('animate-fade-up');
-        el.classList.add('visible');
-      });
-    });
-  </script>
-
-  <!-- Countdown JS -->
-  <script>
-    document.querySelectorAll('[data-countdown]').forEach(function(el){
-      var end = new Date(el.getAttribute('data-countdown')).getTime();
-      function tick(){
-        var now = Date.now(), d = Math.max(0, end - now);
-        var days = Math.floor(d/86400000), hrs = Math.floor((d%86400000)/3600000);
-        var mins = Math.floor((d%3600000)/60000), secs = Math.floor((d%60000)/1000);
-        el.querySelector('.days').textContent = days.toString().padStart(2, '0');
-        el.querySelector('.hours').textContent = hrs.toString().padStart(2, '0');
-        el.querySelector('.minutes').textContent = mins.toString().padStart(2, '0');
-        el.querySelector('.seconds').textContent = secs.toString().padStart(2, '0');
-        if(d>0) requestAnimationFrame(tick);
-      }
-      tick(); setInterval(tick, 1000);
-    });
-  </script>
-
-  <!-- Email capture -->
-  <script>
-    document.querySelectorAll('.block-email form, .lead-subscription-form').forEach(function(f){
-      f.addEventListener('submit', function(e){
-        e.preventDefault();
-        var emailInput = f.querySelector('input[type=email]');
-        if (!emailInput) return;
-        var email = emailInput.value;
-        var pid = "{{perfil_id}}";
-        var btn = f.querySelector('button');
-        var ogText = btn ? btn.textContent : 'Suscribir';
-        if (btn) { btn.textContent = 'Enviando...'; btn.disabled = true; }
-        fetch('/api/suscriptores/perfiles/' + pid + '/suscribir', {
-          method: 'POST',
-          headers: {'Content-Type':'application/json'},
-          body: JSON.stringify({email: email})
-        }).then(function(r){ return r.json(); }).then(function(d){
-          if(d.ok || d.success){
-            f.innerHTML = '<p style="padding:16px;color:var(--profile-color,#10B981);font-weight:bold;font-size:1.05rem;">✅ ¡Suscrito al boletín exitosamente!</p>';
-          } else {
-            alert(d.error || 'Error suscribiendo');
-            if (btn) { btn.textContent = ogText; btn.disabled = false; }
-          }
-        }).catch(function(){
-          alert('Error de conexión al suscribirse');
-          if (btn) { btn.textContent = ogText; btn.disabled = false; }
-        });
-      });
-    });
-  </script>
-
-  <!-- Geolocation & Interactive Map Script -->
-  <script>
-    (function(){
-      var LOCATIONS = [
-        { id:'a', name:'Sede Centro', address:'2a Norte #104, Centro, Teziutlán, Pue.', since:'2021', hours:'Todos los días · 10:00 - 21:00', lat:19.8090, lng:-97.3580, x:38, y:42 },
-        { id:'b', name:'Sede La Estación', address:'Av. Hidalgo s/n, San Diego, Teziutlán, Pue.', since:'2023', hours:'Mar–Dom · 12:00 - 22:00', lat:19.8167, lng:-97.3667, x:72, y:68 }
-      ];
-
-      var selectedLocId = null;
-      var geoState = 'idle';
-      var lastDistanceKm = null;
-
-      function haversineKm(lat1, lon1, lat2, lon2) {
-        var R = 6371;
-        var dLat = (lat2 - lat1) * Math.PI / 180;
-        var dLon = (lon2 - lon1) * Math.PI / 180;
-        var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
-        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      }
-
-      function renderVynkPins() {
-        var pinsLayer = document.getElementById('vynkPinsLayer');
-        var routeSvg = document.getElementById('vynkRouteSvg');
-        if (!pinsLayer) return;
-        pinsLayer.innerHTML = '';
-
-        LOCATIONS.forEach(function(loc, i) {
-          var pin = document.createElement('button');
-          pin.className = 'vynk-pin' + (loc.id === selectedLocId ? ' selected' : '');
-          pin.style.left = loc.x + '%';
-          pin.style.top = loc.y + '%';
-          pin.style.animationDelay = (i * 0.12) + 's';
-          pin.setAttribute('aria-label', 'Ubicación ' + loc.name);
-          pin.addEventListener('click', function(e) {
-            e.stopPropagation();
-            selectVynkLocation(loc.id);
-          });
-          pinsLayer.appendChild(pin);
-
-          var label = document.createElement('div');
-          label.className = 'vynk-pin-label';
-          label.style.left = loc.x + '%';
-          label.style.top = loc.y + '%';
-          label.textContent = loc.name.replace('Sede ', '');
-          pinsLayer.appendChild(label);
-        });
-
-        if (LOCATIONS.length > 1 && routeSvg) {
-          var pts = LOCATIONS.map(function(l) { return (l.x * 4) + ',' + (l.y * 3); }).join(' ');
-          routeSvg.setAttribute('viewBox', '0 0 400 300');
-          routeSvg.innerHTML = '<polyline style="stroke:#8C96A3;stroke-opacity:0.35;stroke-width:2;stroke-dasharray:5 6;fill:none" points="' + pts + '"/>';
-        }
-      }
-
-      function renderVynkTicket() {
-        var ticket = document.getElementById('vynkTicket');
-        if (!ticket) return;
-        var loc = LOCATIONS.find(function(l) { return l.id === selectedLocId; });
-        if (!loc) {
-          ticket.innerHTML = '<div class="ticket-empty" style="margin:auto;text-align:center;color:#8C96A3;font-size:0.85rem"><strong style="display:block;font-family:\'Space Grotesk\',sans-serif;color:#EEEAE0;font-size:1rem;margin-bottom:4px">Selecciona una sede en el mapa</strong>Toca una ubicación para calcular tu ruta y distancia real.</div>';
-          return;
-        }
-
-        var distanceHtml = '';
-        if (geoState === 'ready' && lastDistanceKm !== null) {
-          distanceHtml = '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:1.6rem;font-weight:700;color:#10B981;line-height:1">' + lastDistanceKm.toFixed(1) + ' <span style="font-size:0.85rem;font-weight:400;color:#8C96A3">km de ti</span></div>' +
-            '<button class="link-btn" id="vynkRecalcBtn" style="background:none;border:none;padding:0;margin-top:6px;font-family:\'IBM Plex Mono\',monospace;font-size:0.75rem;font-weight:700;color:#A78BFA;cursor:pointer;text-decoration:underline">Recalcular ubicación</button>';
-        } else if (geoState === 'loading') {
-          distanceHtml = '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:1.1rem;color:#8C96A3">⌛ Obteniendo GPS...</div>';
-        } else if (geoState === 'error') {
-          distanceHtml = '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:0.85rem;color:#EF4444">⚠️ Sin acceso a tu ubicación</div>' +
-            '<button class="link-btn" id="vynkGeoBtn" style="background:none;border:none;padding:0;margin-top:6px;font-family:\'IBM Plex Mono\',monospace;font-size:0.75rem;font-weight:700;color:#A78BFA;cursor:pointer;text-decoration:underline">Reintentar</button>';
-        } else {
-          distanceHtml = '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:0.85rem;color:#8C96A3">— km desde tu posición</div>' +
-            '<button class="link-btn" id="vynkGeoBtn" style="background:none;border:none;padding:0;margin-top:6px;font-family:\'IBM Plex Mono\',monospace;font-size:0.78rem;font-weight:700;color:#A78BFA;cursor:pointer;text-decoration:underline">📍 Calcular distancia real</button>';
-        }
-
-        ticket.innerHTML =
-          '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">' +
-            '<h3 style="font-family:\'Space Grotesk\',sans-serif;font-size:1.1rem;font-weight:700;color:#EEEAE0;margin:0">' + loc.name + '</h3>' +
-            '<span style="font-family:\'IBM Plex Mono\',monospace;font-size:0.65rem;color:#A78BFA;background:rgba(124,58,237,0.18);padding:3px 8px;border-radius:999px;white-space:nowrap">Desde ' + loc.since + '</span>' +
-          '</div>' +
-          '<div style="font-size:0.8rem;color:#8C96A3;line-height:1.4"><strong style="color:#EEEAE0">Dirección:</strong> ' + loc.address + '</div>' +
-          '<div style="font-size:0.8rem;color:#8C96A3;line-height:1.4"><strong style="color:#EEEAE0">Horario:</strong> ' + loc.hours + '</div>' +
-          '<hr style="border:none;border-top:1px dashed #2A313A;margin:8px 0">' +
-          '<div>' +
-            '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:0.68rem;text-transform:uppercase;letter-spacing:0.06em;color:#8C96A3;margin-bottom:4px">Distancia Real</div>' +
-            distanceHtml +
-          '</div>' +
-          '<div style="margin-top:8px;display:flex;gap:8px">' +
-            '<button id="vynkNavBtn" style="flex:1;font-family:\'Space Grotesk\',sans-serif;font-weight:700;font-size:0.85rem;padding:10px 14px;border-radius:10px;border:none;background:#EEEAE0;color:#12161B;cursor:pointer;transition:transform 0.15s">🚀 Cómo llegar</button>' +
-          '</div>';
-
-        var geoBtn = document.getElementById('vynkGeoBtn');
-        if (geoBtn) geoBtn.addEventListener('click', function() { requestVynkGeo(loc); });
-        var recalcBtn = document.getElementById('vynkRecalcBtn');
-        if (recalcBtn) recalcBtn.addEventListener('click', function() { requestVynkGeo(loc); });
-
-        var navBtn = document.getElementById('vynkNavBtn');
-        if (navBtn) {
-          navBtn.addEventListener('click', function() {
-            window.open('https://www.google.com/maps/dir/?api=1&destination=' + loc.lat + ',' + loc.lng, '_blank', 'noopener');
-          });
-        }
-      }
-
-      function requestVynkGeo(loc) {
-        geoState = 'loading';
-        renderVynkTicket();
-        if (!navigator.geolocation) {
-          geoState = 'error';
-          renderVynkTicket();
-          return;
-        }
-        navigator.geolocation.getCurrentPosition(
-          function(pos) {
-            lastDistanceKm = haversineKm(pos.coords.latitude, pos.coords.longitude, loc.lat, loc.lng);
-            geoState = 'ready';
-            renderVynkTicket();
-          },
-          function() {
-            geoState = 'error';
-            renderVynkTicket();
-          },
-          { enableHighAccuracy: true, timeout: 8000 }
-        );
-      }
-
-      function selectVynkLocation(id) {
-        selectedLocId = id;
-        geoState = 'idle';
-        lastDistanceKm = null;
-        renderVynkPins();
-        renderVynkTicket();
-      }
-
-      document.addEventListener('DOMContentLoaded', function() {
-        var revealBtn = document.getElementById('vynkRevealBtn');
-        var stepPrompt = document.getElementById('vynkStepPrompt');
-        var stepMap = document.getElementById('vynkStepMap');
-
-        if (revealBtn && stepPrompt && stepMap) {
-          revealBtn.addEventListener('click', function() {
-            stepPrompt.style.display = 'none';
-            stepMap.style.display = 'flex';
-            requestAnimationFrame(function() {
-              stepMap.style.opacity = '1';
-              stepMap.style.transform = 'translateY(0)';
-            });
-            selectVynkLocation(LOCATIONS[0].id);
-          });
-        }
-      });
-    })();
-  </script>
-
-  <!-- Analytics -->
-  <script>
-    (function(){
-      var pid = "{{perfil_id}}";
-      if(pid && navigator.sendBeacon){
-        navigator.sendBeacon('/api/estadisticas',
-          new Blob([JSON.stringify({perfil_id:pid,evento:'visita'})],{type:'application/json'})
-        );
-      }
-      document.querySelectorAll('[data-action], a[href]').forEach(function(el){
-        el.addEventListener('click',function(){
-          var a = el.getAttribute('data-action') || 'click_link';
-          if(pid && navigator.sendBeacon){
-            navigator.sendBeacon('/api/estadisticas',
-              new Blob([JSON.stringify({perfil_id:pid,evento:a})],{type:'application/json'})
-            );
-          }
-        });
-      });
-    })();
-  </script>
+    </div>
 </body>
 </html>
