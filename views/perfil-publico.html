@@ -19,7 +19,7 @@
   <meta name="theme-color" content="#1C1C1E" media="(prefers-color-scheme: dark)">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&family=IBM+Plex+Mono:wght@400;600;700&display=swap');
     
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     
@@ -502,6 +502,41 @@
         {{bloques_html}}
       </div>
       {{archivos_section_html}}
+
+      <!-- Módulo Bento: Mapa Interactivo & Geolocalización de Sedes -->
+      <div class="block-wrapper bento-module" style="margin-top:24px">
+        <div class="bento-map-card">
+          
+          <!-- Step 1: Prompt & Filtro de Intención -->
+          <div class="stage step-prompt" id="vynkStepPrompt" style="text-align:center;padding:16px 8px">
+            <span class="eyebrow" style="font-family:'IBM Plex Mono',monospace;font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;color:#A78BFA;background:rgba(124,58,237,0.15);padding:4px 12px;border-radius:999px;display:inline-block;margin-bottom:12px">📍 Ubicación & Sedes</span>
+            <h2 style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.25rem;color:#EEEAE0;margin:0 0 8px;line-height:1.2">¿A qué distancia estamos?</h2>
+            <p style="font-size:0.82rem;color:#8C96A3;margin:0 auto 16px;max-width:360px;line-height:1.4">Calcula la ruta exacta y la distancia en tiempo real desde tu ubicación actual.</p>
+            <button class="cta-location-btn" id="vynkRevealBtn" style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.88rem;color:#12161B;background:#EEEAE0;border:none;padding:12px 22px;border-radius:12px;cursor:pointer;width:100%;transition:transform 0.15s ease, opacity 0.15s ease">📍 ¿A qué distancia estamos? Calcular ruta →</button>
+          </div>
+
+          <!-- Step 2: Mapa Interactivo + Ticket Bento -->
+          <div class="stage step-map" id="vynkStepMap" style="display:none;opacity:0;transform:translateY(10px);transition:opacity 0.4s ease, transform 0.4s ease;flex-direction:column;gap:16px">
+            <div class="map-panel">
+              <div class="dotgrid"></div>
+              <div class="blob-violet"></div>
+              <div class="blob-cyan"></div>
+              <svg class="route" id="vynkRouteSvg" style="position:absolute;inset:0;width:100%;height:100%;stroke:#8C96A3;stroke-opacity:0.4;stroke-width:2;stroke-dasharray:6 8;fill:none"></svg>
+              <div id="vynkPinsLayer" style="position:absolute;inset:0"></div>
+            </div>
+
+            <!-- Bento Ticket info card -->
+            <div class="ticket-bento" id="vynkTicket">
+              <div class="ticket-empty" id="vynkTicketEmpty" style="margin:auto;text-align:center;color:#8C96A3;font-size:0.85rem">
+                <strong style="display:block;font-family:'Space Grotesk',sans-serif;color:#EEEAE0;font-size:1rem;margin-bottom:4px">Selecciona una sede</strong>
+                Toca una ubicación en el mapa para calcular tu ruta.
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
       <!-- Captura de Leads / Boletín -->
       <div class="block-wrapper block-email" style="margin-top:24px">
         <div style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:20px;padding:20px">
@@ -593,6 +628,162 @@
         });
       });
     });
+  </script>
+
+  <!-- Geolocation & Interactive Map Script -->
+  <script>
+    (function(){
+      var LOCATIONS = [
+        { id:'a', name:'Sede Centro', address:'2a Norte #104, Centro, Teziutlán, Pue.', since:'2021', hours:'Todos los días · 10:00 - 21:00', lat:19.8090, lng:-97.3580, x:38, y:42 },
+        { id:'b', name:'Sede La Estación', address:'Av. Hidalgo s/n, San Diego, Teziutlán, Pue.', since:'2023', hours:'Mar–Dom · 12:00 - 22:00', lat:19.8167, lng:-97.3667, x:72, y:68 }
+      ];
+
+      var selectedLocId = null;
+      var geoState = 'idle';
+      var lastDistanceKm = null;
+
+      function haversineKm(lat1, lon1, lat2, lon2) {
+        var R = 6371;
+        var dLat = (lat2 - lat1) * Math.PI / 180;
+        var dLon = (lon2 - lon1) * Math.PI / 180;
+        var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      }
+
+      function renderVynkPins() {
+        var pinsLayer = document.getElementById('vynkPinsLayer');
+        var routeSvg = document.getElementById('vynkRouteSvg');
+        if (!pinsLayer) return;
+        pinsLayer.innerHTML = '';
+
+        LOCATIONS.forEach(function(loc, i) {
+          var pin = document.createElement('button');
+          pin.className = 'vynk-pin' + (loc.id === selectedLocId ? ' selected' : '');
+          pin.style.left = loc.x + '%';
+          pin.style.top = loc.y + '%';
+          pin.style.animationDelay = (i * 0.12) + 's';
+          pin.setAttribute('aria-label', 'Ubicación ' + loc.name);
+          pin.addEventListener('click', function(e) {
+            e.stopPropagation();
+            selectVynkLocation(loc.id);
+          });
+          pinsLayer.appendChild(pin);
+
+          var label = document.createElement('div');
+          label.className = 'vynk-pin-label';
+          label.style.left = loc.x + '%';
+          label.style.top = loc.y + '%';
+          label.textContent = loc.name.replace('Sede ', '');
+          pinsLayer.appendChild(label);
+        });
+
+        if (LOCATIONS.length > 1 && routeSvg) {
+          var pts = LOCATIONS.map(function(l) { return (l.x * 4) + ',' + (l.y * 3); }).join(' ');
+          routeSvg.setAttribute('viewBox', '0 0 400 300');
+          routeSvg.innerHTML = '<polyline style="stroke:#8C96A3;stroke-opacity:0.35;stroke-width:2;stroke-dasharray:5 6;fill:none" points="' + pts + '"/>';
+        }
+      }
+
+      function renderVynkTicket() {
+        var ticket = document.getElementById('vynkTicket');
+        if (!ticket) return;
+        var loc = LOCATIONS.find(function(l) { return l.id === selectedLocId; });
+        if (!loc) {
+          ticket.innerHTML = '<div class="ticket-empty" style="margin:auto;text-align:center;color:#8C96A3;font-size:0.85rem"><strong style="display:block;font-family:\'Space Grotesk\',sans-serif;color:#EEEAE0;font-size:1rem;margin-bottom:4px">Selecciona una sede en el mapa</strong>Toca una ubicación para calcular tu ruta y distancia real.</div>';
+          return;
+        }
+
+        var distanceHtml = '';
+        if (geoState === 'ready' && lastDistanceKm !== null) {
+          distanceHtml = '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:1.6rem;font-weight:700;color:#10B981;line-height:1">' + lastDistanceKm.toFixed(1) + ' <span style="font-size:0.85rem;font-weight:400;color:#8C96A3">km de ti</span></div>' +
+            '<button class="link-btn" id="vynkRecalcBtn" style="background:none;border:none;padding:0;margin-top:6px;font-family:\'IBM Plex Mono\',monospace;font-size:0.75rem;font-weight:700;color:#A78BFA;cursor:pointer;text-decoration:underline">Recalcular ubicación</button>';
+        } else if (geoState === 'loading') {
+          distanceHtml = '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:1.1rem;color:#8C96A3">⌛ Obteniendo GPS...</div>';
+        } else if (geoState === 'error') {
+          distanceHtml = '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:0.85rem;color:#EF4444">⚠️ Sin acceso a tu ubicación</div>' +
+            '<button class="link-btn" id="vynkGeoBtn" style="background:none;border:none;padding:0;margin-top:6px;font-family:\'IBM Plex Mono\',monospace;font-size:0.75rem;font-weight:700;color:#A78BFA;cursor:pointer;text-decoration:underline">Reintentar</button>';
+        } else {
+          distanceHtml = '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:0.85rem;color:#8C96A3">— km desde tu posición</div>' +
+            '<button class="link-btn" id="vynkGeoBtn" style="background:none;border:none;padding:0;margin-top:6px;font-family:\'IBM Plex Mono\',monospace;font-size:0.78rem;font-weight:700;color:#A78BFA;cursor:pointer;text-decoration:underline">📍 Calcular distancia real</button>';
+        }
+
+        ticket.innerHTML =
+          '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">' +
+            '<h3 style="font-family:\'Space Grotesk\',sans-serif;font-size:1.1rem;font-weight:700;color:#EEEAE0;margin:0">' + loc.name + '</h3>' +
+            '<span style="font-family:\'IBM Plex Mono\',monospace;font-size:0.65rem;color:#A78BFA;background:rgba(124,58,237,0.18);padding:3px 8px;border-radius:999px;white-space:nowrap">Desde ' + loc.since + '</span>' +
+          '</div>' +
+          '<div style="font-size:0.8rem;color:#8C96A3;line-height:1.4"><strong style="color:#EEEAE0">Dirección:</strong> ' + loc.address + '</div>' +
+          '<div style="font-size:0.8rem;color:#8C96A3;line-height:1.4"><strong style="color:#EEEAE0">Horario:</strong> ' + loc.hours + '</div>' +
+          '<hr style="border:none;border-top:1px dashed #2A313A;margin:8px 0">' +
+          '<div>' +
+            '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:0.68rem;text-transform:uppercase;letter-spacing:0.06em;color:#8C96A3;margin-bottom:4px">Distancia Real</div>' +
+            distanceHtml +
+          '</div>' +
+          '<div style="margin-top:8px;display:flex;gap:8px">' +
+            '<button id="vynkNavBtn" style="flex:1;font-family:\'Space Grotesk\',sans-serif;font-weight:700;font-size:0.85rem;padding:10px 14px;border-radius:10px;border:none;background:#EEEAE0;color:#12161B;cursor:pointer;transition:transform 0.15s">🚀 Cómo llegar</button>' +
+          '</div>';
+
+        var geoBtn = document.getElementById('vynkGeoBtn');
+        if (geoBtn) geoBtn.addEventListener('click', function() { requestVynkGeo(loc); });
+        var recalcBtn = document.getElementById('vynkRecalcBtn');
+        if (recalcBtn) recalcBtn.addEventListener('click', function() { requestVynkGeo(loc); });
+
+        var navBtn = document.getElementById('vynkNavBtn');
+        if (navBtn) {
+          navBtn.addEventListener('click', function() {
+            window.open('https://www.google.com/maps/dir/?api=1&destination=' + loc.lat + ',' + loc.lng, '_blank', 'noopener');
+          });
+        }
+      }
+
+      function requestVynkGeo(loc) {
+        geoState = 'loading';
+        renderVynkTicket();
+        if (!navigator.geolocation) {
+          geoState = 'error';
+          renderVynkTicket();
+          return;
+        }
+        navigator.geolocation.getCurrentPosition(
+          function(pos) {
+            lastDistanceKm = haversineKm(pos.coords.latitude, pos.coords.longitude, loc.lat, loc.lng);
+            geoState = 'ready';
+            renderVynkTicket();
+          },
+          function() {
+            geoState = 'error';
+            renderVynkTicket();
+          },
+          { enableHighAccuracy: true, timeout: 8000 }
+        );
+      }
+
+      function selectVynkLocation(id) {
+        selectedLocId = id;
+        geoState = 'idle';
+        lastDistanceKm = null;
+        renderVynkPins();
+        renderVynkTicket();
+      }
+
+      document.addEventListener('DOMContentLoaded', function() {
+        var revealBtn = document.getElementById('vynkRevealBtn');
+        var stepPrompt = document.getElementById('vynkStepPrompt');
+        var stepMap = document.getElementById('vynkStepMap');
+
+        if (revealBtn && stepPrompt && stepMap) {
+          revealBtn.addEventListener('click', function() {
+            stepPrompt.style.display = 'none';
+            stepMap.style.display = 'flex';
+            requestAnimationFrame(function() {
+              stepMap.style.opacity = '1';
+              stepMap.style.transform = 'translateY(0)';
+            });
+            selectVynkLocation(LOCATIONS[0].id);
+          });
+        }
+      });
+    })();
   </script>
 
   <!-- Analytics -->
