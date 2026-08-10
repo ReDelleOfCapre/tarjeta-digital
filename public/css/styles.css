@@ -6,19 +6,19 @@
 
 /* ---- CSS Custom Properties (Shadcn Dark Palette Tokens) ---- */
 :root {
-  --bg-base: #12161B;
-  --bg-surface: #1A1F26;
-  --border-subtle: #2A313A;
-  --text-main: #EEEAE0;
-  --text-muted: #8C96A3;
+  --bg-base: #0F1115;
+  --bg-surface: #1A1D24;
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --text-main: #FAFAFA;
+  --text-muted: #8E95A3;
 
   /* Mapeo estandarizado */
   --bg-primary: var(--bg-base);
-  --bg-secondary: #161B22;
+  --bg-secondary: #14171E;
   --bg-tertiary: var(--bg-surface);
   --bg-card: var(--bg-surface);
   --card-border: var(--border-subtle);
-  --card-blur: 0px;
+  --card-blur: 16px;
   --card-shadow: none;
 
   --text-primary: var(--text-main);

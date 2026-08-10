@@ -129,8 +129,28 @@ window.openCreateModal = function() {
     modal.style.display = 'flex';
     var inputNombre = document.getElementById('create-perfil-nombre');
     if (inputNombre) inputNombre.focus();
-  } else {
-    location.href = '/editor.html';
+  }
+};
+
+window.openEditModal = async function(id) {
+  var modal = document.getElementById('modal-perfiles');
+  if (!modal) return;
+  modal.classList.remove('hidden');
+  modal.style.display = 'flex';
+  try {
+    var p = await api('/perfiles/' + id);
+    if (p) {
+      var n = document.getElementById('create-perfil-nombre');
+      var s = document.getElementById('create-perfil-slug');
+      var t = document.getElementById('create-perfil-tipo');
+      var b = document.getElementById('create-perfil-bio');
+      if (n) { n.value = p.nombre_perfil || ''; n.dispatchEvent(new Event('input')); }
+      if (s) s.value = p.slug || '';
+      if (t) t.value = p.tipo || 'personal';
+      if (b) { b.value = p.bio || ''; b.dispatchEvent(new Event('input')); }
+    }
+  } catch (err) {
+    console.error('Error al cargar perfil para edición:', err);
   }
 };
 
@@ -175,12 +195,6 @@ window.executeCreatePerfil = async function(e) {
 
     if (typeof window.loadProfilesGlobal === 'function') {
       window.loadProfilesGlobal();
-    } else {
-      setTimeout(function() { location.reload(); }, 500);
-    }
-
-    if (data && data.id) {
-      setTimeout(function() { location.href = '/editor.html?id=' + data.id; }, 600);
     }
   } catch (err) {
     console.error('❌ Error en creación de perfil:', err);
@@ -202,7 +216,7 @@ window.executeCreatePerfil = async function(e) {
   var fabNew = document.getElementById('fab-new');
   if (fabNew) {
     fabNew.addEventListener('click', function() {
-      location.href = '/editor.html';
+      openCreateModal();
     });
   }
 
@@ -513,7 +527,7 @@ window.executeCreatePerfil = async function(e) {
         ? '<div class="avatar avatar-md" style="border:2px solid ' + color + ';flex-shrink:0"><img src="' + fotoUrl + '" alt="" onerror="this.onerror=null;this.src=\'/img/default-avatar.png\';"></div>'
         : '<div class="avatar avatar-md" style="background:' + color + ';flex-shrink:0">' + initials + '</div>';
 
-      return '<div class="profile-card" onclick="location.href=\'/editor.html?id=' + p.id + '\'">' +
+      return '<div class="profile-card" onclick="openEditModal(' + p.id + ')">' +
         avatarHtml +
         '<div class="card-info" style="flex:1;min-width:0;padding:0 8px">' +
           '<div class="card-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + escapeHtml(p.nombre_perfil || '') + '</div>' +

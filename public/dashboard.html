@@ -266,7 +266,7 @@
             <p style="max-width:480px;margin:0 auto 24px;color:var(--text-muted);font-size:0.9rem;line-height:1.5">
               Crea tu perfil inteligente, conecta tus redes, catálogo o archivos y recíbela grabada en tu tarjeta NFC física.
             </p>
-            <button class="btn btn-primary" onclick="location.href='editor.html'">
+            <button class="btn btn-primary" onclick="openCreateModal()">
               + Crear Mi Primera Tarjeta
             </button>
           </div>
@@ -518,7 +518,7 @@
         <span style="font-size:0.75rem;padding:4px 8px;border-radius:6px;background:rgba(255,255,255,0.08);color:var(--text-tertiary)">ESC</span>
       </div>
       <div style="padding:12px;display:flex;flex-direction:column;gap:6px" id="cmd-results">
-        <div class="cmd-item" onclick="location.href='/editor.html'">
+        <div class="cmd-item" onclick="toggleCommandPalette(); openCreateModal();">
           <span>🪪 Crear nueva identidad digital</span>
           <span style="font-size:0.72rem;color:var(--text-muted)">Acceso directo</span>
         </div>
