@@ -3,114 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VYNK Profile</title>
+    <title>VYNK | Perfil Inteligente</title>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg-dark: #0F1115;
-            --bento-bg: #1A1D24;
-            --bento-hover: #22262F;
-            --border-color: rgba(255,255,255,0.08);
-            --accent: #EF6F7C; /* Mantenemos tu coral para el mapa */
-            --text-main: #FFFFFF;
-            --text-muted: #8E95A3;
-            --font-display: 'Space Grotesk', sans-serif;
-            --font-body: 'Inter', sans-serif;
-            --font-mono: 'IBM Plex Mono', monospace;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background-color: var(--bg-dark); color: var(--text-main); font-family: var(--font-body); padding: 40px 20px; display: flex; justify-content: center; min-height: 100vh; }
-        
-        /* Contenedor Principal (Simula celular en PC) */
-        .vynk-profile { max-width: 480px; width: 100%; display: flex; flex-direction: column; gap: 24px; }
-        
-        /* Cabecera / Hero */
-        .hero { text-align: center; animation: fadeUp 0.6s ease; }
-        .avatar-container { position: relative; width: 100px; height: 100px; margin: 0 auto 16px; }
-        .avatar { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2px solid var(--bento-bg); box-shadow: 0 0 30px rgba(239, 111, 124, 0.2); }
-        .hero h1 { font-family: var(--font-display); font-size: 24px; line-height: 1.2; margin-bottom: 6px; }
-        .hero p { color: var(--text-muted); font-size: 14px; }
-
-        /* Bento Grid Links */
-        .bento-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; animation: fadeUp 0.8s ease; }
-        .bento-item { background: var(--bento-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 16px; text-decoration: none; color: var(--text-main); transition: transform 0.2s, background 0.2s; display: flex; flex-direction: column; justify-content: center; }
-        .bento-item:hover { transform: translateY(-3px); background: var(--bento-hover); }
-        .span-2 { grid-column: span 2; flex-direction: row; align-items: center; justify-content: space-between; padding: 20px; }
-        
-        .bento-icon { font-size: 24px; margin-bottom: 8px; }
-        .bento-title { font-weight: 600; font-size: 14px; }
-        .span-2 .bento-title { font-size: 16px; margin-bottom: 4px;}
-        .bento-meta { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); }
-        .badge { background: rgba(239,111,124,0.15); color: var(--accent); padding: 4px 8px; border-radius: 8px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
-
-        /* Widget Mapa VYNK (Adaptado a Dark Mode) */
-        .map-widget { background: var(--bento-bg); border: 1px solid var(--border-color); border-radius: 20px; overflow: hidden; animation: fadeUp 1s ease; }
-        .map-header { padding: 20px; text-align: center; border-bottom: 1px solid var(--border-color); }
-        .map-header h2 { font-family: var(--font-display); font-size: 18px; margin-bottom: 4px; }
-        .map-header p { font-size: 12px; color: var(--text-muted); }
-        
-        .map-panel { position: relative; aspect-ratio: 4/3; background: #12141A; }
-        .ticket-dark { padding: 20px; background: var(--bg-dark); }
-        .distance-value { font-family: var(--font-mono); font-size: 28px; font-weight: 700; margin: 10px 0; }
-        .distance-value small { font-size: 12px; color: var(--text-muted); }
-        
-        .btn-primary { width: 100%; padding: 14px; background: var(--text-main); color: var(--bg-dark); border: none; border-radius: 12px; font-weight: 600; font-family: var(--font-body); cursor: pointer; margin-top: 10px; transition: transform 0.2s; }
-        .btn-primary:hover { transform: translateY(-2px); }
-
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-    </style>
+    <link rel="stylesheet" href="/css/vynk-cards.css">
 </head>
 <body>
-    <div class="vynk-profile" id="profileData">
-        <!-- Hero -->
-        <div class="hero">
-            <div class="avatar-container">
-                <img src="/img/default-avatar.png" alt="Avatar" class="avatar" id="dyn-avatar">
-            </div>
-            <h1 id="dyn-name">Nombre del Negocio</h1>
-            <p id="dyn-bio">Descripción profesional y directa</p>
-        </div>
+    <div id="vynk-app"></div>
 
-        <!-- Bento Links -->
-        <div class="bento-grid" id="dyn-links">
-            <!-- Botón Principal -->
-            <a href="#" class="bento-item span-2">
-                <div>
-                    <div class="bento-title">WhatsApp Directo</div>
-                    <div class="bento-meta">Atención inmediata</div>
-                </div>
-                <span class="badge">⚡ Responde Rápido</span>
-            </a>
-            <!-- Redes Secundarias -->
-            <a href="#" class="bento-item">
-                <span class="bento-icon">📸</span>
-                <span class="bento-title">Instagram</span>
-                <span class="bento-meta">@usuario</span>
-            </a>
-            <a href="#" class="bento-item">
-                <span class="bento-icon">📄</span>
-                <span class="bento-title">Menú / Catálogo</span>
-                <span class="bento-meta">PDF</span>
-            </a>
-        </div>
+    <script src="/js/vynk-renderer.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const profileData = {
+                theme: {
+                    primaryColor: '#FBBF24',
+                    backgroundColor: '#0A0A0A'
+                },
+                header: {
+                    avatar: '/img/default-avatar.png',
+                    name: 'La Capital Local',
+                    bio: 'Medio digital independiente y periodismo hiperlocal.',
+                    badge: 'Verificado'
+                },
+                blocks: [
+                    {
+                        type: 'hero_link',
+                        title: 'Envía una denuncia',
+                        meta: 'Atención 24/7 vía WhatsApp',
+                        badge: 'WhatsApp',
+                        url: 'https://wa.me/1234567890'
+                    },
+                    {
+                        type: 'social_grid',
+                        items: [
+                            { icon: '📸', label: 'Instagram', url: '#' },
+                            { icon: '🐦', label: 'Twitter / X', url: '#' },
+                            { icon: '📺', label: 'YouTube', url: '#' },
+                            { icon: '📰', label: 'Boletín', url: '#' }
+                        ]
+                    },
+                    {
+                        type: 'location_map',
+                        title: '📍 Redacción Central',
+                        subtitle: 'Ven a visitarnos o calcula tu ruta.',
+                        locationName: 'Oficinas La Capital',
+                        address: 'Av. Reforma 123, Centro Histórico'
+                    }
+                ]
+            };
 
-        <!-- Widget Mapa VYNK -->
-        <div class="map-widget">
-            <div class="map-header">
-                <h2>📍 Nuestras Sucursales</h2>
-                <p>Calcula la ruta exacta desde tu ubicación actual.</p>
-            </div>
-            <div class="map-panel">
-                <!-- Aquí va el SVG o iframe real -->
-                <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color: #8E95A3; font-family: 'IBM Plex Mono'; font-size:12px;">[ Mapa Interactivo ]</div>
-            </div>
-            <div class="ticket-dark">
-                <div style="font-weight:600; margin-bottom: 4px;">Sede Principal</div>
-                <div class="bento-meta">Teziutlán, Puebla</div>
-                <div class="distance-value" id="distDisplay">— <small>km</small></div>
-                <button class="btn-primary" onclick="alert('Calculando GPS...')">Calcular mi distancia</button>
-            </div>
-        </div>
-    </div>
+            // Iniciar renderizado
+            renderVynkProfile(profileData, 'vynk-app');
+        });
+    </script>
 </body>
 </html>
