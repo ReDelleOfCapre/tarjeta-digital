@@ -220,6 +220,18 @@ window.executeCreatePerfil = async function(e) {
       el.style.color = '#10B981';
       if (el.textContent.includes('Pro')) el.textContent = '✓ Pro Activo';
     });
+
+    // Desbloquear módulos Pro (Insights Inteligentes, Actividad Reciente, Vista Previa)
+    document.querySelectorAll('.pro-module').forEach(function(el) {
+      el.classList.add('pro-active');
+      el.style.display = 'flex';
+    });
+  } else {
+    // Mantener interfaz limpia para usuarios Free
+    document.querySelectorAll('.pro-module').forEach(function(el) {
+      el.classList.remove('pro-active');
+      el.style.display = 'none';
+    });
   }
   // Global Functions & Event Listeners (Zero Inline JS)
   window.toggleMobileNavDrawer = function() {
@@ -489,7 +501,7 @@ window.executeCreatePerfil = async function(e) {
         ? (p.foto_url.startsWith('http') || p.foto_url.startsWith('data:image') ? p.foto_url : (p.foto_url.startsWith('/') ? p.foto_url : '/' + p.foto_url))
         : '';
       var avatarHtml = fotoUrl
-        ? '<div class="avatar avatar-md" style="border:2px solid ' + color + ';flex-shrink:0"><img src="' + fotoUrl + '" alt="" onerror="this.onerror=null;this.src=\'/img/logo.svg\';"></div>'
+        ? '<div class="avatar avatar-md" style="border:2px solid ' + color + ';flex-shrink:0"><img src="' + fotoUrl + '" alt="" onerror="this.onerror=null;this.src=\'/img/default-avatar.png\';"></div>'
         : '<div class="avatar avatar-md" style="background:' + color + ';flex-shrink:0">' + initials + '</div>';
 
       return '<div class="profile-card" onclick="location.href=\'/editor.html?id=' + p.id + '\'">' +

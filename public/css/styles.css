@@ -1993,13 +1993,25 @@ h1, h2, h3, h4, h5, h6, .brand, .card-name, .nav-brand, .admin-title, .name {
     z-index: 1 !important;
   }
 
-  .sidebar-panel {
+  .sidebar-panel,
+  .sidebar,
+  .dashboard-sidebar {
     position: sticky !important;
     top: 24px !important;
+    height: max-content !important;
+    align-self: start !important;
     display: flex !important;
     flex-direction: column !important;
     gap: 16px !important;
     z-index: 10 !important;
+  }
+
+  .pro-module {
+    display: none !important;
+  }
+
+  .pro-module.pro-active {
+    display: flex !important;
   }
 
   .main-panel {
