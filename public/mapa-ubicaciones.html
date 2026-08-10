@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Encuéntranos — Prototipo de ubicaciones</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --coral:#EF6F7C;
+    --coral-dark:#D9505F;
+    --coral-soft:#FCE1E3;
+    --cream-map:#F6DFA8;
+    --cream-bg:#FFF8EE;
+    --sage:#7C9885;
+    --sage-dark:#5E7A67;
+    --ink:#2B241D;
+    --ink-soft:#6E6255;
+    --paper:#FFFFFF;
+    --line: rgba(43,36,29,0.14);
+    --font-display:'Baloo 2', sans-serif;
+    --font-body:'Plus Jakarta Sans', sans-serif;
+    --font-mono:'JetBrains Mono', monospace;
+    --radius-lg: 28px;
+    --radius-md: 18px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:var(--font-body);
+    color:var(--ink);
+    background:
+      radial-gradient(circle at 12% 8%, #FFEFD6 0%, transparent 45%),
+      radial-gradient(circle at 88% 92%, #FCE7CF 0%, transparent 40%),
+      var(--cream-bg);
+    min-height:100vh;
+  }
+  .shell{
+    max-width:1040px;
+    margin:0 auto;
+    padding: 28px 24px 64px;
+    position:relative;
+  }
+
+  /* ---- dev toggle (solo para este prototipo) ---- */
+  .proto-toggle{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    justify-content:center;
+    margin: 0 auto 34px;
+    width:fit-content;
+    padding:6px;
+    border:1.5px dashed var(--ink-soft);
+    border-radius:999px;
+    background:rgba(255,255,255,0.55);
+    font-family:var(--font-mono);
+    font-size:12px;
+    color:var(--ink-soft);
+  }
+  .proto-toggle span.lbl{ padding:0 6px 0 10px; letter-spacing:.02em;}
+  .proto-toggle button{
+    font-family:var(--font-mono);
+    font-size:12px;
+    border:none;
+    padding:7px 14px;
+    border-radius:999px;
+    background:transparent;
+    color:var(--ink-soft);
+    cursor:pointer;
+    transition:.2s ease;
+  }
+  .proto-toggle button.active{
+    background:var(--ink);
+    color:var(--paper);
+  }
+
+  /* ---- paso 1: prompt ---- */
+  .stage{ transition: opacity .45s ease, transform .45s ease; }
+  .step-prompt{
+    text-align:center;
+    padding: 48px 20px 56px;
+  }
+  .eyebrow{
+    display:inline-block;
+    font-family:var(--font-mono);
+    font-size:13px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--sage-dark);
+    background:rgba(124,152,133,0.14);
+    padding:6px 14px;
+    border-radius:999px;
+    margin-bottom:18px;
+  }
+  .step-prompt h1{
+    font-family:var(--font-display);
+    font-weight:800;
+    font-size:clamp(32px,5vw,52px);
+    line-height:1.08;
+    margin:0 0 16px;
+  }
+  .step-prompt p{
+    max-width:480px;
+    margin:0 auto 30px;
+    color:var(--ink-soft);
+    font-size:16px;
+    line-height:1.55;
+  }
+  .cta{
+    font-family:var(--font-body);
+    font-weight:700;
+    font-size:16px;
+    color:#fff;
+    background:var(--coral);
+    border:none;
+    padding:15px 28px;
+    border-radius:999px;
+    cursor:pointer;
+    box-shadow: 0 10px 24px -8px rgba(239,111,124,0.55);
+    transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+  }
+  .cta:hover{ background:var(--coral-dark); transform:translateY(-2px); box-shadow: 0 14px 28px -8px rgba(217,80,95,0.55);}
+  .cta:focus-visible{ outline:3px solid var(--sage); outline-offset:3px; }
+
+  /* ---- paso 2: mapa + ticket ---- */
+  .step-map{
+    display:grid;
+    grid-template-columns: 1.35fr 1fr;
+    gap:26px;
+    align-items:start;
+  }
+  @media (max-width: 820px){
+    .step-map{ grid-template-columns: 1fr; }
+  }
+
+  .map-panel{
+    position:relative;
+    aspect-ratio: 4/3.1;
+    border-radius: var(--radius-lg);
+    overflow:hidden;
+    border:1.5px solid var(--line);
+    background:
+      radial-gradient(circle at 20% 25%, rgba(255,255,255,0.5), transparent 55%),
+      linear-gradient(135deg, #FBEFD3, #F6DFA8 60%, #F3D394);
+    box-shadow: 0 18px 40px -20px rgba(43,36,29,0.35);
+  }
+  .map-panel .dotgrid{
+    position:absolute; inset:0;
+    background-image: radial-gradient(rgba(43,36,29,0.10) 1.4px, transparent 1.4px);
+    background-size: 22px 22px;
+    opacity:.6;
+  }
+  .blob{ position:absolute; border-radius:50%; filter: blur(0px); opacity:.55; }
+  .blob-a{ width:230px; height:190px; top:-40px; left:-50px; background:#F0637B22; border-radius:44% 56% 62% 38% / 45% 40% 60% 55%;}
+  .blob-b{ width:260px; height:220px; bottom:-70px; right:-60px; background:#5E7A6722; border-radius:60% 40% 45% 55% / 50% 55% 45% 50%;}
+
+  .route{
+    position:absolute; inset:0; width:100%; height:100%;
+    stroke:var(--ink);
+    stroke-opacity:.28;
+    stroke-width:2;
+    stroke-dasharray:6 8;
+    fill:none;
+  }
+
+  .pin{
+    position:absolute;
+    width:36px; height:36px;
+    background:var(--coral);
+    border-radius:50% 50% 50% 0;
+    transform: translate(-50%,-100%) rotate(-45deg);
+    box-shadow: 0 6px 14px -4px rgba(217,80,95,0.6);
+    cursor:pointer;
+    border:none;
+    padding:0;
+    opacity:0;
+    animation: pinDrop .5s cubic-bezier(.34,1.56,.64,1) forwards;
+  }
+  .pin::after{
+    content:'';
+    position:absolute; top:50%; left:50%;
+    width:14px; height:14px;
+    background:#fff;
+    border-radius:50%;
+    transform:translate(-50%,-50%);
+  }
+  .pin:focus-visible{ outline:3px solid var(--sage); outline-offset:4px; }
+  .pin.selected{ background:var(--sage-dark); box-shadow:0 6px 16px -3px rgba(94,122,103,0.65);}
+  .pin.selected::before{
+    content:'';
+    position:absolute;
+    inset:-10px;
+    border-radius:50%;
+    border:2px solid var(--sage-dark);
+    transform: rotate(45deg);
+    animation: pulse 1.8s ease-out infinite;
+  }
+  @keyframes pinDrop{ from{ opacity:0; transform:translate(-50%,-160%) rotate(-45deg) scale(.4);} to{opacity:1; transform:translate(-50%,-100%) rotate(-45deg) scale(1);} }
+  @keyframes pulse{ 0%{opacity:.7; transform:rotate(45deg) scale(.7);} 100%{opacity:0; transform:rotate(45deg) scale(1.5);} }
+
+  .pin-label{
+    position:absolute;
+    transform: translate(-50%, 4px);
+    font-family:var(--font-mono);
+    font-size:11px;
+    background:var(--paper);
+    padding:3px 8px;
+    border-radius:6px;
+    border:1px solid var(--line);
+    white-space:nowrap;
+    pointer-events:none;
+    opacity:.9;
+  }
+
+  /* ---- ticket ---- */
+  .ticket{
+    background:var(--paper);
+    border-radius: var(--radius-md);
+    padding:26px 26px 20px;
+    position:relative;
+    box-shadow: 0 16px 34px -18px rgba(43,36,29,0.4);
+    min-height: 320px;
+    display:flex;
+    flex-direction:column;
+  }
+  .ticket::after{
+    content:'';
+    position:absolute; left:0; right:0; bottom:-1px; height:14px;
+    background-image: radial-gradient(circle at 10px 0, transparent 9px, var(--cream-bg) 9.5px);
+    background-size: 20px 14px;
+    background-repeat:repeat-x;
+  }
+  .ticket-empty{
+    margin:auto;
+    text-align:center;
+    color:var(--ink-soft);
+    font-size:14px;
+    padding: 20px;
+  }
+  .ticket-empty strong{ display:block; font-family:var(--font-display); color:var(--ink); font-size:18px; margin-bottom:6px;}
+
+  .ticket-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:14px;}
+  .ticket-head h2{ font-family:var(--font-display); font-size:22px; margin:0; line-height:1.15;}
+  .since-badge{
+    font-family:var(--font-mono);
+    font-size:11px;
+    color:var(--sage-dark);
+    background:rgba(124,152,133,0.16);
+    padding:5px 10px;
+    border-radius:999px;
+    white-space:nowrap;
+  }
+  .ticket-row{ font-size:14px; color:var(--ink-soft); margin-bottom:6px; line-height:1.4;}
+  .ticket-row b{ color:var(--ink); font-weight:600;}
+
+  .divider{ border:none; border-top:1.5px dashed var(--line); margin:16px 0;}
+
+  .distance-block{ margin-bottom:16px; }
+  .distance-label{ font-family:var(--font-mono); font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-soft); margin-bottom:6px;}
+  .distance-value{ font-family:var(--font-mono); font-weight:700; font-size:30px; color:var(--ink); }
+  .distance-value small{ font-size:14px; font-weight:500; color:var(--ink-soft);}
+  .distance-hint{ font-size:12.5px; color:var(--ink-soft); margin-top:6px; line-height:1.4;}
+  .link-btn{
+    background:none; border:none; padding:0; margin-top:8px;
+    font-family:var(--font-mono); font-size:12.5px; font-weight:700;
+    color:var(--coral-dark); cursor:pointer; text-decoration:underline;
+  }
+
+  .ticket-actions{ margin-top:auto; display:flex; gap:10px; flex-wrap:wrap; }
+  .btn-primary, .btn-ghost{
+    font-family:var(--font-body); font-weight:700; font-size:14px;
+    padding:12px 18px; border-radius:12px; cursor:pointer; border:none;
+    transition: transform .15s ease;
+  }
+  .btn-primary{ background:var(--ink); color:#fff; }
+  .btn-primary:hover{ transform:translateY(-2px); }
+  .btn-ghost{ background:transparent; color:var(--ink); border:1.5px solid var(--line); }
+  .btn-ghost:hover{ border-color:var(--ink); }
+
+  .note{
+    max-width:640px; margin: 40px auto 0; text-align:center;
+    font-size:12.5px; color:var(--ink-soft); line-height:1.6;
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="proto-toggle">
+    <span class="lbl">Vista previa:</span>
+    <button id="btnMulti" class="active">Varias sedes</button>
+    <button id="btnSingle">Una sola sede</button>
+  </div>
+
+  <section class="stage step-prompt" id="stepPrompt">
+    <span class="eyebrow" id="eyebrow">Encuéntranos</span>
+    <h1 id="promptTitle">¿Dónde te queda más cerca?</h1>
+    <p id="promptSub">Elige tu sede y te mostramos el mapa, la distancia real desde donde estás y cómo llegar.</p>
+    <button class="cta" id="revealBtn">Ver ubicaciones →</button>
+  </section>
+
+  <section class="stage step-map" id="stepMap" style="display:none; opacity:0; transform:translateY(14px);">
+    <div class="map-panel">
+      <div class="dotgrid"></div>
+      <div class="blob blob-a"></div>
+      <div class="blob blob-b"></div>
+      <svg class="route" id="routeSvg"></svg>
+      <div id="pinsLayer"></div>
+    </div>
+    <div class="ticket" id="ticket">
+      <div class="ticket-empty" id="ticketEmpty">
+        <strong>Selecciona un pin</strong>
+        Toca una ubicación en el mapa para ver su información completa.
+      </div>
+    </div>
+  </section>
+
+  <p class="note">Prototipo funcional: los pines, la distancia y el enlace de "Cómo llegar" usan coordenadas reales — sustituye los datos de ejemplo por los de tus sedes. El mapa es una ilustración estilizada, no geográficamente exacta.</p>
+</div>
+
+<script>
+const LOCATIONS = [
+  { id:'a', name:'Sede La Estación', address:'Calle Principal s/n, San Diego, Teziutlán, Pue.', since:'2021', hours:'Mar–Dom · 14:00–22:00', lat:19.8167, lng:-97.3667, x:26, y:62 },
+  { id:'b', name:'Sede Centro',      address:'2a Norte, Centro, Teziutlán, Pue.',              since:'2023', hours:'Todos los días · 13:00–21:30', lat:19.8090, lng:-97.3580, x:58, y:34 },
+  { id:'c', name:'Sede Zaragoza',    address:'Av. Reforma, Zaragoza, Pue.',                    since:'2024', hours:'Jue–Dom · 15:00–22:00', lat:19.5833, lng:-97.2000, x:80, y:70 },
+];
+
+let mode = 'multi';       // 'multi' | 'single'
+let selectedId = null;
+let geoState = 'idle';    // idle | loading | ready | error
+let lastDistanceKm = null;
+
+const $ = (sel) => document.querySelector(sel);
+const pinsLayer = $('#pinsLayer');
+const routeSvg = $('#routeSvg');
+const ticket = $('#ticket');
+const stepPrompt = $('#stepPrompt');
+const stepMap = $('#stepMap');
+
+function activeLocations(){
+  return mode === 'single' ? [LOCATIONS[0]] : LOCATIONS;
+}
+
+function haversineKm(lat1, lon1, lat2, lon2){
+  const R = 6371;
+  const dLat = (lat2-lat1) * Math.PI/180;
+  const dLon = (lon2-lon1) * Math.PI/180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+function renderPrompt(){
+  if(mode === 'single'){
+    $('#eyebrow').textContent = 'Encuéntranos';
+    $('#promptTitle').textContent = 'Así llegas hasta nosotros';
+    $('#promptSub').textContent = 'Te mostramos el mapa, la distancia real desde donde estás y cómo llegar.';
+    $('#revealBtn').textContent = 'Ver en el mapa →';
+  } else {
+    $('#eyebrow').textContent = 'Encuéntranos';
+    $('#promptTitle').textContent = '¿Dónde te queda más cerca?';
+    $('#promptSub').textContent = 'Elige tu sede y te mostramos el mapa, la distancia real desde donde estás y cómo llegar.';
+    $('#revealBtn').textContent = 'Ver ubicaciones →';
+  }
+}
+
+function renderPins(){
+  const locs = activeLocations();
+  pinsLayer.innerHTML = '';
+  locs.forEach((loc, i) => {
+    const pin = document.createElement('button');
+    pin.className = 'pin' + (loc.id === selectedId ? ' selected' : '');
+    pin.style.left = loc.x + '%';
+    pin.style.top = loc.y + '%';
+    pin.style.animationDelay = (i * 0.12) + 's';
+    pin.setAttribute('aria-label', 'Ver información de ' + loc.name);
+    pin.addEventListener('click', () => selectLocation(loc.id));
+    pinsLayer.appendChild(pin);
+
+    if(mode === 'multi'){
+      const label = document.createElement('div');
+      label.className = 'pin-label';
+      label.style.left = loc.x + '%';
+      label.style.top = loc.y + '%';
+      label.textContent = loc.name.replace('Sede ', '');
+      pinsLayer.appendChild(label);
+    }
+  });
+
+  if(mode === 'multi' && locs.length > 1){
+    const pts = locs.map(l => `${l.x * 6},${l.y * 4.6}`).join(' ');
+    routeSvg.setAttribute('viewBox', '0 0 600 460');
+    routeSvg.innerHTML = `<polyline class="route" points="${pts}"/>`;
+  } else {
+    routeSvg.innerHTML = '';
+  }
+}
+
+function renderTicket(){
+  const loc = LOCATIONS.find(l => l.id === selectedId);
+  if(!loc){
+    ticket.innerHTML = `<div class="ticket-empty" id="ticketEmpty"><strong>Selecciona un pin</strong>Toca una ubicación en el mapa para ver su información completa.</div>`;
+    return;
+  }
+
+  let distanceHtml;
+  if(geoState === 'ready' && lastDistanceKm !== null){
+    distanceHtml = `<div class="distance-value">${lastDistanceKm.toFixed(1)}<small> km desde tu ubicación</small></div>
+      <button class="link-btn" id="recalcBtn">Recalcular</button>`;
+  } else if(geoState === 'loading'){
+    distanceHtml = `<div class="distance-value">— <small>calculando…</small></div>`;
+  } else if(geoState === 'error'){
+    distanceHtml = `<div class="distance-value">— <small>sin acceso a tu ubicación</small></div>
+      <div class="distance-hint">Actívala en tu navegador y vuelve a intentarlo.</div>
+      <button class="link-btn" id="geoBtn">Reintentar</button>`;
+  } else {
+    distanceHtml = `<div class="distance-value">— <small>km</small></div>
+      <div class="distance-hint">Calcula la distancia real desde donde estás ahora mismo.</div>
+      <button class="link-btn" id="geoBtn">Calcular distancia real</button>`;
+  }
+
+  ticket.innerHTML = `
+    <div class="ticket-head">
+      <h2>${loc.name}</h2>
+      <span class="since-badge">Desde ${loc.since}</span>
+    </div>
+    <div class="ticket-row"><b>Dirección — </b>${loc.address}</div>
+    <div class="ticket-row"><b>Horario — </b>${loc.hours}</div>
+    <hr class="divider">
+    <div class="distance-block">
+      <div class="distance-label">Distancia real</div>
+      ${distanceHtml}
+    </div>
+    <div class="ticket-actions">
+      <button class="btn-primary" id="direccionesBtn">Cómo llegar</button>
+      ${mode === 'multi' ? '<button class="btn-ghost" id="cerrarBtn">Ver otra sede</button>' : ''}
+    </div>
+  `;
+
+  const geoBtn = document.getElementById('geoBtn');
+  if(geoBtn) geoBtn.addEventListener('click', () => requestGeolocation(loc));
+  const recalcBtn = document.getElementById('recalcBtn');
+  if(recalcBtn) recalcBtn.addEventListener('click', () => requestGeolocation(loc));
+  document.getElementById('direccionesBtn').addEventListener('click', () => {
+    window.open(`https://www.google.com/maps/dir/?api=1&destination=${loc.lat},${loc.lng}`, '_blank', 'noopener');
+  });
+  const cerrarBtn = document.getElementById('cerrarBtn');
+  if(cerrarBtn) cerrarBtn.addEventListener('click', () => { selectedId = null; renderPins(); renderTicket(); });
+}
+
+function requestGeolocation(loc){
+  geoState = 'loading';
+  renderTicket();
+  if(!navigator.geolocation){
+    geoState = 'error';
+    renderTicket();
+    return;
+  }
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      lastDistanceKm = haversineKm(pos.coords.latitude, pos.coords.longitude, loc.lat, loc.lng);
+      geoState = 'ready';
+      renderTicket();
+    },
+    () => {
+      geoState = 'error';
+      renderTicket();
+    },
+    { enableHighAccuracy:true, timeout:8000 }
+  );
+}
+
+function selectLocation(id){
+  selectedId = id;
+  geoState = 'idle';
+  lastDistanceKm = null;
+  renderPins();
+  renderTicket();
+}
+
+function goToMap(){
+  stepPrompt.style.display = 'none';
+  stepMap.style.display = 'grid';
+  requestAnimationFrame(() => {
+    stepMap.style.opacity = '1';
+    stepMap.style.transform = 'translateY(0)';
+  });
+  if(mode === 'single'){
+    selectLocation(LOCATIONS[0].id);
+  } else {
+    selectedId = null;
+    renderPins();
+    renderTicket();
+  }
+}
+
+function resetToPrompt(){
+  stepMap.style.display = 'none';
+  stepMap.style.opacity = '0';
+  stepMap.style.transform = 'translateY(14px)';
+  stepPrompt.style.display = 'block';
+  selectedId = null;
+  geoState = 'idle';
+  lastDistanceKm = null;
+}
+
+$('#revealBtn').addEventListener('click', goToMap);
+
+$('#btnMulti').addEventListener('click', () => {
+  mode = 'multi';
+  $('#btnMulti').classList.add('active');
+  $('#btnSingle').classList.remove('active');
+  renderPrompt();
+  resetToPrompt();
+});
+$('#btnSingle').addEventListener('click', () => {
+  mode = 'single';
+  $('#btnSingle').classList.add('active');
+  $('#btnMulti').classList.remove('active');
+  renderPrompt();
+  resetToPrompt();
+});
+
+renderPrompt();
+</script>
+</body>
+</html>
