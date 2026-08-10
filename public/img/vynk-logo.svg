@@ -1,23 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 100" width="100%" height="100%" preserveAspectRatio="xMinYMid meet">
-  <defs>
-    <linearGradient id="vynk-logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#7C3AED"/>
-      <stop offset="50%" stop-color="#6366F1"/>
-      <stop offset="100%" stop-color="#06B6D4"/>
-    </linearGradient>
-    <filter id="vynk-glow" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="3" result="blur" />
-      <feComposite in="SourceGraphic" in2="blur" operator="over" />
-    </filter>
-  </defs>
-
-  <!-- Bolt Icon -->
-  <g transform="translate(10, 10)">
-    <rect width="80" height="80" rx="22" fill="rgba(124, 58, 237, 0.12)" stroke="rgba(124, 58, 237, 0.3)" stroke-width="1.5"/>
-    <path d="M 48 18 L 26 48 L 42 48 L 34 74 L 56 44 L 40 44 Z" fill="url(#vynk-logo-grad)"/>
-  </g>
-
-  <!-- Pure White Typography for Enterprise Dark Mode -->
-  <text x="108" y="62" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="44" letter-spacing="-1.5" fill="#FFFFFF">VYNK</text>
-  <circle cx="330" cy="54" r="6" fill="#06B6D4"/>
+<svg width="120" height="30" viewBox="0 0 120 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="30" height="30" rx="9" fill="#EEEAFC"/>
+  <path d="M9 8L15 20L21 8" stroke="#5C48E6" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="15" cy="22.5" r="1.6" fill="#5C48E6"/>
+  <text x="38" y="21" font-family="'Space Grotesk', sans-serif" font-weight="700" font-size="18" fill="#1D1830" letter-spacing="-0.02em">VYNK</text>
 </svg>

@@ -7,21 +7,24 @@
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.svg">
   <meta name="apple-mobile-web-app-title" content="VYNK">
-  <meta name="theme-color" content="#0F0B1E">
+  <meta name="theme-color" content="#FBF9FF">
   <link rel="manifest" href="/manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/styles.css">
   <style>
     :root {
-      --primary: #7C3AED;
-      --secondary: #FF6B6B;
-      --bg-dark: #0F0B1E;
-      --text-light: #F3F4F6;
-      --card-bg: rgba(255, 255, 255, 0.05);
+      --primary: var(--accent-deep);
+      --secondary: var(--peach);
+      --bg-dark: var(--canvas);
+      --text-light: var(--ink);
+      --card-bg: var(--paper);
     }
     body {
-      background-color: var(--bg-dark);
-      color: var(--text-light);
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--canvas);
+      color: var(--ink);
+      font-family: var(--font-body);
       margin: 0;
       padding: 0;
     }

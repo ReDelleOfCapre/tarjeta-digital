@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Editor & Configuración — VYNK</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    body {
+      background-color: var(--canvas);
+      color: var(--ink);
+      font-family: var(--font-body);
+      margin: 0;
+      padding: 0;
+    }
+    .editor-nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(251, 249, 255, 0.85);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--line);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand-group a {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      color: var(--ink);
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 18px;
+    }
+    .editor-layout-grid {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 28px;
+      max-width: 1120px;
+      margin: 28px auto;
+      padding: 0 24px;
+      align-items: start;
+    }
+    @media (max-width: 900px) {
+      .editor-layout-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .editor-panel {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 20px;
+    }
+    .panel-header {
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--ink);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .mono-num {
+      font-family: var(--font-mono);
+      font-weight: 600;
+      color: var(--accent-deep);
+    }
+    .phone-mock-frame {
+      position: sticky;
+      top: 80px;
+      background: var(--ink);
+      border-radius: 36px;
+      padding: 16px;
+      box-shadow: 0 24px 50px -12px rgba(29, 24, 48, 0.3);
+      color: #fff;
+    }
+    .phone-screen {
+      background: linear-gradient(160deg, #241C3D, #100B24);
+      border-radius: 24px;
+      padding: 24px 16px;
+      text-align: center;
+      min-height: 480px;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="editor-nav">
+    <div class="brand-group">
+      <a href="/dashboard.html">
+        <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
+          <rect width="30" height="30" rx="9" fill="#EEEAFC"/>
+          <path d="M9 8L15 20L21 8" stroke="#5C48E6" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="15" cy="22.5" r="1.6" fill="#5C48E6"/>
+        </svg>
+        <span>VYNK Editor</span>
+      </a>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <a href="/dashboard.html" class="btn btn-ghost btn-sm">← Volver al Dashboard</a>
+      <button type="button" onclick="saveEditorProfile()" class="btn btn-primary btn-sm">⚡ Guardar Cambios</button>
+    </div>
+  </header>
+
+  <main class="editor-layout-grid">
+    <div>
+      <!-- Panel 1: Datos Base -->
+      <div class="editor-panel">
+        <div class="panel-header">
+          <span class="mono-num">01.</span>
+          <span>Información de la Identidad</span>
+        </div>
+        <div class="form-group mb-12">
+          <label class="form-label">Nombre Completo / Marca</label>
+          <input type="text" class="form-input" id="editor-nombre" placeholder="Ej. Giovanni Paolo" value="Giovanni Paolo">
+        </div>
+        <div class="form-group mb-12">
+          <label class="form-label">Slug / URL Personalizada</label>
+          <input type="text" class="form-input" id="editor-slug" placeholder="giovanni-paolo" value="giovanni-paolo">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Biografía Breve</label>
+          <input type="text" class="form-input" id="editor-bio" placeholder="Director de Innovación Digital" value="Director de Innovación Digital">
+        </div>
+      </div>
+
+      <!-- Panel 2: Métricas & Métodos de Pago -->
+      <div class="editor-panel">
+        <div class="panel-header">
+          <span class="mono-num">02.</span>
+          <span>Métricas de Rendimiento en Tiempo Real</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px">
+          <div style="background:var(--tint);padding:16px;border-radius:12px;text-align:center">
+            <div style="font-size:12px;color:var(--ink-soft);text-transform:uppercase">Visitas Únicas</div>
+            <div class="mono-num" style="font-size:28px;margin-top:4px">1,420</div>
+          </div>
+          <div style="background:var(--tint);padding:16px;border-radius:12px;text-align:center">
+            <div style="font-size:12px;color:var(--ink-soft);text-transform:uppercase">Clics en WhatsApp</div>
+            <div class="mono-num" style="font-size:28px;margin-top:4px">389</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel 3: Bloques Inteligentes -->
+      <div class="editor-panel">
+        <div class="panel-header">
+          <span class="mono-num">03.</span>
+          <span>Bloques de Contenido Nativos</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:var(--tint);border-radius:12px">
+            <div style="display:flex;align-items:center;gap:10px">
+              <span>💬</span>
+              <span style="font-weight:600;font-size:14px">WhatsApp Directo</span>
+            </div>
+            <span class="mono-num" style="font-size:12px">+52 231 155 6138</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:var(--tint);border-radius:12px">
+            <div style="display:flex;align-items:center;gap:10px">
+              <span>📸</span>
+              <span style="font-weight:600;font-size:14px">Instagram Profile</span>
+            </div>
+            <span class="mono-num" style="font-size:12px">@vynk.me</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel Derecha: Phone Preview Sticky -->
+    <div class="phone-mock-frame">
+      <div class="phone-screen">
+        <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--peach));margin:0 auto 12px"></div>
+        <h3 style="font-size:18px;font-weight:700;color:#fff;margin:0 0 4px" id="prev-name">Giovanni Paolo</h3>
+        <p style="font-size:13px;color:rgba(255,255,255,0.7);margin:0 0 16px" id="prev-bio">Director de Innovación Digital</p>
+
+        <div style="background:rgba(255,255,255,0.1);padding:10px 14px;border-radius:12px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between">
+          <span style="font-size:13px">💬 WhatsApp</span>
+          <span class="mono-num" style="font-size:11px;color:var(--peach)">ACTIVO</span>
+        </div>
+        <div style="background:rgba(255,255,255,0.1);padding:10px 14px;border-radius:12px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between">
+          <span style="font-size:13px">📸 Instagram</span>
+          <span class="mono-num" style="font-size:11px;color:var(--peach)">ACTIVO</span>
+        </div>
+
+        <div style="margin-top:24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.1);font-size:11px;color:rgba(255,255,255,0.5)">
+          <span class="mono-num">◉ TAP NFC</span> · Sincronización 100% activa
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const nameIn = document.getElementById('editor-nombre');
+    const bioIn = document.getElementById('editor-bio');
+    const prevName = document.getElementById('prev-name');
+    const prevBio = document.getElementById('prev-bio');
+
+    if (nameIn && prevName) {
+      nameIn.addEventListener('input', (e) => { prevName.textContent = e.target.value || 'Tu Nombre'; });
+    }
+    if (bioIn && prevBio) {
+      bioIn.addEventListener('input', (e) => { prevBio.textContent = e.target.value || 'Tu biografía'; });
+    }
+
+    function saveEditorProfile() {
+      alert('⚡ Cambios guardados correctamente en la tarjeta digital.');
+    }
+  </script>
+</body>
+</html>

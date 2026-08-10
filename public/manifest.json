@@ -1,11 +1,11 @@
 {
-  "name": "VYNK",
+  "name": "VYNK — Tu identidad digital. Sin límites.",
   "short_name": "VYNK",
   "description": "Tu identidad digital. Sin límites.",
   "start_url": "/dashboard.html",
   "display": "standalone",
-  "background_color": "#09090B",
-  "theme_color": "#6366F1",
+  "background_color": "#FBF9FF",
+  "theme_color": "#5C48E6",
   "icons": [
     { "src": "/img/icon-192.png", "sizes": "192x192", "type": "image/png" },
     { "src": "/img/icon-512.png", "sizes": "512x512", "type": "image/png" },

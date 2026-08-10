@@ -1,54 +1,64 @@
 /* ============================================
-   VYNK — Technical & Minimalist Platform
-   Design System 3.0 (Shadcn/ui & Strict Typography)
+   VYNK — Brand DNA 4.0 (Light Purple Palette & Fluid Typography)
    ============================================ */
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap');
 
-/* ---- CSS Custom Properties (Shadcn Dark Palette Tokens) ---- */
+/* ---- CSS Custom Properties (VYNK Official Brand Tokens) ---- */
 :root {
-  --bg-base: #0F1115;
-  --bg-surface: #1A1D24;
-  --border-subtle: rgba(255, 255, 255, 0.08);
-  --text-main: #FAFAFA;
-  --text-muted: #8E95A3;
+  --ink: #1D1830;
+  --ink-soft: #645C7A;
+  --accent: #7A6AF0;
+  --accent-deep: #5C48E6;
+  --tint: #EEEAFC;
+  --canvas: #FBF9FF;
+  --peach: #FFD9BE;
+  --paper: #FFFFFF;
+  --line: rgba(29, 24, 48, 0.10);
+
+  --bg-base: var(--canvas);
+  --bg-surface: var(--paper);
+  --border-subtle: var(--line);
+  --text-main: var(--ink);
+  --text-muted: var(--ink-soft);
 
   /* Mapeo estandarizado */
-  --bg-primary: var(--bg-base);
-  --bg-secondary: #14171E;
-  --bg-tertiary: var(--bg-surface);
-  --bg-card: var(--bg-surface);
-  --card-border: var(--border-subtle);
-  --card-blur: 16px;
-  --card-shadow: none;
+  --bg-primary: var(--canvas);
+  --bg-secondary: var(--tint);
+  --bg-tertiary: var(--paper);
+  --bg-card: var(--paper);
+  --card-border: var(--line);
+  --card-blur: 14px;
+  --card-shadow: 0 10px 24px -10px rgba(92, 72, 230, 0.15);
 
-  --text-primary: var(--text-main);
-  --text-secondary: #C9D1D9;
-  --text-tertiary: var(--text-muted);
+  --text-primary: var(--ink);
+  --text-secondary: var(--ink-soft);
+  --text-tertiary: #887FA8;
 
-  --primary: #EEEAE0;
-  --secondary: #2A313A;
-  --accent: #EEEAE0;
-  --accent-glow: rgba(238, 234, 224, 0.15);
+  --primary: var(--accent-deep);
+  --secondary: var(--tint);
+  --accent-glow: rgba(122, 106, 240, 0.15);
 
   --green: #10B981;
   --orange: #F59E0B;
   --red: #EF4444;
-  --purple: #8B5CF6;
+  --purple: var(--accent-deep);
   --pink: #EC4899;
 
-  --separator: #2A313A;
+  --separator: var(--line);
 
-  --shadow-sm: none;
-  --shadow-md: none;
-  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.5);
-  --overlay: rgba(18, 22, 27, 0.85);
+  --shadow-sm: 0 2px 8px rgba(29, 24, 48, 0.04);
+  --shadow-md: 0 8px 20px rgba(29, 24, 48, 0.08);
+  --shadow-lg: 0 16px 36px -10px rgba(92, 72, 230, 0.25);
+  --overlay: rgba(29, 24, 48, 0.7);
 
-  --font-heading: 'Space Grotesk', system-ui, -apple-system, sans-serif;
-  --font-mono: 'IBM Plex Mono', monospace;
-  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-heading: 'Space Grotesk', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-body: 'Inter', sans-serif;
   --font-family: var(--font-body);
-  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-family: var(--font-body);
+
+  --fluid-body: clamp(14.5px, 1.2vw, 17px);
+  --fluid-h1: clamp(28px, 4vw, 44px);
+  --fluid-h2: clamp(22px, 3vw, 32px);
 
   --space-xs: 8px;
   --space-sm: 16px;
