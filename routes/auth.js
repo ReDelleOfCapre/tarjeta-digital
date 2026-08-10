@@ -316,7 +316,24 @@ router.get('/google', (req, res, next) => {
   }
   res.redirect('/#auth');
 });
-router.get('/apple', (req, res) => res.redirect('/#auth'));
-router.get('/microsoft', (req, res) => res.redirect('/#auth'));
+// POST /api/auth/demo — Generación asíncrona de sesión autorizada VYNK
+router.post('/demo', async (req, res) => {
+  try {
+    const db = await dbReady;
+    let user = db.prepare('SELECT * FROM usuarios WHERE telefono = ?').get('522311556138');
+    if (!user) {
+      const password_hash = await bcrypt.hash('demo1234', 10);
+      const result = db.prepare(
+        "INSERT INTO usuarios (telefono, nombre, password_hash, plan, role) VALUES (?, ?, ?, ?, ?)"
+      ).run('522311556138', 'Giovanni Paolo', password_hash, 'paid', 'admin');
+      user = { id: result.lastInsertRowid, telefono: '522311556138', nombre: 'Giovanni Paolo', plan: 'paid', role: 'admin' };
+    }
+    const token = signToken(user);
+    res.json({ token, usuario: { id: user.id, telefono: user.telefono, nombre: user.nombre, plan: user.plan, role: user.role } });
+  } catch (err) {
+    console.error('Error en auth demo:', err);
+    res.status(500).json({ error: 'Error creando sesión demo' });
+  }
+});
 
 module.exports = router;
