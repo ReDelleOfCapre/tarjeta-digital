@@ -5,21 +5,30 @@ var currentCheckoutProductId = 'card-nfc-single';
 var currentCheckoutItemTitle = 'Tarjeta NFC Personalizada';
 var currentCheckoutItemPrice = 19.99;
 
-function switchDashboardTab(tabName) {
-  var tabs = ['tarjetas', 'tienda', 'inventario'];
-  tabs.forEach(function(t) {
-    var viewEl = document.getElementById('view-tab-' + t);
-    var navEl = document.getElementById('nav-item-' + t);
-    if (viewEl) {
-      if (t === tabName) {
-        viewEl.classList.remove('hidden');
-        viewEl.style.display = 'block';
-      } else {
-        viewEl.classList.add('hidden');
-        viewEl.style.display = 'none';
-      }
+function switchDashboardTab(tabId) {
+  var allViews = document.querySelectorAll('.tab-view-content');
+  allViews.forEach(function(view) {
+    view.classList.add('hidden');
+    view.style.display = 'none';
+  });
+
+  var targetView = document.getElementById('view-tab-' + tabId);
+  if (targetView) {
+    targetView.classList.remove('hidden');
+    targetView.style.display = 'block';
+  }
+
+  var allNavItems = document.querySelectorAll('.nav-side-item, [data-tab]');
+  allNavItems.forEach(function(item) {
+    var itemTab = item.getAttribute('data-tab');
+    if (!itemTab && item.id && item.id.startsWith('nav-item-')) {
+      itemTab = item.id.replace('nav-item-', '');
     }
-    if (navEl) navEl.classList.toggle('active', t === tabName);
+    if (itemTab === tabId) {
+      item.classList.add('active');
+    } else {
+      item.classList.remove('active');
+    }
   });
 }
 window.switchDashboardTab = switchDashboardTab;
