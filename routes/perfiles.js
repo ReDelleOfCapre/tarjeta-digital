@@ -453,8 +453,12 @@ function perfilPublicoHandler(req, res) {
           const urlStr = bContent?.url || '';
           const titStr = bContent?.titulo || '';
           const isLocationBlock = urlStr.includes('maps.google.com') || urlStr.includes('google.com/maps') || (titStr && (titStr.toLowerCase().includes('ubicacion') || titStr.toLowerCase().includes('mapa') || titStr.toLowerCase().includes('sucursal')));
+          const isSocialLink = urlStr.includes('instagram.com') || urlStr.includes('tiktok.com') || urlStr.includes('twitter.com') || urlStr.includes('x.com') || urlStr.includes('facebook.com') || urlStr.includes('youtube.com') || urlStr.includes('linkedin.com');
           const hasRichImage = (bContent?.og_image || bContent?.image || isLocationBlock) ? ' has-bento-rich' : '';
-          let html = `<div class="block-wrapper block-${escapeHtml(blockType)}${hasRichImage}" data-bloque-id="${bId}">`;
+          const bentoClass = (blockType === 'whatsapp' || blockType === 'pago' || blockType === 'email_capture' || isLocationBlock || hasRichImage)
+            ? ' bento-hero'
+            : (blockType === 'pdf' ? ' bento-media' : (isSocialLink ? ' bento-social' : ' bento-hero'));
+          let html = `<div class="block-wrapper block-${escapeHtml(blockType)}${hasRichImage}${bentoClass}" data-bloque-id="${bId}">`;
           
           switch (blockType) {
             case 'link': {
@@ -496,7 +500,7 @@ function perfilPublicoHandler(req, res) {
                 const favicon = bContent?.favicon || '';
 
                 if (ogImage) {
-                  html += `<a href="${escapeHtml(url)}" target="_blank" rel="noopener" class="bento-rich-card">
+                  html += `<a href="${escapeHtml(url)}" target="_blank" rel="noopener" class="bento-rich-card bento-hero-card">
                     <img src="${escapeHtml(ogImage)}" alt="${escapeHtml(titulo)}" class="bento-thumb" onerror="this.style.display='none'">
                     <div class="bento-content">
                       <div class="bento-title">${escapeHtml(titulo)}</div>
@@ -506,16 +510,25 @@ function perfilPublicoHandler(req, res) {
                         <span>${escapeHtml(bContent?.domain || 'Enlace')}</span>
                       </div>
                     </div>
-                    <i class="fas fa-chevron-right bl-arrow" style="opacity:0.5;font-size:0.8rem"></i>
+                    <span class="bento-badge">↗ Destacado</span>
+                  </a>`;
+                } else if (isSocialLink) {
+                  const domain = bContent?.domain || url.replace(/https?:\/\/(www\.)?/, '').split('/')[0] || 'Social';
+                  html += `<a href="${escapeHtml(url)}" target="_blank" rel="noopener" class="block-link bento-social-card" style="border-left: 3px solid ${brandColor};">
+                    <div class="bento-social-icon" style="color: ${brandColor}">${icon}</div>
+                    <div class="bl-text" style="text-align:center">
+                      <div class="bl-title" style="font-size:0.9rem">${escapeHtml(titulo)}</div>
+                      <div class="bento-social-handle">@${escapeHtml(domain)}</div>
+                    </div>
                   </a>`;
                 } else {
-                  html += `<a href="${escapeHtml(url)}" target="_blank" rel="noopener" class="block-link" style="border-left: 4px solid ${brandColor};">
+                  html += `<a href="${escapeHtml(url)}" target="_blank" rel="noopener" class="block-link bento-hero-card" style="border-left: 4px solid ${brandColor};">
                     <div class="bl-icon" style="color: ${brandColor}">${icon}</div>
                     <div class="bl-text">
                       <div class="bl-title">${escapeHtml(titulo)}</div>
                       ${ogDesc ? `<div class="bl-sub">${escapeHtml(ogDesc)}</div>` : ''}
                     </div>
-                    <i class="fas fa-chevron-right bl-arrow"></i>
+                    <span class="bento-badge">↗ Enlace</span>
                   </a>`;
                 }
               }
@@ -534,8 +547,13 @@ function perfilPublicoHandler(req, res) {
             }
             case 'whatsapp': {
               const waLink = `https://wa.me/${(bContent?.numero || '').replace(/[^0-9]/g, '')}${bContent?.mensaje_default ? `?text=${encodeURIComponent(bContent.mensaje_default)}` : ''}`;
-              html += `<a href="${escapeHtml(waLink)}" target="_blank" rel="noopener" class="block-wa">
-                <i class="fab fa-whatsapp"></i> ${escapeHtml(bContent?.texto || 'WhatsApp')}
+              html += `<a href="${escapeHtml(waLink)}" target="_blank" rel="noopener" class="block-wa bento-hero-card">
+                <div class="bl-icon" style="background:#25D366;color:#fff"><i class="fab fa-whatsapp"></i></div>
+                <div class="bl-text">
+                  <div class="bl-title">${escapeHtml(bContent?.texto || 'WhatsApp Directo')}</div>
+                  <div class="bl-sub">Atención e informes instantáneos</div>
+                </div>
+                <span class="bento-badge">⚡ Responde rápido</span>
               </a>`;
               break;
             }
@@ -594,13 +612,13 @@ function perfilPublicoHandler(req, res) {
               break;
             }
             case 'pdf':
-              html += `<a href="${escapeHtml(bContent?.url || '#')}" target="_blank" rel="noopener" class="block-link block-pdf">
+              html += `<a href="${escapeHtml(bContent?.url || '#')}" target="_blank" rel="noopener" class="block-link block-pdf bento-media-card">
                 <div class="bl-icon" style="background:rgba(239,68,68,0.15);color:#EF4444"><i class="fas fa-file-pdf"></i></div>
                 <div class="bl-text">
                   <div class="bl-title">${escapeHtml(bContent?.titulo || 'Documento PDF')}</div>
-                  ${bContent?.subtitulo ? `<div class="bl-sub">${escapeHtml(bContent.subtitulo)}</div>` : ''}
+                  ${bContent?.subtitulo ? `<div class="bl-sub">${escapeHtml(bContent.subtitulo)}</div>` : '<div class="bl-sub">Archivo adjunto descargable</div>'}
                 </div>
-                <i class="fas fa-download bl-arrow"></i>
+                <span class="bento-badge">📄 PDF</span>
               </a>`;
               break;
             case 'pago':

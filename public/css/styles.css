@@ -2467,3 +2467,154 @@ select,
 .bento-card:active {
   transform: translateY(-2px) scale(0.99) !important;
 }
+
+/* ==========================================================================
+   BENTO LINK MATRIX SYSTEM (JERARQUÍA DINÁMICA & METADATOS)
+   ========================================================================== */
+
+.bento-links-grid,
+.blocks-section {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 16px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+@media (max-width: 480px) {
+  .bento-links-grid,
+  .blocks-section {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Base Bento Card DNA */
+.block-wrapper > a,
+.block-wrapper > div:not(.bento-map-card),
+.block-link,
+.bento-hero-card,
+.bento-social-card,
+.bento-media-card,
+.bento-rich-card,
+.block-wa,
+.block-pdf {
+  background: #1A1F26 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 20px !important;
+  padding: 16px 18px !important;
+  transition: transform 0.25s ease, background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
+  box-sizing: border-box !important;
+}
+
+.block-wrapper > a:hover,
+.block-wrapper > div:not(.bento-map-card):hover,
+.block-link:hover,
+.bento-hero-card:hover,
+.bento-social-card:hover,
+.bento-media-card:hover,
+.bento-rich-card:hover,
+.block-wa:hover,
+.block-pdf:hover {
+  transform: scale(0.98) !important;
+  background: #222831 !important;
+  border-color: rgba(124, 58, 237, 0.4) !important;
+}
+
+/* 1. Bento Hero (span 2): Direct Contacts / Main CTAs / Full Width */
+.bento-hero,
+.block-wrapper.bento-hero,
+.block-wrapper.block-whatsapp,
+.block-wrapper.block-pago,
+.block-wrapper.block-seccion,
+.block-wrapper.block-email,
+.block-wrapper.has-bento-rich,
+.block-wrapper.block-pdf {
+  grid-column: 1 / -1 !important;
+}
+
+.bl-title,
+.bento-hero-title {
+  font-family: 'Space Grotesk', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 1.05rem !important;
+  color: #EEEAE0 !important;
+  line-height: 1.25 !important;
+}
+
+.bl-sub,
+.bento-hero-sub {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 0.85rem !important;
+  color: #8C96A3 !important;
+  margin-top: 3px !important;
+}
+
+/* 2. Bento Social (span 1): Compact Square Card for Social Media */
+.bento-social,
+.block-wrapper.bento-social,
+.block-wrapper.is-social-bento {
+  grid-column: span 1 !important;
+}
+
+.bento-social-card {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  text-align: center !important;
+  min-height: 105px !important;
+}
+
+.bento-social-icon {
+  font-size: 1.75rem !important;
+  line-height: 1 !important;
+}
+
+.bento-social-handle {
+  font-family: 'IBM Plex Mono', monospace !important;
+  font-size: 11px !important;
+  color: #8C96A3 !important;
+  letter-spacing: 0.02em !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  max-width: 100% !important;
+}
+
+/* 3. Bento Media (span 2): PDFs, Menus, Documents */
+.bento-media,
+.block-wrapper.block-pdf {
+  grid-column: 1 / -1 !important;
+}
+
+.bento-media-icon {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 12px !important;
+  background: linear-gradient(135deg, #7C3AED, #6366F1) !important;
+  color: #FFF !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 1.3rem !important;
+  flex-shrink: 0 !important;
+}
+
+/* 4. Metadata Pill Badges */
+.bento-badge {
+  font-family: 'IBM Plex Mono', monospace !important;
+  font-size: 10px !important;
+  color: #A78BFA !important;
+  background: rgba(124, 58, 237, 0.15) !important;
+  border: 1px solid rgba(124, 58, 237, 0.3) !important;
+  padding: 3px 8px !important;
+  border-radius: 999px !important;
+  letter-spacing: 0.04em !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  margin-left: auto !important;
+  white-space: nowrap !important;
+}
