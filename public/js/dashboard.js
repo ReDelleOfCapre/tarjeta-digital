@@ -738,4 +738,78 @@ window.executeCreatePerfil = async function(e) {
     var overlay = document.getElementById('nfc-modal-overlay');
     if (overlay) overlay.classList.add('hidden');
   };
+
+  // ============================================
+  // WYSIWYG REAL-TIME VISUAL CARD EDITOR LISTENERS
+  // ============================================
+  function initWysiwygEditorListeners() {
+    var inputName = document.getElementById('editor-input-name');
+    var inputBio = document.getElementById('editor-input-bio');
+    var prevName = document.getElementById('preview-name');
+    var prevBio = document.getElementById('preview-bio');
+    var prevAvatar = document.getElementById('preview-avatar-box');
+
+    if (inputName && prevName) {
+      inputName.addEventListener('input', function() {
+        var val = inputName.value.trim() || 'Tu Nombre o Negocio';
+        prevName.textContent = val;
+        
+        if (prevAvatar) {
+          var initials = val.split(' ').map(function(w) { return w[0]; }).filter(Boolean).slice(0, 2).join('').toUpperCase() || 'V';
+          prevAvatar.textContent = initials;
+        }
+      });
+    }
+
+    if (inputBio && prevBio) {
+      inputBio.addEventListener('input', function() {
+        prevBio.textContent = inputBio.value.trim() || 'Descripción corta o bio...';
+      });
+    }
+
+    // Toggles de contenido en tiempo real
+    var toggleMap = [
+      { input: 'toggle-mapa', target: 'prev-mod-mapa' },
+      { input: 'toggle-horario', target: 'prev-mod-horario' },
+      { input: 'toggle-catalogo', target: 'prev-mod-catalogo' },
+      { input: 'toggle-delivery', target: 'prev-mod-delivery' },
+      { input: 'toggle-resenas', target: 'prev-mod-resenas' }
+    ];
+
+    toggleMap.forEach(function(item) {
+      var checkEl = document.getElementById(item.input);
+      var modEl = document.getElementById(item.target);
+      if (checkEl && modEl) {
+        checkEl.addEventListener('change', function() {
+          if (checkEl.checked) {
+            modEl.classList.remove('hidden');
+            modEl.style.display = 'flex';
+          } else {
+            modEl.classList.add('hidden');
+            modEl.style.display = 'none';
+          }
+        });
+      }
+    });
+
+    // Selector de Tipo (Personal vs Negocio)
+    window.setEditorProfileType = function(type) {
+      var btnPersonal = document.getElementById('btn-type-personal');
+      var btnNegocio = document.getElementById('btn-type-negocio');
+      if (type === 'personal') {
+        if (btnPersonal) { btnPersonal.style.background = '#7C3AED'; btnPersonal.style.color = '#FFF'; }
+        if (btnNegocio) { btnNegocio.style.background = 'transparent'; btnNegocio.style.color = 'var(--text-muted)'; }
+        if (prevAvatar) prevAvatar.style.background = 'linear-gradient(135deg, #7C3AED, #6366F1)';
+      } else {
+        if (btnNegocio) { btnNegocio.style.background = '#7C3AED'; btnNegocio.style.color = '#FFF'; }
+        if (btnPersonal) { btnPersonal.style.background = 'transparent'; btnPersonal.style.color = 'var(--text-muted)'; }
+        if (prevAvatar) prevAvatar.style.background = '#EF6C00';
+      }
+    };
+  }
+
+  document.addEventListener('DOMContentLoaded', initWysiwygEditorListeners);
+  if (document.readyState === 'interactive' || document.readyState === 'complete') {
+    initWysiwygEditorListeners();
+  }
 })();

@@ -2618,3 +2618,28 @@ select,
   margin-left: auto !important;
   white-space: nowrap !important;
 }
+
+/* ==========================================================================
+   WYSIWYG VISUAL EDITOR 2-COLUMN GRID & LIVE PREVIEW PHONE MOCKUP
+   ========================================================================== */
+
+.editor-layout {
+  display: grid !important;
+  grid-template-columns: 1fr 400px !important;
+  gap: 40px !important;
+  align-items: start !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+@media (max-width: 960px) {
+  .editor-layout {
+    grid-template-columns: 1fr !important;
+    gap: 24px !important;
+  }
+}
+
+.live-preview-phone {
+  position: sticky !important;
+  top: 24px !important;
+}
