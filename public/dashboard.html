@@ -244,7 +244,7 @@
           </div>
 
           <!-- CTA Integrado (Crear Nueva Identidad Digital) -->
-          <div class="card-create-cta" id="btn-create-card" onclick="location.href='editor.html'" style="margin-bottom:20px;padding:20px 24px;border:2px dashed var(--border-subtle);border-radius:12px;background:var(--bg-surface);display:flex;align-items:center;justify-content:center;gap:14px;cursor:pointer">
+          <div class="card-create-cta" id="btn-create-card" onclick="openCreateModal()" style="margin-bottom:20px;padding:20px 24px;border:2px dashed var(--border-subtle);border-radius:12px;background:var(--bg-surface);display:flex;align-items:center;justify-content:center;gap:14px;cursor:pointer">
             <div style="width:38px;height:38px;border-radius:6px;background:var(--text-main);display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:#12161B;font-weight:700">
               +
             </div>
@@ -602,6 +602,47 @@
         </div>
 
         <button type="submit" class="btn btn-primary btn-block" style="width:100%;padding:12px">⚡ Crear Perfil y Grabar Tag NFC</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Creación de Identidad Digital (POST /api/perfiles) -->
+  <div class="modal-overlay hidden" id="modal-perfiles" style="z-index:10000;background:rgba(18,22,27,0.85)">
+    <div class="modal card" style="max-width:480px;width:92%;background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:12px;padding:24px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <h3 style="font-size:1.2rem;font-weight:700;font-family:'Space Grotesk',sans-serif">🪪 Crear Nueva Identidad Digital</h3>
+        <button onclick="closeCreateModal()" class="btn btn-ghost btn-sm" style="padding:4px 8px">✕</button>
+      </div>
+
+      <form id="form-perfil" onsubmit="executeCreatePerfil(event)">
+        <div style="margin-bottom:12px">
+          <label style="display:block;font-size:0.75rem;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;margin-bottom:4px">NOMBRE DEL PERFIL</label>
+          <input type="text" id="create-perfil-nombre" required placeholder="Ej. Giovanni Paolo | CEO VYNK" style="width:100%;padding:10px 12px;border-radius:6px;border:1px solid var(--border-subtle);background:rgba(255,255,255,0.05);color:var(--text-main);box-sizing:border-box">
+        </div>
+
+        <div style="margin-bottom:12px">
+          <label style="display:block;font-size:0.75rem;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;margin-bottom:4px">SLUG / LINK PERSONALIZADO</label>
+          <input type="text" id="create-perfil-slug" required placeholder="giovanni-paolo" style="width:100%;padding:10px 12px;border-radius:6px;border:1px solid var(--border-subtle);background:rgba(255,255,255,0.05);color:var(--text-main);box-sizing:border-box">
+        </div>
+
+        <div style="margin-bottom:12px">
+          <label style="display:block;font-size:0.75rem;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;margin-bottom:4px">TIPO DE PERFIL</label>
+          <select id="create-perfil-tipo" style="width:100%;padding:10px 12px;border-radius:6px;border:1px solid var(--border-subtle);background:rgba(255,255,255,0.05);color:var(--text-main);box-sizing:border-box">
+            <option value="personal">Personal / Profesional</option>
+            <option value="negocio">Negocio / Marca</option>
+            <option value="creador">Creador de Contenido</option>
+          </select>
+        </div>
+
+        <div style="margin-bottom:16px">
+          <label style="display:block;font-size:0.75rem;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;margin-bottom:4px">BIOGRAFÍA O TITULAR</label>
+          <input type="text" id="create-perfil-bio" placeholder="Director de Innovación Digital" style="width:100%;padding:10px 12px;border-radius:6px;border:1px solid var(--border-subtle);background:rgba(255,255,255,0.05);color:var(--text-main);box-sizing:border-box">
+        </div>
+
+        <div style="display:flex;gap:10px;justify-content:flex-end">
+          <button type="button" onclick="closeCreateModal()" class="btn btn-secondary">Cancelar</button>
+          <button type="submit" class="btn btn-primary">+ Crear y Diseñar</button>
+        </div>
       </form>
     </div>
   </div>

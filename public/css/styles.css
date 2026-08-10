@@ -2211,3 +2211,7 @@ select,
   position: relative !important;
   z-index: 5 !important;
 }
+
+.hidden {
+  display: none !important;
+}

@@ -5,23 +5,31 @@ var currentCheckoutProductId = 'card-nfc-single';
 var currentCheckoutItemTitle = 'Tarjeta NFC Personalizada';
 var currentCheckoutItemPrice = 19.99;
 
-window.switchDashboardTab = function(tabName) {
+function switchDashboardTab(tabName) {
   var tabs = ['tarjetas', 'tienda', 'inventario'];
   tabs.forEach(function(t) {
     var viewEl = document.getElementById('view-tab-' + t);
     var navEl = document.getElementById('nav-item-' + t);
-    if (viewEl) viewEl.classList.toggle('hidden', t !== tabName);
+    if (viewEl) {
+      if (t === tabName) {
+        viewEl.classList.remove('hidden');
+        viewEl.style.display = 'block';
+      } else {
+        viewEl.classList.add('hidden');
+        viewEl.style.display = 'none';
+      }
+    }
     if (navEl) navEl.classList.toggle('active', t === tabName);
   });
-};
+}
+window.switchDashboardTab = switchDashboardTab;
 
 document.addEventListener('click', function(e) {
   var target = e.target ? e.target.closest('[data-tab]') : null;
   if (target) {
-    e.preventDefault();
     var tab = target.getAttribute('data-tab');
-    if (tab && typeof window.switchDashboardTab === 'function') {
-      window.switchDashboardTab(tab);
+    if (tab && typeof switchDashboardTab === 'function') {
+      switchDashboardTab(tab);
     }
   }
 });
@@ -95,10 +103,81 @@ window.executeAssignClient = async function(e) {
       assignedEl.textContent = currAssigned + 1;
     }
 
-    if (typeof showToast === 'function') showToast('✅ Perfil creado. Inicie la grabación Web NFC.', 'success');
+    if (typeof showToast === 'function') showToast('✅ Perfil creado. Inicie la grabación Web NFC acercando la tarjeta física.', 'success');
     if (typeof writeNfcTag === 'function') writeNfcTag('/' + slug);
   } catch (err) {
     if (typeof showToast === 'function') showToast(err.error || 'Error asignando tarjeta a cliente', 'error');
+  }
+};
+
+// ============================================
+// CORE CREATION & MANAGEMENT LOGIC
+// ============================================
+window.openCreateModal = function() {
+  var modal = document.getElementById('modal-perfiles');
+  if (modal) {
+    modal.classList.remove('hidden');
+    modal.style.display = 'flex';
+    var inputNombre = document.getElementById('create-perfil-nombre');
+    if (inputNombre) inputNombre.focus();
+  } else {
+    location.href = '/editor.html';
+  }
+};
+
+window.closeCreateModal = function() {
+  var modal = document.getElementById('modal-perfiles');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.style.display = 'none';
+  }
+};
+
+window.executeCreatePerfil = async function(e) {
+  if (e) e.preventDefault();
+  var nombreInput = document.getElementById('create-perfil-nombre');
+  var slugInput = document.getElementById('create-perfil-slug');
+  var tipoInput = document.getElementById('create-perfil-tipo');
+  var bioInput = document.getElementById('create-perfil-bio');
+
+  var nombre = nombreInput ? nombreInput.value.trim() : '';
+  var slug = slugInput ? slugInput.value.trim() : '';
+  var tipo = tipoInput ? tipoInput.value : 'personal';
+  var bio = bioInput ? bioInput.value.trim() : '';
+
+  if (!nombre || !slug) {
+    if (typeof showToast === 'function') showToast('Ingresa un nombre y link para tu tarjeta', 'error');
+    else alert('Ingresa un nombre y link para tu tarjeta');
+    return;
+  }
+
+  slug = slug.toLowerCase().replace(/[^a-z0-9_-]/g, '-');
+
+  try {
+    if (typeof showToast === 'function') showToast('Creando nueva tarjeta digital...', 'info');
+    
+    var data = await api('/perfiles', {
+      method: 'POST',
+      body: JSON.stringify({ nombre_perfil: nombre, slug: slug, tipo: tipo, bio: bio })
+    });
+
+    closeCreateModal();
+    if (typeof showToast === 'function') showToast('✅ Tarjeta creada con éxito', 'success');
+
+    if (typeof window.loadProfilesGlobal === 'function') {
+      window.loadProfilesGlobal();
+    } else {
+      setTimeout(function() { location.reload(); }, 500);
+    }
+
+    if (data && data.id) {
+      setTimeout(function() { location.href = '/editor.html?id=' + data.id; }, 600);
+    }
+  } catch (err) {
+    console.error('❌ Error en creación de perfil:', err);
+    var mensajeError = err.error || err.mensaje || 'Error al conectar con la ruta POST /api/perfiles';
+    if (typeof showToast === 'function') showToast(mensajeError, 'error');
+    else alert('Error: ' + mensajeError);
   }
 };
 
@@ -141,7 +220,7 @@ window.executeAssignClient = async function(e) {
       el.style.color = '#10B981';
       if (el.textContent.includes('Pro')) el.textContent = '✓ Pro Activo';
     });
-  } else {
+  }
   // Global Functions & Event Listeners (Zero Inline JS)
   window.toggleMobileNavDrawer = function() {
     var drawer = document.getElementById('mobile-nav-drawer');
@@ -310,21 +389,27 @@ window.executeAssignClient = async function(e) {
     else if (action === 'send-invite') sendInvite();
     else if (action === 'logout') logout();
   });
+
+  var legalModal = document.getElementById('modal-terms') || document.getElementById('modal-legal');
+  if (legalModal && user && !user.terms_accepted) {
     legalModal.classList.remove('hidden');
-    document.getElementById('btn-accept-terms').addEventListener('click', function() {
-      api('/auth/accept-terms', { method: 'POST' }).then(function(res) {
-        if (res.token) {
-          localStorage.setItem('token', res.token);
-        }
-        user.terms_accepted = true;
-        localStorage.setItem('user', JSON.stringify(user));
-        legalModal.classList.add('hidden');
-        showToast('Términos aceptados correctamente', 'success');
-      }).catch(function(err) {
-        console.error('Fallo en la petición:', err);
-        alert('Ocurrió un error en el servidor.');
+    var btnAccept = document.getElementById('btn-accept-terms');
+    if (btnAccept) {
+      btnAccept.addEventListener('click', function() {
+        api('/auth/accept-terms', { method: 'POST' }).then(function(res) {
+          if (res.token) {
+            localStorage.setItem('token', res.token);
+          }
+          user.terms_accepted = true;
+          localStorage.setItem('user', JSON.stringify(user));
+          legalModal.classList.add('hidden');
+          showToast('Términos aceptados correctamente', 'success');
+        }).catch(function(err) {
+          console.error('Fallo en la petición:', err);
+          alert('Ocurrió un error en el servidor.');
+        });
       });
-    });
+    }
   }
 
   // Load profiles
@@ -356,6 +441,7 @@ window.executeAssignClient = async function(e) {
   };
 
   function loadProfiles() {
+    window.loadProfilesGlobal = loadProfiles;
     var grid = document.getElementById('profile-grid');
     if (grid && (!grid.children || grid.children.length === 0)) {
       grid.innerHTML = `
@@ -419,10 +505,10 @@ window.executeAssignClient = async function(e) {
           '</div>' +
         '</div>' +
         '<div class="card-actions" style="display:flex;align-items:center;justify-content:center;gap:6px;width:max-content;flex-shrink:0">' +
-          '<a href="/u/' + p.slug + '" class="btn btn-icon btn-sm" onclick="event.stopPropagation()" target="_blank" title="Ver perfil público" style="width:34px;height:34px;min-width:34px;flex:0 0 34px;display:inline-flex;align-items:center;justify-content:center">👁</a>' +
+          '<a href="/u/' + (p.slug || p.id) + '" class="btn btn-icon btn-sm" onclick="event.stopPropagation()" target="_blank" title="Ver perfil público" style="width:34px;height:34px;min-width:34px;flex:0 0 34px;display:inline-flex;align-items:center;justify-content:center">👁</a>' +
           '<a href="/analytics.html?id=' + p.id + '" class="btn btn-icon btn-sm" onclick="event.stopPropagation()" title="Analíticas" style="width:34px;height:34px;min-width:34px;flex:0 0 34px;display:inline-flex;align-items:center;justify-content:center">📊</a>' +
-          '<a href="/compartir.html?id=' + p.id + '&slug=' + p.slug + '" class="btn btn-icon btn-sm" onclick="event.stopPropagation()" title="Compartir & QR" style="width:34px;height:34px;min-width:34px;flex:0 0 34px;display:inline-flex;align-items:center;justify-content:center">↗</a>' +
-          '<a href="/compartir.html?id=' + p.id + '&slug=' + p.slug + '&nfc=true" class="btn btn-icon btn-sm" onclick="event.stopPropagation()" title="Grabar en NFC Física" style="width:34px;height:34px;min-width:34px;flex:0 0 34px;display:inline-flex;align-items:center;justify-content:center;color:#06B6D4">⚡</a>' +
+          '<a href="/compartir.html?id=' + p.id + '&slug=' + (p.slug || p.id) + '" class="btn btn-icon btn-sm" onclick="event.stopPropagation()" title="Compartir & QR" style="width:34px;height:34px;min-width:34px;flex:0 0 34px;display:inline-flex;align-items:center;justify-content:center">↗</a>' +
+          '<a href="/compartir.html?id=' + p.id + '&slug=' + (p.slug || p.id) + '&nfc=true" class="btn btn-icon btn-sm" onclick="event.stopPropagation()" title="Grabar en NFC Física" style="width:34px;height:34px;min-width:34px;flex:0 0 34px;display:inline-flex;align-items:center;justify-content:center;color:#06B6D4">⚡</a>' +
           '<button class="btn btn-icon btn-sm" onclick="event.stopPropagation();confirmDelete(' + p.id + ')" title="Eliminar" style="width:34px;height:34px;min-width:34px;flex:0 0 34px;display:inline-flex;align-items:center;justify-content:center;color:var(--red)">✕</button>' +
         '</div>' +
       '</div>';
@@ -630,102 +716,5 @@ window.executeAssignClient = async function(e) {
   window.closeNfcModal = function() {
     var overlay = document.getElementById('nfc-modal-overlay');
     if (overlay) overlay.classList.add('hidden');
-  };
-
-  // ============================================
-  // E-COMMERCE B2C & B2B DUAL PIVOT LOGIC
-  // ============================================
-  var currentCheckoutProductId = 'card-nfc-single';
-  var currentCheckoutItemTitle = 'Tarjeta NFC Personalizada';
-  var currentCheckoutItemPrice = 19.99;
-
-  window.switchDashboardTab = function(tabName) {
-    var tabs = ['tarjetas', 'tienda', 'inventario'];
-    tabs.forEach(function(t) {
-      var viewEl = document.getElementById('view-tab-' + t);
-      var navEl = document.getElementById('nav-item-' + t);
-      if (viewEl) viewEl.classList.toggle('hidden', t !== tabName);
-      if (navEl) navEl.classList.toggle('active', t === tabName);
-    });
-  };
-
-  window.openCheckoutModal = function(productId, title, price) {
-    currentCheckoutProductId = productId || 'card-nfc-single';
-    currentCheckoutItemTitle = title || 'Tarjeta NFC Personalizada VYNK';
-    currentCheckoutItemPrice = price || 19.99;
-
-    var titleEl = document.getElementById('checkout-item-title');
-    var priceEl = document.getElementById('checkout-item-price');
-    if (titleEl) titleEl.textContent = currentCheckoutItemTitle;
-    if (priceEl) priceEl.textContent = '$' + currentCheckoutItemPrice + ' USD';
-
-    var modal = document.getElementById('modal-checkout-nfc');
-    if (modal) modal.classList.remove('hidden');
-  };
-
-  window.closeCheckoutModal = function() {
-    var modal = document.getElementById('modal-checkout-nfc');
-    if (modal) modal.classList.add('hidden');
-  };
-
-  window.executeCheckout = async function(e) {
-    if (e) e.preventDefault();
-    var name = document.getElementById('checkout-name').value;
-    var address = document.getElementById('checkout-address').value;
-    var city = document.getElementById('checkout-city').value;
-    var zip = document.getElementById('checkout-zip').value;
-
-    showToast('Enviando datos de envío...', 'info');
-    closeCheckoutModal();
-
-    if (window.buyProduct) {
-      window.buyProduct(currentCheckoutProductId, currentCheckoutItemTitle, currentCheckoutItemPrice, 'payment');
-    } else {
-      showToast('Pedido registrado con éxito. Redirigiendo a Stripe...', 'success');
-    }
-  };
-
-  window.openAssignClientModal = function() {
-    var modal = document.getElementById('modal-assign-client');
-    if (modal) modal.classList.remove('hidden');
-  };
-
-  window.closeAssignClientModal = function() {
-    var modal = document.getElementById('modal-assign-client');
-    if (modal) modal.classList.add('hidden');
-  };
-
-  window.executeAssignClient = async function(e) {
-    if (e) e.preventDefault();
-    var name = document.getElementById('assign-client-name').value;
-    var slug = document.getElementById('assign-client-slug').value;
-    var email = document.getElementById('assign-client-email').value;
-
-    try {
-      showToast('Creando perfil para cliente ' + name + '...', 'info');
-      const res = await api('/perfiles', {
-        method: 'POST',
-        body: JSON.stringify({ nombre_perfil: name, slug: slug, tipo: 'personal', bio: 'Perfil activado por distribuidor' })
-      });
-
-      closeAssignClientModal();
-      
-      // Update Stock Counter
-      var stockEl = document.getElementById('reseller-stock-count');
-      var assignedEl = document.getElementById('reseller-assigned-count');
-      if (stockEl) {
-        var currStock = parseInt(stockEl.textContent || '10', 10);
-        if (currStock > 0) stockEl.textContent = currStock - 1;
-      }
-      if (assignedEl) {
-        var currAssigned = parseInt(assignedEl.textContent || '0', 10);
-        assignedEl.textContent = currAssigned + 1;
-      }
-
-      showToast('✅ Perfil creado. Inicie la grabación Web NFC acercando la tarjeta física.', 'success');
-      writeNfcTag('/' + slug);
-    } catch (err) {
-      showToast(err.error || 'Error asignando tarjeta a cliente', 'error');
-    }
   };
 })();
