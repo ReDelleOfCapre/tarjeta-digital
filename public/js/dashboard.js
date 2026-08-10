@@ -838,6 +838,9 @@ window.executeCreatePerfil = async function(e) {
       uploadedRaw: null,
       name: 'Cristina Restaurante',
       tag: 'Tacos al pastor y desayunos',
+      socialWa: '',
+      socialIg: '',
+      socialWeb: '',
       activeBlocks: new Set(DEFAULT_BLOCKS.negocio)
     };
 
@@ -868,11 +871,20 @@ window.executeCreatePerfil = async function(e) {
       const pName = document.getElementById('pName');
       const pTag = document.getElementById('pTag');
       const pBadge = document.getElementById('pBadge');
+      const pSocial = document.getElementById('pSocialLinks');
 
       if (pAvatar) pAvatar.textContent = initials(state.name);
       if (pName) pName.textContent = state.name || 'Tu nombre';
       if (pTag) pTag.textContent = state.tag || '';
       if (pBadge) pBadge.textContent = state.cardType;
+
+      if (pSocial) {
+        let html = '';
+        if (state.socialWa) html += `<div style="width:32px;height:32px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;color:#FFF"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg></div>`;
+        if (state.socialIg) html += `<div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(45deg,#f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%);display:flex;align-items:center;justify-content:center;color:#FFF"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg></div>`;
+        if (state.socialWeb) html += `<div style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;color:#FFF"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg></div>`;
+        pSocial.innerHTML = html;
+      }
     }
 
     function renderBlocksPreview() {
@@ -947,8 +959,8 @@ window.executeCreatePerfil = async function(e) {
           state.activeBlocks = new Set(DEFAULT_BLOCKS[s.type]);
           const note = document.getElementById('uploadNote');
           if (note) note.textContent = '';
-          const inputName = document.getElementById('nameInput');
-          const inputTag = document.getElementById('tagInput');
+          const inputName = document.getElementById('create-perfil-nombre');
+          const inputTag = document.getElementById('create-perfil-bio');
           if (inputName) inputName.value = state.name;
           if (inputTag) inputTag.value = state.tag;
           syncSegmented();
@@ -1029,13 +1041,26 @@ ${blocks || '    // ninguno seleccionado'}
       syncSegmented(); fullRender();
     });
 
-    const inputName = document.getElementById('nameInput');
-    const inputTag = document.getElementById('tagInput');
+    const inputName = document.getElementById('create-perfil-nombre');
+    const inputTag = document.getElementById('create-perfil-bio');
+    const inputWa = document.getElementById('create-perfil-wa');
+    const inputIg = document.getElementById('create-perfil-ig');
+    const inputWeb = document.getElementById('create-perfil-web');
+
     if (inputName) inputName.addEventListener('input', e => {
       state.name = e.target.value; renderIdentity(); renderSchema();
     });
     if (inputTag) inputTag.addEventListener('input', e => {
       state.tag = e.target.value; renderIdentity();
+    });
+    if (inputWa) inputWa.addEventListener('input', e => {
+      state.socialWa = e.target.value; renderIdentity();
+    });
+    if (inputIg) inputIg.addEventListener('input', e => {
+      state.socialIg = e.target.value; renderIdentity();
+    });
+    if (inputWeb) inputWeb.addEventListener('input', e => {
+      state.socialWeb = e.target.value; renderIdentity();
     });
 
     const schemaToggle = document.getElementById('schemaToggle');
