@@ -559,24 +559,21 @@
     </footer>
   </div>
 
-  <!-- Intersection Observer for Scroll Animations -->
+  <!-- Staggered Cascading Animations & Intersection Observer -->
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry, index) => {
-          if (entry.isIntersecting) {
-            setTimeout(() => {
-              entry.target.classList.add('visible');
-            }, index * 100);
-            observer.unobserve(entry.target);
-          }
-        });
-      }, { threshold: 0.1 });
-      
-      document.querySelector('.header').classList.add('visible');
-      
-      document.querySelectorAll('.block-wrapper, .section, .block-link, .block-wa, .block-embed, .block-text, .block-email, .block-countdown, .block-gallery, .block-socials').forEach(el => {
-        observer.observe(el.closest('.block-wrapper') || el);
+      const header = document.querySelector('.header');
+      if (header) {
+        header.style.animationDelay = '0.1s';
+        header.classList.add('animate-fade-up');
+        header.classList.add('visible');
+      }
+
+      const blocks = document.querySelectorAll('.block-wrapper, .bento-module, .block-email');
+      blocks.forEach((el, index) => {
+        el.style.animationDelay = (0.2 + (index * 0.1)).toFixed(2) + 's';
+        el.classList.add('animate-fade-up');
+        el.classList.add('visible');
       });
     });
   </script>

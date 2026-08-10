@@ -2368,3 +2368,102 @@ select,
   gap: 12px !important;
   min-height: 180px !important;
 }
+
+/* ==========================================================================
+   PRO MAX PUBLIC PROFILE OVERHAUL (HERO AVATAR PULSE, STAGGERED FADEUP & BENTO)
+   ========================================================================== */
+
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.7), 0 0 20px rgba(99, 102, 241, 0.5);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 0 12px rgba(124, 58, 237, 0), 0 0 35px rgba(6, 186, 212, 0.6);
+    transform: scale(1.02);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(124, 58, 237, 0), 0 0 20px rgba(99, 102, 241, 0.5);
+    transform: scale(1);
+  }
+}
+
+@keyframes fadeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.public-profile-frame {
+  max-width: 480px !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+  min-height: 100vh !important;
+  position: relative !important;
+  box-sizing: border-box !important;
+  overflow-x: hidden !important;
+}
+
+.avatar-wrapper {
+  position: relative !important;
+  width: 120px !important;
+  height: 120px !important;
+  margin: 0 auto 20px !important;
+  border-radius: 50% !important;
+  padding: 4px !important;
+  background: linear-gradient(135deg, #7C3AED, #6366F1, #06B6D4) !important;
+  animation: pulse-ring 3s infinite cubic-bezier(0.45, 0, 0.55, 1) !important;
+}
+
+.name {
+  font-family: 'Space Grotesk', sans-serif !important;
+  font-size: 2.2rem !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.03em !important;
+  margin-bottom: 8px !important;
+  color: #EEEAE0 !important;
+  background: linear-gradient(to right, #EEEAE0, #A78BFA) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+.bio {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 0.95rem !important;
+  color: #8C96A3 !important;
+  max-width: 380px !important;
+  margin: 0 auto !important;
+  line-height: 1.6 !important;
+}
+
+.animate-fade-up {
+  opacity: 0;
+  animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.block-link,
+.bento-card,
+.block-wrapper > div:not(.bento-map-card) {
+  background: #1A1F26 !important;
+  border: 1px solid #2A313A !important;
+  border-radius: 16px !important;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
+}
+
+.block-link:hover,
+.bento-card:hover {
+  transform: translateY(-4px) !important;
+  border-color: rgba(124, 58, 237, 0.6) !important;
+  box-shadow: 0 12px 28px rgba(124, 58, 237, 0.25) !important;
+}
+
+.block-link:active,
+.bento-card:active {
+  transform: translateY(-2px) scale(0.99) !important;
+}
