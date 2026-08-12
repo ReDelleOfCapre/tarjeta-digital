@@ -3507,3 +3507,14 @@ select,
 .search { position: relative; }
 .search-input { padding-left: 40px; }
 .search-icon { position: absolute; left: var(--space-3); top: 50%; transform: translateY(-50%); width: 18px; height: 18px; color: var(--text-secondary); pointer-events: none; }
+
+/* Erradicación total de botones flotantes de WhatsApp fuera del Bento Grid */
+.whatsapp-float,
+.fab-whatsapp,
+.floating-whatsapp,
+.wa-float-btn,
+.wa-floating-button {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}

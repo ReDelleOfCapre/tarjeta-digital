@@ -404,17 +404,20 @@ async function perfilPublicoHandler(req, res) {
 
     let avatar_html;
     let fotoSrc = '';
-    if (perfil.foto_url) {
-      fotoSrc = (perfil.foto_url.startsWith('http') || perfil.foto_url.startsWith('data:image'))
-        ? perfil.foto_url
-        : (perfil.foto_url.startsWith('/') ? perfil.foto_url : '/' + perfil.foto_url);
+    const rawAvatar = perfil.foto_url || perfil.avatar_url || '';
+    const initials = (perfil.nombre_perfil || 'V').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+
+    if (rawAvatar && String(rawAvatar).trim() !== '') {
+      fotoSrc = (rawAvatar.startsWith('http') || rawAvatar.startsWith('data:image'))
+        ? rawAvatar
+        : (rawAvatar.startsWith('/') ? rawAvatar : '/' + rawAvatar);
       avatar_html = `<div class="avatar-wrapper" style="${wrapperStyle}">
         <div class="avatar">
-          <img src="${escapeHtml(fotoSrc)}" alt="${escapeHtml(perfil.nombre_perfil || '')}" onerror="this.onerror=null;this.src='/favicon.svg';">
+          <img src="${escapeHtml(fotoSrc)}" alt="${escapeHtml(perfil.nombre_perfil || '')}" class="avatar" onerror="this.onerror=null;this.style.display='none';if(this.nextElementSibling)this.nextElementSibling.style.display='flex';">
+          <div class="avatar-fallback" style="display:none;width:100%;height:100%;background:${color};align-items:center;justify-content:center;font-size:2.5rem;font-weight:700;color:#FFF">${initials}</div>
         </div>
       </div>`;
     } else {
-      const initials = (perfil.nombre_perfil || 'V').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
       avatar_html = `<div class="avatar-wrapper" style="${wrapperStyle}">
         <div class="avatar" style="background:${color};font-size:2.5rem">${initials}</div>
       </div>`;
