@@ -191,3 +191,39 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js').catch(() => {});
   });
 }
+
+// ============================================
+// PRIORIDAD 1 — ADN VISUAL: Botones líquidos
+// Seguidor de mouse (translate + scale sutil).
+// Solo desktop con mouse fino; inactivo en touch/TV.
+// ============================================
+function initLiquidButtons() {
+  var liquid = document.querySelectorAll('.liquid-btn');
+  if (!liquid.length) return;
+  if (!window.matchMedia || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+
+  liquid.forEach(function (btn) {
+    btn.addEventListener('mousemove', function (e) {
+      var rect = btn.getBoundingClientRect();
+      var x = e.clientX - rect.left;
+      var y = e.clientY - rect.top;
+      var maxX = 6;
+      var maxY = 5;
+      var dx = (x / rect.width - 0.5) * 2;
+      var dy = (y / rect.height - 0.5) * 2;
+      btn.style.setProperty('--lx', (dx * maxX).toFixed(2) + 'px');
+      btn.style.setProperty('--ly', (dy * maxY).toFixed(2) + 'px');
+      btn.style.setProperty('--ls', '1.02');
+      btn.style.setProperty('--px', x + 'px');
+      btn.style.setProperty('--py', y + 'px');
+    });
+    btn.addEventListener('mouseleave', function () {
+      btn.style.setProperty('--lx', '0px');
+      btn.style.setProperty('--ly', '0px');
+      btn.style.setProperty('--ls', '1');
+    });
+  });
+}
+
+document.addEventListener('DOMContentLoaded', initLiquidButtons);
+initLiquidButtons();

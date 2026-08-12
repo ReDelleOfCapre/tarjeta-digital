@@ -29,31 +29,24 @@ const UPLOAD_DIR = process.env.UPLOAD_DIR || './uploads';
 // Middlewares globales
 // =============================================
 
-// Seguridad HTTP con CSP optimizado (Permite Google Fonts connectSrc y unsafe-eval para compatibilidad)
+// Seguridad HTTP con CSP optimizado (Permite Google Fonts, FontAwesome, jsDelivr y inline event attributes)
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://js.stripe.com", "https://cdn.jsdelivr.net", "https://kit.fontawesome.com"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://use.fontawesome.com", "https://cdnjs.cloudflare.com"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://js.stripe.com", "https://cdn.jsdelivr.net", "https://kit.fontawesome.com", "https://cdnjs.cloudflare.com"],
+      scriptSrcAttr: ["'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://use.fontawesome.com", "https://cdnjs.cloudflare.com", "https://cdn.jsdelivr.net"],
       fontSrc: ["'self'", "https://fonts.gstatic.com", "https://fonts.googleapis.com", "https://use.fontawesome.com", "https://cdnjs.cloudflare.com", "data:"],
       imgSrc: ["'self'", "data:", "blob:", "https:", "http:"],
       frameSrc: ["'self'", "https://js.stripe.com", "https://hooks.stripe.com", "https://maps.google.com", "https://www.google.com", "https://www.youtube.com", "https://open.spotify.com"],
-      connectSrc: ["'self'", "https://api.stripe.com", "https://maps.google.com", "https://fonts.googleapis.com", "https://fonts.gstatic.com"],
+      connectSrc: ["'self'", "https://api.stripe.com", "https://maps.google.com", "https://fonts.googleapis.com", "https://fonts.gstatic.com", "https://cdn.jsdelivr.net"],
       objectSrc: ["'none'"]
     }
-  }
+  },
+  crossOriginEmbedderPolicy: false
 }));
 
-// CORS
-app.use(cors());
-
-// Cross-Origin Isolation (helper para PWA + features modernas)
-app.use((req, res, next) => {
-  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
-  res.setHeader('Cross-Origin-Embedder-Policy', 'credentialless');
-  next();
-});
 
 // =============================================
 // Stripe Webhook (Requiere raw body con express.raw antes de express.json)

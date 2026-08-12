@@ -87,6 +87,9 @@
       border-color: var(--primary);
       box-shadow: 0 0 30px rgba(124, 58, 237, 0.2);
     }
+    .plan-card.pro.glass {
+      border-color: rgba(92, 72, 230, 0.4);
+    }
     .pro-badge {
       position: absolute;
       top: -12px;
@@ -292,7 +295,8 @@
     </div>
 
     <!-- Plan Pro -->
-    <div class="plan-card pro">
+    <div class="plan-card pro glass glass-shine">
+      <div class="noise" aria-hidden="true"></div>
       <div class="pro-badge">Más popular</div>
       <div class="plan-name">Pro</div>
       <div class="plan-price">$149 <span>MXN/mes</span></div>
@@ -309,7 +313,7 @@
         <li>Email capture ilimitado</li>
         <li>Soporte prioritario</li>
       </ul>
-      <button class="btn btn-primary" id="btn-pro-plan" data-action="buy-pro" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;font-weight:700">⚡ Contratar Pro con Stripe ($149 MXN)</button>
+      <button class="btn btn-primary liquid-btn" id="btn-pro-plan" data-action="buy-pro" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;font-weight:700">⚡ Contratar Pro con Stripe ($149 MXN)</button>
     </div>
   </div>
 
