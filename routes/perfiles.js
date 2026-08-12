@@ -613,12 +613,16 @@ async function perfilPublicoHandler(req, res) {
                   </a>`;
                 } else if (isSocialLink) {
                   const domain = bContent?.domain || url.replace(/https?:\/\/(www\.)?/, '').split('/')[0] || 'Social';
-                  inner += `<a href="${escapeHtml(url)}" target="_blank" rel="noopener" class="block-link bento-social-card" style="border-left: 3px solid ${brandColor};">
-                    <div class="bento-social-icon" style="color: ${brandColor}">${icon}</div>
-                    <div class="bl-text" style="text-align:center">
-                      <div class="bl-title" style="font-size:0.9rem">${escapeHtml(titulo)}</div>
-                      <div class="bento-social-handle">@${escapeHtml(domain)}</div>
+                  const isIg = url.includes('instagram.com');
+                  const isFb = url.includes('facebook.com');
+                  const bgColor = isIg ? 'linear-gradient(135deg, #833AB4, #FD1D1D, #F56040)' : (isFb ? '#1877F2' : brandColor);
+                  inner += `<a href="${escapeHtml(url)}" target="_blank" rel="noopener" class="block-link bento-social-card" style="display:flex;align-items:center;gap:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:16px 18px;text-decoration:none;color:#fff">
+                    <div class="bl-icon" style="background:${bgColor};color:#fff;width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-size:1.25rem;flex-shrink:0;box-shadow:0 4px 14px rgba(0,0,0,0.3)">${icon}</div>
+                    <div class="bl-text" style="flex:1;min-width:0">
+                      <div class="bl-title" style="font-weight:700;font-size:0.95rem;color:var(--text-primary,#FFF);font-family:'Space Grotesk',sans-serif">${escapeHtml(titulo)}</div>
+                      <div class="bl-sub" style="font-size:0.8rem;color:var(--text-secondary,#94A3B8);margin-top:2px">${escapeHtml(subtitulo || ('@' + domain))}</div>
                     </div>
+                    <span class="bento-badge" style="background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.12)">↗ Ver perfil</span>
                   </a>`;
                 } else {
                   inner += `<a href="${escapeHtml(url)}" target="_blank" rel="noopener" class="block-link bento-hero-card" style="border-left: 4px solid ${brandColor};">
@@ -706,19 +710,23 @@ async function perfilPublicoHandler(req, res) {
               break;
             }
             case 'social_icons': {
-              inner += `<div class="block-socials">`;
               const redes = Array.isArray(bContent?.redes) ? bContent.redes : [];
+              if (redes.length === 0) break;
+              inner += `<div class="block-socials-wrapper" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:18px;display:flex;flex-direction:column;align-items:center;gap:12px;width:100%;box-sizing:border-box">
+                <div style="font-family:'Space Grotesk',sans-serif;font-size:0.8rem;font-weight:700;color:var(--text-secondary,#94A3B8);text-transform:uppercase;letter-spacing:0.08em">Redes Oficiales</div>
+                <div class="block-socials" style="display:flex;justify-content:center;align-items:center;gap:14px;flex-wrap:wrap;width:100%">`;
               redes.forEach(red => {
                 if (red && red.url) {
                   const icon = getFieldIcon(red.tipo);
-                  const color = getFieldColor(red.tipo);
+                  let color = getFieldColor(red.tipo);
+                  if (red.tipo === 'instagram') color = 'linear-gradient(135deg, #833AB4, #FD1D1D, #F56040)';
                   const link = getFieldLink({ tipo: red.tipo, valor: red.url });
-                  inner += `<a href="${escapeHtml(link)}" target="_blank" rel="noopener" class="social-icon" style="background: ${color};" title="${escapeHtml(red.tipo || '')}">
+                  inner += `<a href="${escapeHtml(link)}" target="_blank" rel="noopener" class="social-icon" style="background: ${color};color:#fff;width:46px;height:46px;border-radius:14px;display:inline-flex;align-items:center;justify-content:center;font-size:1.25rem;box-shadow:0 4px 14px rgba(0,0,0,0.25);text-decoration:none;transition:transform 0.2s ease" title="${escapeHtml(red.tipo || '')}">
                     ${icon}
                   </a>`;
                 }
               });
-              inner += `</div>`;
+              inner += `</div></div>`;
               break;
             }
             case 'email_capture':
@@ -1018,34 +1026,11 @@ function getFieldLink(campo) {
 }
 
 function generateActionButtons(perfil, campos) {
-  const buttons = [];
-  const whatsapp = campos.find(c => c.tipo === 'whatsapp');
-  if (whatsapp) {
-    const waLink = `https://wa.me/${whatsapp.valor.replace(/[^0-9]/g, '')}`;
-    buttons.push(`
-      <a href="${escapeHtml(waLink)}" class="action-btn action-whatsapp" data-action="click_whatsapp" target="_blank" rel="noopener">
-        <i class="fab fa-whatsapp action-icon"></i> WhatsApp
-      </a>`);
-  }
-  const telefono = campos.find(c => c.tipo === 'telefono');
-  if (telefono) {
-    buttons.push(`
-      <a href="tel:${escapeHtml(telefono.valor)}" class="action-btn action-call" data-action="click_llamar">
-        <i class="fas fa-phone action-icon"></i> Llamar
-      </a>`);
-  }
-  const email = campos.find(c => c.tipo === 'email');
-  if (email) {
-    buttons.push(`
-      <a href="mailto:${escapeHtml(email.valor)}" class="action-btn action-email" data-action="click_email">
-        <i class="fas fa-envelope action-icon"></i> Email
-      </a>`);
-  }
-  buttons.push(`
-    <button type="button" onclick="openBookingModal()" class="action-btn action-booking" style="background:linear-gradient(135deg,#7C3AED,#0A84FF);border:none;color:#fff;cursor:pointer">
+  return `<div class="action-buttons" style="display:flex;justify-content:center;margin:8px 0 12px">
+    <button type="button" onclick="openBookingModal()" class="action-btn action-booking" style="background:linear-gradient(135deg,#7C3AED,#0A84FF);border:none;color:#fff;cursor:pointer;padding:12px 24px;border-radius:100px;font-weight:700;font-size:0.95rem;box-shadow:0 8px 24px rgba(124,58,237,0.4);display:inline-flex;align-items:center;gap:10px">
       <i class="fas fa-calendar-check action-icon"></i> Agendar Cita 📅
-    </button>`);
-  return buttons.length > 0 ? `<div class="action-buttons">${buttons.join('\n')}</div>` : '';
+    </button>
+  </div>`;
 }
 
 function generate404Page() {
