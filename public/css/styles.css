@@ -40,6 +40,51 @@ html, body {
   }
 }
 
+/* ==========================================================================
+   MOBILE-FIRST DEFAULT PLATFORM (iOS 17/18 HIG DESIGN SYSTEM)
+   ========================================================================== */
+
+/* Universal mobile-first container max-width */
+.mobile-app-viewport, .container, .container-lg {
+  max-width: 520px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+@media (min-width: 1025px) {
+  /* On Desktop displays, present the mobile app in an elegant centered iOS Frame */
+  body {
+    background: #09090B radial-gradient(circle at 50% 30%, rgba(124, 58, 237, 0.12) 0%, transparent 60%) !important;
+    min-height: 100vh;
+  }
+  
+  .mobile-app-viewport, .container, .container-lg {
+    border-left: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 0 100px rgba(0, 0, 0, 0.9), 0 0 30px rgba(124, 58, 237, 0.15) !important;
+    background: #0A0A0C !important;
+    min-height: 100vh;
+  }
+}
+
+/* iOS Grouped List & Card Aesthetics */
+.ios-card, .card, .bento-card {
+  border-radius: 20px !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+}
+
+/* iOS Bottom Sheet Handle */
+.sheet-handle {
+  width: 36px;
+  height: 5px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.3);
+  margin: 8px auto 16px;
+}
+
 body {
   background-color: var(--canvas);
   color: var(--ink);
