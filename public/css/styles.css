@@ -137,17 +137,101 @@ body {
     scroll-behavior: auto !important;
   }
 }
-  --bg-primary: #F8FAFC;
-  --bg-secondary: #FFFFFF;
-  --bg-tertiary: #F1F5F9;
-  --bg-card: rgba(255, 255, 255, 0.85);
-  --card-border: rgba(15, 23, 42, 0.08);
-  --card-blur: 20px;
-  --card-shadow: 0 10px 30px rgba(15, 23, 42, 0.08), inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
-  --text-primary: #0F172A;
-  --text-secondary: #334155;
-  --text-tertiary: #64748B;
-  --text-muted: #94A3B8;
+
+/* ---- Shared VYNK 4.0 Index Design System Utilities ---- */
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--ink);
+}
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--tint);
+  color: var(--accent-deep);
+}
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--accent-deep);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.eyebrow::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.btn {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 14.5px;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  border-radius: 999px;
+  padding: 12px 22px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+}
+.btn-primary {
+  background: var(--accent-deep) !important;
+  color: #fff !important;
+  box-shadow: 0 10px 24px -10px rgba(92,72,230,0.55);
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px -8px rgba(92,72,230,0.6);
+}
+.btn-secondary {
+  background: var(--tint) !important;
+  color: var(--ink) !important;
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--ink);
+}
+.btn-ghost:hover {
+  color: var(--accent-deep);
+}
+.mesh-bg {
+  position: relative;
+  overflow: hidden;
+}
+.mesh-bg::before {
+  content: '';
+  position: absolute;
+  inset: -10% -10% auto -10%;
+  height: 130%;
+  background:
+    radial-gradient(38% 42% at 22% 24%, var(--tint) 0%, transparent 70%),
+    radial-gradient(34% 40% at 82% 18%, var(--peach) 0%, transparent 72%),
+    radial-gradient(45% 50% at 50% 90%, #E7E2FB 0%, transparent 70%);
+  filter: blur(6px);
+  animation: drift 22s ease-in-out infinite alternate;
+  z-index: 0;
+  pointer-events: none;
+}
+@keyframes drift {
+  from { transform: translate3d(0,0,0) scale(1); }
+  to { transform: translate3d(-2%,2%,0) scale(1.05); }
+}
   --separator: rgba(15, 23, 42, 0.08);
   --accent-glow: rgba(124, 58, 237, 0.15);
   --overlay: rgba(15, 23, 42, 0.5);
