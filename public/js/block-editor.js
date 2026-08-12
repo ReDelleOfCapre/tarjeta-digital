@@ -1014,6 +1014,11 @@
     formData.append("cumpleanos", gv("cumpleanos"));
     formData.append("lugar_estudio", gv("lugar_estudio"));
     formData.append("pronombres", gv("pronombres"));
+    formData.append("hora_apertura", gv("hora_apertura") || "09:00");
+    formData.append("hora_cierre", gv("hora_cierre") || "20:00");
+    formData.append("mostrar_agendar_cita", document.getElementById("mostrar_agendar_cita") && document.getElementById("mostrar_agendar_cita").checked ? "1" : "0");
+    formData.append("mostrar_saludo_voz", document.getElementById("mostrar_saludo_voz") && document.getElementById("mostrar_saludo_voz").checked ? "1" : "0");
+    formData.append("audio_saludo_url", gv("audio_saludo_url") || "");
 
     var fotoInput = document.getElementById("input-foto");
     if (fotoInput && fotoInput.files && fotoInput.files[0]) {
@@ -1081,6 +1086,13 @@
         setValue("lugar_estudio", profile.lugar_estudio || "");
         setValue("pronombres", profile.pronombres || "");
         setValue("marco_estilo", profile.marco_estilo || "gradient");
+        setValue("hora_apertura", profile.hora_apertura || "09:00");
+        setValue("hora_cierre", profile.hora_cierre || "20:00");
+        setValue("audio_saludo_url", profile.audio_saludo_url || "");
+        var agendarCheck = document.getElementById("mostrar_agendar_cita");
+        if (agendarCheck) agendarCheck.checked = profile.mostrar_agendar_cita !== false && profile.mostrar_agendar_cita !== 0 && profile.mostrar_agendar_cita !== "0" && profile.mostrar_agendar_cita !== "false";
+        var vozCheck = document.getElementById("mostrar_saludo_voz");
+        if (vozCheck) vozCheck.checked = profile.mostrar_saludo_voz !== false && profile.mostrar_saludo_voz !== 0 && profile.mostrar_saludo_voz !== "0" && profile.mostrar_saludo_voz !== "false";
 
         if (profile.tema) selectedTheme = profile.tema;
         if (profile.color) selectedColor = profile.color;

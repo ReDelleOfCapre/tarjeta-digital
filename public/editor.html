@@ -385,6 +385,34 @@
                   <option value="none">Sin marco</option>
                 </select>
               </div>
+
+              <div class="section-title" style="margin-top:20px"><div><div class="step-badge">Horario</div>Atención & Disponibilidad</div></div>
+              <div class="field-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div class="field">
+                  <label for="hora_apertura">Hora Apertura</label>
+                  <input type="time" id="hora_apertura" class="form-input" value="09:00">
+                </div>
+                <div class="field">
+                  <label for="hora_cierre">Hora Cierre</label>
+                  <input type="time" id="hora_cierre" class="form-input" value="20:00">
+                </div>
+              </div>
+
+              <div class="section-title" style="margin-top:20px"><div><div class="step-badge">Opciones</div>Secciones Opcionales</div></div>
+              <div style="display:flex;flex-direction:column;gap:10px;background:rgba(255,255,255,0.03);padding:14px;border-radius:14px;border:1px solid var(--border-color,#333)">
+                <label style="display:flex;align-items:center;gap:10px;font-size:0.85rem;cursor:pointer">
+                  <input type="checkbox" id="mostrar_agendar_cita" checked style="width:18px;height:18px;accent-color:var(--primary)">
+                  <span>📅 Habilitar botón <strong>Agendar Cita</strong> (Google Calendar)</span>
+                </label>
+                <label style="display:flex;align-items:center;gap:10px;font-size:0.85rem;cursor:pointer">
+                  <input type="checkbox" id="mostrar_saludo_voz" checked style="width:18px;height:18px;accent-color:var(--primary)">
+                  <span>🎙️ Habilitar botón <strong>Saludo de Voz / Promo Audio</strong></span>
+                </label>
+                <div class="field" style="margin-top:6px">
+                  <label for="audio_saludo_url" style="font-size:0.78rem">URL Audio Promo / Canción Custom (Opcional MP3)</label>
+                  <input type="url" id="audio_saludo_url" class="form-input" placeholder="https://ejemplo.com/audio-promo.mp3" style="font-size:0.85rem">
+                </div>
+              </div>
             </div>
           </div>
 

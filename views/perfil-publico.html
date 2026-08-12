@@ -53,13 +53,18 @@
         .hero-banner img { width: 100%; height: 200px; object-fit: cover; display: block; }
 
         .vp-head { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 6px; padding-top: 8px; }
-        .avatar-wrapper { margin: 0 auto; }
+        .avatar-wrapper {
+            margin: 0 auto;
+            width: 104px; height: 104px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden; box-sizing: border-box; flex-shrink: 0;
+        }
         .avatar-wrapper .avatar {
-            width: 96px; height: 96px; border-radius: 28px;
+            width: 100%; height: 100%; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             overflow: hidden; color: #FFF; font-weight: 700;
         }
-        .avatar-wrapper .avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .avatar-wrapper .avatar img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 50%; }
         .name {
             font-family: 'Space Grotesk', sans-serif !important;
             font-size: clamp(24px, 6vw, 32px) !important;
@@ -149,18 +154,10 @@
         <section class="vp-head">
             {{avatar_html}}
             <h1 class="name">{{nombre_perfil}}</h1>
-            <div style="display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:100px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);color:#10B981;font-size:0.75rem;font-weight:600;margin-top:4px">
-                <span style="width:6px;height:6px;border-radius:50%;background:#10B981;box-shadow:0 0 8px #10B981"></span>
-                <span>Abierto ahora · Respuesta inmediata</span>
-            </div>
+            {{horario_badge_html}}
             {{tags_html}}
             {{bio_html}}
-            <div class="voice-greeting-pill" onclick="playVoiceGreeting()">
-                <div class="sound-wave">
-                    <span></span><span></span><span></span><span></span>
-                </div>
-                <span>Escuchar saludo de voz 🎙️</span>
-            </div>
+            {{saludo_voz_html}}
         </section>
 
         {{action_buttons_html}}
@@ -276,8 +273,18 @@
                 a.addEventListener('click', function () { track('click_mapa'); });
             });
 
-            // 6. Spotify Voice Bio Speech Player
+            // 6. Spotify Voice Bio Speech Player / Audio Promo Player
             window.playVoiceGreeting = function() {
+                var customAudio = '{{audio_saludo_url}}';
+                if (customAudio && customAudio.trim() !== '' && customAudio !== '{{audio_saludo_url}}') {
+                    try {
+                        var audio = new Audio(customAudio);
+                        audio.play().catch(function() {
+                            alert('No se pudo reproducir el archivo de audio promocional.');
+                        });
+                        return;
+                    } catch (e) {}
+                }
                 var text = "¡Hola! Bienvenido a " + (document.querySelector('.name') ? document.querySelector('.name').textContent : 'mi tarjeta digital') + ". Gracias por conectarte.";
                 if ('speechSynthesis' in window) {
                     var utterance = new SpeechSynthesisUtterance(text);

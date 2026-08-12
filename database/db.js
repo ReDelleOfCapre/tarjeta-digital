@@ -166,6 +166,13 @@ class PgDatabaseWrapper {
           created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
         )
       `);
+
+      // Configuración de Horario de Atención, Toggles de Cita / Saludo de Voz y Audio Promo
+      await this.pool.query("ALTER TABLE perfiles ADD COLUMN IF NOT EXISTS hora_apertura VARCHAR(20) DEFAULT '09:00'");
+      await this.pool.query("ALTER TABLE perfiles ADD COLUMN IF NOT EXISTS hora_cierre VARCHAR(20) DEFAULT '20:00'");
+      await this.pool.query("ALTER TABLE perfiles ADD COLUMN IF NOT EXISTS mostrar_agendar_cita BOOLEAN DEFAULT TRUE");
+      await this.pool.query("ALTER TABLE perfiles ADD COLUMN IF NOT EXISTS mostrar_saludo_voz BOOLEAN DEFAULT TRUE");
+      await this.pool.query("ALTER TABLE perfiles ADD COLUMN IF NOT EXISTS audio_saludo_url TEXT");
     } catch (e) {
       console.error('Error corriendo migraciones PG:', e);
     }

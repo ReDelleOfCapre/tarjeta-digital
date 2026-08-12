@@ -192,7 +192,7 @@ router.put('/:id', auth, requireQuota, (req, res) => {
       return res.status(403).json({ error: 'No tienes permiso para editar este perfil.' });
     }
 
-    const { nombre_perfil, tipo, color, bio, cumpleanos, lugar_estudio, pronombres, tema, foto_base64, marco_estilo } = req.body;
+    const { nombre_perfil, tipo, color, bio, cumpleanos, lugar_estudio, pronombres, tema, foto_base64, marco_estilo, hora_apertura, hora_cierre, mostrar_agendar_cita, mostrar_saludo_voz, audio_saludo_url } = req.body;
     let foto_url = perfil.foto_url;
 
     if (foto_base64) {
@@ -220,7 +220,12 @@ router.put('/:id', auth, requireQuota, (req, res) => {
            cumpleanos = ?,
            lugar_estudio = ?,
            pronombres = ?,
-           marco_estilo = ?
+           marco_estilo = ?,
+           hora_apertura = COALESCE(?, hora_apertura),
+           hora_cierre = COALESCE(?, hora_cierre),
+           mostrar_agendar_cita = COALESCE(?, mostrar_agendar_cita),
+           mostrar_saludo_voz = COALESCE(?, mostrar_saludo_voz),
+           audio_saludo_url = COALESCE(?, audio_saludo_url)
        WHERE id = ?`
     ).run(
       nombre_perfil || null,
@@ -233,6 +238,11 @@ router.put('/:id', auth, requireQuota, (req, res) => {
       lugar_estudio !== undefined ? (lugar_estudio || null) : perfil.lugar_estudio,
       pronombres !== undefined ? (pronombres || null) : perfil.pronombres,
       marco_estilo !== undefined ? (marco_estilo || null) : perfil.marco_estilo,
+      hora_apertura || null,
+      hora_cierre || null,
+      mostrar_agendar_cita !== undefined ? (mostrar_agendar_cita ? 1 : 0) : perfil.mostrar_agendar_cita,
+      mostrar_saludo_voz !== undefined ? (mostrar_saludo_voz ? 1 : 0) : perfil.mostrar_saludo_voz,
+      audio_saludo_url !== undefined ? (audio_saludo_url || null) : perfil.audio_saludo_url,
       perfilId
     );
 
@@ -885,7 +895,41 @@ async function perfilPublicoHandler(req, res) {
          </div>`
       : '';
 
-    const action_buttons_html = generateActionButtons(perfil, campos);
+    // 1. Horario de atención inteligente
+    const hApertura = perfil.hora_apertura || '09:00';
+    const hCierre = perfil.hora_cierre || '20:00';
+    const now = new Date();
+    const currentMins = now.getHours() * 60 + now.getMinutes();
+    const [aH, aM] = hApertura.split(':').map(Number);
+    const [cH, cM] = hCierre.split(':').map(Number);
+    const openMins = (aH || 9) * 60 + (aM || 0);
+    const closeMins = (cH || 20) * 60 + (cM || 0);
+    const isOpen = currentMins >= openMins && currentMins < closeMins;
+
+    const horario_badge_html = isOpen
+      ? `<div style="display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:100px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);color:#10B981;font-size:0.75rem;font-weight:600;margin-top:4px">
+          <span style="width:6px;height:6px;border-radius:50%;background:#10B981;box-shadow:0 0 8px #10B981"></span>
+          <span>🟢 Abierto ahora · (${escapeHtml(hApertura)} - ${escapeHtml(hCierre)})</span>
+        </div>`
+      : `<div style="display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:100px;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);color:#EF4444;font-size:0.75rem;font-weight:600;margin-top:4px">
+          <span style="width:6px;height:6px;border-radius:50%;background:#EF4444;box-shadow:0 0 8px #EF4444"></span>
+          <span>🔴 Fuera de horario · Atendemos a partir de las ${escapeHtml(hApertura)}</span>
+        </div>`;
+
+    // 2. Saludo de voz / Audio promo opcional
+    const mostrarVoicePill = perfil.mostrar_saludo_voz !== false && perfil.mostrar_saludo_voz !== 0 && perfil.mostrar_saludo_voz !== 'false';
+    const saludo_voz_html = mostrarVoicePill
+      ? `<div class="voice-greeting-pill" onclick="playVoiceGreeting()">
+          <div class="sound-wave">
+            <span></span><span></span><span></span><span></span>
+          </div>
+          <span>Escuchar saludo de voz 🎙️</span>
+        </div>`
+      : '';
+
+    // 3. Botón de Agendar Cita opcional
+    const mostrarBookingBtn = perfil.mostrar_agendar_cita !== false && perfil.mostrar_agendar_cita !== 0 && perfil.mostrar_agendar_cita !== 'false';
+    const action_buttons_html = mostrarBookingBtn ? generateActionButtons(perfil, campos) : '';
     const og_image = fotoSrc || `${BASE_URL}/img/og-default.png`;
 
     let html;
@@ -904,6 +948,8 @@ async function perfilPublicoHandler(req, res) {
       ? `<div class="hero-banner"><img src="${escapeHtml(perfil.banner_url.startsWith('http') || perfil.banner_url.startsWith('/') ? perfil.banner_url : '/' + perfil.banner_url)}" alt="Portada" onerror="this.onerror=null;this.style.display='none';if(this.parentElement)this.parentElement.style.display='none';"></div>`
       : '';
 
+    const audioUrlEscaped = escapeHtml(perfil.audio_saludo_url || '');
+
     html = html
       .replace(/\{\{tema_css\}\}/g, themeCss)
       .replace(/\{\{tema\}\}/g, tema)
@@ -920,6 +966,9 @@ async function perfilPublicoHandler(req, res) {
       .replace(/\{\{foto_url\}\}/g, fotoSrc)
       .replace(/\{\{bio_html\}\}/g, bio_html)
       .replace(/\{\{tags_html\}\}/g, tags_html)
+      .replace(/\{\{horario_badge_html\}\}/g, horario_badge_html)
+      .replace(/\{\{saludo_voz_html\}\}/g, saludo_voz_html)
+      .replace(/\{\{audio_saludo_url\}\}/g, audioUrlEscaped)
       .replace(/\{\{bloques_html\}\}/g, bloques_html)
       .replace(/\{\{campos_section_html\}\}/g, '')
       .replace(/\{\{archivos_section_html\}\}/g, archivos_section_html)
