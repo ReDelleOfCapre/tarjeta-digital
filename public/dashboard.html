@@ -673,14 +673,23 @@
                   <input type="text" id="create-perfil-pronombres" placeholder="Ej. él/él, ella/ella" />
                 </div>
                 <div class="field" style="margin-bottom:0">
-                  <label for="create-perfil-tema">Estilo de Tema</label>
-                  <select id="create-perfil-tema" style="width:100%;padding:10px;border-radius:8px;background:rgba(255,255,255,0.05);color:var(--text-main);border:1px solid var(--panel-border)">
-                    <option value="food">Gourmet & Food (Taquería/Restaurante)</option>
-                    <option value="neon" selected>Neón Cyberpunk Ultra</option>
-                    <option value="minimal">Minimal Apple White</option>
-                    <option value="glass">Glassmorphism Pro</option>
-                    <option value="retro">Vintage Retro</option>
+                  <label for="create-perfil-bg-mode">Configuración de Fondo</label>
+                  <select id="create-perfil-bg-mode" style="width:100%;padding:10px;border-radius:8px;background:rgba(255,255,255,0.05);color:var(--text-main);border:1px solid var(--panel-border)">
+                    <option value="auto_palette" selected>🎨 Extraer Fondo de Paleta de Logo</option>
+                    <option value="photo_bg">🖼️ Usar Foto de Perfil como Fondo de Pantalla</option>
+                    <option value="custom_color">🎛️ Color de Fondo Personalizado</option>
                   </select>
+                </div>
+              </div>
+
+              <div id="custom-color-picker-wrap" class="hidden" style="margin-bottom:12px;display:flex;gap:10px;align-items:center">
+                <div style="flex:1">
+                  <label for="create-perfil-custom-bg" style="font-size:0.75rem;color:var(--text-muted);display:block;margin-bottom:4px">Color de Fondo</label>
+                  <input type="color" id="create-perfil-custom-bg" value="#0F0B1E" style="width:100%;height:38px;padding:2px;border-radius:8px;background:none;border:1px solid var(--panel-border);cursor:pointer">
+                </div>
+                <div style="flex:1">
+                  <label for="create-perfil-custom-accent" style="font-size:0.75rem;color:var(--text-muted);display:block;margin-bottom:4px">Color de Acento</label>
+                  <input type="color" id="create-perfil-custom-accent" value="#7C3AED" style="width:100%;height:38px;padding:2px;border-radius:8px;background:none;border:1px solid var(--panel-border);cursor:pointer">
                 </div>
               </div>
 

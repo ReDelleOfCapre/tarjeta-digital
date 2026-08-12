@@ -944,19 +944,51 @@ window.executeCreatePerfil = async function(e) {
 
     function applyThemeToDOM() {
       const t = generateTheme(currentRaw());
-      phone.style.setProperty('--card-bg', t.background);
+      let bg = t.background;
+      let primary = t.primary;
+
+      if (state.bgMode === 'custom_color') {
+        bg = state.customBg || '#0F0B1E';
+        primary = state.customAccent || '#7C3AED';
+      }
+
+      phone.style.setProperty('--card-bg', bg);
       phone.style.setProperty('--card-surface', t.surface);
-      phone.style.setProperty('--card-primary', t.primary);
+      phone.style.setProperty('--card-primary', primary);
       phone.style.setProperty('--card-secondary', t.secondary);
-      phone.style.setProperty('--card-text', t.onBg);
-      phone.style.setProperty('--card-text-muted', t.onBgMuted);
-      phone.style.setProperty('--card-on-primary', t.onPrimary);
+      phone.style.setProperty('--card-text', textColorFor(bg));
+      phone.style.setProperty('--card-text-muted', mix(textColorFor(bg), bg, 0.42));
+      phone.style.setProperty('--card-on-primary', textColorFor(primary));
       return t;
     }
 
     function initials(name) {
       return name.trim().split(/\s+/).slice(0, 2).map(w => w[0] || '').join('').toUpperCase() || '—';
     }
+
+    state.blockData = state.blockData || {
+      location: { titulo: 'Sucursal 1: Centro — Teziutlán', query: 'Allende 603 Centro Teziutlan Puebla', telefono: '+52 231 312 2032' },
+      menu: { titulo: 'Menú Digital & Carta Completa', descripcion: 'Tacos al pastor, parrilladas y antojitos típicos' },
+      social: { ig: '@cristina_taqueria', fb: 'cristinataqueria', wa: '+52 231 130 2033', spotify: '' },
+      delivery: { uber: 'https://ubereats.com', rappi: 'https://rappi.com' },
+      reviews: { rating: '4.9 ★★★★★ (180 reseñas en Google)' },
+      hours: { texto: 'Lunes a Domingo: 8:00 AM - 11:00 PM' }
+    };
+
+    const bgModeSelect = document.getElementById('create-perfil-bg-mode');
+    const customPickerWrap = document.getElementById('custom-color-picker-wrap');
+    if (bgModeSelect && customPickerWrap) {
+      bgModeSelect.addEventListener('change', e => {
+        state.bgMode = e.target.value;
+        customPickerWrap.classList.toggle('hidden', state.bgMode !== 'custom_color');
+        fullRender();
+      });
+    }
+
+    const customBgInput = document.getElementById('create-perfil-custom-bg');
+    const customAccentInput = document.getElementById('create-perfil-custom-accent');
+    if (customBgInput) customBgInput.addEventListener('input', e => { state.customBg = e.target.value; fullRender(); });
+    if (customAccentInput) customAccentInput.addEventListener('input', e => { state.customAccent = e.target.value; fullRender(); });
 
     function renderIdentity() {
       const pAvatar = document.getElementById('pAvatar');
@@ -972,8 +1004,9 @@ window.executeCreatePerfil = async function(e) {
 
       if (pSocial) {
         let html = '';
-        if (state.socialWa) html += `<div style="width:32px;height:32px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;color:#FFF"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg></div>`;
-        if (state.socialIg) html += `<div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(45deg,#f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%);display:flex;align-items:center;justify-content:center;color:#FFF"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg></div>`;
+        const sData = state.blockData.social || {};
+        if (state.socialWa || sData.wa) html += `<div style="width:32px;height:32px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;color:#FFF"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg></div>`;
+        if (state.socialIg || sData.ig) html += `<div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(45deg,#f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%);display:flex;align-items:center;justify-content:center;color:#FFF"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg></div>`;
         if (state.socialWeb) html += `<div style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;color:#FFF"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg></div>`;
         pSocial.innerHTML = html;
       }
@@ -990,16 +1023,28 @@ window.executeCreatePerfil = async function(e) {
       if (list.length === 0) return;
       const [first, ...rest] = list;
       primaryCtaWrap.innerHTML = `<div class="primary-cta">${svg(first.icon)}${first.label}</div>`;
+
       rest.forEach(b => {
         const row = document.createElement('div');
         row.className = 'list-block';
-        row.innerHTML = `
-          <div class="list-icon">${svg(b.icon)}</div>
-          <div class="list-text">
-            <div class="l-label">${b.label}</div>
-            <div class="l-hint">${b.hint}</div>
-          </div>
-          <div class="list-chev">${svg('chev')}</div>`;
+
+        if (b.id === 'location') {
+          const locData = state.blockData.location || {};
+          const query = locData.query || 'Teziutlan Puebla';
+          row.innerHTML = `
+            <div style="width:100%">
+              <div style="font-weight:700;font-size:0.85rem;margin-bottom:6px;display:flex;align-items:center;gap:6px">📍 ${locData.titulo || 'Nuestra Ubicación'}</div>
+              <iframe width="100%" height="90" style="border:0;border-radius:10px;margin-bottom:6px" loading="lazy" src="https://maps.google.com/maps?q=${encodeURIComponent(query)}&output=embed"></iframe>
+            </div>`;
+        } else {
+          row.innerHTML = `
+            <div class="list-icon">${svg(b.icon)}</div>
+            <div class="list-text">
+              <div class="l-label">${b.label}</div>
+              <div class="l-hint">${b.hint}</div>
+            </div>
+            <div class="list-chev">${svg('chev')}</div>`;
+        }
         listWrap.appendChild(row);
       });
     }
@@ -1009,22 +1054,65 @@ window.executeCreatePerfil = async function(e) {
       if (!wrap) return;
       wrap.innerHTML = '';
       BLOCKS[state.cardType].forEach(b => {
-        const row = document.createElement('label');
-        row.className = 'block-row';
         const checked = state.activeBlocks.has(b.id);
-        row.innerHTML = `
-          <input type="checkbox" data-block="${b.id}" ${checked ? 'checked' : ''}/>
-          <div class="block-icon">${svg(b.icon)}</div>
-          <div class="block-text">
-            <div class="b-label">${b.label}</div>
-            <div class="b-hint">${b.hint}</div>
-          </div>`;
-        wrap.appendChild(row);
+        const container = document.createElement('div');
+        container.style.cssText = 'background:rgba(255,255,255,0.03);border:1px solid var(--panel-border);border-radius:12px;margin-bottom:10px;padding:12px;overflow:hidden';
+
+        let fieldsHtml = '';
+        if (b.id === 'location') {
+          const d = state.blockData.location || {};
+          fieldsHtml = `
+            <div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.08);display:flex;flex-direction:column;gap:8px">
+              <input type="text" data-block-id="location" data-key="titulo" placeholder="Nombre Sucursal (Ej. Sucursal Centro)" value="${d.titulo || ''}" style="padding:8px 10px;font-size:0.82rem;border-radius:6px;background:#08080E;color:#FFF;border:1px solid var(--panel-border)">
+              <input type="text" data-block-id="location" data-key="query" placeholder="Dirección / Google Maps Query (Ej. Allende 603 Teziutlan)" value="${d.query || ''}" style="padding:8px 10px;font-size:0.82rem;border-radius:6px;background:#08080E;color:#FFF;border:1px solid var(--panel-border)">
+            </div>`;
+        } else if (b.id === 'menu') {
+          const d = state.blockData.menu || {};
+          fieldsHtml = `
+            <div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.08);display:flex;flex-direction:column;gap:8px">
+              <input type="text" data-block-id="menu" data-key="titulo" placeholder="Título del Menú (Ej. Menú Digital & Carta)" value="${d.titulo || ''}" style="padding:8px 10px;font-size:0.82rem;border-radius:6px;background:#08080E;color:#FFF;border:1px solid var(--panel-border)">
+              <input type="text" data-block-id="menu" data-key="descripcion" placeholder="Descripción de platillos o especialidades" value="${d.descripcion || ''}" style="padding:8px 10px;font-size:0.82rem;border-radius:6px;background:#08080E;color:#FFF;border:1px solid var(--panel-border)">
+            </div>`;
+        } else if (b.id === 'social') {
+          const d = state.blockData.social || {};
+          fieldsHtml = `
+            <div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.08);display:flex;flex-direction:column;gap:8px">
+              <input type="text" data-block-id="social" data-key="ig" placeholder="Instagram (@usuario)" value="${d.ig || ''}" style="padding:8px 10px;font-size:0.82rem;border-radius:6px;background:#08080E;color:#FFF;border:1px solid var(--panel-border)">
+              <input type="text" data-block-id="social" data-key="fb" placeholder="Facebook URL / Página" value="${d.fb || ''}" style="padding:8px 10px;font-size:0.82rem;border-radius:6px;background:#08080E;color:#FFF;border:1px solid var(--panel-border)">
+              <input type="text" data-block-id="social" data-key="spotify" placeholder="Spotify Track / Artist URL" value="${d.spotify || ''}" style="padding:8px 10px;font-size:0.82rem;border-radius:6px;background:#08080E;color:#FFF;border:1px solid var(--panel-border)">
+            </div>`;
+        }
+
+        container.innerHTML = `
+          <label class="block-row" style="margin:0;padding:0;cursor:pointer">
+            <input type="checkbox" data-block="${b.id}" ${checked ? 'checked' : ''}/>
+            <div class="block-icon">${svg(b.icon)}</div>
+            <div class="block-text">
+              <div class="b-label" style="font-weight:700">${b.label}</div>
+              <div class="b-hint">${b.hint}</div>
+            </div>
+          </label>
+          ${checked ? fieldsHtml : ''}`;
+
+        wrap.appendChild(container);
       });
+
       wrap.querySelectorAll('input[type=checkbox]').forEach(cb => {
         cb.addEventListener('change', e => {
           const id = e.target.getAttribute('data-block');
           if (e.target.checked) state.activeBlocks.add(id); else state.activeBlocks.delete(id);
+          renderChecklist();
+          renderBlocksPreview();
+          renderSchema();
+        });
+      });
+
+      wrap.querySelectorAll('input[data-block-id]').forEach(inp => {
+        inp.addEventListener('input', e => {
+          const bId = e.target.getAttribute('data-block-id');
+          const key = e.target.getAttribute('data-key');
+          if (!state.blockData[bId]) state.blockData[bId] = {};
+          state.blockData[bId][key] = e.target.value;
           renderBlocksPreview();
           renderSchema();
         });
