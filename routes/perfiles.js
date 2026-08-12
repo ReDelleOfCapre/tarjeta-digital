@@ -14,45 +14,44 @@ const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 
 /**
  * POST /api/perfiles/inicializar
- * Forzar sembrado e inyección de las 7 tarjetas para el usuario autenticado.
+ * Forzar sembrado e inyección de las tarjetas para el usuario autenticado.
  */
-router.post('/inicializar', auth, (req, res) => {
+router.post('/inicializar', auth, async (req, res) => {
   try {
     const userId = req.user ? req.user.id : 1;
-    if (db._seedDatabase) db._seedDatabase();
+    if (typeof db._seedDatabase === 'function') await db._seedDatabase();
 
-    db.prepare(`
-      UPDATE perfiles 
-      SET usuario_id = ? 
+    await db.prepare(`
+      UPDATE perfiles
+      SET usuario_id = ?
       WHERE slug IN ('cristina', 'cristina-teziutlan', 'cristina-taqueria', 'pequeno-juan', 'peque-juan', 'pequeno-juan-medio-digital', 'giovanni')
     `).run(userId);
 
-    if (db._saveToDisk) db._saveToDisk();
-
-    const perfiles = db.prepare('SELECT * FROM perfiles ORDER BY id DESC').all();
+    const perfiles = await db.prepare('SELECT * FROM perfiles ORDER BY id DESC').all();
     res.json({ success: true, count: perfiles.length, perfiles });
   } catch (e) {
     console.error('Error inicializando perfiles:', e);
     res.status(500).json({ error: 'Error al inicializar tarjetas' });
   }
 });
-router.get('/', auth, (req, res) => {
+
+router.get('/', auth, async (req, res) => {
   res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
 
   // Aislamiento estricto de usuario (Tenant Isolation Anti-IDOR)
   const activeUserId = req.user.id;
-  const perfiles = db.prepare(
+  const perfiles = await db.prepare(
     'SELECT * FROM perfiles WHERE usuario_id = ? ORDER BY id DESC'
   ).all(activeUserId);
 
-  const result = perfiles.map(perfil => {
-    const camposCount = db.prepare(
+  const result = await Promise.all(perfiles.map(async (perfil) => {
+    const camposCount = await db.prepare(
       'SELECT COUNT(*) as total FROM campos_contacto WHERE perfil_id = ?'
     ).get(perfil.id);
-    const bloquesCount = db.prepare(
+    const bloquesCount = await db.prepare(
       'SELECT COUNT(*) as total FROM bloques WHERE perfil_id = ?'
     ).get(perfil.id);
-    const archivosCount = db.prepare(
+    const archivosCount = await db.prepare(
       'SELECT COUNT(*) as total FROM archivos WHERE perfil_id = ?'
     ).get(perfil.id);
 
@@ -64,7 +63,7 @@ router.get('/', auth, (req, res) => {
       total_campos: calcCampos,
       archivos_count: archivosCount ? archivosCount.total : 0
     };
-  });
+  }));
 
   res.json(result);
 });
@@ -76,8 +75,7 @@ const requireQuota = require('../middleware/quota');
  * Crear un nuevo perfil.
  */
 router.post('/', auth, requireQuota, checkPlanLimit('perfil'), (req, res) => {
-  // Wrapper para manejar multer como promise-like
-  uploadImage(req, res, (err) => {
+  uploadImage(req, res, async (err) => {
     if (err) {
       return res.status(400).json({ error: err.message });
     }
@@ -93,17 +91,17 @@ router.post('/', auth, requireQuota, checkPlanLimit('perfil'), (req, res) => {
     const perfilColor = color || '#007AFF';
     const perfilTema = tema || 'ios';
 
-    const result = db.prepare(
+    const result = await db.prepare(
       `INSERT INTO perfiles (usuario_id, slug, nombre_perfil, tipo, foto_url, color, tema, bio, cumpleanos, lugar_estudio, pronombres)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     ).run(req.user.id, slug, nombre_perfil.trim(), tipo || null, foto_url, perfilColor, perfilTema,
           bio || null, cumpleanos || null, lugar_estudio || null, pronombres || null);
 
-    const perfil = db.prepare('SELECT * FROM perfiles WHERE id = ?').get(result.lastInsertRowid);
+    const perfil = await db.prepare('SELECT * FROM perfiles WHERE id = ?').get(result.lastInsertRowid);
 
     // Disparar correo motivacional tras crear la tarjeta si el usuario tiene email registrado
     try {
-      const user = db.prepare('SELECT email, nombre FROM usuarios WHERE id = ?').get(req.user.id);
+      const user = await db.prepare('SELECT email, nombre FROM usuarios WHERE id = ?').get(req.user.id);
       if (user && user.email) {
         const { sendFirstCardNotification } = require('../utils/email');
         sendFirstCardNotification(user.email, user.nombre, slug);
@@ -121,13 +119,13 @@ router.post('/', auth, requireQuota, checkPlanLimit('perfil'), (req, res) => {
  * Actualizar un perfil existente.
  */
 router.put('/:id', auth, requireQuota, (req, res) => {
-  uploadImage(req, res, (err) => {
+  uploadImage(req, res, async (err) => {
     if (err) {
       return res.status(400).json({ error: err.message });
     }
 
     const perfilId = parseInt(req.params.id, 10);
-    const perfil = db.prepare('SELECT * FROM perfiles WHERE id = ?').get(perfilId);
+    const perfil = await db.prepare('SELECT * FROM perfiles WHERE id = ?').get(perfilId);
 
     if (!perfil) {
       return res.status(404).json({ error: 'Perfil no encontrado.' });
@@ -140,26 +138,21 @@ router.put('/:id', auth, requireQuota, (req, res) => {
     const { nombre_perfil, tipo, color, bio, cumpleanos, lugar_estudio, pronombres, tema, foto_base64 } = req.body;
     let foto_url = perfil.foto_url;
 
-    // Si se sube una nueva foto, actualizar
     if (foto_base64) {
       foto_url = foto_base64;
     } else if (req.file) {
       if (perfil.foto_url && perfil.foto_url.startsWith('/uploads/')) {
         const oldPath = path.join(process.cwd(), perfil.foto_url);
         try {
-          if (fs.existsSync(oldPath)) {
-            fs.unlinkSync(oldPath);
-          }
-        } catch (e) {
-          // Ignorar errores al eliminar archivo antiguo
-        }
+          if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+        } catch (e) {}
       }
       foto_url = `/uploads/${req.file.filename}`;
     }
-    
+
     const perfilTema = tema || perfil.tema;
 
-    db.prepare(
+    await db.prepare(
       `UPDATE perfiles
        SET nombre_perfil = COALESCE(?, nombre_perfil),
            tipo = COALESCE(?, tipo),
@@ -184,7 +177,7 @@ router.put('/:id', auth, requireQuota, (req, res) => {
       perfilId
     );
 
-    const updated = db.prepare('SELECT * FROM perfiles WHERE id = ?').get(perfilId);
+    const updated = await db.prepare('SELECT * FROM perfiles WHERE id = ?').get(perfilId);
     res.json(updated);
   });
 });
@@ -193,9 +186,9 @@ router.put('/:id', auth, requireQuota, (req, res) => {
  * DELETE /api/perfiles/:id
  * Eliminar un perfil y sus archivos asociados.
  */
-router.delete('/:id', auth, requireQuota, (req, res) => {
+router.delete('/:id', auth, requireQuota, async (req, res) => {
   const perfilId = parseInt(req.params.id, 10);
-  const perfil = db.prepare('SELECT * FROM perfiles WHERE id = ?').get(perfilId);
+  const perfil = await db.prepare('SELECT * FROM perfiles WHERE id = ?').get(perfilId);
 
   if (!perfil) {
     return res.status(404).json({ error: 'Perfil no encontrado.' });
@@ -205,46 +198,34 @@ router.delete('/:id', auth, requireQuota, (req, res) => {
     return res.status(403).json({ error: 'No tienes permiso para eliminar este perfil.' });
   }
 
-  // Obtener todos los archivos para eliminarlos del disco
-  const archivos = db.prepare('SELECT * FROM archivos WHERE perfil_id = ?').all(perfilId);
+  const archivos = await db.prepare('SELECT * FROM archivos WHERE perfil_id = ?').all(perfilId);
 
   for (const archivo of archivos) {
     const filePath = path.join(process.cwd(), archivo.url);
     try {
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-      }
-    } catch (e) {
-      // Ignorar errores al eliminar archivos
-    }
+      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+    } catch (e) {}
   }
 
-  // Eliminar foto de perfil del disco
   if (perfil.foto_url) {
     const fotoPath = path.join(process.cwd(), perfil.foto_url);
     try {
-      if (fs.existsSync(fotoPath)) {
-        fs.unlinkSync(fotoPath);
-      }
-    } catch (e) {
-      // Ignorar errores
-    }
+      if (fs.existsSync(fotoPath)) fs.unlinkSync(fotoPath);
+    } catch (e) {}
   }
 
-  // CASCADE se encarga de eliminar campos_contacto, archivos y estadísticas
-  db.prepare('DELETE FROM perfiles WHERE id = ?').run(perfilId);
+  await db.prepare('DELETE FROM perfiles WHERE id = ?').run(perfilId);
 
   res.json({ ok: true, mensaje: 'Perfil eliminado correctamente.' });
 });
 
 /**
  * GET /api/perfiles/:slug/qr
- * Generar código QR para un perfil.
  */
 router.get('/:slug/qr', async (req, res) => {
   try {
     const { slug } = req.params;
-    const perfil = db.prepare('SELECT id FROM perfiles WHERE slug = ?').get(slug);
+    const perfil = await db.prepare('SELECT id FROM perfiles WHERE slug = ?').get(slug);
 
     if (!perfil) {
       return res.status(404).json({ error: 'Perfil no encontrado.' });
@@ -264,105 +245,67 @@ router.get('/:slug/qr', async (req, res) => {
 
 /**
  * GET /api/perfiles/:slug/vcard
- * Descargar vCard del perfil.
  */
-router.get('/:slug/vcard', (req, res) => {
-  const { slug } = req.params;
+router.get('/:slug/vcard', async (req, res) => {
+  try {
+    const { slug } = req.params;
+    const perfil = await db.prepare('SELECT * FROM perfiles WHERE slug = ?').get(slug);
+    if (!perfil) {
+      return res.status(404).json({ error: 'Perfil no encontrado.' });
+    }
 
-  const perfil = db.prepare('SELECT * FROM perfiles WHERE slug = ?').get(slug);
-  if (!perfil) {
-    return res.status(404).json({ error: 'Perfil no encontrado.' });
+    const campos = await db.prepare(
+      'SELECT * FROM campos_contacto WHERE perfil_id = ? ORDER BY orden ASC'
+    ).all(perfil.id);
+
+    const vcardContent = generateVCard(perfil, campos, BASE_URL);
+
+    const filename = perfil.nombre_perfil.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]/g, '').trim() || 'contacto';
+
+    res.set('Content-Type', 'text/vcard; charset=utf-8');
+    res.set('Content-Disposition', `attachment; filename="${filename}.vcf"`);
+    res.send(vcardContent);
+  } catch (err) {
+    console.error('Error generando vcard:', err);
+    res.status(500).json({ error: 'Error al generar vCard.' });
   }
-
-  const campos = db.prepare(
-    'SELECT * FROM campos_contacto WHERE perfil_id = ? ORDER BY orden ASC'
-  ).all(perfil.id);
-
-  const vcardContent = generateVCard(perfil, campos, BASE_URL);
-
-  const filename = perfil.nombre_perfil.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]/g, '').trim() || 'contacto';
-
-  res.set('Content-Type', 'text/vcard; charset=utf-8');
-  res.set('Content-Disposition', `attachment; filename="${filename}.vcf"`);
-  res.send(vcardContent);
 });
 
 /**
  * Handler para el perfil público: GET /u/:slug
  * Se exporta para montar directamente en server.js.
  */
-function perfilPublicoHandler(req, res) {
+async function perfilPublicoHandler(req, res) {
   try {
     const param = (req.params.slug || req.params.id || '').trim();
     const cleanParam = param.toLowerCase();
 
     let perfil = null;
 
-    // Check by ID if numeric
     if (!isNaN(param) && Number(param) > 0) {
-      perfil = db.prepare('SELECT * FROM perfiles WHERE id = ?').get(parseInt(param, 10));
+      perfil = await db.prepare('SELECT * FROM perfiles WHERE id = ?').get(parseInt(param, 10));
     }
-    // Check by slug
     if (!perfil) {
-      perfil = db.prepare('SELECT * FROM perfiles WHERE LOWER(slug) = LOWER(?)').get(cleanParam);
+      perfil = await db.prepare('SELECT * FROM perfiles WHERE LOWER(slug) = LOWER(?)').get(cleanParam);
     }
 
-    // Relaxed fallback for cristina and juan if exact slug match is missed
     if (!perfil) {
       if (cleanParam.includes('cristina')) {
-        perfil = db.prepare("SELECT * FROM perfiles WHERE slug IN ('cristina', 'cristina-teziutlan', 'cristina-taqueria') ORDER BY id DESC LIMIT 1").get();
+        perfil = await db.prepare("SELECT * FROM perfiles WHERE slug IN ('cristina', 'cristina-teziutlan', 'cristina-taqueria') ORDER BY id DESC LIMIT 1").get();
       } else if (cleanParam.includes('juan') || cleanParam.includes('peque')) {
-        perfil = db.prepare("SELECT * FROM perfiles WHERE slug IN ('pequeno-juan', 'peque-juan', 'pequeno-juan-medio-digital') ORDER BY id DESC LIMIT 1").get();
+        perfil = await db.prepare("SELECT * FROM perfiles WHERE slug IN ('pequeno-juan', 'peque-juan', 'pequeno-juan-medio-digital') ORDER BY id DESC LIMIT 1").get();
       }
     }
 
-    // Auto-healing fallback para cristina si no existiera en la DB
-    if (!perfil && cleanParam.includes('cristina')) {
-      try {
-        let admin = db.prepare("SELECT id FROM usuarios WHERE role = 'admin' OR telefono = '2311556138'").get();
-        const adminId = admin ? admin.id : 1;
-        const resC = db.prepare(`
-          INSERT INTO perfiles (usuario_id, slug, nombre_perfil, tipo, color, tema, bio, foto_url, banner_url)
-          VALUES (?, ?, 'Cristina Restaurante & Taquería', 'negocio', '#B91C1C', 'food', '⭐ 4.8 (120+ opiniones) · Desde 1985 · 📍 3 Sucursales\nEl auténtico sabor de Teziutlán: Tacos al pastor, desayunos buffet y antojitos tradicionales.', 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=300', 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1000')
-        `).run(adminId, param);
-        const cId = resC.lastInsertRowid;
-
-        db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'seccion', ?, 0)").run(cId, JSON.stringify({ titulo: '💬 CONTACTO & PEDIDOS RÁPIDOS' }));
-        db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'whatsapp', ?, 1)").run(cId, JSON.stringify({ numero: '522313122032', texto: '🚀 Ordenar por WhatsApp', mensaje_default: '¡Hola Cristina Restaurante! Me gustaría realizar un pedido.' }));
-        db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 2)").run(cId, JSON.stringify({ url: 'https://www.ubereats.com/store/cristina-restaurante-taqueria/', titulo: '🛵 Pedir por Uber Eats', subtitulo: 'Entregas a domicilio', icono: '🛵', color: '#10B981' }));
-        db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'seccion', ?, 3)").run(cId, JSON.stringify({ titulo: '🍽 MENÚ DIGITAL' }));
-        db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'pdf', ?, 4)").run(cId, JSON.stringify({ titulo: '📄 Descargar Menú Completo (PDF)', url: 'http://restaurantescristina.com/menu.pdf' }));
-        db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'seccion', ?, 5)").run(cId, JSON.stringify({ titulo: '📍 SUCURSALES EN TEZIUTLÁN' }));
-        db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 6)").run(cId, JSON.stringify({ url: 'https://maps.google.com/?q=Ignacio+Allende+603+Centro+Teziutlan+Puebla', titulo: '📍 Sucursal 1: Centro — Allende #603', icono: '📍', color: '#D97706' }));
-        if (db._saveToDisk) db._saveToDisk();
-        perfil = db.prepare('SELECT * FROM perfiles WHERE id = ?').get(cId);
-      } catch (e) {
-        console.error('Error auto-healing cristina profile:', e);
+    // Auto-healing (delegado a _ensurePremiumProfiles del db)
+    if (!perfil) {
+      if (typeof db._ensurePremiumProfiles === 'function') {
+        await db._ensurePremiumProfiles();
       }
-    }
-    if (!perfil && (cleanParam.includes('juan') || cleanParam.includes('peque'))) {
-      try {
-        let admin = db.prepare("SELECT id FROM usuarios WHERE role = 'admin' OR telefono = '2311556138'").get();
-        const adminId = admin ? admin.id : 1;
-        const resJ = db.prepare(`
-          INSERT INTO perfiles (usuario_id, slug, nombre_perfil, tipo, color, tema, bio, foto_url, banner_url)
-          VALUES (?, ?, 'Pequeño Juan | Medio Digital Líder', 'negocio', '#E11D48', 'neon', '⭐ 5.0 (226K+ Seguidores) · El Medio Digital Mejor Posicionado de Teziutlán\nCoberturas en vivo HD, campañas publicitarias, posicionamiento de marcas, producción audiovisual y noticias.', 'https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?w=300', 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=1000')
-        `).run(adminId, param);
-        const jId = resJ.lastInsertRowid;
-
-        db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'seccion', ?, 0)").run(jId, JSON.stringify({ titulo: '📢 COTIZAR CAMPAÑA & SERVICIOS' }));
-        db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'whatsapp', ?, 1)").run(jId, JSON.stringify({ numero: '522311120932', texto: '🚀 Cotizar Publicidad por WhatsApp', mensaje_default: '¡Hola Pequeño Juan Medio Digital!' }));
-        db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 2)").run(jId, JSON.stringify({ url: 'tel:2311120932', titulo: '📞 Llamada Directa: (231) 112-0932', subtitulo: 'Atención 24 hrs a anunciantes', icono: '📞', color: '#0284C7' }));
-        db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'seccion', ?, 3)").run(jId, JSON.stringify({ titulo: '📺 TRANSMISIONES EN VIVO' }));
-        db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 4)").run(jId, JSON.stringify({ url: 'https://www.facebook.com/pequenojuantez/?locale=es_LA', titulo: '🔴 Ver Transmisión en Vivo por Facebook (+226k)', icono: '📺', color: '#1877F2' }));
-        db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'pdf', ?, 5)").run(jId, JSON.stringify({ titulo: '📄 Media Kit & Tarifario Publicitario (PDF)', url: 'http://pequenojuan.me/mediakit.pdf' }));
-        db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'seccion', ?, 6)").run(jId, JSON.stringify({ titulo: '📍 OFICINAS CENTRALES' }));
-        db.prepare("INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, 'link', ?, 7)").run(jId, JSON.stringify({ url: 'https://maps.google.com/?q=Av.+Benito+Juarez+1510-A+Centro+Teziutlan+Puebla', titulo: '📍 Oficina Central: Av. Benito Juárez 1510-A', subtitulo: 'Centro, Teziutlán, Pue.', icono: '📍', color: '#E11D48' }));
-
-        if (db._saveToDisk) db._saveToDisk();
-        perfil = db.prepare('SELECT * FROM perfiles WHERE id = ?').get(jId);
-      } catch (e) {
-        console.error('Error auto-healing pequeno juan profile:', e);
+      if (cleanParam.includes('cristina')) {
+        perfil = await db.prepare("SELECT * FROM perfiles WHERE slug IN ('cristina', 'cristina-teziutlan', 'cristina-taqueria') ORDER BY id DESC LIMIT 1").get();
+      } else if (cleanParam.includes('juan') || cleanParam.includes('peque')) {
+        perfil = await db.prepare("SELECT * FROM perfiles WHERE slug IN ('pequeno-juan', 'peque-juan', 'pequeno-juan-medio-digital') ORDER BY id DESC LIMIT 1").get();
       }
     }
 
@@ -370,23 +313,16 @@ function perfilPublicoHandler(req, res) {
       return res.status(404).send(generate404Page());
     }
 
-    // Incrementar visitas
     try {
-      db.prepare('UPDATE perfiles SET visitas = visitas + 1 WHERE id = ?').run(perfil.id);
-    } catch(e) {}
+      await db.prepare('UPDATE perfiles SET visitas = visitas + 1 WHERE id = ?').run(perfil.id);
+    } catch (e) {}
 
-    const campos = db.prepare('SELECT * FROM campos_contacto WHERE perfil_id = ? ORDER BY orden ASC').all(perfil.id) || [];
-    const archivos = db.prepare('SELECT * FROM archivos WHERE perfil_id = ? ORDER BY fecha_subida DESC').all(perfil.id) || [];
+    const campos = await db.prepare('SELECT * FROM campos_contacto WHERE perfil_id = ? ORDER BY orden ASC').all(perfil.id) || [];
+    const archivos = await db.prepare('SELECT * FROM archivos WHERE perfil_id = ? ORDER BY fecha_subida DESC').all(perfil.id) || [];
 
     const color = escapeHtml(perfil.color || '#007AFF');
-    const themeCss = `
-      :root {
-        --primary: ${color};
-        --accent: ${color};
-      }
-    `;
+    const themeCss = `:root { --primary: ${color}; --accent: ${color}; }`;
 
-    // --- Avatar HTML & Marco Independiente ---
     const marcoStyle = perfil.marco_estilo || 'solid';
     let wrapperStyle = '';
     if (marcoStyle === 'gradient') {
@@ -409,42 +345,34 @@ function perfilPublicoHandler(req, res) {
         </div>
       </div>`;
     } else {
-      const initials = (perfil.nombre_perfil || 'V')
-        .split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+      const initials = (perfil.nombre_perfil || 'V').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
       avatar_html = `<div class="avatar-wrapper" style="${wrapperStyle}">
         <div class="avatar" style="background:${color};font-size:2.5rem">${initials}</div>
       </div>`;
     }
 
-    // --- Bio HTML ---
     let bio_html = '';
-    if (perfil.bio) {
-      bio_html = `<p class="bio">${escapeHtml(perfil.bio)}</p>`;
-    }
+    if (perfil.bio) bio_html = `<p class="bio">${escapeHtml(perfil.bio)}</p>`;
 
-    // --- Tags HTML ---
     let tags_parts = [];
     if (perfil.tipo) tags_parts.push(escapeHtml(perfil.tipo));
     if (perfil.pronombres) tags_parts.push(escapeHtml(perfil.pronombres));
     if (perfil.lugar_estudio) tags_parts.push('📚 ' + escapeHtml(perfil.lugar_estudio));
     if (perfil.cumpleanos) tags_parts.push('🎂 ' + escapeHtml(perfil.cumpleanos));
-
     const tags_html = tags_parts.length > 0
       ? `<div class="tags">${tags_parts.map(t => `<span class="tag">${t}</span>`).join('')}</div>`
       : '';
 
-    // --- Bloques & Campos de contacto HTML ---
-    const bloques = db.prepare('SELECT * FROM bloques WHERE perfil_id = ? AND visible = 1 ORDER BY orden ASC').all(perfil.id) || [];
-    
+    const bloques = await db.prepare('SELECT * FROM bloques WHERE perfil_id = ? AND visible = 1 ORDER BY orden ASC').all(perfil.id) || [];
+
     let bloques_html = '';
-    
     if (bloques.length > 0) {
       bloques_html = bloques.map(bloque => {
         try {
           const bId = bloque.id;
           let bContent = {};
           if (typeof bloque.contenido === 'string') {
-            try { bContent = JSON.parse(bloque.contenido) || {}; } catch(e) { bContent = {}; }
+            try { bContent = JSON.parse(bloque.contenido) || {}; } catch (e) { bContent = {}; }
           } else if (bloque.contenido && typeof bloque.contenido === 'object') {
             bContent = bloque.contenido;
           }
@@ -459,21 +387,17 @@ function perfilPublicoHandler(req, res) {
             ? ' bento-hero'
             : (blockType === 'pdf' ? ' bento-media' : (isSocialLink ? ' bento-social' : ' bento-hero'));
           let html = `<div class="block-wrapper block-${escapeHtml(blockType)}${hasRichImage}${bentoClass}" data-bloque-id="${bId}">`;
-          
+
           switch (blockType) {
             case 'link': {
               const url = urlStr;
               const titulo = bContent?.titulo || 'Enlace';
               const subtitulo = bContent?.subtitulo || '';
-
-              // Smart Embed: Spotify
               if (url.includes('open.spotify.com')) {
                 let spotifyPath = url.replace('https://open.spotify.com/', '').replace('http://open.spotify.com/', '');
                 if (!spotifyPath.startsWith('embed/')) spotifyPath = 'embed/' + spotifyPath;
                 html += `<iframe class="smart-player" src="https://open.spotify.com/${escapeHtml(spotifyPath)}" width="100%" height="152" frameborder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
-              }
-              // Smart Component: Mapas Nativos Acordeón con Deep Linking (Sin iframes)
-              else if (isLocationBlock) {
+              } else if (isLocationBlock) {
                 const deepLinkUrl = url.includes('http') ? url : `https://maps.google.com/?q=${encodeURIComponent(titulo || 'Ubicación')}`;
                 html += `<details class="smart-accordion" open>
                   <summary style="border-left:4px solid #EA4335">
@@ -491,8 +415,7 @@ function perfilPublicoHandler(req, res) {
                     </a>
                   </div>
                 </details>`;
-              }
-              else {
+              } else {
                 const icon = getSmartIcon(titulo, url);
                 const brandColor = getSmartBrandColor(titulo, url) || bContent?.color || 'var(--text-primary)';
                 const ogImage = bContent?.og_image || bContent?.image || '';
@@ -662,16 +585,15 @@ function perfilPublicoHandler(req, res) {
             default:
               html += `<div class="block-unsupported">Bloque: ${escapeHtml(blockType)}</div>`;
           }
-          
+
           html += `</div>`;
           return html;
-        } catch(e) {
+        } catch (e) {
           console.error('[CRITICAL] Error al renderizar bloque individual:', e);
           return '';
         }
       }).join('\n');
     } else {
-      // Fallback to campos_contacto if no blocks
       const campos_html = campos.map(campo => {
         const icon = getFieldIcon(campo.tipo);
         const iconColor = getFieldColor(campo.tipo);
@@ -704,7 +626,6 @@ function perfilPublicoHandler(req, res) {
         : '';
     }
 
-    // --- Archivos HTML ---
     const archivos_html = archivos.map(archivo => {
       const icon = (archivo.tipo || '').includes('pdf') ? '<i class="fas fa-file-pdf"></i>' : '<i class="fas fa-file-image"></i>';
       const displayName = (archivo.nombre || '').length > 35
@@ -722,7 +643,6 @@ function perfilPublicoHandler(req, res) {
         </a>`;
     }).join('\n');
 
-    // --- Archivos section ---
     const archivos_section_html = archivos.length > 0
       ? `<div class="section files-section">
           <h2 class="section-title">Archivos</h2>
@@ -732,22 +652,18 @@ function perfilPublicoHandler(req, res) {
          </div>`
       : '';
 
-    // --- Action buttons ---
     const action_buttons_html = generateActionButtons(perfil, campos);
-
-    // --- OG image ---
     const og_image = fotoSrc || `${BASE_URL}/img/og-default.png`;
 
-    // --- Read template ---
     let html;
     const templatePath = path.join(process.cwd(), 'views', 'perfil-publico.html');
     try {
       html = fs.readFileSync(templatePath, 'utf-8');
     } catch (e) {
-      html = generateFallbackHTML();
+      console.error('Plantilla views/perfil-publico.html no encontrada');
+      return res.status(500).send(`<!DOCTYPE html><html lang="es"><body style="background:#0A0A0B;color:#FFF;font-family:sans-serif;padding:40px;text-align:center"><h1>500 - Plantilla no disponible</h1><p>Falta views/perfil-publico.html en el servidor.</p><a href="/" style="color:#7C3AED">Volver al inicio</a></body></html>`);
     }
 
-    // --- Replace ALL placeholders ---
     const bio_text = perfil.bio ? escapeHtml(perfil.bio) : 'Tarjeta digital de contacto';
     const tema = perfil.tema || 'ios';
 
@@ -785,10 +701,6 @@ function perfilPublicoHandler(req, res) {
     res.status(500).send(`<!DOCTYPE html><html lang="es"><body style="background:#0A0A0B;color:#FFF;font-family:sans-serif;padding:40px;text-align:center"><h1>500 - Error al Renderizar Perfil</h1><p>${escapeHtml(err.message)}</p><a href="/" style="color:#7C3AED">Volver al inicio</a></body></html>`);
   }
 }
-
-// =============================================
-// Funciones auxiliares
-// =============================================
 
 function escapeHtml(str) {
   if (!str) return '';
@@ -882,8 +794,6 @@ function getFieldLink(campo) {
 
 function generateActionButtons(perfil, campos) {
   const buttons = [];
-
-  // Botón de WhatsApp (si tiene campo whatsapp)
   const whatsapp = campos.find(c => c.tipo === 'whatsapp');
   if (whatsapp) {
     const waLink = `https://wa.me/${whatsapp.valor.replace(/[^0-9]/g, '')}`;
@@ -892,8 +802,6 @@ function generateActionButtons(perfil, campos) {
         <i class="fab fa-whatsapp action-icon"></i> WhatsApp
       </a>`);
   }
-
-  // Botón de llamar (si tiene teléfono)
   const telefono = campos.find(c => c.tipo === 'telefono');
   if (telefono) {
     buttons.push(`
@@ -901,8 +809,6 @@ function generateActionButtons(perfil, campos) {
         <i class="fas fa-phone action-icon"></i> Llamar
       </a>`);
   }
-
-  // Botón de email (si tiene email)
   const email = campos.find(c => c.tipo === 'email');
   if (email) {
     buttons.push(`
@@ -910,7 +816,6 @@ function generateActionButtons(perfil, campos) {
         <i class="fas fa-envelope action-icon"></i> Email
       </a>`);
   }
-
   return buttons.length > 0 ? `<div class="action-buttons">${buttons.join('\n')}</div>` : '';
 }
 
@@ -957,178 +862,9 @@ function generate404Page() {
 </html>`;
 }
 
-function generateFallbackHTML() {
-  return `<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{nombre_perfil}} - TarjetaDigital</title>
-  <meta name="description" content="Tarjeta digital de {{nombre_perfil}}">
-  <meta property="og:title" content="{{nombre_perfil}} - TarjetaDigital">
-  <meta property="og:description" content="Tarjeta digital de contacto">
-  <meta property="og:image" content="{{og_image}}">
-  <meta property="og:url" content="{{base_url}}/u/{{slug}}">
-  <meta property="og:type" content="profile">
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Inter', -apple-system, sans-serif;
-      background: #0f0f23;
-      color: #e0e0e0;
-      min-height: 100vh;
-    }
-    {{tema_css}}
-    .card-header {
-      background: linear-gradient(135deg, {{color}}, {{color}}99);
-      padding: 3rem 1.5rem 4rem;
-      text-align: center;
-      position: relative;
-    }
-    .avatar {
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      border: 4px solid rgba(255,255,255,0.3);
-      object-fit: cover;
-      margin-bottom: 1rem;
-    }
-    .profile-name { font-size: 1.5rem; font-weight: 700; color: #fff; }
-    .profile-type { font-size: 0.9rem; color: rgba(255,255,255,0.8); margin-top: 0.25rem; }
-    .card-body {
-      max-width: 480px;
-      margin: -2rem auto 0;
-      padding: 0 1rem 2rem;
-      position: relative;
-      z-index: 1;
-    }
-    .section {
-      background: rgba(255, 255, 255, 0.03) !important;
-      backdrop-filter: blur(20px) !important;
-      -webkit-backdrop-filter: blur(20px) !important;
-      border: none !important;
-      box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.12),
-                  0 0 0 1px rgba(255, 255, 255, 0.06),
-                  0 12px 32px rgba(0, 0, 0, 0.35) !important;
-      border-radius: 16px;
-      padding: 1.25rem;
-      margin-bottom: 1.25rem;
-    }
-    .section-title { font-size: 0.75rem; text-transform: uppercase; color: #888; margin-bottom: 0.75rem; letter-spacing: 1px; }
-    .action-buttons { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; margin-bottom: 1rem; }
-    .action-btn, .contact-item, .file-item {
-      transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), background-color 160ms ease, box-shadow 160ms cubic-bezier(0.23, 1, 0.32, 1) !important;
-    }
-    .action-btn:active, .contact-item:active, .file-item:active {
-      transform: scale(0.96) !important;
-    }
-    .action-btn {
-      display: flex; align-items: center; justify-content: center; gap: 0.5rem;
-      padding: 0.75rem; border-radius: 10px; text-decoration: none; color: #fff;
-      font-weight: 600; font-size: 0.85rem;
-    }
-    .action-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px {{color}}40 !important;
-    }
-    .action-whatsapp { background: #25D366; }
-    .action-call { background: #4A90D9; }
-    .action-email { background: #EA4335; }
-    .action-save { background: {{color}}; grid-column: 1 / -1; }
-    .contact-item {
-      display: flex; align-items: center; padding: 0.75rem; border-radius: 10px;
-      text-decoration: none; color: #e0e0e0; margin-bottom: 0.5rem;
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-    }
-    .contact-item:hover {
-      background: rgba(255, 255, 255, 0.06);
-      transform: translateY(-2px);
-      box-shadow: 0 0 16px {{color}}30, 0 0 0 1px {{color}} !important;
-    }
-    .contact-icon { font-size: 1.3rem; margin-right: 0.75rem; width: 32px; text-align: center; }
-    .contact-info { flex: 1; }
-    .contact-label { display: block; font-size: 0.7rem; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
-    .contact-value { display: block; font-size: 0.9rem; margin-top: 0.15rem; }
-    .contact-arrow { color: #555; font-size: 1.2rem; }
-    .file-item {
-      display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem;
-      border-radius: 8px; text-decoration: none; color: #e0e0e0;
-    }
-    .file-item:hover {
-      background: rgba(255,255,255,0.06);
-      transform: translateY(-2px);
-    }
-    .file-icon { font-size: 1.3rem; }
-    .file-name { flex: 1; font-size: 0.9rem; }
-    .file-download { color: {{color}}; }
-    .footer {
-      text-align: center; padding: 2rem 1rem; font-size: 0.75rem; color: #555;
-    }
-    .footer a { color: {{color}}; text-decoration: none; }
-  </style>
-</head>
-<body>
-  <div class="card-header">
-    <img src="{{foto_url}}" alt="{{nombre_perfil}}" class="avatar"
-         onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%236C63FF%22 width=%22100%22 height=%22100%22/><text x=%2250%22 y=%2255%22 text-anchor=%22middle%22 fill=%22white%22 font-size=%2240%22>👤</text></svg>'">
-    <div class="profile-name">{{nombre_perfil}}</div>
-    <div class="profile-type">{{tipo}}</div>
-  </div>
-
-  <div class="card-body">
-    <div class="action-buttons">
-      {{action_buttons_html}}
-    </div>
-
-    <div class="section">
-      {{bloques_html}}
-    </div>
-
-    <div class="section" id="archivos-section" style="{{archivos_html}}display:none">
-      <div class="section-title">Archivos</div>
-      {{archivos_html}}
-    </div>
-
-    <div class="footer">
-      <p>Creado con <a href="{{base_url}}">TarjetaDigital</a></p>
-    </div>
-  </div>
-
-  <script>
-    // Mostrar sección de archivos solo si hay archivos
-    (function() {
-      var section = document.getElementById('archivos-section');
-      if (section && section.querySelectorAll('.file-item').length > 0) {
-        section.style.display = 'block';
-      }
-    })();
-
-    function trackEvent(perfilId, evento) {
-      fetch('{{api_base}}/api/estadisticas', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ perfil_id: perfilId, evento: evento })
-      }).catch(function() {});
-    }
-
-    // Registrar visita
-    trackEvent({{perfil_id}}, 'visita');
-  </script>
-</body>
-</html>`;
-}
-
-module.exports = router;
-module.exports.perfilPublicoHandler = perfilPublicoHandler;
-module.exports.getSmartIcon = getSmartIcon;
-module.exports.getSmartBrandColor = getSmartBrandColor;
-
 function getSmartIcon(titulo, url) {
   const t = (titulo || '').toLowerCase();
   const u = (url || '').toLowerCase();
-
   if (u.includes('whatsapp') || t.includes('whatsapp')) return '<i class="fab fa-whatsapp"></i>';
   if (u.includes('facebook') || t.includes('facebook')) return '<i class="fab fa-facebook"></i>';
   if (u.includes('instagram') || t.includes('instagram')) return '<i class="fab fa-instagram"></i>';
@@ -1149,7 +885,6 @@ function getSmartIcon(titulo, url) {
 function getSmartBrandColor(titulo, url) {
   const t = (titulo || '').toLowerCase();
   const u = (url || '').toLowerCase();
-
   if (u.includes('whatsapp') || t.includes('whatsapp')) return '#25D366';
   if (u.includes('facebook') || t.includes('facebook')) return '#1877F2';
   if (u.includes('instagram') || t.includes('instagram')) return '#E4405F';
@@ -1164,3 +899,8 @@ function getSmartBrandColor(titulo, url) {
   if (u.includes('.pdf') || t.includes('pdf')) return '#EF4444';
   return null;
 }
+
+module.exports = router;
+module.exports.perfilPublicoHandler = perfilPublicoHandler;
+module.exports.getSmartIcon = getSmartIcon;
+module.exports.getSmartBrandColor = getSmartBrandColor;

@@ -4,24 +4,23 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Compartir & NFC — VYNK</title>
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <meta name="theme-color" content="#FBF9FF">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="css/styles.css">
   <style>
     body {
-      background: var(--bg-primary);
-      background-image: var(--grad-oled);
+      background: var(--canvas);
+      color: var(--ink);
+      font-family: var(--font-body);
       min-height: 100dvh;
     }
     .share-card {
-      background: var(--bg-card);
-      backdrop-filter: blur(var(--card-blur));
-      -webkit-backdrop-filter: blur(var(--card-blur));
-      border: 1px solid var(--card-border);
-      box-shadow: var(--card-shadow);
+      background: var(--paper);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-md);
       border-radius: var(--radius-xl);
       padding: 32px 24px;
       text-align: center;
@@ -31,10 +30,10 @@
       position: relative;
       display: inline-block;
       padding: 16px;
-      background: #08080E;
-      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: var(--paper);
+      border: 1px solid var(--line);
       border-radius: 24px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+      box-shadow: var(--shadow-sm);
       margin: 20px 0;
     }
     .qr-wrapper img {
@@ -50,13 +49,13 @@
       transform: translate(-50%, -50%);
       width: 48px;
       height: 48px;
-      background: #0D0A1A;
-      border: 2px solid #7C3AED;
+      background: var(--tint);
+      border: 2px solid var(--accent-deep);
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 0 16px rgba(124, 58, 237, 0.6);
+      box-shadow: 0 4px 12px rgba(92, 72, 230, 0.2);
     }
     .qr-badge img {
       width: 28px;
@@ -67,9 +66,9 @@
 <body>
   <nav class="navbar">
     <div style="display:flex;align-items:center;gap:12px">
-      <a href="/dashboard.html" class="btn btn-icon btn-sm">←</a>
+      <a href="dashboard.html" class="btn btn-icon btn-sm">←</a>
       <div style="display:flex;align-items:center;gap:8px">
-        <img src="/img/vynk-logo.svg" alt="VYNK" style="height:26px">
+        <img src="img/vynk-logo.svg" alt="VYNK" style="height:26px">
       </div>
     </div>
   </nav>
@@ -83,7 +82,7 @@
       <div class="qr-wrapper">
         <img id="qr-img" alt="Código QR VYNK Startup 2027">
         <div class="qr-badge">
-          <img src="/favicon.svg" alt="VYNK Logo Center">
+          <img src="favicon.svg" alt="VYNK Logo Center">
         </div>
       </div>
       <p style="font-size:var(--font-xs);color:var(--text-muted)">Escanea con la cámara de cualquier smartphone</p>
@@ -139,7 +138,7 @@
 
   <div class="toast-container" id="toast-container"></div>
 
-  <script src="/js/app.js"></script>
+<script src="js/app.js"></script>
   <script>
     (function(){
       if (!checkAuth()) return;

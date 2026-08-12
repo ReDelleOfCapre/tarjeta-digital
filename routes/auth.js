@@ -62,7 +62,7 @@ async function verifyCaptcha(captchaToken) {
 }
 
 // POST /api/auth/registro
-router.post('/registro', [
+router.post('/registro', rateLimit(10, 15 * 60 * 1000), [
   body('telefono').notEmpty().isLength({ min: 7, max: 15 }).withMessage('Teléfono inválido'),
   body('nombre').notEmpty().trim().isLength({ min: 2, max: 50 }).withMessage('Nombre requerido (2-50 caracteres)'),
   body('password').isLength({ min: 6 }).withMessage('La contraseña debe tener al menos 6 caracteres'),
@@ -82,7 +82,7 @@ router.post('/registro', [
     const { telefono, nombre, password, email, legal_aceptado } = req.body;
     const telefonoNorm = normalizePhone(telefono);
 
-    const existing = db.prepare('SELECT id FROM usuarios WHERE telefono = ?').get(telefonoNorm);
+    const existing = await db.prepare('SELECT id FROM usuarios WHERE telefono = ?').get(telefonoNorm);
     if (existing) {
       return res.status(409).json({ error: 'Este teléfono ya está registrado' });
     }
@@ -94,7 +94,7 @@ router.post('/registro', [
     const role = ownerDetected ? 'admin' : 'user';
     const termsAccepted = legal_aceptado ? true : false;
 
-    const result = db.prepare(
+    const result = await db.prepare(
       "INSERT INTO usuarios (telefono, nombre, password_hash, plan, plan_expira, role, email, terms_accepted) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
     ).run(telefonoNorm, nombre.trim(), password_hash, plan, plan_expira, role, email || null, termsAccepted);
 
@@ -128,7 +128,7 @@ router.post('/login', rateLimit(10, 15 * 60 * 1000), [
     const { telefono, password } = req.body;
     const telefonoNorm = normalizePhone(telefono);
 
-    const user = db.prepare('SELECT * FROM usuarios WHERE telefono = ?').get(telefonoNorm);
+    const user = await db.prepare('SELECT * FROM usuarios WHERE telefono = ?').get(telefonoNorm);
     if (!user) {
       return res.status(401).json({ error: 'Teléfono o contraseña incorrectos' });
     }
@@ -139,7 +139,7 @@ router.post('/login', rateLimit(10, 15 * 60 * 1000), [
     }
 
     if (isOwner(telefonoNorm, user.email) && (user.plan !== 'paid' || user.role !== 'admin')) {
-      db.prepare('UPDATE usuarios SET plan = ?, role = ? WHERE id = ?').run('paid', 'admin', user.id);
+      await db.prepare('UPDATE usuarios SET plan = ?, role = ? WHERE id = ?').run('paid', 'admin', user.id);
       user.plan = 'paid';
       user.role = 'admin';
     }
@@ -181,9 +181,9 @@ router.post('/logout', (req, res) => {
 router.post('/accept-terms', auth, async (req, res) => {
   try {
     const db = await dbReady;
-    db.prepare('UPDATE usuarios SET terms_accepted = TRUE WHERE id = ?').run(req.user.id);
-    
-    const user = db.prepare('SELECT * FROM usuarios WHERE id = ?').get(req.user.id);
+    await db.prepare('UPDATE usuarios SET terms_accepted = TRUE WHERE id = ?').run(req.user.id);
+
+    const user = await db.prepare('SELECT * FROM usuarios WHERE id = ?').get(req.user.id);
     const newToken = signToken({
       id: user.id,
       telefono: user.telefono,
@@ -215,7 +215,7 @@ router.post('/sso-login', async (req, res) => {
     }
 
     const db = await dbReady;
-    let user = db.prepare('SELECT * FROM usuarios WHERE email = ? OR google_id = ? OR apple_id = ? OR microsoft_id = ?').get(email, providerId || '', providerId || '', providerId || '');
+    let user = await db.prepare('SELECT * FROM usuarios WHERE email = ? OR google_id = ? OR apple_id = ? OR microsoft_id = ?').get(email, providerId || '', providerId || '', providerId || '');
 
     if (!user) {
       // Crear cuenta automática para SSO con 30 días Pro
@@ -224,7 +224,7 @@ router.post('/sso-login', async (req, res) => {
       const plan_expira = new Date(Date.now() + 30*24*60*60*1000).toISOString();
       const colId = provider === 'google' ? 'google_id' : provider === 'apple' ? 'apple_id' : 'microsoft_id';
 
-      const ins = db.prepare(`
+      const ins = await db.prepare(`
         INSERT INTO usuarios (telefono, nombre, password_hash, email, plan, plan_expira, role, ${colId}, terms_accepted)
         VALUES (?, ?, ?, ?, 'paid', ?, 'user', ?, TRUE)
       `).run(randomTel, nombre || 'Usuario ' + provider.toUpperCase(), randomPass, email, plan_expira, providerId || email);
@@ -271,7 +271,7 @@ router.post('/sso-login', async (req, res) => {
 router.get('/me', auth, async (req, res) => {
   try {
     const db = await dbReady;
-    const user = db.prepare('SELECT * FROM usuarios WHERE id = ?').get(req.user.id);
+    const user = await db.prepare('SELECT * FROM usuarios WHERE id = ?').get(req.user.id);
     if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
 
     const isPro = !!(user.is_pro || user.plan === 'paid');
@@ -301,7 +301,7 @@ router.get('/me', auth, async (req, res) => {
 router.post('/complete-tour', auth, async (req, res) => {
   try {
     const db = await dbReady;
-    db.prepare('UPDATE usuarios SET is_first_login = FALSE WHERE id = ?').run(req.user.id);
+    await db.prepare('UPDATE usuarios SET is_first_login = FALSE WHERE id = ?').run(req.user.id);
     res.json({ success: true, message: 'Tour de onboarding completado' });
   } catch (err) {
     console.error('Error al completar tour:', err);
@@ -316,20 +316,38 @@ router.get('/google', (req, res, next) => {
   }
   res.redirect('/#auth');
 });
-// POST /api/auth/demo — Generación asíncrona de sesión autorizada VYNK
+// POST /api/auth/demo — Login automático en cuenta demo (solo NODE_ENV !== 'production')
 router.post('/demo', async (req, res) => {
+  if (process.env.NODE_ENV === 'production') {
+    return res.status(403).json({ error: 'La cuenta demo no está disponible en producción' });
+  }
   try {
     const db = await dbReady;
-    let user = db.prepare('SELECT * FROM usuarios WHERE telefono = ?').get('522311556138');
+    let user = await db.prepare('SELECT * FROM usuarios WHERE email = ?').get('demo@VYNK.app');
     if (!user) {
-      const password_hash = await bcrypt.hash('demo1234', 10);
-      const result = db.prepare(
-        "INSERT INTO usuarios (telefono, nombre, password_hash, plan, role) VALUES (?, ?, ?, ?, ?)"
-      ).run('522311556138', 'Giovanni Paolo', password_hash, 'paid', 'admin');
-      user = { id: result.lastInsertRowid, telefono: '522311556138', nombre: 'Giovanni Paolo', plan: 'paid', role: 'admin' };
+      return res.status(500).json({ error: 'Cuenta demo no inicializada. Reinicia el servidor.' });
     }
-    const token = signToken(user);
-    res.json({ token, usuario: { id: user.id, telefono: user.telefono, nombre: user.nombre, plan: user.plan, role: user.role } });
+    const token = signToken({
+      id: user.id,
+      telefono: user.telefono,
+      plan: user.plan,
+      plan_expira: user.plan_expira,
+      nombre: user.nombre,
+      role: user.role,
+      terms_accepted: !!user.terms_accepted
+    });
+    res.json({
+      token,
+      usuario: {
+        id: user.id,
+        telefono: user.telefono,
+        nombre: user.nombre,
+        email: user.email,
+        plan: user.plan,
+        role: user.role,
+        terms_accepted: !!user.terms_accepted
+      }
+    });
   } catch (err) {
     console.error('Error en auth demo:', err);
     res.status(500).json({ error: 'Error creando sesión demo' });

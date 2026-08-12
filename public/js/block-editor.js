@@ -1,803 +1,1149 @@
-// ============================================
-// My ID — Block Editor v3
-// ============================================
-(function(){
+(function () {
   if (!checkAuth()) return;
 
-  // ===== CONFIG =====
   var BLOCK_TYPES = [
-    { tipo:'link', label:'Link', icon:'📎', color:'#007AFF' },
-    { tipo:'ubicacion', label:'Ubicación / Oficina', icon:'📍', color:'#EA4335' },
-    { tipo:'whatsapp', label:'WhatsApp CTA', icon:'💬', color:'#25D366' },
-    { tipo:'social_icons', label:'Redes', icon:'🔗', color:'#AF52DE' },
-    { tipo:'galeria', label:'Fotos / Galería', icon:'📸', color:'#EC4899' },
-    { tipo:'wishlist', label:'Wishlist / Tienda', icon:'🎁', color:'#FF9500' },
-    { tipo:'pdf', label:'Documento PDF', icon:'📄', color:'#EF4444' },
-    { tipo:'pago', label:'Transferencia / Pago', icon:'💳', color:'#10B981' },
-    { tipo:'nota', label:'Nota / Aviso', icon:'📌', color:'#F59E0B' },
-    { tipo:'seccion', label:'Título Sección', icon:'🏷️', color:'#8B5CF6' },
-    { tipo:'spotify', label:'Spotify', icon:'🎵', color:'#1DB954' },
-    { tipo:'youtube', label:'YouTube', icon:'▶️', color:'#FF0000' },
-    { tipo:'tiktok', label:'TikTok', icon:'🎬', color:'#000' },
-    { tipo:'texto', label:'Texto libre', icon:'📝', color:'#8E8E93' },
-    { tipo:'email_capture', label:'Captura Email', icon:'📧', color:'#FF9500' },
-    { tipo:'countdown', label:'Cuenta regresiva', icon:'⏳', color:'#FF3B30' }
-  ];
-
-  var THEMES = [
-    { id:'auto', name:'Camaleón / Auto 🦎', bg:'linear-gradient(135deg, #7C3AED, #EC4899)', fg:'#FFF', accent:'#7C3AED' },
-    { id:'ios', name:'iOS Glass', bg:'#F2F2F7', fg:'#1C1C1E', accent:'#007AFF' },
-    { id:'neon', name:'Neon Dark', bg:'#0a0a0f', fg:'#00f0ff', accent:'#00f0ff' },
-    { id:'minimal', name:'Minimal Clean', bg:'#fafafa', fg:'#111', accent:'#111' },
-    { id:'gradient', name:'Gradient VIP', bg:'linear-gradient(135deg,#667eea,#764ba2)', fg:'#fff', accent:'#fff' },
-    { id:'food', name:'Street Food / Rest', bg:'linear-gradient(135deg,#1F2937,#111827)', fg:'#F97316', accent:'#F97316' },
-    { id:'premium', name:'Luxury Gold', bg:'linear-gradient(135deg,#0F172A,#020617)', fg:'#F59E0B', accent:'#F59E0B' }
+    { tipo: "link", label: "Link destacado", icon: "🔗", color: "#4C6FFF" },
+    { tipo: "ubicacion", label: "Ubicacion", icon: "📍", color: "#EF6F7C" },
+    { tipo: "whatsapp", label: "WhatsApp", icon: "💬", color: "#25D366" },
+    { tipo: "social_icons", label: "Redes", icon: "✦", color: "#B86AF6" },
+    { tipo: "galeria", label: "Galeria", icon: "📷", color: "#EC4899" },
+    { tipo: "wishlist", label: "Wishlist", icon: "🎁", color: "#E8A33D" },
+    { tipo: "pdf", label: "PDF", icon: "📄", color: "#F35B5B" },
+    { tipo: "pago", label: "Pago", icon: "💳", color: "#32B47E" },
+    { tipo: "nota", label: "Nota", icon: "📝", color: "#F59E0B" },
+    { tipo: "seccion", label: "Seccion", icon: "🏷", color: "#7A68F8" },
+    { tipo: "spotify", label: "Spotify", icon: "🎵", color: "#1DB954" },
+    { tipo: "youtube", label: "YouTube", icon: "▶", color: "#FF3131" },
+    { tipo: "tiktok", label: "TikTok", icon: "🎬", color: "#111111" },
+    { tipo: "texto", label: "Texto libre", icon: "✍", color: "#8C8A95" },
+    { tipo: "email_capture", label: "Captura email", icon: "📧", color: "#F97316" },
+    { tipo: "countdown", label: "Cuenta regresiva", icon: "⏳", color: "#FF6B70" }
   ];
 
   var SOCIAL_TYPES = [
-    {tipo:'instagram',label:'Instagram',icon:'📷'},
-    {tipo:'tiktok',label:'TikTok',icon:'♪'},
-    {tipo:'twitter',label:'X',icon:'𝕏'},
-    {tipo:'youtube',label:'YouTube',icon:'▶'},
-    {tipo:'facebook',label:'Facebook',icon:'f'},
-    {tipo:'linkedin',label:'LinkedIn',icon:'in'},
-    {tipo:'twitch',label:'Twitch',icon:'🎬'},
-    {tipo:'kick',label:'Kick',icon:'K'},
-    {tipo:'spotify',label:'Spotify',icon:'🎵'},
-    {tipo:'discord',label:'Discord',icon:'🎮'},
-    {tipo:'telegram',label:'Telegram',icon:'✈'},
-    {tipo:'github',label:'GitHub',icon:'⌨'},
-    {tipo:'web',label:'Web',icon:'🌐'}
+    { tipo: "instagram", label: "Instagram", icon: "📷" },
+    { tipo: "tiktok", label: "TikTok", icon: "🎵" },
+    { tipo: "twitter", label: "X", icon: "✕" },
+    { tipo: "youtube", label: "YouTube", icon: "▶" },
+    { tipo: "facebook", label: "Facebook", icon: "f" },
+    { tipo: "linkedin", label: "LinkedIn", icon: "in" },
+    { tipo: "spotify", label: "Spotify", icon: "🎵" },
+    { tipo: "github", label: "GitHub", icon: "⌘" },
+    { tipo: "web", label: "Sitio", icon: "🌐" }
   ];
 
-  // ===== STATE =====
-  var editId = new URLSearchParams(location.search).get('id');
-  var selectedColor = '#7C3AED';
-  var selectedTheme = 'ios';
-  var blocks = []; // [{_tempId, tipo, contenido, id?}]
-  var profileSlug = null;
-  var currentStep = 1;
+  var THEMES = [
+    {
+      id: "auto",
+      name: "Camaleon",
+      note: "Usa tu foto o logo",
+      preview: "linear-gradient(135deg, #E8A33D, #EF6F7C)"
+    },
+    {
+      id: "editorial",
+      name: "Editorial",
+      note: "Calido y premium",
+      preview: "linear-gradient(135deg, #251f2e, #3a2d27)"
+    },
+    {
+      id: "graphite",
+      name: "Graphite",
+      note: "Sobrio y nitido",
+      preview: "linear-gradient(135deg, #11131A, #2A3345)"
+    },
+    {
+      id: "coast",
+      name: "Coast",
+      note: "Limpio y vibrante",
+      preview: "linear-gradient(135deg, #0F2B36, #1F6B6C)"
+    },
+    {
+      id: "paper",
+      name: "Paper",
+      note: "Claro y elegante",
+      preview: "linear-gradient(135deg, #F4EEE3, #DCC8A4)"
+    },
+    {
+      id: "velvet",
+      name: "Velvet",
+      note: "Contraste profundo",
+      preview: "linear-gradient(135deg, #261229, #53205B)"
+    }
+  ];
+
+  var editId = new URLSearchParams(location.search).get("id");
+  var selectedTheme = "auto";
+  var selectedColor = "#E8A33D";
   var autoExtractedColor = null;
+  var blocks = [];
+  var profileSlug = null;
+  var editingBlockIdx = null;
+  var currentStep = 1;
 
-  // ===== WIZARD STEPPER NAVIGATION =====
-  window.goStep = function(s) {
-    if (s < 1 || s > 3) return;
-
-    if (s > 1) {
-      var nombre = gv('nombre_perfil');
-      var inputNombre = document.getElementById('nombre_perfil');
-      if (!nombre || !nombre.trim()) {
-        if (inputNombre) {
-          inputNombre.style.borderColor = 'var(--red)';
-          inputNombre.focus();
-        }
-        showToast('Por favor ingresa el Nombre para continuar', 'error');
-        return false;
-      } else if (inputNombre) {
-        inputNombre.style.borderColor = '';
-      }
-    }
-
-    currentStep = s;
-
-    var track = document.getElementById('wizard-track');
-    if (track) {
-      var offset = (s - 1) * -33.33333;
-      track.style.transform = 'translateX(' + offset + '%)';
-    }
-
-    for (var i = 1; i <= 3; i++) {
-      var dot = document.getElementById('dot-' + i);
-      if (dot) {
-        dot.classList.remove('active', 'done');
-        if (i < s) dot.classList.add('done');
-        if (i === s) dot.classList.add('active');
-      }
-    }
-
-    var btnPrev = document.getElementById('btn-prev-step');
-    var btnNext = document.getElementById('btn-next-step');
-
-    if (btnPrev) {
-      btnPrev.disabled = (s === 1);
-    }
-    if (btnNext) {
-      if (s === 3) {
-        btnNext.textContent = '⚡ Guardar & Publicar';
-      } else {
-        btnNext.textContent = 'Siguiente →';
-      }
-    }
-
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  window.nextStep = function() {
-    if (currentStep === 3) {
-      saveAll();
-    } else {
-      goStep(currentStep + 1);
-    }
-  };
-
-  window.prevStep = function() {
-    if (currentStep > 1) {
-      goStep(currentStep - 1);
-    }
-  };
-
-  // ===== AUTO / CHAMELEON THEME ENGINE =====
-  function extractDominantColorFromImage(imgEl) {
-    if (!imgEl) return;
-    try {
-      var canvas = document.createElement('canvas');
-      var ctx = canvas.getContext('2d');
-      canvas.width = 50;
-      canvas.height = 50;
-      ctx.drawImage(imgEl, 0, 0, 50, 50);
-      var data = ctx.getImageData(0, 0, 50, 50).data;
-      var r = 0, g = 0, b = 0, count = 0;
-      for (var i = 0; i < data.length; i += 16) {
-        var cr = data[i], cg = data[i+1], cb = data[i+2], ca = data[i+3];
-        if (ca > 128 && !(cr > 240 && cg > 240 && cb > 240) && !(cr < 25 && cg < 25 && cb < 25)) {
-          r += cr; g += cg; b += cb; count++;
-        }
-      }
-      if (count > 0) {
-        r = Math.round(r / count);
-        g = Math.round(g / count);
-        b = Math.round(b / count);
-        autoExtractedColor = '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
-        console.log('🎨 Color Camaleón Auto extraído:', autoExtractedColor);
-        if (selectedTheme === 'auto') {
-          selectedColor = autoExtractedColor;
-          updateLivePreview();
-        }
-      }
-    } catch(e) {
-      console.error('Error calculando color dominante:', e);
-    }
-  }
-
-  // ===== INIT =====
-  renderThemes();
+  renderThemePicker();
   renderPalette();
   renderBlockList();
-  setupColorPicker();
-  setupPhotoUpload();
-  setupLivePreviewListeners();
-  setupSortableDragAndDrop();
+  setupEvents();
+  updateStepUI();
+  updateLivePreview();
 
   if (editId) {
-    var titleEl = document.getElementById('page-title');
-    if (titleEl) titleEl.textContent = 'Editar Identidad Digital';
+    var titleEl = document.getElementById("page-title");
+    if (titleEl) titleEl.textContent = "Editar identidad digital";
     loadExisting(editId);
   }
 
-  var btnSave = document.getElementById('btn-save');
-  var btnFinalSave = document.getElementById('btn-final-save');
-  if (btnSave) btnSave.addEventListener('click', saveAll);
-  if (btnFinalSave) btnFinalSave.addEventListener('click', saveAll);
-
-  // ===== REAL-TIME LIVE PREVIEW DATA BINDING =====
-  function setupLivePreviewListeners() {
-    ['nombre_perfil', 'tipo_perfil', 'bio_perfil', 'cumpleanos', 'lugar_estudio', 'pronombres', 'marco_estilo'].forEach(function(id) {
+  function setupEvents() {
+    [
+      "nombre_perfil",
+      "tipo_perfil",
+      "bio_perfil",
+      "cumpleanos",
+      "lugar_estudio",
+      "pronombres",
+      "marco_estilo"
+    ].forEach(function (id) {
       var el = document.getElementById(id);
-      if (el) {
-        el.addEventListener('input', updateLivePreview);
-        el.addEventListener('change', updateLivePreview);
-      }
+      if (!el) return;
+      el.addEventListener("input", updateLivePreview);
+      el.addEventListener("change", updateLivePreview);
     });
+
+    var saveBtn = document.getElementById("btn-save");
+    var finalBtn = document.getElementById("btn-final-save");
+    if (saveBtn) saveBtn.addEventListener("click", saveAll);
+    if (finalBtn) finalBtn.addEventListener("click", saveAll);
+
+    setupColorPicker();
+    setupPhotoUpload();
+    setupSortableDragAndDrop();
   }
 
-  function updateLivePreview() {
-    var nombre = gv('nombre_perfil') || 'Tu Nombre';
-    var tipo = gv('tipo_perfil') || 'personal';
-    var bio = gv('bio_perfil') || 'Tu biografía profesional aparecerá aquí...';
-    var marcoEstilo = gv('marco_estilo') || 'solid';
+  function renderThemePicker() {
+    var container = document.getElementById("theme-picker");
+    if (!container) return;
 
-    if (selectedTheme === 'auto' && autoExtractedColor) {
-      selectedColor = autoExtractedColor;
-    }
+    container.innerHTML = THEMES.map(function (theme) {
+      var active = theme.id === selectedTheme ? " active" : "";
+      return (
+        '<button type="button" class="theme-card' + active + '" data-theme-id="' + escapeHtml(theme.id) + '">' +
+          '<div class="theme-surface" style="background:' + theme.preview + '">' +
+            "<span></span><span></span>" +
+          "</div>" +
+          '<div class="theme-head"><strong>' + escapeHtml(theme.name) + "</strong>" +
+            '<small class="theme-meta">' + escapeHtml(theme.id) + "</small></div>" +
+          '<div style="color:var(--editor-muted);font-size:0.78rem;line-height:1.45">' + escapeHtml(theme.note) + "</div>" +
+        "</button>"
+      );
+    }).join("");
 
-    var prevName = document.getElementById('prev-name');
-    var prevType = document.getElementById('prev-type');
-    var prevBio = document.getElementById('prev-bio');
-    var prevInitials = document.getElementById('prev-avatar-initials');
-    var prevAvatarBox = document.getElementById('prev-avatar-box');
-    var prevBlocksContainer = document.getElementById('prev-blocks');
-
-    if (prevName) prevName.textContent = nombre;
-    if (prevType) prevType.textContent = tipo;
-    if (prevBio) prevBio.textContent = bio;
-
-    if (prevInitials) {
-      var parts = nombre.trim().split(' ');
-      var initials = parts.map(function(p){ return p[0]; }).slice(0, 2).join('').toUpperCase();
-      prevInitials.textContent = initials || 'V';
-    }
-
-    if (prevAvatarBox) {
-      if (marcoEstilo === 'gradient') {
-        prevAvatarBox.style.border = 'none';
-        prevAvatarBox.style.padding = '4px';
-        prevAvatarBox.style.background = 'linear-gradient(135deg, ' + selectedColor + ', #EC4899)';
-      } else if (marcoEstilo === 'none') {
-        prevAvatarBox.style.border = 'none';
-        prevAvatarBox.style.padding = '0';
-        prevAvatarBox.style.background = 'transparent';
-        prevAvatarBox.style.boxShadow = 'none';
-      } else { // solid
-        prevAvatarBox.style.border = '3px solid ' + selectedColor;
-        prevAvatarBox.style.padding = '0';
-        prevAvatarBox.style.background = '#18181B';
-        prevAvatarBox.style.boxShadow = '0 8px 24px rgba(0,0,0,0.6)';
-      }
-    }
-
-    var frame = document.getElementById('smartphone-frame');
-    if (frame) {
-      frame.setAttribute('data-theme', selectedTheme);
-
-      if (selectedTheme === 'neon') {
-        frame.style.background = '#020205';
-        frame.style.color = '#00F0FF';
-        frame.style.border = '2px solid #7C3AED';
-        frame.style.boxShadow = '0 0 25px rgba(124, 58, 237, 0.4)';
-      } else if (selectedTheme === 'ios') {
-        frame.style.background = '#F2F2F7';
-        frame.style.color = '#1C1C1E';
-        frame.style.border = '1px solid rgba(0, 0, 0, 0.1)';
-        frame.style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.15)';
-      } else if (selectedTheme === 'minimal') {
-        frame.style.background = '#0A0A0B';
-        frame.style.color = '#FFFFFF';
-        frame.style.border = '1px solid rgba(255, 255, 255, 0.08)';
-        frame.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.3)';
-      } else if (selectedTheme === 'gradient') {
-        frame.style.background = 'linear-gradient(135deg, #7C3AED 0%, #EC4899 100%)';
-        frame.style.color = '#FFFFFF';
-        frame.style.border = 'none';
-        frame.style.boxShadow = '0 15px 35px rgba(236, 72, 153, 0.3)';
-      } else if (selectedTheme === 'food') {
-        frame.style.background = '#111827';
-        frame.style.color = '#F97316';
-        frame.style.border = '2px solid #F97316';
-        frame.style.boxShadow = '0 8px 24px rgba(249, 115, 22, 0.2)';
-      } else if (selectedTheme === 'premium' || selectedTheme === 'luxury') {
-        frame.style.background = '#0B0A09';
-        frame.style.color = '#D4AF37';
-        frame.style.border = '2px solid #D4AF37';
-        frame.style.boxShadow = '0 0 20px rgba(212, 175, 55, 0.3)';
-      } else if (selectedTheme === 'auto') {
-        var colorHex = autoExtractedColor || selectedColor || '#7C3AED';
-        frame.style.background = 'linear-gradient(135deg, ' + colorHex + ' 0%, #0A0A0B 100%)';
-        frame.style.color = '#FFFFFF';
-        frame.style.border = '1px solid ' + colorHex;
-        frame.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.5)';
-      } else {
-        frame.style.background = '#0A0A0B';
-        frame.style.color = '#FFFFFF';
-      }
-    }
-
-    // Render Live Preview Blocks (Interactive Maps & Rich Bento UI)
-    if (prevBlocksContainer) {
-      if (blocks.length === 0) {
-        prevBlocksContainer.innerHTML = '<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:0.78rem;border:1px dashed rgba(255,255,255,0.1);border-radius:14px">Tus botones y smart blocks aparecerán aquí al instante...</div>';
-      } else {
-        prevBlocksContainer.innerHTML = blocks.map(function(b) {
-          try {
-            if (!b || !b.tipo) return '';
-            var bCont = b.contenido || {};
-            var bt = BLOCK_TYPES.find(function(t){ return t.tipo === b.tipo; }) || { icon: '📎', label: b.tipo || 'Bloque', color: '#7C3AED' };
-            var title = bCont.titulo || bCont.texto || bCont.url || bCont.numero || bt.label;
-            var url = bCont.url || '';
-
-            if (url.includes('open.spotify.com')) {
-              return '<div style="padding:10px;border-radius:14px;background:rgba(29,185,84,0.12);border:1px solid rgba(29,185,84,0.3);color:#1DB954;font-size:0.78rem;font-weight:700;display:flex;align-items:center;gap:8px">🎵 Spotify Smart Player</div>';
-            }
-
-            if (b.tipo === 'ubicacion' || url.includes('google.com/maps') || url.includes('maps.google') || (title && (title.toLowerCase().includes('ubicacion') || title.toLowerCase().includes('sucursal')))) {
-              var locationQuery = bCont.direccion || bCont.texto || url || title;
-              return '<div class="preview-location-block" style="padding:12px;border-radius:16px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);margin-bottom:8px">' +
-                '<div style="font-size:0.8rem;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:6px">📍 ' + escapeHtml(title) + '</div>' +
-                '<iframe width="100%" height="110" style="border:0;border-radius:10px;margin-bottom:8px" loading="lazy" src="https://maps.google.com/maps?q=' + encodeURIComponent(locationQuery) + '&output=embed"></iframe>' +
-                '<div style="display:flex;gap:6px">' +
-                  '<a href="https://maps.google.com/?q=' + encodeURIComponent(locationQuery) + '" target="_blank" style="flex:1;background:#EA4335;color:#fff;text-align:center;border-radius:8px;padding:6px;font-weight:700;font-size:0.72rem;text-decoration:none">🗺️ Google Maps</a>' +
-                  '<a href="https://maps.apple.com/?q=' + encodeURIComponent(locationQuery) + '" target="_blank" style="flex:1;background:#007AFF;color:#fff;text-align:center;border-radius:8px;padding:6px;font-weight:700;font-size:0.72rem;text-decoration:none">🍎 Apple Maps</a>' +
-                '</div>' +
-              '</div>';
-            }
-
-            var isLightTheme = (selectedTheme === 'ios');
-            var textColor = isLightTheme ? '#1C1C1E' : '#FFFFFF';
-            var cardBg = isLightTheme ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.06)';
-            var cardBorder = isLightTheme ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.08)';
-
-            return '<div style="padding:12px 14px;border-radius:14px;background:' + cardBg + ';border:1px solid ' + cardBorder + ';border-left:4px solid ' + selectedColor + ';display:flex;align-items:center;justify-content:space-between;color:' + textColor + ';font-size:0.82rem;font-weight:600;margin-bottom:6px">' +
-              '<div style="display:flex;align-items:center;gap:8px"><span>' + bt.icon + '</span> <span>' + escapeHtml(title) + '</span></div>' +
-              '<span style="opacity:0.5">→</span>' +
-            '</div>';
-          } catch(e) {
-            console.error('Error al mapear bloque preview individual:', e);
-            return '';
-          }
-        }).join('');
-      }
-    }
-  }
-
-  function setupSortableDragAndDrop() {
-    var blockListEl = document.getElementById('block-list');
-    if (blockListEl && window.Sortable) {
-      window.Sortable.create(blockListEl, {
-        animation: 150,
-        handle: '.drag-handle',
-        onEnd: function(evt) {
-          if (evt.oldIndex !== undefined && evt.newIndex !== undefined) {
-            var moved = blocks.splice(evt.oldIndex, 1)[0];
-            blocks.splice(evt.newIndex, 0, moved);
-            blocks.forEach(function(b, idx) { b.orden = idx; });
-            updateLivePreview();
-          }
-        }
-      });
-    }
-  }
-
-  // ===== COLOR PICKER =====
-  function setupColorPicker() {
-    var options = document.querySelectorAll('.color-option');
-    options.forEach(function(el) {
-      el.addEventListener('click', function(e) {
-        if (e && e.preventDefault) e.preventDefault();
-        options.forEach(function(c) {
-          c.classList.remove('active', 'selected');
-          c.style.borderColor = 'transparent';
-          c.style.transform = 'none';
-        });
-        el.classList.add('active', 'selected');
-        el.style.borderColor = '#FFFFFF';
-        el.style.transform = 'scale(1.15)';
-        selectedColor = el.dataset.color || el.getAttribute('data-color') || '#7C3AED';
-        console.log('Color de acento seleccionado:', selectedColor);
+    container.querySelectorAll("[data-theme-id]").forEach(function (node) {
+      node.addEventListener("click", function () {
+        selectedTheme = node.getAttribute("data-theme-id") || "auto";
+        renderThemePicker();
         updateLivePreview();
       });
     });
-    // Set initial
-    var initial = document.querySelector('.color-option[data-color="' + selectedColor + '"]') || options[0];
-    if (initial) {
-      initial.classList.add('active', 'selected');
-      initial.style.borderColor = '#FFFFFF';
-    }
   }
 
-  // ===== PHOTO =====
-  function setupPhotoUpload() {
-    var inputFoto = document.getElementById('input-foto');
-    if (inputFoto) {
-      inputFoto.addEventListener('change', function(e) {
-        var file = e.target.files[0];
-        if (!file) return;
-        if (file.size > 5 * 1024 * 1024) { showToast('Máximo 5MB', 'error'); return; }
-        var reader = new FileReader();
-        reader.onload = function(ev) {
-          var preview = document.getElementById('photo-preview');
-          if (preview) preview.innerHTML = '<img src="' + ev.target.result + '" style="width:100%;height:100%;object-fit:cover">';
-          var prevAvatarBox = document.getElementById('prev-avatar-box');
-          if (prevAvatarBox) prevAvatarBox.innerHTML = '<img src="' + ev.target.result + '" style="width:100%;height:100%;object-fit:cover">';
-        };
-        reader.readAsDataURL(file);
-      });
-    }
-  }
-
-  // ===== THEMES =====
-  function renderThemes() {
-    var container = document.getElementById('theme-picker');
-    if (!container) return;
-    container.innerHTML = THEMES.map(function(t) {
-      var isActive = selectedTheme === t.id;
-      return '<div class="theme-card ' + (isActive ? 'active selected' : '') + '" style="padding:10px;border-radius:14px;cursor:pointer;text-align:center;border:2px solid ' + (isActive ? 'var(--primary)' : 'rgba(255,255,255,0.1)') + ';background:' + (isActive ? 'rgba(124,58,237,0.18)' : 'rgba(255,255,255,0.03)') + '" onclick="selectTheme(\'' + t.id + '\')">' +
-        '<div style="height:48px;border-radius:8px;background:' + t.bg + ';margin-bottom:6px;display:flex;flex-direction:column;justify-content:center;padding:6px">' +
-          '<div style="height:6px;border-radius:3px;background:' + t.accent + ';width:70%;margin-bottom:4px"></div>' +
-          '<div style="height:6px;border-radius:3px;background:' + t.accent + ';width:50%;opacity:0.5"></div>' +
-        '</div>' +
-        '<span style="font-size:var(--font-xs);font-weight:600;color:#FFF">' + t.name + '</span>' +
-      '</div>';
-    }).join('');
-  }
-
-  window.selectTheme = function(id) {
-    selectedTheme = id;
-    console.log('Tema seleccionado:', selectedTheme);
-    renderThemes();
-    updateLivePreview();
-  };
-
-  // ===== BLOCK PALETTE =====
   function renderPalette() {
-    var container = document.getElementById('block-palette');
+    var container = document.getElementById("block-palette");
     if (!container) return;
-    container.innerHTML = BLOCK_TYPES.map(function(b){
-      return '<div style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);cursor:pointer;min-width:75px;font-size:var(--font-xs);color:var(--text-secondary)" onclick="showBlockForm(\''+b.tipo+'\')">' +
-        '<span style="font-size:1.2rem">'+b.icon+'</span>'+b.label +
-      '</div>';
-    }).join('');
-  }
 
-  // ===== BLOCK FORM (Add / Edit) =====
-  window.showBlockForm = function(tipo, idx) {
-    if (idx !== undefined) editingBlockIdx = idx;
-    var existing = (editingBlockIdx !== null && blocks[editingBlockIdx]) ? blocks[editingBlockIdx].contenido : null;
+    container.innerHTML = BLOCK_TYPES.map(function (block) {
+      return (
+        '<button type="button" class="block-chip" data-block-type="' + escapeHtml(block.tipo) + '">' +
+          '<div style="font-size:1.12rem">' + escapeHtml(block.icon) + "</div>" +
+          "<strong>" + escapeHtml(block.label) + "</strong>" +
+          "<span>Agregar al preview</span>" +
+        "</button>"
+      );
+    }).join("");
 
-    var area = document.getElementById('block-form-area');
-    var isEdit = (editingBlockIdx !== null);
-    var html = '<div class="card p-16" style="border:2px solid var(--accent)">';
-    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><strong>' + (isEdit ? '✏️ Editar ' : '➕ ') + getBlockLabel(tipo) + '</strong><button class="btn btn-sm btn-ghost" onclick="hideBlockForm()">✕</button></div>';
-
-    if (tipo === 'link' || tipo === 'ubicacion') {
-      html += field('URL o Dirección *','bf-url', existing ? (existing.url || existing.direccion || '') : 'https://...');
-      html += field('Título *','bf-titulo', existing ? (existing.titulo || '') : 'Mi enlace / Oficina');
-      html += field('Subtítulo o Descripción','bf-sub', existing ? (existing.subtitulo || '') : 'Descripción corta');
-    } else if (tipo === 'spotify' || tipo === 'youtube' || tipo === 'tweet' || tipo === 'tiktok') {
-      html += field('URL *','bf-url', existing ? (existing.url || '') : 'Pega la URL de '+tipo);
-    } else if (tipo === 'whatsapp') {
-      html += field('Número *','bf-tel', existing ? (existing.numero || '') : '522311556138');
-      html += field('Mensaje','bf-msg', existing ? (existing.mensaje_default || '') : 'Hola, te contacto desde VYNK');
-    } else if (tipo === 'social_icons') {
-      html += '<p style="font-size:var(--font-xs);color:var(--text-muted);margin-bottom:8px">Agrega tus redes (deja vacío las que no uses)</p>';
-      SOCIAL_TYPES.forEach(function(s){
-        var socialVal = '';
-        if (existing && Array.isArray(existing.redes)) {
-          var matched = existing.redes.find(function(r){ return r.tipo === s.tipo; });
-          if (matched) socialVal = matched.url;
-        }
-        html += '<div class="form-group" style="margin-bottom:6px"><label class="form-label" style="font-size:var(--font-xs)">'+s.icon+' '+s.label+'</label><input type="text" class="form-input" id="bf-social-'+s.tipo+'" value="'+escapeHtml(socialVal)+'" placeholder="@usuario o URL" style="padding:8px 12px;font-size:var(--font-sm)"></div>';
+    container.querySelectorAll("[data-block-type]").forEach(function (node) {
+      node.addEventListener("click", function () {
+        showBlockForm(node.getAttribute("data-block-type"));
       });
-    } else if (tipo === 'texto') {
-      html += '<div class="form-group"><label class="form-label">Texto</label><textarea class="form-input" id="bf-texto" rows="3" placeholder="Tu texto aquí">'+escapeHtml(existing ? (existing.texto || '') : '')+'</textarea></div>';
-      html += '<div class="form-group"><label class="form-label">Estilo</label><select class="form-select" id="bf-estilo"><option value="normal">Normal</option><option value="titulo">Título</option><option value="cita">Cita</option></select></div>';
-    } else if (tipo === 'email_capture') {
-      html += field('Título','bf-titulo', existing ? (existing.titulo || '') : 'Suscríbete a mi newsletter');
-      html += field('Texto del botón','bf-btn', existing ? (existing.boton_texto || '') : 'Suscribirme');
-    } else if (tipo === 'countdown') {
-      html += field('Título','bf-titulo', existing ? (existing.titulo || '') : '¡Próximo lanzamiento!');
-      html += '<div class="form-group"><label class="form-label">Fecha</label><input type="datetime-local" class="form-input" id="bf-fecha" value="'+(existing ? (existing.fecha_fin || '') : '')+'"></div>';
-    }
-
-    html += '<button class="btn btn-primary btn-sm btn-block" style="margin-top:8px" onclick="addBlock(\''+tipo+'\')">' + (isEdit ? '✓ Actualizar Bloque' : '➕ Añadir') + '</button>';
-    html += '</div>';
-    area.innerHTML = html;
-    area.classList.remove('hidden');
-    var firstInput = area.querySelector('input,textarea');
-    if (firstInput) firstInput.focus();
-  };
-
-  window.hideBlockForm = function() {
-    editingBlockIdx = null;
-    document.getElementById('block-form-area').classList.add('hidden');
-  };
-
-  function field(label, id, value) {
-    var valStr = (typeof value === 'string' && !value.startsWith('http') && !value.startsWith('52')) ? value : '';
-    var phStr = (typeof value === 'string' && (value.startsWith('http') || value.startsWith('52'))) ? value : '';
-    return '<div class="form-group"><label class="form-label">'+label+'</label><input type="text" class="form-input" id="'+id+'" value="'+escapeHtml(valStr)+'" placeholder="'+escapeHtml(phStr)+'"></div>';
-  }
-
-  function getBlockLabel(tipo) {
-    var bt = BLOCK_TYPES.find(function(b){return b.tipo===tipo;});
-    return bt ? bt.icon+' '+bt.label : tipo;
-  }
-
-  // ===== ADD / UPDATE BLOCK =====
-  window.addBlock = function(tipo) {
-    var contenido = {};
-
-    if (tipo === 'link' || tipo === 'ubicacion') {
-      var url = gv('bf-url'); if (!url){ showToast('URL o Dirección requerida','error'); return; }
-      var tit = gv('bf-titulo') || url;
-      var sub = gv('bf-sub') || '';
-
-      contenido = { url: url, direccion: url, titulo: tit, subtitulo: sub };
-      
-      if (editingBlockIdx !== null && blocks[editingBlockIdx]) {
-        blocks[editingBlockIdx].contenido = contenido;
-        showToast('Bloque actualizado ✓', 'success');
-      } else {
-        var newBlock = { _tempId: 't'+Date.now(), tipo: tipo, contenido: contenido, orden: blocks.length };
-        blocks.push(newBlock);
-        showToast('Bloque añadido ✓', 'success');
-      }
-
-      hideBlockForm();
-      renderBlockList();
-
-      // Auto fetch metadata in background if URL
-      if (url.startsWith('http')) {
-        var targetBlock = (editingBlockIdx !== null && blocks[editingBlockIdx]) ? blocks[editingBlockIdx] : blocks[blocks.length - 1];
-        var spinner = document.getElementById('spinner-metadata') || document.getElementById('bf-spinner');
-        if (spinner) spinner.style.display = 'inline-block';
-
-        api('/metadata', { method: 'POST', body: JSON.stringify({ url: url }) })
-          .then(function(meta) {
-            if (meta && meta.domain && targetBlock) {
-              if (meta.title && (!tit || tit === url)) targetBlock.contenido.titulo = meta.title;
-              if (meta.description && !sub) targetBlock.contenido.subtitulo = meta.description;
-              targetBlock.contenido.og_title = meta.title;
-              targetBlock.contenido.og_description = meta.description;
-              targetBlock.contenido.og_image = meta.image;
-              targetBlock.contenido.favicon = meta.favicon;
-              targetBlock.contenido.domain = meta.domain;
-              renderBlockList();
-            }
-          })
-          .catch(function(err) {
-            console.error('Fallo obteniendo metadata:', err);
-            showToast('No se pudo cargar la vista previa del enlace', 'info');
-          })
-          .finally(function() {
-            if (spinner) spinner.style.display = 'none';
-          });
-      }
-      editingBlockIdx = null;
-      return;
-    } else if (tipo==='spotify'||tipo==='youtube'||tipo==='tweet'||tipo==='tiktok') {
-      var url = gv('bf-url'); if(!url){showToast('URL requerida','error');return;}
-      contenido = {url:url};
-    } else if (tipo === 'whatsapp') {
-      var tel = gv('bf-tel'); if(!tel){showToast('Número requerido','error');return;}
-      contenido = {numero:tel.replace(/[^0-9]/g,''), mensaje_default:gv('bf-msg')||''};
-    } else if (tipo === 'social_icons') {
-      var redes = [];
-      SOCIAL_TYPES.forEach(function(s){
-        var val = gv('bf-social-'+s.tipo);
-        if (val) redes.push({tipo:s.tipo, url:val});
-      });
-      if (redes.length===0){showToast('Agrega al menos una red','error');return;}
-      contenido = {redes:redes};
-    } else if (tipo === 'texto') {
-      var txt = gv('bf-texto'); if(!txt){showToast('Texto requerido','error');return;}
-      contenido = {texto:txt, estilo:gv('bf-estilo')||'normal'};
-    } else if (tipo === 'email_capture') {
-      contenido = {titulo:gv('bf-titulo')||'Suscríbete', boton_texto:gv('bf-btn')||'Suscribirme'};
-    } else if (tipo === 'countdown') {
-      var fecha = gv('bf-fecha'); if(!fecha){showToast('Fecha requerida','error');return;}
-      contenido = {titulo:gv('bf-titulo')||'', fecha_fin:fecha};
-    }
-
-    if (editingBlockIdx !== null && blocks[editingBlockIdx]) {
-      blocks[editingBlockIdx].contenido = contenido;
-      showToast('Bloque actualizado ✓','success');
-    } else {
-      blocks.push({_tempId:'t'+Date.now(), tipo:tipo, contenido:contenido, orden:blocks.length});
-      showToast('Bloque añadido ✓','success');
-    }
-
-    editingBlockIdx = null;
-    hideBlockForm();
-    renderBlockList();
-  };
-
-  function gv(id) { var el=document.getElementById(id); return el?el.value.trim():''; }
-
-  // ===== REMOVE / MOVE / EDIT BLOCK =====
-  window.removeBlock = function(idx) {
-    var b = blocks[idx];
-    if (b && b.id && editId) {
-      api('/bloques/'+b.id, {method:'DELETE'}).catch(function(){});
-    }
-    blocks.splice(idx,1);
-    renderBlockList();
-  };
-
-  window.moveBlock = function(idx, dir) {
-    var newIdx = idx + dir;
-    if (newIdx < 0 || newIdx >= blocks.length) return;
-    var moved = blocks.splice(idx, 1)[0];
-    blocks.splice(newIdx, 0, moved);
-    blocks.forEach(function(b, i){ b.orden = i; });
-    renderBlockList();
-  };
-
-  var editingBlockIdx = null;
-
-  window.editBlock = function(idx) {
-    var b = blocks[idx];
-    if (!b) return;
-    editingBlockIdx = idx;
-    showBlockForm(b.tipo, idx);
-  };
-
-  // ===== RENDER BLOCK LIST (Interactive Controls) =====
-  function renderBlockList() {
-    var container = document.getElementById('block-list');
-    if (!container) return;
-    if (blocks.length === 0) {
-      container.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:20px 0;font-size:var(--font-sm)">Toca un bloque arriba para añadirlo</p>';
-      updateLivePreview();
-      return;
-    }
-    container.innerHTML = blocks.map(function(b, i){
-      try {
-        if (!b || !b.tipo) return '';
-        var bCont = b.contenido || {};
-        var bt = BLOCK_TYPES.find(function(t){return t.tipo===b.tipo;}) || {icon:'•',label:b.tipo || 'Bloque',color:'#8E8E93'};
-        var preview = bCont.titulo || bCont.url || bCont.texto || bCont.numero || (bCont.redes?bCont.redes.length+' redes':'') || '';
-        if (preview.length > 30) preview = preview.substring(0,27)+'...';
-
-        return '<div class="block-item-row" style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;margin-bottom:8px" draggable="true" ondragstart="dragStart(event,'+i+')" ondragover="event.preventDefault()" ondrop="dragDrop(event,'+i+')">' +
-          '<span class="drag-handle" style="color:var(--text-muted);cursor:grab;font-size:1.1rem;padding:0 2px">☰</span>' +
-          '<div style="width:32px;height:32px;border-radius:8px;background:'+bt.color+';display:flex;align-items:center;justify-content:center;color:#fff;font-size:0.8rem;flex-shrink:0">'+bt.icon+'</div>' +
-          '<div style="flex:1;min-width:0"><div style="font-size:var(--font-xs);color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px">'+bt.label+'</div><div style="font-size:var(--font-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#FFF;font-weight:600">'+escapeHtml(preview)+'</div></div>' +
-          '<div style="display:flex;align-items:center;gap:4px">' +
-            '<button class="btn btn-sm btn-ghost" onclick="moveBlock('+i+', -1)" style="padding:4px 6px;font-size:0.75rem" ' + (i === 0 ? 'disabled' : '') + '>▲</button>' +
-            '<button class="btn btn-sm btn-ghost" onclick="moveBlock('+i+', 1)" style="padding:4px 6px;font-size:0.75rem" ' + (i === blocks.length - 1 ? 'disabled' : '') + '>▼</button>' +
-            '<button class="btn btn-sm btn-ghost" onclick="editBlock('+i+')" style="padding:4px 6px;font-size:0.8rem;color:var(--accent)">✏️</button>' +
-            '<button class="btn btn-sm btn-ghost" onclick="removeBlock('+i+')" style="padding:4px 6px;font-size:0.8rem;color:var(--red)">✕</button>' +
-          '</div>' +
-        '</div>';
-      } catch(e) {
-        console.error('Error al renderizar bloque individual:', e);
-        return '';
-      }
-    }).join('');
-
-    updateLivePreview();
-  }
-
-  // ===== DRAG & DROP =====
-  var dragIdx = null;
-  window.dragStart = function(e, i) { dragIdx = i; e.dataTransfer.effectAllowed='move'; };
-  window.dragDrop = function(e, i) {
-    e.preventDefault();
-    if (dragIdx===null||dragIdx===i) return;
-    var item = blocks.splice(dragIdx,1)[0];
-    blocks.splice(i,0,item);
-    blocks.forEach(function(b,j){b.orden=j;});
-    dragIdx=null;
-    renderBlockList();
-  };
-
-  // ===== SAVE ALL (Fast Parallel Non-Blocking) =====
-  function saveAll(e) {
-    if (e && e.preventDefault) e.preventDefault();
-    if (navigator.vibrate) { try { navigator.vibrate(50); } catch(e){} }
-
-    var nombre = gv('nombre_perfil');
-    var inputNombre = document.getElementById('nombre_perfil');
-    if (!nombre || !nombre.trim()) {
-      if (inputNombre) {
-        inputNombre.style.borderColor = 'var(--red)';
-        inputNombre.focus();
-      }
-      alert('⚠️ El nombre de la tarjeta es obligatorio.');
-      return;
-    }
-
-    var saveBtn = document.getElementById('btn-final-save');
-    var navSaveBtn = document.getElementById('btn-save');
-    if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = '⚡ Guardando...'; }
-    if (navSaveBtn) { navSaveBtn.disabled = true; navSaveBtn.textContent = 'Guardando...'; }
-
-    var formData = new FormData();
-    formData.append('nombre_perfil', nombre.trim());
-    formData.append('tipo', gv('tipo_perfil') || 'personal');
-    formData.append('color', selectedColor || '#7C3AED');
-    formData.append('tema', selectedTheme || 'ios');
-    formData.append('marco_estilo', gv('marco_estilo') || 'solid');
-    formData.append('bio', gv('bio_perfil') || '');
-    formData.append('cumpleanos', gv('cumpleanos') || '');
-    formData.append('lugar_estudio', gv('lugar_estudio') || '');
-    formData.append('pronombres', gv('pronombres') || '');
-
-    var fotoInput = document.getElementById('input-foto');
-    if (fotoInput && fotoInput.files && fotoInput.files[0]) {
-      formData.append('foto', fotoInput.files[0]);
-    }
-
-    var method = editId ? 'PUT' : 'POST';
-    var url = editId ? '/perfiles/' + editId : '/perfiles';
-
-    api(url, { method: method, body: formData, headers: {} })
-      .then(function(data) {
-        if (!data || data.error) throw new Error(data ? (data.error || data.mensaje) : 'Respuesta inválida del servidor');
-        var perfilId = data.id || editId;
-        profileSlug = data.slug || profileSlug;
-
-        // Fast Parallel Save (< 500ms)
-        var blockPromises = blocks.map(function(b, idx) {
-          if (b.id) {
-            return api('/bloques/' + b.id, {
-              method: 'PUT',
-              body: JSON.stringify({ tipo: b.tipo, contenido: b.contenido, orden: idx })
-            }).catch(function(){});
-          }
-          return api('/perfiles/' + perfilId + '/bloques', {
-            method: 'POST',
-            body: JSON.stringify({ tipo: b.tipo, contenido: b.contenido, orden: idx })
-          });
-        });
-
-        return Promise.all(blockPromises);
-      })
-      .then(function() {
-        if (saveBtn) saveBtn.textContent = '¡Guardado con éxito!';
-        if (navSaveBtn) navSaveBtn.textContent = '¡Guardado!';
-        showToast('¡Tarjeta guardada con éxito!', 'success');
-        setTimeout(function() {
-          window.location.replace('/dashboard.html');
-        }, 300);
-      })
-      .catch(function(err) {
-        console.error('❌ Error exacto en saveAll:', err);
-        alert('❌ Error al guardar la tarjeta: ' + (err.message || err.error || 'Error de conexión'));
-        if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = '⚡ Guardar & Publicar Identidad Digital'; }
-        if (navSaveBtn) { navSaveBtn.disabled = false; navSaveBtn.textContent = '⚡ Guardar'; }
-      });
-  }
-
-  function saveBlocksSeq(perfilId, idx) {
-    if (idx >= blocks.length) return Promise.resolve();
-    var b = blocks[idx];
-    if (b.id) return saveBlocksSeq(perfilId, idx+1); // already saved
-
-    return api('/perfiles/'+perfilId+'/bloques', {
-      method:'POST',
-      body: JSON.stringify({tipo:b.tipo, contenido:b.contenido, orden:idx})
-    }).then(function(){ return saveBlocksSeq(perfilId, idx+1); });
-  }
-
-  // ===== LOAD EXISTING =====
-  function loadExisting(id) {
-    api('/perfiles').then(function(data){
-      var perfiles = Array.isArray(data) ? data : [];
-      var p = perfiles.find(function(x){return x.id==id;});
-      if (!p) { showToast('No encontrado','error'); return; }
-
-      document.getElementById('nombre_perfil').value = p.nombre_perfil || '';
-      document.getElementById('tipo_perfil').value = p.tipo || 'personal';
-      document.getElementById('bio_perfil').value = p.bio || '';
-      document.getElementById('cumpleanos').value = p.cumpleanos || '';
-      document.getElementById('lugar_estudio').value = p.lugar_estudio || '';
-      document.getElementById('pronombres').value = p.pronombres || '';
-      var elMarco = document.getElementById('marco_estilo');
-      if (elMarco && p.marco_estilo) elMarco.value = p.marco_estilo;
-      profileSlug = p.slug;
-
-      if (p.color) {
-        selectedColor = p.color;
-        document.querySelectorAll('.color-option').forEach(function(c){
-          c.style.borderColor = c.dataset.color === p.color ? 'var(--text-primary)' : 'transparent';
-        });
-      }
-
-      if (p.foto_url) {
-        document.getElementById('photo-preview').innerHTML = '<img src="'+p.foto_url+'" style="width:100%;height:100%;object-fit:cover">';
-      }
-
-      if (profileSlug) {
-        var previewBtn = document.getElementById('btn-preview');
-        previewBtn.href = '/u/'+profileSlug;
-        previewBtn.classList.remove('hidden');
-      }
-
-      // Load blocks
-      return api('/perfiles/'+id+'/bloques');
-    }).then(function(data){
-      if (data && Array.isArray(data)) {
-        blocks = data.map(function(b){
-          var c = typeof b.contenido === 'string' ? JSON.parse(b.contenido) : b.contenido;
-          return {id:b.id, tipo:b.tipo, contenido:c, orden:b.orden};
-        });
-        renderBlockList();
-      }
-    }).catch(function(err){
-      console.error(err);
-      alert('Error al cargar datos. Reintente.');
     });
   }
 
-  function escapeHtml(t){if(!t)return'';var d=document.createElement('div');d.textContent=t;return d.innerHTML;}
+  function setupColorPicker() {
+    var options = document.querySelectorAll(".color-option");
+    options.forEach(function (option) {
+      option.addEventListener("click", function () {
+        options.forEach(function (current) {
+          current.classList.remove("active");
+        });
+        option.classList.add("active");
+        selectedColor = option.getAttribute("data-color") || "#E8A33D";
+        updateLivePreview();
+      });
+    });
+
+    var defaultOption = document.querySelector('.color-option[data-color="' + selectedColor + '"]');
+    if (defaultOption) defaultOption.classList.add("active");
+  }
+
+  function setupPhotoUpload() {
+    var input = document.getElementById("input-foto");
+    if (!input) return;
+
+    input.addEventListener("change", function (event) {
+      var file = event.target.files && event.target.files[0];
+      if (!file) return;
+      if (file.size > 5 * 1024 * 1024) {
+        showToast("Maximo 5MB", "error");
+        return;
+      }
+
+      var reader = new FileReader();
+      reader.onload = function (loadEvent) {
+        var src = loadEvent.target.result;
+        var photoPreview = document.getElementById("photo-preview");
+        var avatarBox = document.getElementById("prev-avatar-box");
+        if (photoPreview) photoPreview.innerHTML = '<img src="' + src + '" alt="preview">';
+        if (avatarBox) avatarBox.innerHTML = '<img src="' + src + '" alt="avatar">';
+
+        var img = new Image();
+        img.onload = function () {
+          extractDominantColorFromImage(img);
+        };
+        img.src = src;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function setupSortableDragAndDrop() {
+    var blockList = document.getElementById("block-list");
+    if (!blockList || !window.Sortable) return;
+    window.Sortable.create(blockList, {
+      animation: 150,
+      handle: ".drag-handle",
+      onEnd: function (evt) {
+        if (evt.oldIndex === evt.newIndex) return;
+        var moved = blocks.splice(evt.oldIndex, 1)[0];
+        blocks.splice(evt.newIndex, 0, moved);
+        normalizeOrder();
+        renderBlockList();
+      }
+    });
+  }
+
+  function extractDominantColorFromImage(imgEl) {
+    try {
+      var canvas = document.createElement("canvas");
+      var ctx = canvas.getContext("2d");
+      canvas.width = 56;
+      canvas.height = 56;
+      ctx.drawImage(imgEl, 0, 0, 56, 56);
+      var data = ctx.getImageData(0, 0, 56, 56).data;
+      var bucket = {};
+
+      for (var i = 0; i < data.length; i += 4) {
+        var r = data[i];
+        var g = data[i + 1];
+        var b = data[i + 2];
+        var a = data[i + 3];
+        if (a < 120) continue;
+        var max = Math.max(r, g, b);
+        var min = Math.min(r, g, b);
+        if (max - min < 24) continue;
+        var key = [
+          Math.round(r / 24) * 24,
+          Math.round(g / 24) * 24,
+          Math.round(b / 24) * 24
+        ].join(",");
+        bucket[key] = (bucket[key] || 0) + 1;
+      }
+
+      var best = Object.keys(bucket).sort(function (a, b) {
+        return bucket[b] - bucket[a];
+      })[0];
+
+      if (!best) return;
+      var parts = best.split(",");
+      autoExtractedColor = rgbToHex(Number(parts[0]), Number(parts[1]), Number(parts[2]));
+      if (selectedTheme === "auto") updateLivePreview();
+    } catch (error) {
+      console.error("No se pudo extraer color:", error);
+    }
+  }
+
+  function updateLivePreview() {
+    var accent = selectedTheme === "auto" && autoExtractedColor ? autoExtractedColor : selectedColor;
+    var theme = buildTheme(selectedTheme, accent);
+    applyTheme(theme);
+    renderIdentity(theme);
+    renderPreviewBlocks(theme);
+  }
+
+  function renderIdentity(theme) {
+    var name = gv("nombre_perfil") || "Tu nombre";
+    var type = gv("tipo_perfil") || "personal";
+    var bio = gv("bio_perfil") || "Tu narrativa principal aparecera aqui con el nuevo sistema visual.";
+    var marcoEstilo = gv("marco_estilo") || "gradient";
+
+    setText("prev-name", name);
+    setText("prev-type", type);
+    setText("prev-bio", bio);
+
+    var initialsEl = document.getElementById("prev-avatar-initials");
+    if (initialsEl) initialsEl.textContent = getInitials(name);
+
+    var avatarBox = document.getElementById("prev-avatar-box");
+    if (avatarBox) {
+      if (marcoEstilo === "none") {
+        avatarBox.style.background = "rgba(255,255,255,0.08)";
+        avatarBox.style.boxShadow = "none";
+      } else if (marcoEstilo === "solid") {
+        avatarBox.style.background = theme.surface;
+        avatarBox.style.boxShadow = "inset 0 0 0 3px " + theme.primary;
+      } else {
+        avatarBox.style.background = "linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.03))";
+        avatarBox.style.boxShadow = "inset 0 0 0 1px rgba(255,255,255,0.06)";
+      }
+    }
+  }
+
+  function renderPreviewBlocks(theme) {
+    var container = document.getElementById("prev-blocks");
+    if (!container) return;
+
+    if (!blocks.length) {
+      container.innerHTML = '<div class="preview-empty">Tus bloques apareceran aqui en cuanto los agregues.</div>';
+      return;
+    }
+
+    var locationBlocks = blocks.filter(function (block) { return block.tipo === "ubicacion"; });
+    var otherBlocks = blocks.filter(function (block) { return block.tipo !== "ubicacion"; });
+    var parts = [];
+
+    if (otherBlocks.length) {
+      var first = otherBlocks[0];
+      parts.push(renderPrimaryPreview(first));
+      otherBlocks.slice(1).forEach(function (block) {
+        parts.push(renderSecondaryPreview(block));
+      });
+    }
+
+    if (locationBlocks.length) {
+      parts.push(renderLocationCluster(locationBlocks));
+    }
+
+    container.innerHTML = parts.join("");
+  }
+
+  function renderPrimaryPreview(block) {
+    var icon = blockIcon(block.tipo);
+    var content = block.contenido || {};
+    var title = previewTitle(block);
+    var meta = previewMeta(block);
+
+    return (
+      '<div class="preview-cta">' +
+        "<span>" + escapeHtml(icon) + " " + escapeHtml(title) + "</span>" +
+        '<small style="opacity:0.78">' + escapeHtml(meta || "Listo") + "</small>" +
+      "</div>"
+    );
+  }
+
+  function renderSecondaryPreview(block) {
+    var content = block.contenido || {};
+    var title = previewTitle(block);
+    var meta = previewMeta(block);
+
+    if (block.tipo === "texto" || block.tipo === "nota" || block.tipo === "seccion") {
+      return (
+        '<div class="preview-card">' +
+          "<h3>" + escapeHtml(title) + "</h3>" +
+          "<p>" + escapeHtml(meta || "Contenido libre") + "</p>" +
+        "</div>"
+      );
+    }
+
+    return (
+      '<div class="preview-row">' +
+        '<div class="preview-icon">' + escapeHtml(blockIcon(block.tipo)) + "</div>" +
+        '<div class="preview-row-copy">' +
+          "<strong>" + escapeHtml(title) + "</strong>" +
+          "<span>" + escapeHtml(meta || fallbackMeta(block, content)) + "</span>" +
+        "</div>" +
+      "</div>"
+    );
+  }
+
+  function renderLocationCluster(locationBlocks) {
+    var lead = locationBlocks[0];
+    var leadContent = lead.contenido || {};
+    var pins = locationBlocks.slice(0, 4).map(function (block, index) {
+      var coords = [
+        { top: "64%", left: "24%" },
+        { top: "36%", left: "58%" },
+        { top: "70%", left: "76%" },
+        { top: "26%", left: "82%" }
+      ][index] || { top: "50%", left: "50%" };
+      return (
+        '<div class="location-pin" style="top:' + coords.top + ";left:" + coords.left + '"></div>'
+      );
+    }).join("");
+
+    var list = locationBlocks.map(function (block, index) {
+      var content = block.contenido || {};
+      var label = content.titulo || "Sucursal " + (index + 1);
+      var hint = content.horario || content.direccion || "Ubicacion disponible";
+      return (
+        '<div class="location-list-item">' +
+          "<span>" + escapeHtml(label) + "</span>" +
+          '<small style="color:var(--phone-muted)">' + escapeHtml(trimPreview(hint, 30)) + "</small>" +
+        "</div>"
+      );
+    }).join("");
+
+    return (
+      '<div class="preview-location-shell">' +
+        '<div class="location-map">' +
+          '<div class="location-map-grid"></div>' +
+          pins +
+        "</div>" +
+        '<div class="location-ticket">' +
+          "<strong>" + escapeHtml(leadContent.titulo || "Ubicaciones") + "</strong>" +
+          "<p>" + escapeHtml(leadContent.direccion || "Selecciona la sede mas cercana desde tu tarjeta.") + "</p>" +
+          '<div class="location-meta-row">' +
+            '<span class="location-pill">' + escapeHtml(locationBlocks.length + " sedes activas") + "</span>" +
+            (leadContent.horario ? '<span class="location-pill">' + escapeHtml(leadContent.horario) + "</span>" : "") +
+          "</div>" +
+          '<div class="location-list">' + list + "</div>" +
+        "</div>" +
+      "</div>"
+    );
+  }
+
+  function buildTheme(themeId, accent) {
+    var primary = accent || "#E8A33D";
+    if (themeId === "paper") {
+      return {
+        background: "#F2E9DC",
+        surface: "#FFFFFF",
+        card: "#F3E7D6",
+        text: "#211D19",
+        muted: "#6C6258",
+        primary: primary,
+        secondary: mixHex(primary, "#F7D5A6", 0.55),
+        onPrimary: readableText(primary)
+      };
+    }
+
+    if (themeId === "coast") {
+      return {
+        background: mixHex(primary, "#0F2730", 0.82),
+        surface: mixHex(primary, "#173843", 0.84),
+        card: mixHex(primary, "#1C3E41", 0.72),
+        text: "#F4F3EF",
+        muted: "rgba(244,243,239,0.68)",
+        primary: primary,
+        secondary: mixHex(primary, "#78D7C6", 0.48),
+        onPrimary: readableText(primary)
+      };
+    }
+
+    if (themeId === "graphite") {
+      return {
+        background: mixHex(primary, "#0E1118", 0.92),
+        surface: mixHex(primary, "#1D2430", 0.88),
+        card: mixHex(primary, "#2A3342", 0.76),
+        text: "#F6F3EE",
+        muted: "rgba(246,243,238,0.66)",
+        primary: primary,
+        secondary: mixHex(primary, "#97A9FF", 0.44),
+        onPrimary: readableText(primary)
+      };
+    }
+
+    if (themeId === "velvet") {
+      return {
+        background: mixHex(primary, "#1A0E1E", 0.84),
+        surface: mixHex(primary, "#2B1430", 0.74),
+        card: mixHex(primary, "#4D2050", 0.68),
+        text: "#FFF7F7",
+        muted: "rgba(255,247,247,0.68)",
+        primary: primary,
+        secondary: mixHex(primary, "#F4A3C8", 0.52),
+        onPrimary: readableText(primary)
+      };
+    }
+
+    if (themeId === "editorial") {
+      return {
+        background: mixHex(primary, "#1B171D", 0.86),
+        surface: mixHex(primary, "#2B242A", 0.78),
+        card: mixHex(primary, "#392C32", 0.67),
+        text: "#F8F4EF",
+        muted: "rgba(248,244,239,0.68)",
+        primary: primary,
+        secondary: mixHex(primary, "#F7D08A", 0.46),
+        onPrimary: readableText(primary)
+      };
+    }
+
+    return {
+      background: mixHex(primary, "#17151B", 0.84),
+      surface: mixHex(primary, "#2A2630", 0.78),
+      card: mixHex(primary, "#3A3342", 0.68),
+      text: "#F8F4EF",
+      muted: "rgba(248,244,239,0.68)",
+      primary: primary,
+      secondary: mixHex(primary, "#FFD59B", 0.52),
+      onPrimary: readableText(primary)
+    };
+  }
+
+  function applyTheme(theme) {
+    var frame = document.getElementById("smartphone-frame");
+    if (!frame) return;
+    frame.style.setProperty("--phone-bg", theme.background);
+    frame.style.setProperty("--phone-surface", theme.surface);
+    frame.style.setProperty("--phone-card", theme.card);
+    frame.style.setProperty("--phone-primary", theme.primary);
+    frame.style.setProperty("--phone-secondary", theme.secondary);
+    frame.style.setProperty("--phone-text", theme.text);
+    frame.style.setProperty("--phone-muted", theme.muted);
+    frame.style.setProperty("--phone-on-primary", theme.onPrimary);
+    frame.style.background = theme.background;
+    frame.style.color = theme.text;
+    frame.style.boxShadow = "0 26px 54px -28px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.04)";
+    frame.setAttribute("data-theme", selectedTheme);
+  }
+
+  function showBlockForm(tipo) {
+    if (editingBlockIdx === null) editingBlockIdx = null;
+    var area = document.getElementById("block-form-area");
+    if (!area) return;
+
+    var existing = editingBlockIdx !== null && blocks[editingBlockIdx] ? blocks[editingBlockIdx].contenido || {} : {};
+    var isEdit = editingBlockIdx !== null;
+    var html = "";
+
+    html += '<div class="section-title"><div><div class="step-badge">' + (isEdit ? "Editar" : "Nuevo bloque") + "</div>" +
+      getBlockLabel(tipo) + '</div><button type="button" class="editor-btn" onclick="hideBlockForm()">Cerrar</button></div>';
+
+    if (tipo === "ubicacion") {
+      html += formField("Nombre de sede", "bf-titulo", existing.titulo || "", "Ej. Sede Centro");
+      html += formField("Direccion", "bf-direccion", existing.direccion || existing.url || "", "Calle, numero, colonia");
+      html += formField("Horario", "bf-horario", existing.horario || existing.subtitulo || "", "Ej. Lun-Sab 9:00-18:00");
+      html += formField("Telefono", "bf-telefono", existing.telefono || "", "Ej. +52 55 0000 0000");
+      html += formField("Link de mapa", "bf-url", existing.url || "", "https://maps.google.com/?q=...");
+      html += '<div class="form-grid cols-2">' +
+        formField("Latitud", "bf-lat", existing.lat || "", "19.4326") +
+        formField("Longitud", "bf-lng", existing.lng || "", "-99.1332") +
+      "</div>";
+    } else if (tipo === "link" || tipo === "spotify" || tipo === "youtube" || tipo === "tiktok" || tipo === "wishlist" || tipo === "pdf") {
+      html += formField("Titulo", "bf-titulo", existing.titulo || "", "Ej. Agenda una llamada");
+      html += formField("URL", "bf-url", existing.url || "", "https://...");
+      html += formField("Subtitulo", "bf-sub", existing.subtitulo || "", "Descripcion corta");
+    } else if (tipo === "whatsapp") {
+      html += formField("Numero", "bf-tel", existing.numero || "", "5215555555555");
+      html += formField("Mensaje inicial", "bf-msg", existing.mensaje_default || "", "Hola, te contacto desde VYNK");
+    } else if (tipo === "social_icons") {
+      html += '<div class="mono-note" style="color:var(--editor-muted);margin-bottom:12px">Completa solo las redes que vayas a mostrar.</div>';
+      SOCIAL_TYPES.forEach(function (social) {
+        var value = "";
+        if (Array.isArray(existing.redes)) {
+          var found = existing.redes.find(function (item) { return item.tipo === social.tipo; });
+          value = found ? found.url : "";
+        }
+        html += formField(social.label, "bf-social-" + social.tipo, value, "@usuario o URL");
+      });
+    } else if (tipo === "texto" || tipo === "nota" || tipo === "seccion") {
+      html += '<div class="field"><label for="bf-texto">Texto</label><textarea id="bf-texto" class="form-input" rows="4" placeholder="Escribe aqui">' +
+        escapeHtml(existing.texto || existing.titulo || "") + "</textarea></div>";
+      if (tipo === "texto") {
+        html += '<div class="field"><label for="bf-estilo">Estilo</label><select id="bf-estilo" class="form-select">' +
+          '<option value="normal">Normal</option><option value="titulo">Titulo</option><option value="cita">Cita</option>' +
+        "</select></div>";
+      }
+    } else if (tipo === "email_capture") {
+      html += formField("Titulo", "bf-titulo", existing.titulo || "", "Suscribete a novedades");
+      html += formField("Boton", "bf-btn", existing.boton_texto || "", "Quiero recibir info");
+    } else if (tipo === "countdown") {
+      html += formField("Titulo", "bf-titulo", existing.titulo || "", "Proximo lanzamiento");
+      html += '<div class="field"><label for="bf-fecha">Fecha</label><input id="bf-fecha" class="form-input" type="datetime-local" value="' +
+        escapeHtml(existing.fecha_fin || "") + '"></div>';
+    } else if (tipo === "pago") {
+      html += formField("Banco", "bf-banco", existing.banco || "", "Banco principal");
+      html += formField("Beneficiario", "bf-beneficiario", existing.beneficiario || "", "Nombre completo");
+      html += formField("CLABE", "bf-clabe", existing.clabe || "", "18 digitos");
+    } else {
+      html += formField("Titulo", "bf-titulo", existing.titulo || "", "Nombre del bloque");
+      html += formField("Detalle", "bf-sub", existing.subtitulo || existing.texto || "", "Descripcion corta");
+      html += formField("URL opcional", "bf-url", existing.url || "", "https://...");
+    }
+
+    html += '<div style="display:flex;gap:10px;justify-content:flex-end;margin-top:18px">' +
+      '<button type="button" class="editor-btn" onclick="hideBlockForm()">Cancelar</button>' +
+      '<button type="button" class="editor-btn primary" onclick="addBlock(\'' + escapeHtml(tipo) + '\')">' +
+      (isEdit ? "Actualizar bloque" : "Agregar bloque") + "</button></div>";
+
+    area.innerHTML = html;
+    area.classList.remove("hidden");
+
+    var styleSelect = document.getElementById("bf-estilo");
+    if (styleSelect && existing.estilo) styleSelect.value = existing.estilo;
+  }
+
+  window.hideBlockForm = function () {
+    editingBlockIdx = null;
+    var area = document.getElementById("block-form-area");
+    if (area) area.classList.add("hidden");
+  };
+
+  window.addBlock = function (tipo) {
+    var content = collectBlockContent(tipo);
+    if (!content) return;
+
+    if (editingBlockIdx !== null && blocks[editingBlockIdx]) {
+      blocks[editingBlockIdx].tipo = tipo;
+      blocks[editingBlockIdx].contenido = content;
+      showToast("Bloque actualizado", "success");
+    } else {
+      blocks.push({
+        _tempId: "tmp_" + Date.now(),
+        tipo: tipo,
+        contenido: content,
+        orden: blocks.length
+      });
+      showToast("Bloque agregado", "success");
+    }
+
+    normalizeOrder();
+    editingBlockIdx = null;
+    hideBlockForm();
+    renderBlockList();
+
+    if ((tipo === "link" || tipo === "spotify" || tipo === "youtube" || tipo === "tiktok") && content.url && content.url.indexOf("http") === 0) {
+      enrichLinkMetadata(content);
+    }
+  };
+
+  function collectBlockContent(tipo) {
+    if (tipo === "ubicacion") {
+      var direccion = gv("bf-direccion");
+      if (!direccion) {
+        showToast("La direccion es obligatoria", "error");
+        return null;
+      }
+      var titulo = gv("bf-titulo") || "Ubicacion";
+      var horario = gv("bf-horario");
+      return {
+        titulo: titulo,
+        direccion: direccion,
+        horario: horario,
+        telefono: gv("bf-telefono"),
+        url: gv("bf-url") || "https://maps.google.com/?q=" + encodeURIComponent(direccion),
+        lat: gv("bf-lat"),
+        lng: gv("bf-lng"),
+        subtitulo: horario || gv("bf-telefono") || ""
+      };
+    }
+
+    if (tipo === "link" || tipo === "spotify" || tipo === "youtube" || tipo === "tiktok" || tipo === "wishlist" || tipo === "pdf") {
+      var url = gv("bf-url");
+      if (!url) {
+        showToast("La URL es obligatoria", "error");
+        return null;
+      }
+      return {
+        titulo: gv("bf-titulo") || url,
+        url: url,
+        subtitulo: gv("bf-sub")
+      };
+    }
+
+    if (tipo === "whatsapp") {
+      var tel = gv("bf-tel");
+      if (!tel) {
+        showToast("El numero es obligatorio", "error");
+        return null;
+      }
+      return {
+        numero: tel.replace(/[^0-9]/g, ""),
+        mensaje_default: gv("bf-msg")
+      };
+    }
+
+    if (tipo === "social_icons") {
+      var redes = [];
+      SOCIAL_TYPES.forEach(function (social) {
+        var value = gv("bf-social-" + social.tipo);
+        if (value) redes.push({ tipo: social.tipo, url: value });
+      });
+      if (!redes.length) {
+        showToast("Agrega al menos una red", "error");
+        return null;
+      }
+      return { redes: redes };
+    }
+
+    if (tipo === "texto") {
+      var texto = gv("bf-texto");
+      if (!texto) {
+        showToast("El texto es obligatorio", "error");
+        return null;
+      }
+      return { texto: texto, estilo: gv("bf-estilo") || "normal" };
+    }
+
+    if (tipo === "nota") {
+      var nota = gv("bf-texto");
+      if (!nota) {
+        showToast("La nota es obligatoria", "error");
+        return null;
+      }
+      return { texto: nota };
+    }
+
+    if (tipo === "seccion") {
+      var tituloSeccion = gv("bf-texto");
+      if (!tituloSeccion) {
+        showToast("El titulo es obligatorio", "error");
+        return null;
+      }
+      return { titulo: tituloSeccion };
+    }
+
+    if (tipo === "email_capture") {
+      return {
+        titulo: gv("bf-titulo") || "Suscribete",
+        boton_texto: gv("bf-btn") || "Enviar"
+      };
+    }
+
+    if (tipo === "countdown") {
+      var fecha = gv("bf-fecha");
+      if (!fecha) {
+        showToast("La fecha es obligatoria", "error");
+        return null;
+      }
+      return {
+        titulo: gv("bf-titulo") || "Proximo lanzamiento",
+        fecha_fin: fecha
+      };
+    }
+
+    if (tipo === "pago") {
+      return {
+        banco: gv("bf-banco"),
+        beneficiario: gv("bf-beneficiario"),
+        clabe: gv("bf-clabe")
+      };
+    }
+
+    return {
+      titulo: gv("bf-titulo") || getBlockLabel(tipo),
+      subtitulo: gv("bf-sub"),
+      url: gv("bf-url")
+    };
+  }
+
+  function enrichLinkMetadata(content) {
+    api("/metadata", {
+      method: "POST",
+      body: JSON.stringify({ url: content.url })
+    }).then(function (meta) {
+      if (!meta) return;
+      if (!content.titulo || content.titulo === content.url) content.titulo = meta.title || content.titulo;
+      if (!content.subtitulo) content.subtitulo = meta.description || "";
+      renderBlockList();
+    }).catch(function () {
+      showToast("No se pudo leer metadata del enlace", "info");
+    });
+  }
+
+  function renderBlockList() {
+    var container = document.getElementById("block-list");
+    if (!container) return;
+
+    if (!blocks.length) {
+      container.innerHTML = '<div class="preview-empty">Toca un bloque para empezar a construir tu tarjeta.</div>';
+      updateLivePreview();
+      return;
+    }
+
+    container.innerHTML = blocks.map(function (block, index) {
+      return (
+        '<div class="block-item-row" style="display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid rgba(255,255,255,0.08);border-radius:18px;margin-bottom:10px">' +
+          '<div class="drag-handle" style="cursor:grab;color:var(--editor-faint);font-size:1.1rem">☰</div>' +
+          '<div style="width:38px;height:38px;border-radius:14px;display:grid;place-items:center;background:' + escapeHtml(blockColor(block.tipo)) + ';color:#fff">' + escapeHtml(blockIcon(block.tipo)) + "</div>" +
+          '<div style="flex:1;min-width:0">' +
+            '<div style="font-size:0.74rem;color:var(--editor-faint);text-transform:uppercase;letter-spacing:0.08em">' + escapeHtml(getBlockLabel(block.tipo)) + "</div>" +
+            '<div style="font-size:0.95rem;color:var(--editor-text);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + escapeHtml(previewTitle(block)) + "</div>" +
+            '<div style="font-size:0.78rem;color:var(--editor-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + escapeHtml(previewMeta(block)) + "</div>" +
+          "</div>" +
+          '<div style="display:flex;gap:6px">' +
+            '<button type="button" class="editor-btn" style="padding:8px 10px" onclick="moveBlock(' + index + ', -1)" ' + (index === 0 ? "disabled" : "") + '>↑</button>' +
+            '<button type="button" class="editor-btn" style="padding:8px 10px" onclick="moveBlock(' + index + ', 1)" ' + (index === blocks.length - 1 ? "disabled" : "") + '>↓</button>' +
+            '<button type="button" class="editor-btn" style="padding:8px 10px" onclick="editBlock(' + index + ')">Editar</button>' +
+            '<button type="button" class="editor-btn" style="padding:8px 10px;color:#ff9fa3" onclick="removeBlock(' + index + ')">Borrar</button>' +
+          "</div>" +
+        "</div>"
+      );
+    }).join("");
+
+    updateLivePreview();
+  }
+
+  window.editBlock = function (index) {
+    editingBlockIdx = index;
+    var block = blocks[index];
+    if (!block) return;
+    showBlockForm(block.tipo);
+  };
+
+  window.removeBlock = function (index) {
+    var block = blocks[index];
+    if (block && block.id && editId) {
+      api("/bloques/" + block.id, { method: "DELETE" }).catch(function () {});
+    }
+    blocks.splice(index, 1);
+    normalizeOrder();
+    renderBlockList();
+  };
+
+  window.moveBlock = function (index, direction) {
+    var target = index + direction;
+    if (target < 0 || target >= blocks.length) return;
+    var moved = blocks.splice(index, 1)[0];
+    blocks.splice(target, 0, moved);
+    normalizeOrder();
+    renderBlockList();
+  };
+
+  window.goStep = function (step) {
+    currentStep = Math.max(1, Math.min(3, step));
+    updateStepUI();
+  };
+
+  window.nextStep = function () {
+    if (currentStep === 3) {
+      saveAll();
+      return;
+    }
+
+    if (currentStep === 1 && !gv("nombre_perfil")) {
+      showToast("Ingresa el nombre antes de continuar", "error");
+      var input = document.getElementById("nombre_perfil");
+      if (input) input.focus();
+      return;
+    }
+
+    currentStep += 1;
+    updateStepUI();
+  };
+
+  window.prevStep = function () {
+    currentStep = Math.max(1, currentStep - 1);
+    updateStepUI();
+  };
+
+  function updateStepUI() {
+    var track = document.getElementById("wizard-track");
+    if (track) track.style.transform = "translateX(" + ((currentStep - 1) * -33.333333) + "%)";
+
+    [1, 2, 3].forEach(function (step) {
+      var dot = document.getElementById("dot-" + step);
+      if (!dot) return;
+      dot.classList.remove("active", "done");
+      if (step < currentStep) dot.classList.add("done");
+      if (step === currentStep) dot.classList.add("active");
+    });
+
+    var prevBtn = document.getElementById("btn-prev-step");
+    var nextBtn = document.getElementById("btn-next-step");
+    if (prevBtn) prevBtn.disabled = currentStep === 1;
+    if (nextBtn) nextBtn.textContent = currentStep === 3 ? "Guardar ahora" : "Siguiente";
+  }
+
+  function saveAll() {
+    var nombre = gv("nombre_perfil");
+    if (!nombre) {
+      showToast("El nombre es obligatorio", "error");
+      var input = document.getElementById("nombre_perfil");
+      if (input) input.focus();
+      return;
+    }
+
+    lockSaveButtons(true);
+
+    var formData = new FormData();
+    formData.append("nombre_perfil", nombre);
+    formData.append("tipo", gv("tipo_perfil") || "personal");
+    formData.append("color", selectedTheme === "auto" && autoExtractedColor ? autoExtractedColor : selectedColor);
+    formData.append("tema", selectedTheme);
+    formData.append("marco_estilo", gv("marco_estilo") || "gradient");
+    formData.append("bio", gv("bio_perfil"));
+    formData.append("cumpleanos", gv("cumpleanos"));
+    formData.append("lugar_estudio", gv("lugar_estudio"));
+    formData.append("pronombres", gv("pronombres"));
+
+    var fotoInput = document.getElementById("input-foto");
+    if (fotoInput && fotoInput.files && fotoInput.files[0]) {
+      formData.append("foto", fotoInput.files[0]);
+    }
+
+    var method = editId ? "PUT" : "POST";
+    var endpoint = editId ? "/perfiles/" + editId : "/perfiles";
+
+    api(endpoint, { method: method, body: formData, headers: {} })
+      .then(function (profile) {
+        if (!profile) throw new Error("No se pudo guardar el perfil");
+        var perfilId = profile.id || editId;
+        profileSlug = profile.slug || profileSlug;
+        updatePreviewButton();
+
+        var requests = blocks.map(function (block, index) {
+          var body = JSON.stringify({
+            tipo: block.tipo,
+            contenido: block.contenido,
+            orden: index
+          });
+
+          if (block.id) {
+            return api("/bloques/" + block.id, { method: "PUT", body: body });
+          }
+
+          return api("/perfiles/" + perfilId + "/bloques", {
+            method: "POST",
+            body: body
+          }).then(function (created) {
+            if (created && created.id) block.id = created.id;
+          });
+        });
+
+        return Promise.all(requests);
+      })
+      .then(function () {
+        showToast("Tarjeta guardada con exito", "success");
+        lockSaveButtons(false, true);
+        setTimeout(function () {
+          window.location.replace("/dashboard.html");
+        }, 420);
+      })
+      .catch(function (error) {
+        console.error("Error guardando tarjeta:", error);
+        showToast(error && (error.error || error.message) ? (error.error || error.message) : "No se pudo guardar", "error");
+        lockSaveButtons(false, false);
+      });
+  }
+
+  function loadExisting(id) {
+    api("/perfiles")
+      .then(function (profiles) {
+        var profile = (profiles || []).find(function (item) { return String(item.id) === String(id); });
+        if (!profile) {
+          showToast("No se encontro el perfil", "error");
+          return null;
+        }
+
+        setValue("nombre_perfil", profile.nombre_perfil || "");
+        setValue("tipo_perfil", profile.tipo || "personal");
+        setValue("bio_perfil", profile.bio || "");
+        setValue("cumpleanos", profile.cumpleanos || "");
+        setValue("lugar_estudio", profile.lugar_estudio || "");
+        setValue("pronombres", profile.pronombres || "");
+        setValue("marco_estilo", profile.marco_estilo || "gradient");
+
+        if (profile.tema) selectedTheme = profile.tema;
+        if (profile.color) selectedColor = profile.color;
+        profileSlug = profile.slug || null;
+
+        var colorOption = document.querySelector('.color-option[data-color="' + selectedColor + '"]');
+        if (colorOption) {
+          document.querySelectorAll(".color-option").forEach(function (option) {
+            option.classList.remove("active");
+          });
+          colorOption.classList.add("active");
+        }
+
+        if (profile.foto_url) {
+          var photoPreview = document.getElementById("photo-preview");
+          var avatarBox = document.getElementById("prev-avatar-box");
+          if (photoPreview) photoPreview.innerHTML = '<img src="' + profile.foto_url + '" alt="foto">';
+          if (avatarBox) avatarBox.innerHTML = '<img src="' + profile.foto_url + '" alt="avatar">';
+        }
+
+        renderThemePicker();
+        updatePreviewButton();
+        updateLivePreview();
+        return api("/perfiles/" + id + "/bloques");
+      })
+      .then(function (savedBlocks) {
+        if (!savedBlocks || !Array.isArray(savedBlocks)) return;
+        blocks = savedBlocks.map(function (block) {
+          return {
+            id: block.id,
+            tipo: block.tipo,
+            contenido: typeof block.contenido === "string" ? JSON.parse(block.contenido) : (block.contenido || {}),
+            orden: block.orden
+          };
+        }).sort(function (a, b) {
+          return (a.orden || 0) - (b.orden || 0);
+        });
+        normalizeOrder();
+        renderBlockList();
+      })
+      .catch(function (error) {
+        console.error("Error cargando perfil:", error);
+        showToast("No se pudo cargar el perfil", "error");
+      });
+  }
+
+  function updatePreviewButton() {
+    var button = document.getElementById("btn-preview");
+    if (!button || !profileSlug) return;
+    button.href = "/u/" + profileSlug;
+    button.classList.remove("hidden");
+  }
+
+  function lockSaveButtons(lock, success) {
+    var text = lock ? "Guardando..." : (success ? "Guardado" : "Guardar");
+    var finalText = lock ? "Guardando..." : (success ? "Guardado" : "Guardar y publicar");
+    var navButton = document.getElementById("btn-save");
+    var finalButton = document.getElementById("btn-final-save");
+
+    if (navButton) {
+      navButton.disabled = !!lock;
+      navButton.textContent = text;
+    }
+
+    if (finalButton) {
+      finalButton.disabled = !!lock;
+      finalButton.textContent = finalText;
+    }
+  }
+
+  function previewTitle(block) {
+    var content = block.contenido || {};
+    return content.titulo || content.texto || content.numero || content.banco || getBlockLabel(block.tipo);
+  }
+
+  function previewMeta(block) {
+    var content = block.contenido || {};
+    if (block.tipo === "ubicacion") return content.horario || content.direccion || "Mapa y sede";
+    if (block.tipo === "whatsapp") return content.numero || "Contacto directo";
+    if (block.tipo === "social_icons") return (content.redes ? content.redes.length : 0) + " redes conectadas";
+    if (block.tipo === "countdown") return content.fecha_fin || "Cuenta regresiva";
+    if (block.tipo === "email_capture") return content.boton_texto || "Formulario";
+    if (block.tipo === "pago") return content.beneficiario || content.clabe || "Datos de transferencia";
+    return content.subtitulo || content.url || content.texto || "";
+  }
+
+  function fallbackMeta(block, content) {
+    if (block.tipo === "pdf") return "Documento listo para descargar";
+    if (block.tipo === "spotify") return "Reproductor embebido";
+    if (block.tipo === "youtube" || block.tipo === "tiktok") return "Contenido multimedia";
+    return content.subtitulo || "Bloque activo";
+  }
+
+  function blockColor(tipo) {
+    var block = BLOCK_TYPES.find(function (item) { return item.tipo === tipo; });
+    return block ? block.color : "#8C8A95";
+  }
+
+  function blockIcon(tipo) {
+    var block = BLOCK_TYPES.find(function (item) { return item.tipo === tipo; });
+    return block ? block.icon : "•";
+  }
+
+  function getBlockLabel(tipo) {
+    var block = BLOCK_TYPES.find(function (item) { return item.tipo === tipo; });
+    return block ? block.label : tipo;
+  }
+
+  function formField(label, id, value, placeholder) {
+    return (
+      '<div class="field"><label for="' + escapeHtml(id) + '">' + escapeHtml(label) + "</label>" +
+      '<input id="' + escapeHtml(id) + '" class="form-input" type="text" value="' + escapeHtml(String(value || "")) + '" placeholder="' + escapeHtml(String(placeholder || "")) + '"></div>'
+    );
+  }
+
+  function gv(id) {
+    var el = document.getElementById(id);
+    return el ? String(el.value || "").trim() : "";
+  }
+
+  function setValue(id, value) {
+    var el = document.getElementById(id);
+    if (el) el.value = value;
+  }
+
+  function setText(id, value) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = value;
+  }
+
+  function getInitials(name) {
+    return String(name || "")
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map(function (part) { return part.charAt(0); })
+      .join("")
+      .toUpperCase() || "V";
+  }
+
+  function normalizeOrder() {
+    blocks.forEach(function (block, index) {
+      block.orden = index;
+    });
+  }
+
+  function trimPreview(value, size) {
+    var text = String(value || "");
+    if (text.length <= size) return text;
+    return text.slice(0, size - 1) + "…";
+  }
+
+  function readableText(hex) {
+    var rgb = hexToRgb(hex);
+    var luminance = (0.2126 * rgb.r + 0.7152 * rgb.g + 0.0722 * rgb.b) / 255;
+    return luminance > 0.62 ? "#17151B" : "#FFF8F0";
+  }
+
+  function hexToRgb(hex) {
+    var raw = String(hex || "").replace("#", "");
+    if (raw.length === 3) {
+      raw = raw.split("").map(function (piece) { return piece + piece; }).join("");
+    }
+    var int = parseInt(raw, 16);
+    return {
+      r: (int >> 16) & 255,
+      g: (int >> 8) & 255,
+      b: int & 255
+    };
+  }
+
+  function rgbToHex(r, g, b) {
+    return "#" + [r, g, b].map(function (value) {
+      var safe = Math.max(0, Math.min(255, Math.round(value)));
+      return safe.toString(16).padStart(2, "0");
+    }).join("").toUpperCase();
+  }
+
+  function mixHex(hexA, hexB, weight) {
+    var a = hexToRgb(hexA);
+    var b = hexToRgb(hexB);
+    var ratio = typeof weight === "number" ? weight : 0.5;
+    return rgbToHex(
+      a.r + (b.r - a.r) * ratio,
+      a.g + (b.g - a.g) * ratio,
+      a.b + (b.b - a.b) * ratio
+    );
+  }
+
+  function escapeHtml(value) {
+    if (value === null || value === undefined) return "";
+    var div = document.createElement("div");
+    div.textContent = String(value);
+    return div.innerHTML;
+  }
 })();

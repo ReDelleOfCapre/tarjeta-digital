@@ -1,21 +1,15 @@
-// ============================================
-// VYNK — Enterprise Workspaces, RBAC & Leads Routes
-// ============================================
 const express = require('express');
 const router = express.Router();
-const { dbReady } = require('../database/db');
+const db = require('../database/db');
 const auth = require('../middleware/auth');
 
-// GET /api/workspaces — Listar espacios de trabajo del usuario
 router.get('/', auth, async (req, res) => {
   try {
-    const db = await dbReady;
-    let workspaces = db.prepare('SELECT * FROM workspaces WHERE owner_id = ? ORDER BY id ASC').all(req.user.id);
+    let workspaces = await db.prepare('SELECT * FROM workspaces WHERE owner_id = ? ORDER BY id ASC').all(req.user.id);
 
-    // Si el usuario aún no tiene un workspace personal, crearlo automáticamente
     if (!workspaces || workspaces.length === 0) {
-      const ins = db.prepare("INSERT INTO workspaces (nombre, owner_id, tipo) VALUES (?, ?, 'personal')").run(`Personal Workspace (${req.user.nombre})`, req.user.id);
-      workspaces = db.prepare('SELECT * FROM workspaces WHERE owner_id = ? ORDER BY id ASC').all(req.user.id);
+      await db.prepare("INSERT INTO workspaces (nombre, owner_id, tipo) VALUES (?, ?, 'personal')").run(`Personal Workspace (${req.user.nombre})`, req.user.id);
+      workspaces = await db.prepare('SELECT * FROM workspaces WHERE owner_id = ? ORDER BY id ASC').all(req.user.id);
     }
 
     res.json({ success: true, workspaces });
@@ -25,7 +19,6 @@ router.get('/', auth, async (req, res) => {
   }
 });
 
-// POST /api/workspaces — Crear un nuevo Company Workspace B2B
 router.post('/', auth, async (req, res) => {
   try {
     const { nombre, tipo } = req.body;
@@ -33,13 +26,11 @@ router.post('/', auth, async (req, res) => {
       return res.status(400).json({ error: 'El nombre del Workspace es obligatorio' });
     }
 
-    const db = await dbReady;
-    const result = db.prepare("INSERT INTO workspaces (nombre, owner_id, tipo) VALUES (?, ?, ?)").run(nombre.trim(), req.user.id, tipo || 'company');
-    
-    // Agregar al creador como Admin del Workspace en workspace_members
-    db.prepare("INSERT INTO workspace_members (workspace_id, usuario_id, role) VALUES (?, ?, 'Admin')").run(result.lastInsertRowid, req.user.id);
+    const result = await db.prepare("INSERT INTO workspaces (nombre, owner_id, tipo) VALUES (?, ?, ?)").run(nombre.trim(), req.user.id, tipo || 'company');
 
-    const workspace = db.prepare('SELECT * FROM workspaces WHERE id = ?').get(result.lastInsertRowid);
+    await db.prepare("INSERT INTO workspace_members (workspace_id, usuario_id, role) VALUES (?, ?, 'Admin')").run(result.lastInsertRowid, req.user.id);
+
+    const workspace = await db.prepare('SELECT * FROM workspaces WHERE id = ?').get(result.lastInsertRowid);
     res.status(201).json({ success: true, workspace });
   } catch (err) {
     console.error('Error creando workspace:', err);
@@ -47,12 +38,10 @@ router.post('/', auth, async (req, res) => {
   }
 });
 
-// GET /api/workspaces/:id/members — Listar miembros del equipo (RBAC)
 router.get('/:id/members', auth, async (req, res) => {
   try {
-    const db = await dbReady;
     const workspaceId = parseInt(req.params.id, 10);
-    const members = db.prepare(`
+    const members = await db.prepare(`
       SELECT wm.id, wm.workspace_id, wm.usuario_id, wm.role, u.nombre, u.email, u.telefono
       FROM workspace_members wm
       JOIN usuarios u ON u.id = wm.usuario_id
@@ -66,7 +55,6 @@ router.get('/:id/members', auth, async (req, res) => {
   }
 });
 
-// POST /api/workspaces/:id/members — Invitar/Asignar miembro con rol (RBAC: Admin, Editor, Viewer)
 router.post('/:id/members', auth, async (req, res) => {
   try {
     const workspaceId = parseInt(req.params.id, 10);
@@ -75,14 +63,13 @@ router.post('/:id/members', auth, async (req, res) => {
       return res.status(400).json({ error: 'Correo electrónico obligatorio para invitar miembro' });
     }
 
-    const db = await dbReady;
-    const targetUser = db.prepare('SELECT id FROM usuarios WHERE email = ?').get(email.trim());
+    const targetUser = await db.prepare('SELECT id FROM usuarios WHERE email = ?').get(email.trim());
     if (!targetUser) {
-      return res.status(444 || 404).json({ error: 'Usuario no encontrado con ese correo' });
+      return res.status(404).json({ error: 'Usuario no encontrado con ese correo' });
     }
 
     const validRole = ['Admin', 'Editor', 'Viewer'].includes(role) ? role : 'Editor';
-    db.prepare("INSERT INTO workspace_members (workspace_id, usuario_id, role) VALUES (?, ?, ?)").run(workspaceId, targetUser.id, validRole);
+    await db.prepare("INSERT INTO workspace_members (workspace_id, usuario_id, role) VALUES (?, ?, ?)").run(workspaceId, targetUser.id, validRole);
 
     res.status(201).json({ success: true, mensaje: `Usuario invitado con rol ${validRole}` });
   } catch (err) {
@@ -91,7 +78,6 @@ router.post('/:id/members', auth, async (req, res) => {
   }
 });
 
-// POST /api/leads — Captura de Leads (Formulario de Contacto e Integración Webhook CRM)
 router.post('/leads', async (req, res) => {
   try {
     const { perfil_id, nombre, email, telefono, mensaje } = req.body;
@@ -99,8 +85,7 @@ router.post('/leads', async (req, res) => {
       return res.status(400).json({ error: 'Nombre y Email son obligatorios' });
     }
 
-    const db = await dbReady;
-    const result = db.prepare(`
+    const result = await db.prepare(`
       INSERT INTO lead_captures (perfil_id, nombre, email, telefono, mensaje, webhook_status)
       VALUES (?, ?, ?, ?, ?, 'ready_for_crm')
     `).run(perfil_id, nombre.trim(), email.trim(), telefono || null, mensaje || null);

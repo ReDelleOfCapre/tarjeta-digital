@@ -47,6 +47,13 @@ app.use(helmet({
 // CORS
 app.use(cors());
 
+// Cross-Origin Isolation (helper para PWA + features modernas)
+app.use((req, res, next) => {
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+  res.setHeader('Cross-Origin-Embedder-Policy', 'credentialless');
+  next();
+});
+
 // =============================================
 // Stripe Webhook (Requiere raw body con express.raw antes de express.json)
 // =============================================
@@ -78,22 +85,18 @@ app.post('/api/webhook/stripe', express.raw({ type: 'application/json' }), async
   // Lógica de Cumplimiento Automático (Fulfillment)
   if (event && event.type === 'checkout.session.completed') {
     const session = event.data ? event.data.object : {};
-    const { dbReady } = require('./database/db');
-    const db = await dbReady;
+    const { db } = require('./database/db');
     const customerEmail = session.customer_details?.email || session.customer_email;
 
     try {
       if (session.mode === 'subscription') {
-        // Actualizar usuario a Pro en DB
         console.log(`⚡ Fulfillment Pro activado para ${customerEmail}`);
         if (customerEmail) {
-          await db.pool.query(
-            "UPDATE usuarios SET is_pro = TRUE, plan = 'paid', stripe_customer_id = $1 WHERE email = $2 OR LOWER(email) = LOWER($2)",
-            [session.customer || '', customerEmail]
-          );
+          await db.prepare(
+            "UPDATE usuarios SET is_pro = TRUE, plan = 'paid', stripe_customer_id = ? WHERE email = ? OR LOWER(email) = LOWER(?)"
+          ).run(session.customer || '', customerEmail, customerEmail);
         }
       } else if (session.mode === 'payment') {
-        // Registrar orden de Hardware NFC con dirección de envío
         const shipping = session.shipping_details || session.shipping || {};
         console.log(`📦 Fulfillment de Hardware NFC registrado para ${customerEmail}:`, shipping);
 
@@ -106,15 +109,15 @@ app.post('/api/webhook/stripe', express.raw({ type: 'application/json' }), async
         };
 
         if (customerEmail) {
-          await db.pool.query(`
+          await db.prepare(`
             UPDATE usuarios
-            SET hardware_orders = COALESCE(hardware_orders, '[]'::jsonb) || $1::jsonb,
-                stripe_customer_id = COALESCE(stripe_customer_id, $2)
-            WHERE email = $3 OR LOWER(email) = LOWER($3)
-          `, [JSON.stringify([orderRecord]), session.customer || '', customerEmail]);
+            SET hardware_orders = COALESCE(hardware_orders, '[]'::jsonb) || ?::jsonb,
+                stripe_customer_id = COALESCE(stripe_customer_id, ?)
+            WHERE email = ? OR LOWER(email) = LOWER(?)
+          `).run(JSON.stringify([orderRecord]), session.customer || '', customerEmail, customerEmail);
         }
       }
-    } catch(e) {
+    } catch (e) {
       console.error('❌ Error en Fulfillment de Webhook:', e);
     }
   }
@@ -139,11 +142,11 @@ app.get(['/admin', '/admin.html'], (req, res) => {
 
 // Rutas Legales
 app.get(['/privacidad', '/privacidad.html'], (req, res) => {
-  res.sendFile(path.join(process.cwd(), 'views', 'privacidad.html'));
+  res.sendFile(path.join(process.cwd(), 'public', 'legal.html'));
 });
 
 app.get(['/terminos', '/terminos.html'], (req, res) => {
-  res.sendFile(path.join(process.cwd(), 'views', 'terminos.html'));
+  res.sendFile(path.join(process.cwd(), 'public', 'legal.html'));
 });
 
 // =============================================

@@ -20,6 +20,8 @@
   --border-subtle: var(--line);
   --text-main: var(--ink);
   --text-muted: var(--ink-soft);
+  --text: var(--ink);
+  --border: var(--line);
 
   /* Mapeo estandarizado */
   --bg-primary: var(--canvas);
@@ -69,14 +71,10 @@
   --radius-sm: 12px;
   --radius-md: 16px;
   --radius-lg: 24px;
-  --radius-xl: 32px;
-  --radius-full: 50%;
-  --radius-pill: 9999px;
   --radius-xl: 28px;
   --radius-full: 50%;
   --radius-pill: 100px;
 
-  --font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-xs: 0.75rem;
   --font-sm: 0.875rem;
   --font-base: 1rem;
@@ -90,37 +88,16 @@
   --transition-fast: 0.2s var(--ease-magnetic);
   --transition-normal: 0.4s var(--ease-magnetic);
 
-  /* UI/UX Polish 2026: Tamaño base de icono fluido y grosor uniforme */
-  --icon-size: clamp(1.1rem, 2.5vw, 1.5rem);
-  --icon-stroke: 1.5px;
-  --icon-size-sm: clamp(0.95rem, 2.2vw, 1.2rem);
-  --icon-size-lg: clamp(1.5rem, 3.5vw, 2rem);
-
-  color-scheme: dark;
+  color-scheme: light;
 }
 
-/* Environmental Color Temperature (Accesibilidad Dinámica) */
-@media (prefers-color-scheme: light) {
-  :root {
-    --bg-primary: #101012; /* Warm obsidian for daytime readability */
-  }
+body {
+  background-color: var(--canvas);
+  color: var(--ink);
+  font-family: var(--font-body);
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
 }
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg-primary: #0A0A0B; /* Pure obsidian night mode */
-  }
-}
-
-/* ---- Light Theme Explicit Override ---- */
-html[data-theme="light"], body.light-mode {
-  --bg-primary: #F8FAFC;
-  --bg-secondary: #FFFFFF;
-  --bg-tertiary: #F1F5F9;
-  --bg-card: rgba(255, 255, 255, 0.85);
-  --card-border: rgba(15, 23, 42, 0.08);
-  --card-blur: 20px;
-  --card-shadow: 0 10px 30px rgba(15, 23, 42, 0.08), inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
-  --text-primary: #0F172A;
   --text-secondary: #334155;
   --text-tertiary: #64748B;
   --text-muted: #94A3B8;

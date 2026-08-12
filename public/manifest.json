@@ -2,7 +2,7 @@
   "name": "VYNK — Tu identidad digital. Sin límites.",
   "short_name": "VYNK",
   "description": "Tu identidad digital. Sin límites.",
-  "start_url": "/dashboard.html",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#FBF9FF",
   "theme_color": "#5C48E6",

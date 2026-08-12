@@ -1,239 +1,100 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Legal - VYNK</title>
-  <link rel="stylesheet" href="/css/styles.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#FBF9FF">
+  <title>Legal — VYNK</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/legal.css">
   <style>
     :root {
-      --primary: #7C3AED;
-      --secondary: #FF6B6B;
-      --bg-dark: #0F0B1E;
-      --text-light: #F3F4F6;
-      --card-bg: rgba(255, 255, 255, 0.05);
+      --ink: #1D1830;
+      --ink-soft: #645C7A;
+      --accent-deep: #5C48E6;
+      --tint: #EEEAFC;
+      --canvas: #FBF9FF;
+      --paper: #FFFFFF;
+      --line: rgba(29,24,48,.1);
+      --font-heading: 'Space Grotesk', sans-serif;
+      --font-body: 'Inter', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
     }
-    body {
-      background-color: var(--bg-dark);
-      color: var(--text-light);
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      line-height: 1.6;
-    }
-    .navbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1rem 2rem;
-      background: rgba(15, 11, 30, 0.9);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-    .navbar a {
-      color: var(--text-light);
-      text-decoration: none;
-      font-weight: 600;
-    }
-    .brand {
-      font-size: 1.5rem;
-      font-weight: 800;
-      background: linear-gradient(to right, var(--primary), var(--secondary));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .container {
-      max-width: 800px;
-      margin: 2rem auto;
-      padding: 0 1rem;
-    }
-    .tabs {
-      display: flex;
-      gap: 1rem;
-      margin-bottom: 2rem;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-      padding-bottom: 1rem;
-      overflow-x: auto;
-    }
-    .tab-btn {
-      background: none;
-      border: none;
-      color: #9CA3AF;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      transition: all 0.3s ease;
-      white-space: nowrap;
-    }
-    .tab-btn:hover {
-      color: var(--text-light);
-      background: rgba(255,255,255,0.05);
-    }
-    .tab-btn.active {
-      color: var(--text-light);
-      background: var(--primary);
-    }
-    .tab-content {
-      display: none;
-      background: var(--card-bg);
-      padding: 2rem;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.1);
-    }
-    .tab-content.active {
-      display: block;
-    }
-    h1, h2, h3 {
-      color: var(--text-light);
-      margin-top: 1.5rem;
-      margin-bottom: 0.75rem;
-    }
-    p, li {
-      color: #D1D5DB;
-      margin-bottom: 1rem;
-    }
-    footer {
-      text-align: center;
-      padding: 2rem;
-      margin-top: 4rem;
-      border-top: 1px solid rgba(255,255,255,0.1);
-      color: #9CA3AF;
-    }
+    body.legal-page { min-height: 100dvh; background: var(--canvas); color: var(--ink); font-family: var(--font-body); margin: 0; }
+    .legal-page *, .legal-page *::before, .legal-page *::after { box-sizing: border-box; }
+    .legal-page .legal-nav { position: sticky; top: 0; z-index: 10; background: rgba(251,249,255,.94); backdrop-filter: blur(16px); border-bottom: 1px solid var(--line); }
+    .legal-page .legal-nav-inner, .legal-page .legal-shell { width: min(100% - 40px, 880px); margin-inline: auto; }
+    .legal-page .legal-nav-inner { min-height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .legal-page .legal-brand { display: inline-flex; align-items: center; gap: 10px; color: var(--ink); font-family: var(--font-heading); font-size: 18px; font-weight: 700; text-decoration: none; }
+    .legal-page .legal-mark { display:grid; place-items:center; width:32px; height:32px; border-radius:10px; color:var(--accent-deep); background:var(--tint); font-size:16px; }
+    .legal-page .legal-back { color: var(--accent-deep); font-size: 14px; font-weight: 600; text-decoration: none; }
+    .legal-page .legal-shell { padding: 40px 0 70px; }
+    .legal-page .legal-eyebrow { margin: 0 0 12px; color: var(--accent-deep); font: 600 12px/1.4 var(--font-mono); letter-spacing: .1em; text-transform: uppercase; }
+    .legal-page .legal-title { margin: 0; font-family: var(--font-heading); font-size: clamp(32px, 5vw, 48px); letter-spacing: -.04em; line-height: 1.1; color: var(--ink); }
+    .legal-page .legal-intro { max-width: 650px; margin: 14px 0 32px; color: var(--ink-soft); font-size: 16px; line-height: 1.65; }
+    .legal-page .legal-tabs { display: flex; gap: 8px; overflow-x: auto; margin-bottom: 20px; padding-bottom: 4px; border-bottom: 1px solid var(--line); }
+    .legal-page .legal-tab { flex: 0 0 auto; padding: 10px 18px; border: 0; border-radius: 10px; background: transparent; color: var(--ink-soft); font: 600 14px var(--font-body); cursor: pointer; }
+    .legal-page .legal-tab:hover { background: var(--tint); color: var(--ink); }
+    .legal-page .legal-tab.is-active { background: var(--accent-deep); color: #fff; }
+    .legal-page .legal-panel { display: none; padding: clamp(24px, 5vw, 42px); background: var(--paper); border: 1px solid var(--line); border-radius: 24px; box-shadow: 0 10px 30px -15px rgba(29,24,48,.15); }
+    .legal-page .legal-panel.is-active { display: block; }
+    .legal-page .legal-panel h2 { margin: 30px 0 10px; font-family: var(--font-heading); font-size: 22px; color: var(--ink); }
+    .legal-page .legal-panel h2:first-child { margin-top: 0; }
+    .legal-page .legal-panel p, .legal-page .legal-panel li { color: var(--ink-soft); font-size: 15px; line-height: 1.75; }
+    .legal-page .legal-panel strong { color: var(--ink); }
+    .legal-page .legal-footer { padding: 28px 20px; color: var(--ink-soft); font-size: 13px; text-align: center; border-top: 1px solid var(--line); }
   </style>
 </head>
-<body>
-  <nav class="navbar">
-    <a href="/" class="brand">VYNK</a>
-    <a href="/">← Volver al inicio</a>
-  </nav>
-
-  <div class="container">
-    <div class="tabs">
-      <button class="tab-btn active" onclick="showTab('terminos')">Términos de Servicio</button>
-      <button class="tab-btn" onclick="showTab('privacidad')">Política de Privacidad</button>
-      <button class="tab-btn" onclick="showTab('aviso')">Aviso Legal</button>
+<body class="legal-page">
+  <header class="legal-nav"><div class="legal-nav-inner">
+    <a class="legal-brand" href="index.html"><span class="legal-mark">V</span> VYNK</a>
+    <a class="legal-back" href="index.html">← Volver al inicio</a>
+  </div></header>
+  <main class="legal-shell">
+    <p class="legal-eyebrow">Confianza y transparencia</p>
+    <h1 class="legal-title">Información legal clara.</h1>
+    <p class="legal-intro">Consulta las condiciones de uso, cómo protegemos tu información y los datos de contacto de VYNK.</p>
+    <div class="legal-tabs" role="tablist" aria-label="Documentos legales">
+      <button class="legal-tab is-active" id="tab-terminos" role="tab" aria-selected="true" aria-controls="terminos">Términos de servicio</button>
+      <button class="legal-tab" id="tab-privacidad" role="tab" aria-selected="false" aria-controls="privacidad">Política de privacidad</button>
+      <button class="legal-tab" id="tab-aviso" role="tab" aria-selected="false" aria-controls="aviso">Aviso legal</button>
     </div>
-
-    <!-- Términos de Servicio -->
-    <div id="terminos" class="tab-content active">
-      <h1>Términos de Servicio</h1>
-      <p>Última actualización: Agosto 2026</p>
-      
-      <h2>1. Definiciones</h2>
-      <ul>
-        <li><strong>VYNK</strong>: La plataforma digital de identidad y tarjetas de contacto.</li>
-        <li><strong>Usuario</strong>: Cualquier persona que cree una cuenta o utilice nuestros servicios.</li>
-        <li><strong>Cuenta</strong>: El perfil de acceso creado por el Usuario.</li>
-        <li><strong>Contenido</strong>: Cualquier información, texto, enlace, imagen o dato subido por el Usuario.</li>
-      </ul>
-
-      <h2>2. Aceptación de términos</h2>
-      <p>Al acceder y utilizar VYNK, aceptas cumplir y estar sujeto a estos Términos de Servicio. Si no estás de acuerdo, no utilices la plataforma.</p>
-
-      <h2>3. Registro y cuenta</h2>
-      <p>Debes tener al menos 13 años para utilizar VYNK. Eres responsable de mantener la confidencialidad de tu cuenta y de proporcionar información veraz y actualizada.</p>
-
-      <h2>4. Planes y precios</h2>
-      <p>VYNK ofrece un plan Gratuito y un plan Pro a $149 MXN/mes o $1,499 MXN/año. Nos reservamos el derecho de modificar los precios en el futuro con previo aviso.</p>
-
-      <h2>5. Pagos</h2>
-      <p>Los pagos se realizan mediante transferencia bancaria. Tras realizar el pago, debes subir el comprobante para su verificación manual. La activación puede tomar hasta 24 horas.</p>
-
-      <h2>6. Política de reembolsos</h2>
-      <p>Los pagos realizados por suscripciones Pro no son reembolsables una vez que la cuenta ha sido activada o renovada.</p>
-
-      <h2>7. Contenido del usuario</h2>
-      <p>Mantienes todos los derechos sobre tu contenido. Sin embargo, al subir contenido a VYNK, nos otorgas una licencia mundial, no exclusiva y libre de regalías para mostrar, reproducir y distribuir dicho contenido en relación con el servicio.</p>
-
-      <h2>8. Contenido prohibido</h2>
-      <p>No se permite publicar contenido ilegal, spam, esquemas fraudulentos, suplantación de identidad, malware o contenido que viole derechos de autor.</p>
-
-      <h2>9. Cancelación</h2>
-      <p>Puedes cancelar tu suscripción en cualquier momento. VYNK se reserva el derecho de suspender o eliminar cuentas que violen estos términos.</p>
-
-      <h2>10. Limitación de responsabilidad</h2>
-      <p>VYNK se proporciona "tal cual". No garantizamos que el servicio sea ininterrumpido o libre de errores. No seremos responsables de daños indirectos o pérdida de datos.</p>
-
-      <h2>11. Modificaciones a los términos</h2>
-      <p>Podemos actualizar estos términos periódicamente. Continuar usando VYNK después de los cambios implica su aceptación.</p>
-
-      <h2>12. Ley aplicable</h2>
-      <p>Estos términos se rigen por las leyes de México.</p>
-
-      <h2>13. Contacto</h2>
-      <p>Para dudas, contáctanos en: soporte@vynk.me</p>
-    </div>
-
-    <!-- Política de Privacidad -->
-    <div id="privacidad" class="tab-content">
-      <h1>Política de Privacidad</h1>
-      <p>Última actualización: Agosto 2026</p>
-
-      <h2>1. Datos que recopilamos</h2>
-      <ul>
-        <li>Nombre y número de teléfono.</li>
-        <li>Dirección de correo electrónico (si se proporciona).</li>
-        <li>Dirección IP hasheada (para estadísticas analíticas).</li>
-        <li>Datos de uso y navegación dentro de la plataforma.</li>
-      </ul>
-
-      <h2>2. Cómo usamos los datos</h2>
-      <p>Utilizamos tus datos para proveer el servicio de tarjetas digitales, generar analíticas (Analytics), procesar pagos y mejorar nuestra plataforma.</p>
-
-      <h2>3. Cookies y tecnologías similares</h2>
-      <p>Utilizamos cookies esenciales para mantener tu sesión activa y cookies de análisis para entender cómo se usa VYNK.</p>
-
-      <h2>4. Compartir datos</h2>
-      <p><strong>NO vendemos tus datos a terceros.</strong> Solo compartimos información con proveedores de servicios necesarios para operar (ej. hosting).</p>
-
-      <h2>5. Retención de datos</h2>
-      <p>Mantenemos tus datos mientras tu cuenta esté activa. Si decides eliminar tu cuenta, los datos se conservarán por un máximo de 30 días antes de su eliminación definitiva.</p>
-
-      <h2>6. Derechos del usuario (ARCO)</h2>
-      <p>Tienes derecho a Acceder, Rectificar, Cancelar y Oponerte al tratamiento de tus datos. Puedes ejercer estos derechos contactándonos.</p>
-
-      <h2>7. Seguridad</h2>
-      <p>Implementamos cifrado en tránsito (HTTPS) y hashing seguro (bcrypt) para contraseñas y pines.</p>
-
-      <h2>8. Menores de edad</h2>
-      <p>VYNK no está dirigido a menores de 13 años. No recopilamos conscientemente datos de menores de 13 años.</p>
-
-      <h2>9. Cambios a la política</h2>
-      <p>Notificaremos sobre cambios significativos en esta política a través de la plataforma.</p>
-
-      <h2>10. Contacto DPO</h2>
-      <p>Oficial de Privacidad: privacidad@vynk.me</p>
-    </div>
-
-    <!-- Aviso Legal -->
-    <div id="aviso" class="tab-content">
-      <h1>Aviso Legal</h1>
-      <p>Última actualización: Agosto 2026</p>
-
-      <p><strong>Razón social:</strong> VYNK Digital (persona física con actividad empresarial)</p>
-      <p><strong>Domicilio fiscal:</strong> Veracruz, México</p>
-      <p><strong>RFC:</strong> En trámite</p>
-      <p><strong>Actividad:</strong> Plataforma digital de identidad y tarjetas de contacto</p>
-
-      <h2>Disclaimer de responsabilidad</h2>
-      <p>La información contenida en esta plataforma es de carácter general. Aunque nos esforzamos por mantener la información actualizada y correcta, no realizamos representaciones ni garantías de ningún tipo, expresas o implícitas, sobre la integridad, exactitud, fiabilidad, idoneidad o disponibilidad con respecto a la plataforma o la información, productos, servicios o gráficos relacionados.</p>
-    </div>
-  </div>
-
-  <footer>
-    <p>&copy; 2026 VYNK Digital. Todos los derechos reservados.</p>
-  </footer>
-
+    <article class="legal-panel is-active" id="terminos" role="tabpanel" aria-labelledby="tab-terminos">
+      <h2>Términos de servicio</h2><p class="legal-date">Última actualización: agosto de 2026</p>
+      <h2>1. Definiciones</h2><ul><li><strong>VYNK:</strong> plataforma de identidad y tarjetas de contacto digitales.</li><li><strong>Usuario:</strong> cualquier persona que crea una cuenta o utiliza nuestros servicios.</li><li><strong>Contenido:</strong> información, texto, enlace, imagen o dato que el usuario incorpora a su tarjeta.</li></ul>
+      <h2>2. Aceptación y cuenta</h2><p>Al acceder o usar VYNK aceptas estos términos. Debes tener al menos 13 años, mantener protegidas tus credenciales y proporcionar información veraz y actualizada.</p>
+      <h2>3. Planes, pagos y cancelación</h2><p>VYNK ofrece un plan gratuito y un plan Pro. Los precios, alcances y métodos de pago se muestran antes de confirmar una compra. Puedes cancelar tu suscripción en cualquier momento; las activaciones o renovaciones ya realizadas no son reembolsables salvo que la ley aplicable disponga lo contrario.</p>
+      <h2>4. Uso aceptable</h2><p>No está permitido publicar contenido ilegal, fraudulento, dañino, spam, malware, suplantaciones o material que infrinja derechos de terceros. Conservas tus derechos sobre tu contenido y autorizas a VYNK a alojarlo y mostrarlo para prestar el servicio.</p>
+      <h2>5. Disponibilidad y cambios</h2><p>El servicio se proporciona según disponibilidad. Podemos mejorar o actualizar la plataforma y estos términos; los cambios relevantes se comunicarán por medios razonables.</p>
+      <h2>6. Contacto</h2><p>Para dudas sobre estos términos, escríbenos a <a href="mailto:soporte@vynk.me">soporte@vynk.me</a>.</p>
+    </article>
+    <article class="legal-panel" id="privacidad" role="tabpanel" aria-labelledby="tab-privacidad">
+      <h2>Política de privacidad</h2><p class="legal-date">Última actualización: agosto de 2026</p>
+      <h2>1. Datos que tratamos</h2><p>Podemos tratar tus datos de contacto, la información que decides publicar en tu perfil, datos técnicos básicos y eventos de uso necesarios para operar las tarjetas y sus analíticas.</p>
+      <h2>2. Finalidades</h2><p>Usamos la información para crear y mostrar tus tarjetas, mantener tu cuenta, procesar pagos, dar soporte, prevenir abusos y ofrecer métricas de rendimiento.</p>
+      <h2>3. Compartición y conservación</h2><p>No vendemos tus datos. Solo compartimos la información indispensable con proveedores que nos ayudan a operar el servicio. Conservamos los datos mientras tu cuenta esté activa o durante el periodo exigido por obligaciones legales.</p>
+      <h2>4. Tus derechos</h2><p>Puedes solicitar acceso, rectificación, cancelación u oposición al tratamiento de tus datos. Escríbenos a <a href="mailto:privacidad@vynk.me">privacidad@vynk.me</a>.</p>
+      <h2>5. Seguridad</h2><p>Aplicamos medidas técnicas y organizativas razonables para proteger la información en tránsito y en almacenamiento. Ningún servicio digital puede garantizar seguridad absoluta.</p>
+    </article>
+    <article class="legal-panel" id="aviso" role="tabpanel" aria-labelledby="tab-aviso">
+      <h2>Aviso legal</h2><p class="legal-date">Última actualización: agosto de 2026</p>
+      <p><strong>Actividad:</strong> plataforma digital de identidad y tarjetas de contacto.</p><p><strong>Ubicación:</strong> Veracruz, México.</p>
+      <h2>Propiedad intelectual</h2><p>La marca VYNK, su interfaz y los elementos propios del servicio están protegidos por la legislación aplicable. No pueden reproducirse o utilizarse sin autorización.</p>
+      <h2>Limitación de responsabilidad</h2><p>La información y el servicio se proporcionan con fines generales. VYNK no responde por el contenido publicado por usuarios ni por servicios de terceros enlazados desde las tarjetas.</p>
+    </article>
+  </main>
+  <footer class="legal-footer">© 2026 VYNK. Todos los derechos reservados.</footer>
   <script>
-    function showTab(tabId) {
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-      
-      document.getElementById(tabId).classList.add('active');
-      event.currentTarget.classList.add('active');
-    }
+    const tabs = [...document.querySelectorAll('.legal-tab')];
+    const panels = [...document.querySelectorAll('.legal-panel')];
+    function selectTab(tab) { tabs.forEach(item => { const selected = item === tab; item.classList.toggle('is-active', selected); item.setAttribute('aria-selected', selected); }); panels.forEach(panel => panel.classList.toggle('is-active', panel.id === tab.getAttribute('aria-controls'))); }
+    tabs.forEach(tab => tab.addEventListener('click', () => selectTab(tab)));
+    const initialTab = location.pathname.includes('privacidad') ? 'tab-privacidad' : location.pathname.includes('aviso') ? 'tab-aviso' : 'tab-terminos';
+    selectTab(document.getElementById(initialTab));
   </script>
 </body>
 </html>

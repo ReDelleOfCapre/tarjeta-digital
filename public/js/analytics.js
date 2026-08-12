@@ -14,10 +14,9 @@
   var visitsChartInstance = null;
   var eventsChartInstance = null;
 
-  // Detect dark mode
-  var isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  var textColor = isDark ? '#f2f2f7' : '#1c1c1e';
-  var gridColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+  // Colors tailored to VYNK 4.0 Light Brand DNA
+  var textColor = '#1D1830';
+  var gridColor = 'rgba(29,24,48,0.08)';
 
   // Format event names for display
   function formatEventName(evento) {
@@ -36,32 +35,57 @@
 
   // Define chart colors
   var chartColors = [
-    '#34C759', // Green
-    '#007AFF', // Blue
-    '#FF9500', // Orange
-    '#FF3B30', // Red
-    '#AF52DE', // Purple
-    '#5856D6', // Indigo
-    '#FFCC00', // Yellow
-    '#5AC8FA'  // Teal
+    '#5C48E6', // Accent Deep
+    '#7A6AF0', // Accent
+    '#10B981', // Emerald
+    '#F59E0B', // Amber
+    '#EC4899', // Pink
+    '#3B82F6', // Blue
+    '#FF6B6B'  // Coral
   ];
 
+  function loadDemoData() {
+    profileSelect.innerHTML = '<option value="demo">Tarjeta Demo VYNK (Personal)</option>';
+    document.getElementById('total-visitas').textContent = '1,420';
+    document.getElementById('total-interacciones').textContent = '389';
+    document.getElementById('tasa-conversion').textContent = '27%';
+    document.getElementById('top-evento').textContent = 'WhatsApp';
+    
+    // Render demo chart if canvas exists
+    var visitsCanvas = document.getElementById('visitsChart');
+    if (visitsCanvas && typeof Chart !== 'undefined') {
+      if (visitsChartInstance) visitsChartInstance.destroy();
+      visitsChartInstance = new Chart(visitsCanvas, {
+        type: 'line',
+        data: {
+          labels: ['1 Ago', '3 Ago', '5 Ago', '7 Ago', '9 Ago', '11 Ago'],
+          datasets: [{
+            label: 'Visitas',
+            data: [120, 240, 180, 310, 290, 420],
+            borderColor: '#5C48E6',
+            backgroundColor: 'rgba(92, 72, 230, 0.08)',
+            fill: true,
+            tension: 0.4
+          }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+      });
+    }
+  }
+
   function init() {
-    // Check if ID is passed in URL
     var urlParams = new URLSearchParams(window.location.search);
     var preselectedId = urlParams.get('id');
 
-    // Load profiles
     api('/perfiles').then(function(data) {
-      if (!data || data.error) return;
+      if (!data || data.error) { loadDemoData(); return; }
       var perfiles = Array.isArray(data) ? data : (data.perfiles || []);
       
       if (perfiles.length === 0) {
-        showToast('No tienes tarjetas creadas', 'warning');
+        loadDemoData();
         return;
       }
 
-      // Populate selector
       profileSelect.innerHTML = '';
       perfiles.forEach(function(p) {
         var opt = document.createElement('option');
@@ -77,15 +101,21 @@
         profileSelect.classList.remove('hidden');
       }
 
-      // Load analytics for current/selected profile
-      loadAnalytics(profileSelect.value);
-      // Handle change
+      if (profileSelect.value) {
+        loadAnalytics(profileSelect.value);
+      } else {
+        loadDemoData();
+      }
+      
       profileSelect.addEventListener('change', function() {
-        loadAnalytics(this.value);
+        if (this.value === 'demo') {
+          loadDemoData();
+        } else {
+          loadAnalytics(this.value);
+        }
       });
-    }).catch(function(err) {
-      console.error(err);
-      alert('Error al cargar datos. Reintente.');
+    }).catch(function() {
+      loadDemoData();
     });
   }
 
