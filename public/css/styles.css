@@ -98,17 +98,45 @@ body {
   margin: 0;
   -webkit-font-smoothing: antialiased;
 }
-  --text-secondary: #334155;
-  --text-tertiary: #64748B;
-  --text-muted: #94A3B8;
-  --separator: rgba(15, 23, 42, 0.08);
-  --accent-glow: rgba(124, 58, 237, 0.15);
-  --overlay: rgba(15, 23, 42, 0.5);
-  color-scheme: light;
+
+/* ---- Apple-Grade Frosted Glass Navigation ---- */
+.navbar, .legal-nav, .editor-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(251, 249, 255, 0.88) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+  border-bottom: 1px solid var(--line) !important;
 }
 
-/* ---- Light Theme Explicit Override ---- */
-html[data-theme="light"], body.light-mode {
+/* ---- Apple TV / Bento Card Hover Elevation ---- */
+.card, .bento-card, .stat-card, .plan-card, .share-card, .legal-panel {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg, 24px);
+  transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.card:hover, .bento-card:hover, .stat-card:hover, .plan-card:hover, .share-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 36px -10px rgba(92, 72, 230, 0.18) !important;
+}
+
+/* ---- Apple Spec Sheet Typography for Numbers & Prices ---- */
+.stat-value, .metric-val, .plan-price, .cifra-num, .spec-number, .stat-number, [data-mono] {
+  font-family: var(--font-mono) !important;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* ---- Reduced Motion Accessibility ---- */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
   --bg-primary: #F8FAFC;
   --bg-secondary: #FFFFFF;
   --bg-tertiary: #F1F5F9;
