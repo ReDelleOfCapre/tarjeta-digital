@@ -317,8 +317,8 @@ body, p, span, input, select, textarea, button, .profile-bio, .step-subtitle {
 .profile-card {
   background-color: var(--bg-surface) !important;
   border: 1px solid var(--border-subtle) !important;
-  border-radius: 24px !important;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), var(--shadow-md) !important;
   backdrop-filter: blur(20px) !important;
   -webkit-backdrop-filter: blur(20px) !important;
   transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s ease !important;
@@ -411,7 +411,8 @@ body, p, span, input, select, textarea, button, .profile-bio, .step-subtitle {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 24px;
+  height: 60px;
+  padding: 0 24px;
   background: rgba(15, 11, 30, 0.7);
   border-bottom: 1px solid var(--separator);
   backdrop-filter: blur(20px);
@@ -552,18 +553,18 @@ body, p, span, input, select, textarea, button, .profile-bio, .step-subtitle {
 
 .form-input, .form-select, textarea.form-input {
   width: 100%; padding: 14px 16px;
-  border: none !important;
+  border: 1px solid var(--border-subtle) !important;
   border-radius: var(--radius-md);
   font-size: var(--font-base); font-family: inherit;
-  background: rgba(255, 255, 255, 0.04) !important; color: var(--text-primary);
-  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.08) !important;
+  background: var(--bg-elevated) !important; color: var(--text-primary);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.06), 0 0 0 1px var(--border-hairline) !important;
   transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), box-shadow 160ms cubic-bezier(0.23, 1, 0.32, 1), background-color 160ms ease;
   -webkit-appearance: none; appearance: none;
 }
 .form-input:focus, .form-select:focus, textarea.form-input:focus {
   outline: none !important;
-  background: rgba(255, 255, 255, 0.07) !important;
-  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.2), 0 0 0 2px var(--primary), 0 0 20px var(--accent-glow) !important;
+  background: var(--bg-elevated) !important;
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.06), 0 0 0 2px var(--primary), 0 0 20px var(--accent-glow) !important;
 }
 .form-input::placeholder { color: var(--text-muted); }
 
@@ -579,12 +580,12 @@ textarea.form-input { resize: vertical; min-height: 100px; }
 .toggle-switch input { opacity: 0; width: 0; height: 0; }
 .toggle-slider {
   position: absolute; cursor: pointer; inset: 0;
-  background: rgba(255,255,255,0.15); border-radius: 32px; transition: var(--transition-fast);
-  box-shadow: inset 0 1px 0 0 rgba(255,255,255,0.1), 0 0 0 1px rgba(255,255,255,0.08);
+  background: var(--bg-tertiary); border-radius: 32px; transition: var(--transition-fast);
+  box-shadow: inset 0 1px 0 0 rgba(255,255,255,0.06), 0 0 0 1px var(--border-subtle);
 }
 .toggle-slider::before {
   content: ''; position: absolute; width: 28px; height: 28px;
-  left: 2px; bottom: 2px; background: #fff; border-radius: 50%;
+  left: 2px; bottom: 2px; background: var(--text-primary); border-radius: 50%;
   box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 .toggle-switch input:checked + .toggle-slider { background: var(--primary); }
@@ -1002,14 +1003,6 @@ body { animation: fadeIn 0.4s ease; }
 
 /* Public profile blocks with Emil Kowalski Design Principles */
 .block-container { display: flex; flex-direction: column; gap: 16px; padding: 24px 0; }
-
-:root {
-  --ease-emil: cubic-bezier(0.23, 1, 0.32, 1);
-  --ambient-glass-bg: rgba(255, 255, 255, 0.03);
-  --ambient-glass-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.12),
-                          0 0 0 1px rgba(255, 255, 255, 0.06),
-                          0 12px 32px rgba(0, 0, 0, 0.35);
-}
 
 .btn, .action-btn, .save-contact-btn, .block-link, .block-whatsapp, .block-social-icons a, .profile-card, .ios-group-item {
   transition: transform 160ms var(--ease-emil), background-color 160ms ease, box-shadow 160ms var(--ease-emil), border-color 160ms ease !important;
@@ -2211,18 +2204,18 @@ select,
   }
 }
 
-/* 5. Minimalist Shadcn Buttons (6px Radius, High Contrast White/Dark Primary) */
+/* 5. Minimalist Shadcn Buttons (Pill/Radius Unificados con el Design System) */
 .btn-primary,
 .btn-primary-gradient,
 .btn-submit,
 .save-btn {
   background: var(--grad-primary) !important;
-  border-radius: var(--radius-2) !important;
+  border-radius: var(--radius-pill) !important;
   border: 1px solid transparent !important;
   color: #fff !important;
   font-weight: 600 !important;
   font-family: var(--font-body) !important;
-  padding: 10px 20px !important;
+  padding: 12px 26px !important;
   box-shadow: 0 2px 10px var(--accent-glow) !important;
   transition: opacity var(--duration-fast) ease, transform var(--duration-fast) ease !important;
   cursor: pointer !important;
@@ -2246,11 +2239,11 @@ select,
 .btn-secondary,
 .btn-ghost {
   background: transparent !important;
-  border-radius: var(--radius-2) !important;
-  border: 1px solid var(--border-subtle, #2A313A) !important;
-  color: var(--text-main, #EEEAE0) !important;
+  border-radius: var(--radius-pill) !important;
+  border: 1px solid var(--border-subtle) !important;
+  color: var(--text-primary) !important;
   font-weight: 600 !important;
-  padding: 10px 20px !important;
+  padding: 12px 26px !important;
   position: relative !important;
   z-index: 5 !important;
   transition: background var(--duration-fast) ease, border-color var(--duration-fast) ease !important;
@@ -2805,7 +2798,7 @@ select,
 .dropzone:hover,
 .dropzone.drag {
   border-color: var(--accent) !important;
-  background: var(--tint) !important;
+  background: var(--accent-soft) !important;
 }
 
 .dropzone svg {

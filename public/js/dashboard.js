@@ -6,6 +6,21 @@ var currentCheckoutItemTitle = 'Tarjeta NFC Personalizada';
 var currentCheckoutItemPrice = 19.99;
 var editPerfilId = null;
 
+var VYNK_ICONS = {
+  edit: '<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/>',
+  eye: '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>',
+  chart: '<path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M22 20H2"/>',
+  share: '<circle cx="6" cy="12" r="2.1"/><circle cx="18" cy="6" r="2.1"/><circle cx="18" cy="18" r="2.1"/><path d="M8 10.8l8-4.6M8 13.2l8 4.6"/>',
+  bolt: '<path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/>',
+  close: '<path d="M6 6l12 12M18 6L6 18"/>',
+  check: '<path d="M5 13l4 4L19 7"/>'
+};
+
+function vynkIcon(name) {
+  var paths = VYNK_ICONS[name] || '';
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1.1em;height:1.1em;vertical-align:-0.15em">' + paths + '</svg>';
+}
+
 function switchDashboardTab(tabId) {
   var allViews = document.querySelectorAll('.tab-view-content');
   allViews.forEach(function(view) {
@@ -448,6 +463,26 @@ window.executeCreatePerfil = async function(e) {
     });
   };
 
+  // Apple Spotlight Cmd+K Listener
+  document.addEventListener('keydown', function(e) {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+      e.preventDefault();
+      var modal = document.getElementById('spotlight-modal');
+      if (modal) {
+        modal.classList.toggle('hidden');
+        if (!modal.classList.contains('hidden')) {
+          var input = document.getElementById('spotlight-input');
+          if (input) input.focus();
+        }
+      }
+    } else if (e.key === 'Escape') {
+      var modal = document.getElementById('spotlight-modal');
+      if (modal && !modal.classList.contains('hidden')) {
+        modal.classList.add('hidden');
+      }
+    }
+  });
+
   document.addEventListener('click', function(e) {
     var btn = e.target.closest('[data-action]');
     if (!btn) return;
@@ -581,12 +616,12 @@ window.executeCreatePerfil = async function(e) {
           '</div>' +
         '</div>' +
         '<div class="card-actions" style="display:flex;align-items:center;gap:6px;flex-shrink:0">' +
-          '<button type="button" class="btn btn-icon btn-sm action-monochrome" onclick="event.stopPropagation(); openEditModal(' + p.id + ');" title="Abrir editor visual incrustado">✏️</button>' +
-          '<a href="/u/' + (p.slug || p.id) + '" class="btn btn-icon btn-sm action-monochrome" onclick="event.stopPropagation()" target="_blank" title="Ver perfil público">👁</a>' +
-          '<a href="/analytics.html?id=' + p.id + '" class="btn btn-icon btn-sm action-monochrome" onclick="event.stopPropagation()" title="Analíticas">📊</a>' +
-          '<a href="/compartir.html?id=' + p.id + '&slug=' + (p.slug || p.id) + '" class="btn btn-icon btn-sm action-monochrome" onclick="event.stopPropagation()" title="Compartir & QR">↗</a>' +
-          '<a href="/compartir.html?id=' + p.id + '&slug=' + (p.slug || p.id) + '&nfc=true" class="btn btn-icon btn-sm action-monochrome" onclick="event.stopPropagation()" title="Grabar en NFC Física">⚡</a>' +
-          '<button class="btn btn-icon btn-sm action-monochrome action-delete" onclick="event.stopPropagation();confirmDelete(' + p.id + ')" title="Eliminar">✕</button>' +
+          '<button type="button" class="btn btn-icon btn-sm action-monochrome" onclick="event.stopPropagation(); openEditModal(' + p.id + ');" title="Abrir editor visual incrustado">' + vynkIcon('edit') + '</button>' +
+          '<a href="/u/' + (p.slug || p.id) + '" class="btn btn-icon btn-sm action-monochrome" onclick="event.stopPropagation()" target="_blank" title="Ver perfil público">' + vynkIcon('eye') + '</a>' +
+          '<a href="/analytics.html?id=' + p.id + '" class="btn btn-icon btn-sm action-monochrome" onclick="event.stopPropagation()" title="Analíticas">' + vynkIcon('chart') + '</a>' +
+          '<a href="/compartir.html?id=' + p.id + '&slug=' + (p.slug || p.id) + '" class="btn btn-icon btn-sm action-monochrome" onclick="event.stopPropagation()" title="Compartir & QR">' + vynkIcon('share') + '</a>' +
+          '<a href="/compartir.html?id=' + p.id + '&slug=' + (p.slug || p.id) + '&nfc=true" class="btn btn-icon btn-sm action-monochrome" onclick="event.stopPropagation()" title="Grabar en NFC Física">' + vynkIcon('bolt') + '</a>' +
+          '<button class="btn btn-icon btn-sm action-monochrome action-delete" onclick="event.stopPropagation();confirmDelete(' + p.id + ')" title="Eliminar">' + vynkIcon('close') + '</button>' +
         '</div>' +
       '</div>';
     }).join('');
@@ -722,12 +757,12 @@ window.executeCreatePerfil = async function(e) {
       overlay.className = 'modal-overlay';
       overlay.innerHTML = `
         <div class="nfc-modal-card" id="nfc-modal-card">
-          <button class="nfc-modal-close" onclick="cancelNfcWriting()">✕</button>
+          <button class="nfc-modal-close" onclick="cancelNfcWriting()">' + vynkIcon('close') + '</button>
           <div class="nfc-ripple-container">
             <div class="nfc-ripple-ring ring-1"></div>
             <div class="nfc-ripple-ring ring-2"></div>
             <div class="nfc-ripple-ring ring-3"></div>
-            <div class="nfc-center-icon" id="nfc-modal-icon">⚡</div>
+            <div class="nfc-center-icon" id="nfc-modal-icon">' + vynkIcon('bolt') + '</div>
           </div>
           <h3 id="nfc-modal-title" style="font-size:1.2rem;font-weight:800;color:#FFF;margin-bottom:8px">Sincronización NFC Activa</h3>
           <p id="nfc-modal-status" style="font-size:0.88rem;color:var(--text-secondary);line-height:1.5">Acerca tu VYNK Card o Sticker a la parte trasera de tu celular...</p>
@@ -743,7 +778,7 @@ window.executeCreatePerfil = async function(e) {
     if (card) {
       card.className = 'nfc-modal-card';
     }
-    document.getElementById('nfc-modal-icon').textContent = '⚡';
+    document.getElementById('nfc-modal-icon').innerHTML = vynkIcon('bolt');
     document.getElementById('nfc-modal-title').textContent = 'Sincronización NFC Activa';
     document.getElementById('nfc-modal-status').textContent = 'Acerca tu VYNK Card o Sticker a la parte trasera de tu celular...';
     document.getElementById('nfc-modal-actions').innerHTML = '<button class="btn btn-secondary btn-sm" onclick="cancelNfcWriting()">Cancelar</button>';
@@ -760,13 +795,13 @@ window.executeCreatePerfil = async function(e) {
 
     if (state === 'success') {
       if (card) card.className = 'nfc-modal-card success-state';
-      if (icon) icon.textContent = '✅';
+      if (icon) icon.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.6em;height:1.6em"><path d="M5 13l4 4L19 7"/></svg>';
       if (titleEl) titleEl.textContent = title;
       if (statusEl) statusEl.textContent = message;
-      if (actionsEl) actionsEl.innerHTML = '<span style="font-size:0.8rem;color:var(--green);font-weight:700">✓ Guardado correctamente</span>';
+      if (actionsEl) actionsEl.innerHTML = '<span style="font-size:0.8rem;color:var(--green);font-weight:700">' + vynkIcon('check') + ' Guardado correctamente</span>';
     } else if (state === 'error') {
       if (card) card.className = 'nfc-modal-card error-state';
-      if (icon) icon.textContent = '⚠️';
+      if (icon) icon.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.6em;height:1.6em"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>';
       if (titleEl) titleEl.textContent = title;
       if (statusEl) statusEl.textContent = message;
       if (actionsEl) {

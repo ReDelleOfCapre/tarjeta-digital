@@ -157,12 +157,12 @@
     </a>
     <div class="user-info">
       <span id="user-name"></span>
-      <button onclick="toggleCommandPalette()" class="btn btn-sm btn-ghost desktop-nav-item" style="color:var(--text-secondary);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:6px 12px;font-size:0.78rem" title="Abrir Paleta de Comandos (Ctrl + K)">🔍 Buscar <span style="opacity:0.6;font-size:0.7rem">Ctrl+K</span></button>
+      <button onclick="toggleCommandPalette()" class="btn btn-sm btn-ghost desktop-nav-item" style="color:var(--text-secondary);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:6px 12px;font-size:0.78rem" title="Abrir Paleta de Comandos (Ctrl + K)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg> Buscar <span style="opacity:0.6;font-size:0.7rem">Ctrl+K</span></button>
       <a href="planes.html" class="btn btn-sm btn-ghost desktop-nav-item" id="btn-plan" title="Ver planes Pro">Centro de Control <span class="pro-badge-lock" style="font-size:0.65rem">Pro</span></a>
-      <a href="analytics.html" class="btn btn-sm btn-ghost desktop-nav-item" title="Analíticas en Tiempo Real">📊 Métrica</a>
-      <a href="admin.html" class="btn btn-sm btn-ghost hidden desktop-nav-item" id="btn-admin" title="Admin Master">⚙ Master</a>
+      <a href="analytics.html" class="btn btn-sm btn-ghost desktop-nav-item" title="Analíticas en Tiempo Real"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M22 20H2"/></svg> Métrica</a>
+      <a href="admin.html" class="btn btn-sm btn-ghost hidden desktop-nav-item" id="btn-admin" title="Admin Master"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> Master</a>
       <button class="btn btn-sm btn-ghost desktop-nav-item" id="btn-logout" style="color:var(--red)">Salir</button>
-      <button onclick="toggleMobileNavDrawer()" class="btn btn-sm btn-ghost mobile-only-btn" style="font-size:1.4rem;padding:4px 10px;color:#FFF" title="Menú">☰</button>
+      <button onclick="toggleMobileNavDrawer()" class="btn btn-sm btn-ghost mobile-only-btn" style="font-size:1.4rem;padding:4px 10px;color:#FFF" title="Menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
     </div>
   </nav>
 
@@ -174,19 +174,19 @@
         <img src="img/vynk-logo.svg" alt="VYNK Logo" style="height:26px">
         <span style="font-weight:800;font-size:0.95rem;color:#FFF">Menú VYNK</span>
       </div>
-      <button onclick="toggleMobileNavDrawer()" class="btn btn-sm btn-ghost" style="font-size:1.2rem;color:#FFF;padding:4px 8px">✕</button>
+      <button onclick="toggleMobileNavDrawer()" class="btn btn-sm btn-ghost" style="font-size:1.2rem;color:#FFF;padding:4px 8px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
     <div class="mobile-nav-body">
-      <button onclick="toggleCommandPalette(); toggleMobileNavDrawer();" class="btn btn-block btn-secondary" style="margin-bottom:8px;padding:12px;font-weight:600">🔍 Buscar</button>
-      <a href="index.html" class="nav-drawer-item">🏠 Inicio / Landing Page</a>
-      <a href="dashboard.html" class="nav-drawer-item">🪪 Mis Tarjetas</a>
-      <a href="planes.html" class="nav-drawer-item">💎 Centro de Control <span class="pro-badge-lock" style="font-size:0.65rem">Pro</span></a>
-      <a href="analytics.html" class="nav-drawer-item">📊 Métrica y Analíticas</a>
-      <a href="compartir.html" class="nav-drawer-item">⚡ Tienda & NFC Tag</a>
-      <a href="admin.html" class="nav-drawer-item hidden" id="btn-admin-drawer">⚙ Master Admin</a>
+      <button onclick="toggleCommandPalette(); toggleMobileNavDrawer();" class="btn btn-block btn-secondary" style="margin-bottom:8px;padding:12px;font-weight:600"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg> Buscar</button>
+      <a href="index.html" class="nav-drawer-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M3 11l9-8 9 8"/><path d="M5 9.5V21h14V9.5"/><path d="M9 21v-6h6v6"/></svg> Inicio / Landing Page</a>
+      <a href="dashboard.html" class="nav-drawer-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="11" r="2"/><path d="M5 16c.8-1.6 2.2-2 3-2s2.2.4 3 2"/><rect x="13" y="9" width="7" height="3" rx="1"/><path d="M13 15h7"/></svg> Mis Tarjetas</a>
+      <a href="planes.html" class="nav-drawer-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M6 3h12l4 6-10 12L2 9l4-6z"/><path d="M2 9h20M12 21L8 9l4-6 4 6-4 12"/></svg> Centro de Control <span class="pro-badge-lock" style="font-size:0.65rem">Pro</span></a>
+      <a href="analytics.html" class="nav-drawer-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M22 20H2"/></svg> Métrica y Analíticas</a>
+      <a href="compartir.html" class="nav-drawer-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></svg> Tienda & NFC Tag</a>
+      <a href="admin.html" class="nav-drawer-item hidden" id="btn-admin-drawer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> Master Admin</a>
     </div>
     <div class="mobile-nav-footer">
-      <button onclick="document.getElementById('btn-logout').click()" class="btn btn-block btn-danger" style="padding:14px;font-weight:700;width:100%">🚪 Salir de la Cuenta</button>
+      <button onclick="document.getElementById('btn-logout').click()" class="btn btn-block btn-danger" style="padding:14px;font-weight:700;width:100%"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg> Salir de la Cuenta</button>
     </div>
   </div>
 
@@ -208,9 +208,9 @@
         <div class="card p-20" style="padding:20px">
           <div style="font-size:0.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">E-Commerce & VYNK NFC</div>
           <nav style="display:flex;flex-direction:column;gap:6px">
-            <a href="javascript:void(0)" data-tab="tarjetas" onclick="switchDashboardTab('tarjetas')" class="nav-side-item active" id="nav-item-tarjetas">🪪 Mis Tarjetas</a>
-            <a href="javascript:void(0)" data-tab="tienda" onclick="switchDashboardTab('tienda')" class="nav-side-item" id="nav-item-tienda">⚡ Tienda & Pedir NFC</a>
-            <a href="javascript:void(0)" data-tab="inventario" onclick="switchDashboardTab('inventario')" class="nav-side-item" id="nav-item-inventario">📦 Mi Inventario (Distribuidores)</a>
+            <a href="javascript:void(0)" data-tab="tarjetas" onclick="switchDashboardTab('tarjetas')" class="nav-side-item active" id="nav-item-tarjetas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="11" r="2"/><path d="M5 16c.8-1.6 2.2-2 3-2s2.2.4 3 2"/><rect x="13" y="9" width="7" height="3" rx="1"/><path d="M13 15h7"/></svg> Mis Tarjetas</a>
+            <a href="javascript:void(0)" data-tab="tienda" onclick="switchDashboardTab('tienda')" class="nav-side-item" id="nav-item-tienda"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></svg> Tienda & Pedir NFC</a>
+            <a href="javascript:void(0)" data-tab="inventario" onclick="switchDashboardTab('inventario')" class="nav-side-item" id="nav-item-inventario"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M21 8l-9-5-9 5v8l9 5 9-5V8z"/><path d="M3 8l9 5 9-5"/><path d="M12 13v9"/></svg> Mi Inventario (Distribuidores)</a>
           </nav>
         </div>
 
@@ -251,23 +251,23 @@
                 <span style="position:absolute;font-size:0.75rem;font-weight:700;color:#fff">85%</span>
               </div>
               <div>
-                <div style="font-size:0.95rem;font-weight:700;color:var(--text-main)">Nivel 4: Identidad PRO 🚀</div>
+                <div style="font-size:0.95rem;font-weight:700;color:var(--text-main)">Nivel 4: Identidad PRO <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M5 15c-1.5 1-2 5-2 5s4-.5 5-2"/><path d="M14 4c3-3 8-2 8-2s1 5-2 8c-1.5 1.5-4 2.5-6 3L7 16l-3-7c.5-2 1.5-4.5 3-6z"/><circle cx="5" cy="19" r="2" transform="rotate(45 5 19)"/><path d="M13 9h.01"/></svg></div>
                 <div style="font-size:0.78rem;color:var(--text-muted)">Logro disponible: Agrega tu ubicación en mapa para llegar a 100%</div>
               </div>
             </div>
-            <button class="btn btn-secondary" onclick="window.location.href='/editor.html'" style="font-size:0.8rem;padding:8px 16px;border-radius:100px;border:1px solid rgba(255,255,255,0.15)">Completar perfil ➔</button>
+            <button class="btn btn-secondary" onclick="window.location.href='/editor.html'" style="font-size:0.8rem;padding:8px 16px;border-radius:100px;border:1px solid rgba(255,255,255,0.15)">Completar perfil <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:0.9em;height:0.9em;vertical-align:-0.125em"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
           </div>
 
           <!-- B2C Prominent CTA: Pedir Tarjeta Física NFC -->
           <div class="card p-20" style="padding:18px 24px;margin-bottom:16px;background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:12px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
             <div style="display:flex;align-items:center;gap:14px">
-              <div style="font-size:2.2rem">💳</div>
+              <div style="font-size:2.2rem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M6 15h4"/></svg></div>
               <div>
                 <div style="font-size:1.05rem;font-weight:700;color:var(--text-main);font-family:'Space Grotesk',sans-serif">¿Quieres recibir tu Tarjeta Física NFC personalizada?</div>
                 <div style="font-size:0.75rem;color:var(--text-muted);font-family:var(--font-mono)">ENVÍO INTERNACIONAL DIRECTO A TU DOMICILIO</div>
               </div>
             </div>
-            <button class="btn btn-primary" onclick="openCheckoutModal('card-nfc-single', 'Tarjeta NFC Personalizada VYNK', 19.99)" style="white-space:nowrap;font-size:0.9rem">💳 Pedir Tarjeta Física NFC ($19.99 USD)</button>
+            <button class="btn btn-primary" onclick="openCheckoutModal('card-nfc-single', 'Tarjeta NFC Personalizada VYNK', 19.99)" style="white-space:nowrap;font-size:0.9rem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M6 15h4"/></svg> Pedir Tarjeta Física NFC ($19.99 USD)</button>
           </div>
 
           <!-- CTA Integrado (Crear Nueva Identidad Digital) -->
@@ -288,7 +288,7 @@
 
           <!-- Empty State -->
           <div class="empty-state hidden" id="empty-state" style="background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:12px;padding:48px 24px;text-align:center;margin-top:16px">
-            <div style="font-size:2.5rem;margin-bottom:12px">⚡</div>
+            <div style="font-size:2.5rem;margin-bottom:12px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></svg></div>
             <h2 style="font-size:1.4rem;font-weight:700;margin-bottom:8px;font-family:'Space Grotesk',sans-serif">Diseña tu primera e-Card inteligente</h2>
             <p style="max-width:480px;margin:0 auto 24px;color:var(--text-muted);font-size:0.9rem;line-height:1.5">
               Crea tu perfil inteligente, conecta tus redes, catálogo o archivos y recíbela grabada en tu tarjeta NFC física.
@@ -311,7 +311,7 @@
             <div class="card p-20" style="display:flex;flex-direction:column;justify-content:space-between;gap:16px">
               <div>
                 <span class="pro-badge-lock" style="font-size:0.65rem">Cliente B2C</span>
-                <div style="font-size:2.2rem;margin:12px 0 6px">💳</div>
+                <div style="font-size:2.2rem;margin:12px 0 6px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M6 15h4"/></svg></div>
                 <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:4px">Tarjeta NFC Individual</h3>
                 <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.4">Impresa a color con tu perfil digital pre-grabado de fábrica.</p>
               </div>
@@ -325,7 +325,7 @@
             <div class="card p-20" style="display:flex;flex-direction:column;justify-content:space-between;gap:16px;border-color:#6366F1!important">
               <div>
                 <span class="pro-badge-lock" style="font-size:0.65rem;color:#818CF8;border-color:#818CF8">Pack Mayorista B2B (25% OFF)</span>
-                <div style="font-size:2.2rem;margin:12px 0 6px">📦</div>
+                <div style="font-size:2.2rem;margin:12px 0 6px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M21 8l-9-5-9 5v8l9 5 9-5V8z"/><path d="M3 8l9 5 9-5"/><path d="M12 13v9"/></svg></div>
                 <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:4px">Pack de 10 Tarjetas NFC en Blanco</h3>
                 <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.4">10 Tarjetas vírgenes listas para ser programadas en vivo con tu celular para tus clientes.</p>
               </div>
@@ -339,7 +339,7 @@
             <div class="card p-20" style="display:flex;flex-direction:column;justify-content:space-between;gap:16px;border-color:#10B981!important">
               <div>
                 <span class="pro-badge-lock" style="font-size:0.65rem;color:#10B981;border-color:#10B981">Pack Distribuidor Pro (40% OFF)</span>
-                <div style="font-size:2.2rem;margin:12px 0 6px">🏬</div>
+                <div style="font-size:2.2rem;margin:12px 0 6px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M3 9l1-5h16l1 5"/><path d="M5 9v11h14V9"/><path d="M9 20v-6h6v6"/><path d="M3 9h18"/></svg></div>
                 <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:4px">Pack de 50 Tarjetas NFC en Blanco</h3>
                 <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.4">Lote mayorista para agencias y revendedores. Incluye soporte de Web NFC API.</p>
               </div>
@@ -377,7 +377,7 @@
                   Crea un nuevo perfil para tu cliente y grábalo directamente en su tarjeta física NFC usando la antena de tu dispositivo.
                 </p>
               </div>
-              <button class="btn btn-primary" onclick="openAssignClientModal()" style="font-size:0.9rem">📲 Asignar a Cliente (Vía Web NFC)</button>
+              <button class="btn btn-primary" onclick="openAssignClientModal()" style="font-size:0.9rem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></svg> Asignar a Cliente (Vía Web NFC)</button>
             </div>
           </div>
         </div>
@@ -389,7 +389,7 @@
         <!-- Widget de Narrativa de Datos (Insights Inteligentes) -->
         <div class="card p-20 pro-module" style="padding:20px;background:rgba(124,58,237,0.08)!important;border:1px solid rgba(124,58,237,0.25)!important">
           <div style="font-size:0.85rem;font-weight:700;color:#FFF;margin-bottom:8px;display:flex;align-items:center;gap:6px">
-            <span>💡</span> <span>Insights Inteligentes</span>
+            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M8 13a4.9 4.9 0 0 1 2.5-4.3A3.5 3.5 0 0 1 14.3 4C16.9 5.3 18 7.9 17.1 10 16.2 12 14 12.8 13 14h-2c-1-1.2-3-2-3-1z"/></svg></span> <span>Insights Inteligentes</span>
           </div>
           <p style="font-size:0.82rem;line-height:1.5;color:var(--text-secondary);margin:0">
             "Tus enlaces de productos e Instagram tienen un <strong>28% más de interacción</strong> hoy. Es el momento perfecto para publicar tu nuevo inventario o lanzar una oferta."
@@ -404,21 +404,21 @@
           </div>
           <div style="display:flex;flex-direction:column;gap:12px;font-size:0.82rem">
             <div style="display:flex;align-items:center;gap:10px;color:var(--text-secondary)">
-              <span>📱</span>
+              <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></svg></span>
               <div>
                 <div>Escaneo NFC en México DF</div>
                 <div style="font-size:0.72rem;color:var(--text-muted)">Hace 4 minutos</div>
               </div>
             </div>
             <div style="display:flex;align-items:center;gap:10px;color:var(--text-secondary)">
-              <span>🔍</span>
+              <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></span>
               <div>
                 <div>Vista de e-card por QR</div>
                 <div style="font-size:0.72rem;color:var(--text-muted)">Hace 18 minutos</div>
               </div>
             </div>
             <div style="display:flex;align-items:center;gap:10px;color:var(--text-secondary)">
-              <span>👤</span>
+              <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4.5 5-6.5 8-6.5s6.5 2 8 6.5"/></svg></span>
               <div>
                 <div>Contacto vCard descargado</div>
                 <div style="font-size:0.72rem;color:var(--text-muted)">Hace 45 minutos</div>
@@ -432,7 +432,7 @@
           <div style="font-size:0.85rem;font-weight:700;color:#FFF;margin-bottom:12px">Vista Previa en Vivo</div>
           <div style="width:180px;height:320px;margin:0 auto;background:#050508;border:3px solid rgba(255,255,255,0.15);border-radius:32px;padding:12px;box-shadow:0 12px 30px rgba(0,0,0,0.6);display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative">
             <div style="width:50px;height:4px;background:rgba(255,255,255,0.2);border-radius:4px;position:absolute;top:10px"></div>
-            <div style="font-size:2.2rem;margin-bottom:8px">📱</div>
+            <div style="font-size:2.2rem;margin-bottom:8px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></svg></div>
             <div style="font-size:0.75rem;font-weight:700;color:#FFF">VYNK Live Frame</div>
             <div style="font-size:0.65rem;color:var(--text-muted);margin-top:4px">Vista en Smartphone</div>
           </div>
@@ -457,40 +457,40 @@
   <!-- Inescapable Glassmorphism Legal Terms Modal -->
   <div class="modal-overlay hidden" id="modal-legal-terms" style="background:rgba(3,3,6,0.92);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);z-index:9999;display:flex;align-items:center;justify-content:center">
     <div class="modal card" style="max-width:480px;width:90%;background:rgba(15,11,30,0.85);border:1px solid rgba(255,255,255,0.18);border-radius:28px;padding:32px;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,0.8)">
-      <div style="font-size:2.8rem;margin-bottom:12px">⚖️</div>
+      <div style="font-size:2.8rem;margin-bottom:12px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M12 3v18M8 21h8"/><path d="M6.5 4h9l2 5a3 3 0 1 1-6 0 3 3 0 0 1-5 0l2-5z"/><path d="M19 12a3 3 0 0 1-6 0"/></svg>️</div>
       <h2 style="font-size:1.4rem;font-weight:700;letter-spacing:-0.02em;margin-bottom:8px;color:#FFF">Términos de Servicio & Privacidad</h2>
       <p class="text-muted" style="font-size:0.9rem;line-height:1.6;margin-bottom:20px">
         Para garantizar la seguridad de tu identidad digital y cumplir con la regulación de protección de datos, debes revisar y aceptar nuestros <a href="legal.html" target="_blank" style="color:var(--accent);text-decoration:underline">Términos y Condiciones</a> y el <a href="legal.html" target="_blank" style="color:var(--accent);text-decoration:underline">Aviso de Privacidad</a>.
       </p>
       <button class="btn btn-primary btn-block" id="btn-accept-terms" style="padding:14px;border-radius:14px;font-weight:600;background:linear-gradient(135deg,#7C3AED,#6366F1)">
-        ✓ Aceptar y Desbloquear Centro de Comando
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M5 12l4 4 10-10"/></svg> Aceptar y Desbloquear Centro de Comando
       </button>
     </div>
   </div>
 
   <!-- Floating Glassmorphic Support Chatbot Widget -->
   <div id="chat-bubble" onclick="toggleSupportChat()" title="Soporte Inteligente VYNK">
-    <span style="font-size:1.6rem">💬</span>
+    <span style="font-size:1.6rem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M21 12a8 8 0 0 1-8 8H4l3-3a8 8 0 1 1 14-5z"/></svg></span>
   </div>
 
   <div id="chat-window" class="hidden">
     <div class="chat-header">
       <div style="display:flex;align-items:center;gap:10px">
-        <span style="font-size:1.2rem">🤖</span>
+        <span style="font-size:1.2rem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><rect x="4" y="8" width="16" height="12" rx="2"/><circle cx="9" cy="13" r="1"/><circle cx="15" cy="13" r="1"/><path d="M12 8V4M8 4h8M9 17h6"/></svg></span>
         <div>
           <div style="font-weight:700;font-size:0.9rem;color:#FFF">Asistente VYNK AI</div>
           <div style="font-size:0.72rem;color:var(--green)">● En Línea</div>
         </div>
       </div>
-      <button onclick="toggleSupportChat()" style="background:none;border:none;color:var(--text-muted);font-size:1.2rem;cursor:pointer">✕</button>
+      <button onclick="toggleSupportChat()" style="background:none;border:none;color:var(--text-muted);font-size:1.2rem;cursor:pointer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
     <div class="chat-body" id="chat-body">
       <div class="chat-msg chat-bot">
-        👋 ¡Hola! Soy tu asistente de soporte VYNK. ¿En qué te puedo ayudar hoy?
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M7 11V7a1.5 1.5 0 0 1 3 0v4M7 11v-2.5a1.5 1.5 0 0 0-3 0V13c0 3 2.5 6 6 6h2a5 5 0 0 0 5-5v-1.5a1.5 1.5 0 0 0-3 0V12M10 12V6a1.5 1.5 0 0 1 3 0v6M13 12V7.5a1.5 1.5 0 0 1 3 0V12"/></svg> ¡Hola! Soy tu asistente de soporte VYNK. ¿En qué te puedo ayudar hoy?
       </div>
-      <div class="chat-btn-option" onclick="askChat('nfc')">📱 ¿Cómo grabo mi tarjeta NFC?</div>
-      <div class="chat-btn-option" onclick="askChat('pro')">⚡ ¿Qué beneficios incluye el plan Pro?</div>
-      <div class="chat-btn-option" onclick="askChat('human')">💬 Contactar a un agente humano</div>
+      <div class="chat-btn-option" onclick="askChat('nfc')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></svg> ¿Cómo grabo mi tarjeta NFC?</div>
+      <div class="chat-btn-option" onclick="askChat('pro')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></svg> ¿Qué beneficios incluye el plan Pro?</div>
+      <div class="chat-btn-option" onclick="askChat('human')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M21 12a8 8 0 0 1-8 8H4l3-3a8 8 0 1 1 14-5z"/></svg> Contactar a un agente humano</div>
     </div>
   </div>
 
@@ -498,8 +498,8 @@
   <div class="modal-overlay hidden" id="modal-team-members" style="background:rgba(3,3,6,0.92);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);z-index:9999;display:flex;align-items:center;justify-content:center">
     <div class="modal card" style="max-width:540px;width:92%;background:rgba(15,11,30,0.9);border:1px solid rgba(255,255,255,0.18);border-radius:28px;padding:32px;box-shadow:0 20px 50px rgba(0,0,0,0.8)">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-        <h2 style="font-size:1.4rem;font-weight:800;letter-spacing:-0.02em;color:#FFF;margin:0">👥 Miembros del Equipo & Roles RBAC</h2>
-        <button onclick="closeTeamModal()" style="background:none;border:none;color:var(--text-muted);font-size:1.4rem;cursor:pointer">✕</button>
+        <h2 style="font-size:1.4rem;font-weight:800;letter-spacing:-0.02em;color:#FFF;margin:0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M17 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9.5" cy="7" r="3.5"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg> Miembros del Equipo & Roles RBAC</h2>
+        <button onclick="closeTeamModal()" style="background:none;border:none;color:var(--text-muted);font-size:1.4rem;cursor:pointer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       </div>
       <p class="text-muted" style="font-size:0.85rem;line-height:1.5;margin-bottom:20px">
         Asigna permisos de acceso y control a tus colaboradores en el espacio de trabajo corporativo.
@@ -540,25 +540,25 @@
   <div class="modal-overlay hidden" id="cmd-palette-overlay" style="background:rgba(5,5,8,0.88);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);z-index:99999;align-items:flex-start;padding-top:10vh">
     <div class="modal card" style="max-width:600px;width:92%;background:#121214;border:1px solid rgba(255,255,255,0.15);border-radius:20px;padding:0;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.8)">
       <div style="display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid rgba(255,255,255,0.08)">
-        <span style="font-size:1.2rem;color:var(--text-tertiary)">🔍</span>
+        <span style="font-size:1.2rem;color:var(--text-tertiary)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></span>
         <input type="text" id="cmd-search-input" placeholder="Buscar comando o acción (Ctrl + K)..." style="background:none!important;border:none!important;box-shadow:none!important;font-size:1.05rem;color:#FFF;width:100%">
         <span style="font-size:0.75rem;padding:4px 8px;border-radius:6px;background:rgba(255,255,255,0.08);color:var(--text-tertiary)">ESC</span>
       </div>
       <div style="padding:12px;display:flex;flex-direction:column;gap:6px" id="cmd-results">
         <div class="cmd-item" onclick="toggleCommandPalette(); openCreateModal();">
-          <span>🪪 Crear nueva identidad digital</span>
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="11" r="2"/><path d="M5 16c.8-1.6 2.2-2 3-2s2.2.4 3 2"/><rect x="13" y="9" width="7" height="3" rx="1"/><path d="M13 15h7"/></svg> Crear nueva identidad digital</span>
           <span style="font-size:0.72rem;color:var(--text-muted)">Acceso directo</span>
         </div>
         <div class="cmd-item" onclick="location.href='/analytics.html'">
-          <span>📊 Ver analíticas pro en tiempo real</span>
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M22 20H2"/></svg> Ver analíticas pro en tiempo real</span>
           <span style="font-size:0.72rem;color:var(--text-muted)">Métricas</span>
         </div>
         <div class="cmd-item" onclick="toggleCommandPalette(); cmdNfcShortcut();">
-          <span>⚡ Grabar en tarjeta NFC física</span>
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></svg> Grabar en tarjeta NFC física</span>
           <span style="font-size:0.72rem;color:var(--text-muted)">Hardware NFC</span>
         </div>
         <div class="cmd-item" onclick="toggleFocusMode()">
-          <span>🎯 Activar Modo Concentración OLED</span>
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg> Activar Modo Concentración OLED</span>
           <span style="font-size:0.72rem;color:var(--text-muted)">UI Focus</span>
         </div>
       </div>
@@ -569,8 +569,8 @@
   <div class="modal-overlay hidden" id="modal-checkout-nfc" style="z-index:10000;background:rgba(18,22,27,0.85)">
     <div class="modal card" style="max-width:500px;width:92%;background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:12px;padding:24px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-        <h3 style="font-size:1.2rem;font-weight:700;font-family:'Space Grotesk',sans-serif">💳 Finalizar Pedido NFC</h3>
-        <button onclick="closeCheckoutModal()" class="btn btn-ghost btn-sm" style="padding:4px 8px">✕</button>
+        <h3 style="font-size:1.2rem;font-weight:700;font-family:'Space Grotesk',sans-serif"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M6 15h4"/></svg> Finalizar Pedido NFC</h3>
+        <button onclick="closeCheckoutModal()" class="btn btn-ghost btn-sm" style="padding:4px 8px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       </div>
 
       <div style="padding:12px;background:rgba(255,255,255,0.04);border-radius:8px;margin-bottom:16px">
@@ -601,7 +601,7 @@
           </div>
         </div>
 
-        <button type="submit" class="btn btn-primary btn-block" style="width:100%;padding:12px">🔒 Confirmar y Ir a Pasarela Stripe</button>
+        <button type="submit" class="btn btn-primary btn-block" style="width:100%;padding:12px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg> Confirmar y Ir a Pasarela Stripe</button>
       </form>
     </div>
   </div>
@@ -610,8 +610,8 @@
   <div class="modal-overlay hidden" id="modal-assign-client" style="z-index:10000;background:rgba(18,22,27,0.85)">
     <div class="modal card" style="max-width:480px;width:92%;background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:12px;padding:24px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-        <h3 style="font-size:1.2rem;font-weight:700;font-family:'Space Grotesk',sans-serif">📲 Asignar Tarjeta NFC en Vivo</h3>
-        <button onclick="closeAssignClientModal()" class="btn btn-ghost btn-sm" style="padding:4px 8px">✕</button>
+        <h3 style="font-size:1.2rem;font-weight:700;font-family:'Space Grotesk',sans-serif"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></svg> Asignar Tarjeta NFC en Vivo</h3>
+        <button onclick="closeAssignClientModal()" class="btn btn-ghost btn-sm" style="padding:4px 8px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       </div>
 
       <form id="form-assign-client" onsubmit="executeAssignClient(event)">
@@ -630,7 +630,7 @@
           <input type="email" id="assign-client-email" required placeholder="cliente@correo.com" style="width:100%;padding:10px 12px;border-radius:6px;border:1px solid var(--border-subtle);background:rgba(255,255,255,0.05);color:var(--text-main);box-sizing:border-box">
         </div>
 
-        <button type="submit" class="btn btn-primary btn-block" style="width:100%;padding:12px">⚡ Crear Perfil y Grabar Tag NFC</button>
+        <button type="submit" class="btn btn-primary btn-block" style="width:100%;padding:12px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></svg> Crear Perfil y Grabar Tag NFC</button>
       </form>
     </div>
   </div>
@@ -639,8 +639,8 @@
   <div class="modal-overlay hidden" id="modal-perfiles" style="z-index:10000;background:rgba(18,22,27,0.85)">
     <div class="modal card" style="max-width:1000px;width:95%;background:var(--console-bg);border:1px solid var(--panel-border);border-radius:16px;padding:32px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
-        <h3 style="font-size:1.4rem;font-weight:700;font-family:'Space Grotesk',sans-serif">🪪 Diseñar Identidad Digital</h3>
-        <button onclick="closeCreateModal()" class="btn btn-ghost btn-sm" style="padding:4px 8px">✕</button>
+        <h3 style="font-size:1.4rem;font-weight:700;font-family:'Space Grotesk',sans-serif"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="11" r="2"/><path d="M5 16c.8-1.6 2.2-2 3-2s2.2.4 3 2"/><rect x="13" y="9" width="7" height="3" rx="1"/><path d="M13 15h7"/></svg> Diseñar Identidad Digital</h3>
+        <button onclick="closeCreateModal()" class="btn btn-ghost btn-sm" style="padding:4px 8px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       </div>
 
       <div class="vynk-theming-container" style="text-align:left">
@@ -693,9 +693,9 @@
                 <div class="field" style="margin-bottom:0">
                   <label for="create-perfil-bg-mode">Configuración de Fondo</label>
                   <select id="create-perfil-bg-mode" style="width:100%;padding:10px;border-radius:8px;background:rgba(255,255,255,0.05);color:var(--text-main);border:1px solid var(--panel-border)">
-                    <option value="auto_palette" selected>🎨 Extraer Fondo de Paleta de Logo</option>
-                    <option value="photo_bg">🖼️ Usar Foto de Perfil como Fondo de Pantalla</option>
-                    <option value="custom_color">🎛️ Color de Fondo Personalizado</option>
+                    <option value="auto_palette" selected><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><circle cx="13.5" cy="6.5" r="1"/><circle cx="17.5" cy="10.5" r="1"/><circle cx="8.5" cy="7.5" r="1"/><circle cx="6.5" cy="12.5" r="1"/><path d="M12 2a10 10 0 0 0 0 20h1.5a2 2 0 0 0 1.4-3.4 2 2 0 0 1 1.4-3.4H19a5 5 0 0 0 5-5C24 6.6 18.6 2 12 2z"/></svg> Extraer Fondo de Paleta de Logo</option>
+                    <option value="photo_bg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>️ Usar Foto de Perfil como Fondo de Pantalla</option>
+                    <option value="custom_color"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M4 21v-6M4 11V3M12 21v-10M12 7V3M20 21v-4M20 13V3"/><circle cx="4" cy="13" r="2"/><circle cx="12" cy="9" r="2"/><circle cx="20" cy="15" r="2"/></svg>️ Color de Fondo Personalizado</option>
                   </select>
                 </div>
               </div>
@@ -788,13 +788,34 @@
   <aside class="quick-resume-bar" style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:99;background:rgba(18,22,27,0.88);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.14);padding:10px 20px;border-radius:100px;display:flex;align-items:center;gap:16px;box-shadow:0 12px 40px rgba(0,0,0,0.6)">
     <div style="display:flex;align-items:center;gap:8px;font-size:0.82rem;color:#fff;font-weight:600">
       <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#10B981;box-shadow:0 0 10px #10B981"></span>
-      <span>🟢 14 personas en vivo</span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><circle cx="12" cy="12" r="9" fill="currentColor" stroke="none"/></svg> 14 personas en vivo</span>
     </div>
     <div style="width:1px;height:16px;background:rgba(255,255,255,0.15)"></div>
     <a href="/editor.html" style="display:inline-flex;align-items:center;gap:6px;color:#0A84FF;font-size:0.82rem;font-weight:700;text-decoration:none">
-      ⚡ Quick-Resume Editor ➔
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></svg> Quick-Resume Editor <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:0.9em;height:0.9em;vertical-align:-0.125em"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
     </a>
   </aside>
+
+  <!-- Apple Spotlight Cmd + K Command Palette Modal -->
+  <div id="spotlight-modal" class="hidden" style="position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.65);backdrop-filter:blur(24px);display:flex;align-items:flex-start;justify-content:center;padding-top:100px">
+    <div style="width:100%;max-width:580px;background:#151517;border:1px solid rgba(255,255,255,0.18);border-radius:20px;box-shadow:0 30px 80px rgba(0,0,0,0.8);overflow:hidden;padding:16px">
+      <div style="display:flex;align-items:center;gap:12px;padding:8px 12px;background:rgba(255,255,255,0.06);border-radius:14px;margin-bottom:12px">
+        <span style="font-size:1.2rem">🔍</span>
+        <input id="spotlight-input" type="text" placeholder="Buscar tarjeta, cambiar tema o ir a función... (Esc para cerrar)" style="width:100%;background:none;border:none;color:#fff;font-size:1rem;outline:none" autocomplete="off">
+        <kbd style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;padding:3px 8px;border-radius:6px;background:rgba(255,255,255,0.1);color:#98989D">ESC</kbd>
+      </div>
+      <div id="spotlight-results" style="display:flex;flex-direction:column;gap:6px;max-height:300px;overflow-y:auto">
+        <a href="/editor.html" class="spotlight-item" style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-radius:12px;color:#fff;text-decoration:none;background:rgba(255,255,255,0.04)">
+          <span>+ Crear Nueva Identidad Digital</span>
+          <span style="font-size:0.75rem;color:#0A84FF">Ir al Editor ➔</span>
+        </a>
+        <a href="planes.html" class="spotlight-item" style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-radius:12px;color:#fff;text-decoration:none">
+          <span>💳 Pedir Tarjetas Físicas NFC</span>
+          <span style="font-size:0.75rem;color:#98989D">Ver Planes</span>
+        </a>
+      </div>
+    </div>
+  </div>
 
   <script src="js/app.js"></script>
   <script src="js/dashboard.js"></script>

@@ -2,34 +2,34 @@
   if (!checkAuth()) return;
 
   var BLOCK_TYPES = [
-    { tipo: "link", label: "Link destacado", icon: "🔗", color: "#4C6FFF" },
-    { tipo: "ubicacion", label: "Ubicacion", icon: "📍", color: "#EF6F7C" },
-    { tipo: "whatsapp", label: "WhatsApp", icon: "💬", color: "#25D366" },
-    { tipo: "social_icons", label: "Redes", icon: "✦", color: "#B86AF6" },
-    { tipo: "galeria", label: "Galeria", icon: "📷", color: "#EC4899" },
-    { tipo: "wishlist", label: "Wishlist", icon: "🎁", color: "#E8A33D" },
-    { tipo: "pdf", label: "PDF", icon: "📄", color: "#F35B5B" },
-    { tipo: "pago", label: "Pago", icon: "💳", color: "#32B47E" },
-    { tipo: "nota", label: "Nota", icon: "📝", color: "#F59E0B" },
-    { tipo: "seccion", label: "Seccion", icon: "🏷", color: "#7A68F8" },
-    { tipo: "spotify", label: "Spotify", icon: "🎵", color: "#1DB954" },
-    { tipo: "youtube", label: "YouTube", icon: "▶", color: "#FF3131" },
-    { tipo: "tiktok", label: "TikTok", icon: "🎬", color: "#111111" },
-    { tipo: "texto", label: "Texto libre", icon: "✍", color: "#8C8A95" },
-    { tipo: "email_capture", label: "Captura email", icon: "📧", color: "#F97316" },
-    { tipo: "countdown", label: "Cuenta regresiva", icon: "⏳", color: "#FF6B70" }
+    { tipo: "link", label: "Link destacado", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7\"/><path d=\"M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7\"/></svg>", color: "#4C6FFF" },
+    { tipo: "ubicacion", label: "Ubicacion", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M12 21s7-7.5 7-12a7 7 0 1 0-14 0c0 4.5 7 12 7 12z\"/><circle cx=\"12\" cy=\"9\" r=\"2.4\"/></svg>", color: "#EF6F7C" },
+    { tipo: "whatsapp", label: "WhatsApp", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M21 12a8 8 0 0 1-8 8H4l3-3a8 8 0 1 1 14-5z\"/></svg>", color: "#25D366" },
+    { tipo: "social_icons", label: "Redes", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M12 3l1.7 5.3L19 10l-5.3 1.7L12 17l-1.7-5.3L5 10l5.3-1.7L12 3z\"/></svg>", color: "#B86AF6" },
+    { tipo: "galeria", label: "Galeria", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><rect x=\"3\" y=\"6\" width=\"18\" height=\"14\" rx=\"2\"/><circle cx=\"12\" cy=\"13\" r=\"4\"/><path d=\"M8.5 6l1-2h5l1 2\"/></svg>", color: "#EC4899" },
+    { tipo: "wishlist", label: "Wishlist", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><rect x=\"3\" y=\"8\" width=\"18\" height=\"13\" rx=\"1\"/><path d=\"M12 8v13\"/><path d=\"M3 12h18\"/><path d=\"M12 8c-2.5 0-4-1.5-4-3.5S10 2 12 4s2 4.5 0 6z\"/></svg>", color: "#E8A33D" },
+    { tipo: "pdf", label: "PDF", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-6-6z\"/><path d=\"M14 3v6h6M9 13h6M9 17h4\"/></svg>", color: "#F35B5B" },
+    { tipo: "pago", label: "Pago", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><rect x=\"2\" y=\"5\" width=\"20\" height=\"14\" rx=\"2\"/><path d=\"M2 10h20\"/><path d=\"M6 15h4\"/></svg>", color: "#32B47E" },
+    { tipo: "nota", label: "Nota", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M12 20h9\"/><path d=\"M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z\"/></svg>", color: "#F59E0B" },
+    { tipo: "seccion", label: "Seccion", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M20.6 13.4 12 22l-9-9V3h10l7.6 7.6a2 2 0 0 1 0 2.8z\"/><circle cx=\"7.5\" cy=\"7.5\" r=\"1.4\"/></svg>", color: "#7A68F8" },
+    { tipo: "spotify", label: "Spotify", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M9 18V5l12-2v13\"/><circle cx=\"6\" cy=\"18\" r=\"3\"/><circle cx=\"18\" cy=\"16\" r=\"3\"/></svg>", color: "#1DB954" },
+    { tipo: "youtube", label: "YouTube", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M6 4l14 8-14 8V4z\"/></svg>", color: "#FF3131" },
+    { tipo: "tiktok", label: "TikTok", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><rect x=\"2\" y=\"4\" width=\"20\" height=\"16\" rx=\"2\"/><path d=\"M7 4v16M17 4v16M2 9h5M2 15h5M17 9h5M17 15h5\"/></svg>", color: "#111111" },
+    { tipo: "texto", label: "Texto libre", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M12 20h9\"/><path d=\"M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z\"/></svg>", color: "#8C8A95" },
+    { tipo: "email_capture", label: "Captura email", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><rect x=\"3\" y=\"5\" width=\"18\" height=\"14\" rx=\"2\"/><path d=\"m4 7 8 6 8-6\"/></svg>", color: "#F97316" },
+    { tipo: "countdown", label: "Cuenta regresiva", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M7 3h10M7 21h10\"/><path d=\"M8 3v6l-4 9h16l-4-9V3\"/><path d=\"M12 12v3\"/></svg>", color: "#FF6B70" }
   ];
 
   var SOCIAL_TYPES = [
-    { tipo: "instagram", label: "Instagram", icon: "📷" },
-    { tipo: "tiktok", label: "TikTok", icon: "🎵" },
-    { tipo: "twitter", label: "X", icon: "✕" },
-    { tipo: "youtube", label: "YouTube", icon: "▶" },
+    { tipo: "instagram", label: "Instagram", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><rect x=\"3\" y=\"6\" width=\"18\" height=\"14\" rx=\"2\"/><circle cx=\"12\" cy=\"13\" r=\"4\"/><path d=\"M8.5 6l1-2h5l1 2\"/></svg>" },
+    { tipo: "tiktok", label: "TikTok", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M9 18V5l12-2v13\"/><circle cx=\"6\" cy=\"18\" r=\"3\"/><circle cx=\"18\" cy=\"16\" r=\"3\"/></svg>" },
+    { tipo: "twitter", label: "X", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M6 6l12 12M18 6L6 18\"/></svg>" },
+    { tipo: "youtube", label: "YouTube", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M6 4l14 8-14 8V4z\"/></svg>" },
     { tipo: "facebook", label: "Facebook", icon: "f" },
     { tipo: "linkedin", label: "LinkedIn", icon: "in" },
-    { tipo: "spotify", label: "Spotify", icon: "🎵" },
-    { tipo: "github", label: "GitHub", icon: "⌘" },
-    { tipo: "web", label: "Sitio", icon: "🌐" }
+    { tipo: "spotify", label: "Spotify", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M9 18V5l12-2v13\"/><circle cx=\"6\" cy=\"18\" r=\"3\"/><circle cx=\"18\" cy=\"16\" r=\"3\"/></svg>" },
+    { tipo: "github", label: "GitHub", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M9 9V5a3 3 0 1 0-3 3h4z\"/><path d=\"M15 9V5a3 3 0 1 1 3 3h-4z\"/><path d=\"M15 15v4a3 3 0 1 1-3-3h3z\"/><path d=\"M9 15v4a3 3 0 1 0 3-3H9z\"/></svg>" },
+    { tipo: "web", label: "Sitio", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z\"/></svg>" }
   ];
 
   var THEMES = [
@@ -189,7 +189,7 @@
     container.innerHTML = BLOCK_TYPES.map(function (block) {
       return (
         '<button type="button" class="block-chip" data-block-type="' + escapeHtml(block.tipo) + '">' +
-          '<div style="font-size:1.12rem">' + escapeHtml(block.icon) + "</div>" +
+          '<div style="font-size:1.12rem">' + block.icon + "</div>" +
           "<strong>" + escapeHtml(block.label) + "</strong>" +
           "<span>Agregar al preview</span>" +
         "</button>"
@@ -378,7 +378,7 @@
 
     return (
       '<div class="preview-cta">' +
-        "<span>" + escapeHtml(icon) + " " + escapeHtml(title) + "</span>" +
+        "<span>" + icon + " " + escapeHtml(title) + "</span>" +
         '<small style="opacity:0.78">' + escapeHtml(meta || "Listo") + "</small>" +
       "</div>"
     );
@@ -400,7 +400,7 @@
 
     return (
       '<div class="preview-row">' +
-        '<div class="preview-icon">' + escapeHtml(blockIcon(block.tipo)) + "</div>" +
+        '<div class="preview-icon">' + blockIcon(block.tipo) + "</div>" +
         '<div class="preview-row-copy">' +
           "<strong>" + escapeHtml(title) + "</strong>" +
           "<span>" + escapeHtml(meta || fallbackMeta(block, content)) + "</span>" +
@@ -886,8 +886,8 @@
     container.innerHTML = blocks.map(function (block, index) {
       return (
         '<div class="block-item-row" style="display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid rgba(255,255,255,0.08);border-radius:18px;margin-bottom:10px">' +
-          '<div class="drag-handle" style="cursor:grab;color:var(--editor-faint);font-size:1.1rem">☰</div>' +
-          '<div style="width:38px;height:38px;border-radius:14px;display:grid;place-items:center;background:' + escapeHtml(blockColor(block.tipo)) + ';color:#fff">' + escapeHtml(blockIcon(block.tipo)) + "</div>" +
+          '<div class="drag-handle" style="cursor:grab;color:var(--editor-faint)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:1.15rem;height:1.15rem"><circle cx="9" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="18" r="1"/></svg></div>' +
+          '<div style="width:38px;height:38px;border-radius:14px;display:grid;place-items:center;background:' + escapeHtml(blockColor(block.tipo)) + ';color:#fff">' + blockIcon(block.tipo) + "</div>" +
           '<div style="flex:1;min-width:0">' +
             '<div style="font-size:0.74rem;color:var(--editor-faint);text-transform:uppercase;letter-spacing:0.08em">' + escapeHtml(getBlockLabel(block.tipo)) + "</div>" +
             '<div style="font-size:0.95rem;color:var(--editor-text);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + escapeHtml(previewTitle(block)) + "</div>" +
@@ -1260,4 +1260,22 @@
     div.textContent = String(value);
     return div.innerHTML;
   }
+
+  window.generateAiBio = function() {
+    var name = document.getElementById('nombre_perfil') ? document.getElementById('nombre_perfil').value : '';
+    var type = document.getElementById('tipo_perfil') ? document.getElementById('tipo_perfil').value : 'negocio';
+    var bios = {
+      negocio: "Experiencia gastronómica y servicio exclusivo. Conéctate con nosotros en un solo tap.",
+      personal: "Consultoría de alto nivel y proyectos de visión global. Diseñando el futuro digital.",
+      creador: "Contenido de alta fidelidad, visión estética y narrativa visual independiente.",
+      artista: "Proyectos sonoros y dirección creativa. Escucha nuestras producciones en tiempo real.",
+      profesional: "Atención personalizada, rigor técnico y excelencia garantizada en cada consulta."
+    };
+    var bioField = document.getElementById('bio_perfil');
+    if (bioField) {
+      bioField.value = (name ? name + " — " : "") + (bios[type] || bios.negocio);
+      updatePreview();
+      if (typeof showToast === 'function') showToast('✨ Narrativa de Lujo Silencioso generada por IA VYNK', 'success');
+    }
+  };
 })();

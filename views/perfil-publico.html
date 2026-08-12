@@ -149,6 +149,10 @@
         <section class="vp-head">
             {{avatar_html}}
             <h1 class="name">{{nombre_perfil}}</h1>
+            <div style="display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:100px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);color:#10B981;font-size:0.75rem;font-weight:600;margin-top:4px">
+                <span style="width:6px;height:6px;border-radius:50%;background:#10B981;box-shadow:0 0 8px #10B981"></span>
+                <span>Abierto ahora · Respuesta inmediata</span>
+            </div>
             {{tags_html}}
             {{bio_html}}
             <div class="voice-greeting-pill" onclick="playVoiceGreeting()">
@@ -160,6 +164,17 @@
         </section>
 
         {{action_buttons_html}}
+
+        <!-- Tesla Style Floating Action Dock -->
+        <nav class="tesla-action-dock" style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:999;background:rgba(15,15,18,0.85);backdrop-filter:blur(32px) saturate(180%);-webkit-backdrop-filter:blur(32px) saturate(180%);border:1px solid rgba(255,255,255,0.15);padding:8px 16px;border-radius:100px;display:flex;align-items:center;gap:14px;box-shadow:0 20px 50px rgba(0,0,0,0.6)">
+            <a href="#bloques" style="color:#fff;font-size:0.8rem;font-weight:600;text-decoration:none;display:flex;align-items:center;gap:6px">
+                <span>⚡ Menú & Bloques</span>
+            </a>
+            <div style="width:1px;height:16px;background:rgba(255,255,255,0.15)"></div>
+            <a href="{{base_url}}/api/perfiles/{{slug}}/vcard" style="color:var(--accent,#A78BFA);font-size:0.8rem;font-weight:700;text-decoration:none;display:flex;align-items:center;gap:6px">
+                <span>👤 Guardar Contacto</span>
+            </a>
+        </nav>
 
         <section class="blocks-section bento-links-grid" id="bloques">
             {{bloques_html}}
