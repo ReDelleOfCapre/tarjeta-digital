@@ -39,10 +39,10 @@
   --info-bg: rgba(26, 95, 180, 0.10);
 
   /* --- Typography Scale (§ FASE 2) --- */
-  --font-apple: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", system-ui, sans-serif;
-  --font-display: var(--font-apple);
-  --font-heading: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", system-ui, sans-serif;
-  --font-body: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", system-ui, sans-serif;
+  --font-apple: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+  --font-display: "Space Grotesk", "Inter", -apple-system, sans-serif;
+  --font-heading: "Space Grotesk", "Inter", -apple-system, sans-serif;
+  --font-body: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
   --font-family: var(--font-body);
   --font-mono: "JetBrains Mono", SFMono-Regular, Menlo, monospace;
 
@@ -125,6 +125,12 @@
   --accent-glow: rgba(23, 59, 99, 0.14);
   --separator: var(--line);
   --overlay: rgba(0, 0, 0, 0.5);
+  --border-color: var(--border-hairline);
+  --grad-primary: linear-gradient(135deg, var(--accent-deep), var(--vynk-navy));
+  --icon-size: 22px;
+  --icon-size-sm: 18px;
+  --icon-size-lg: 28px;
+  --icon-stroke: 1.8;
 
   /* ============================================================
      § FASE 3 — SPACING SCALE (4pt grid)
@@ -294,6 +300,12 @@ html[data-theme="dark"] {
   --accent-glow: rgba(127, 174, 232, 0.16);
   --separator: var(--line);
   --overlay: rgba(0, 0, 0, 0.72);
+  --border-color: var(--border-hairline);
+  --grad-primary: linear-gradient(135deg, var(--accent-deep), var(--primary));
+  --icon-size: 22px;
+  --icon-size-sm: 18px;
+  --icon-size-lg: 28px;
+  --icon-stroke: 1.8;
 
   --surface-background: var(--bg-base);
   --surface-surface: var(--bg-elevated);

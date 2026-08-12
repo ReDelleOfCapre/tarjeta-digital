@@ -129,11 +129,11 @@ body {
 .btn-primary {
   background: var(--accent-deep) !important;
   color: #fff !important;
-  box-shadow: 0 10px 24px -10px rgba(92,72,230,0.55);
+  box-shadow: 0 10px 24px -10px var(--accent-glow);
 }
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 14px 28px -8px rgba(92,72,230,0.6);
+  box-shadow: 0 14px 28px -8px var(--accent-glow);
 }
 .btn-secondary {
   background: var(--tint) !important;
@@ -299,7 +299,7 @@ svg, svg *, svg.icon, svg.btn-icon, svg.action-icon, svg.ui-icon {
 
 /* ---- VYNK Design System 2.0 Typography Hierarchy ---- */
 h1, h2, h3, .title, .font-heading, .brand, .plan-name, .profile-name, .hero h1, .nav-brand {
-  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif !important;
+  font-family: var(--font-heading) !important;
   letter-spacing: -0.025em !important;
   line-height: 1.25 !important;
 }
@@ -336,15 +336,15 @@ body, p, span, input, select, textarea, button, .profile-bio, .step-subtitle {
 #btn-save,
 #btn-final-save,
 #btn-pro-plan {
-  background: var(--accent-gradient) !important;
+  background: var(--grad-primary) !important;
   color: #FFFFFF !important;
-  border-radius: 9999px !important;
-  font-family: 'Plus Jakarta Sans', sans-serif !important;
+  border-radius: var(--radius-pill) !important;
+  font-family: var(--font-body) !important;
   font-weight: 700 !important;
   border: none !important;
   padding: 12px 26px !important;
-  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.35) !important;
-  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease, opacity 0.2s ease !important;
+  box-shadow: 0 4px 20px var(--accent-glow) !important;
+  transition: transform var(--duration-fast) var(--ease-apple), box-shadow var(--duration-fast) ease, opacity var(--duration-fast) ease !important;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -359,7 +359,7 @@ body, p, span, input, select, textarea, button, .profile-bio, .step-subtitle {
 #btn-final-save:hover,
 #btn-pro-plan:hover {
   transform: scale(0.98) !important;
-  box-shadow: 0 6px 24px rgba(99, 102, 241, 0.5) !important;
+  box-shadow: 0 6px 24px var(--accent-glow) !important;
   opacity: 0.95;
 }
 
@@ -515,40 +515,40 @@ body, p, span, input, select, textarea, button, .profile-bio, .step-subtitle {
 .btn-primary {
   background: var(--primary);
   color: #fff;
-  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.3);
+  box-shadow: 0 4px 14px rgba(23, 59, 99, 0.28);
 }
 .btn-primary:hover {
-  background: #6D28D9;
-  box-shadow: 0 0 25px rgba(124, 58, 237, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  background: var(--accent-deep);
+  box-shadow: 0 0 25px var(--accent-glow), inset 0 1px 1px rgba(255, 255, 255, 0.2);
   transform: scale(1.02) translateY(-2px);
 }
 
 .btn-secondary {
-  background: rgba(255,255,255,0.04);
+  background: var(--secondary);
   color: var(--text-primary);
-  border: 1px solid rgba(255,255,255,0.08);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-sm);
 }
 .btn-secondary:hover {
-  background: rgba(255,255,255,0.08);
-  border-color: rgba(255,255,255,0.15);
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.1), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+  background: var(--bg-elevated);
+  border-color: var(--border-subtle);
+  box-shadow: var(--shadow-md);
   transform: scale(1.02) translateY(-2px);
 }
 
-.btn-danger { background: var(--red); color: #fff; box-shadow: 0 4px 14px rgba(239, 68, 68, 0.3); }
-.btn-success { background: var(--green); color: #fff; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3); }
+.btn-danger { background: var(--error); color: #fff; box-shadow: 0 4px 14px var(--error-bg); }
+.btn-success { background: var(--success); color: #fff; box-shadow: 0 4px 14px var(--success-bg); }
 
 .btn-ghost { background: transparent; color: var(--text-primary); padding: 8px 16px; }
-.btn-ghost:hover { background: rgba(255,255,255,0.06); }
+.btn-ghost:hover { background: var(--secondary); }
 
 .btn-sm { padding: 8px 16px; font-size: var(--font-sm); border-radius: var(--radius-sm); }
 .btn-block { width: 100%; }
-.btn-icon { width: 40px; height: 40px; padding: 0; border-radius: var(--radius-full); background: rgba(255,255,255,0.06); color: var(--text-primary); font-size: 1.2rem; box-shadow: inset 0 1px 0 0 rgba(255,255,255,0.1), 0 0 0 1px rgba(255,255,255,0.08); }
-.btn-icon:hover { transform: scale(1.05) translateY(-2px); background: rgba(255,255,255,0.12); }
+.btn-icon { width: 40px; height: 40px; padding: 0; border-radius: var(--radius-full); background: var(--secondary); color: var(--text-primary); font-size: 1.2rem; box-shadow: inset 0 1px 0 0 rgba(255,255,255,0.06), 0 0 0 1px var(--border-subtle); }
+.btn-icon:hover { transform: scale(1.05) translateY(-2px); background: var(--bg-elevated); }
 .btn-icon:active { transform: scale(0.96) !important; }
 .btn-pill { border-radius: var(--radius-pill); padding: 12px 28px; }
-.btn-gradient { background: var(--grad-primary); color: #fff; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.35); }
+.btn-gradient { background: var(--grad-primary); color: #fff; box-shadow: 0 4px 15px var(--accent-glow); }
 .btn-gradient:hover { opacity: 0.95; transform: scale(1.02) translateY(-2px); box-shadow: 0 0 25px rgba(124, 58, 237, 0.5); }
 
 /* ---- Form Inputs Premium ---- */
@@ -1141,30 +1141,30 @@ button:active, input[type="button"]:active, input[type="submit"]:active,
 .block-edit-form, .block-email-form, .block-countdown, .upgrade-banner, 
 .theme-card, .plan-card, .feature-card, .pricing-card, .section, .admin-card, 
 .table-container, .chart-card, .analytics-card, .legal-card, .info-card {
-  background: #121214 !important;
+  background: var(--bg-elevated) !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
-  border: 1px solid rgba(255, 255, 255, 0.06) !important;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 0 rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid var(--border-subtle) !important;
+  box-shadow: var(--shadow-md), inset 0 1px 0 0 rgba(255, 255, 255, 0.04) !important;
   border-radius: var(--radius-lg, 16px) !important;
 }
 
 /* Minimalist B2B Navbar */
 .navbar, header, nav {
-  background: rgba(10, 10, 11, 0.85) !important;
+  background: var(--glass-bg) !important;
   backdrop-filter: blur(16px) !important;
   -webkit-backdrop-filter: blur(16px) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3) !important;
+  border-bottom: 1px solid var(--border-hairline) !important;
+  box-shadow: var(--shadow-title) !important;
 }
 
 /* 3. Premium Form Inputs & Focus Glow Rings */
 input[type="text"], input[type="email"], input[type="password"], input[type="number"], input[type="tel"], input[type="url"], select, textarea, .form-input, .form-select, input {
-  border: none !important;
-  background: rgba(255, 255, 255, 0.04) !important;
-  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid var(--border-subtle) !important;
+  background: var(--bg-elevated) !important;
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.06), 0 0 0 1px var(--border-hairline) !important;
   border-radius: var(--radius-md, 12px) !important;
-  color: #ffffff !important;
+  color: var(--text-primary) !important;
   background-repeat: no-repeat !important;
   background-position: right 12px center !important;
   background-size: 20px !important;
@@ -1969,31 +1969,31 @@ main, .main-panel, .controls-panel, .builder-grid, .config-container, .dashboard
 
 /* 1. Global Typography & Premium Background */
 body {
-  background-color: var(--bg-base, #12161B) !important;
-  color: var(--text-main, #EEEAE0) !important;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+  background-color: var(--bg-base) !important;
+  color: var(--text-primary) !important;
+  font-family: var(--font-body) !important;
   margin: 0;
   padding: 0;
 }
 
 /* Encabezados estrictos en Space Grotesk */
 h1, h2, h3, h4, h5, h6, .brand, .card-name, .nav-brand, .admin-title, .name {
-  font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif !important;
+  font-family: var(--font-heading) !important;
   letter-spacing: -0.02em !important;
   font-weight: 700 !important;
-  color: #EEEAE0 !important;
+  color: var(--text-primary) !important;
 }
 
 /* Métricas en Space Grotesk gigante */
 .stat-number {
-  font-family: 'Space Grotesk', sans-serif !important;
+  font-family: var(--font-heading) !important;
   font-size: 2.2rem !important;
   font-weight: 700 !important;
-  color: #EEEAE0 !important;
+  color: var(--text-primary) !important;
   line-height: 1.1 !important;
 }
 
-/* Subtítulos de métricas, tags, metadata y nav en IBM Plex Mono */
+/* Subt�tulos de m�tricas, tags, metadata y nav en fuente mono */
 .stat-label,
 .card-meta,
 .card-meta span,
@@ -2001,7 +2001,7 @@ h1, h2, h3, h4, h5, h6, .brand, .card-name, .nav-brand, .admin-title, .name {
 .nav-side-item,
 .tag,
 .activity-date {
-  font-family: 'IBM Plex Mono', monospace !important;
+  font-family: var(--font-mono) !important;
   font-size: 11px !important;
   letter-spacing: 0.04em !important;
   text-transform: uppercase !important;
@@ -2221,15 +2221,15 @@ select,
 .btn-primary-gradient,
 .btn-submit,
 .save-btn {
-  background: #EEEAE0 !important;
-  border-radius: 6px !important;
-  border: 1px solid #EEEAE0 !important;
-  color: #12161B !important;
-  font-weight: 700 !important;
-  font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif !important;
+  background: var(--grad-primary) !important;
+  border-radius: var(--radius-2) !important;
+  border: 1px solid transparent !important;
+  color: #fff !important;
+  font-weight: 600 !important;
+  font-family: var(--font-body) !important;
   padding: 10px 20px !important;
-  box-shadow: none !important;
-  transition: opacity 160ms ease, transform 160ms ease !important;
+  box-shadow: 0 2px 10px var(--accent-glow) !important;
+  transition: opacity var(--duration-fast) ease, transform var(--duration-fast) ease !important;
   cursor: pointer !important;
   position: relative !important;
   z-index: 5 !important;
@@ -2244,19 +2244,24 @@ select,
 .btn-primary:hover,
 .btn-primary-gradient:hover,
 .btn-submit:hover {
-  opacity: 0.9 !important;
+  opacity: 0.92 !important;
+  transform: translateY(-1px) !important;
 }
 
 .btn-secondary,
 .btn-ghost {
   background: transparent !important;
-  border-radius: 6px !important;
+  border-radius: var(--radius-2) !important;
   border: 1px solid var(--border-subtle, #2A313A) !important;
   color: var(--text-main, #EEEAE0) !important;
   font-weight: 600 !important;
   padding: 10px 20px !important;
   position: relative !important;
   z-index: 5 !important;
+  transition: background var(--duration-fast) ease, border-color var(--duration-fast) ease !important;
+}
+.btn-secondary:hover {
+  background: var(--secondary) !important;
 }
 
 .hidden {
@@ -2273,8 +2278,8 @@ select,
 }
 
 .bento-map-card {
-  background: #1A1F26 !important;
-  border: 1px solid #2A313A !important;
+  background: var(--bg-elevated) !important;
+  border: 1px solid var(--border-subtle) !important;
   border-radius: 16px !important;
   padding: 20px !important;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5) !important;
@@ -2288,15 +2293,15 @@ select,
   aspect-ratio: 4/3 !important;
   border-radius: 14px !important;
   overflow: hidden !important;
-  border: 1px solid #2A313A !important;
-  background: #12161B !important;
+  border: 1px solid var(--border-subtle) !important;
+  background: var(--bg-strong) !important;
   box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8) !important;
 }
 
 .map-panel .dotgrid {
   position: absolute !important;
   inset: 0 !important;
-  background-image: radial-gradient(#2A313A 1.5px, transparent 1.5px) !important;
+  background-image: radial-gradient(var(--border-subtle) 1.5px, transparent 1.5px) !important;
   background-size: 18px 18px !important;
   opacity: 0.8 !important;
 }
@@ -2380,7 +2385,7 @@ select,
 .vynk-pin-label {
   position: absolute !important;
   transform: translate(-50%, 6px) !important;
-  font-family: 'IBM Plex Mono', monospace !important;
+  font-family: var(--font-mono) !important;
   font-size: 10px !important;
   background: #1A1F26 !important;
   color: #EEEAE0 !important;
@@ -2608,7 +2613,7 @@ select,
 }
 
 .bento-social-handle {
-  font-family: 'IBM Plex Mono', monospace !important;
+  font-family: var(--font-mono) !important;
   font-size: 11px !important;
   color: #8C96A3 !important;
   letter-spacing: 0.02em !important;
@@ -2639,7 +2644,7 @@ select,
 
 /* 4. Metadata Pill Badges */
 .bento-badge {
-  font-family: 'IBM Plex Mono', monospace !important;
+  font-family: var(--font-mono) !important;
   font-size: 10px !important;
   color: #A78BFA !important;
   background: rgba(124, 58, 237, 0.15) !important;
@@ -2670,7 +2675,7 @@ select,
 }
 
 .eyebrow {
-  font-family: 'IBM Plex Mono', 'JetBrains Mono', monospace !important;
+  font-family: var(--font-mono), 'JetBrains Mono', monospace !important;
   font-size: 11px !important;
   letter-spacing: 0.14em !important;
   text-transform: uppercase !important;
@@ -2845,7 +2850,7 @@ select,
   display: block !important;
   font-size: 11px !important;
   color: var(--text-faint) !important;
-  font-family: 'IBM Plex Mono', 'JetBrains Mono', monospace !important;
+  font-family: var(--font-mono), 'JetBrains Mono', monospace !important;
   letter-spacing: 0.05em !important;
   text-transform: uppercase !important;
   margin-bottom: 5px !important;
@@ -2983,7 +2988,7 @@ select,
   display: block !important;
   width: fit-content !important;
   margin: 0 auto 18px !important;
-  font-family: 'IBM Plex Mono', 'JetBrains Mono', monospace !important;
+  font-family: var(--font-mono), 'JetBrains Mono', monospace !important;
   font-size: 10px !important;
   text-transform: uppercase !important;
   letter-spacing: 0.06em !important;
@@ -3105,7 +3110,7 @@ select,
 }
 
 .palette-meta {
-  font-family: 'IBM Plex Mono', 'JetBrains Mono', monospace !important;
+  font-family: var(--font-mono), 'JetBrains Mono', monospace !important;
   font-size: 10.5px !important;
   color: var(--text-faint) !important;
 }
@@ -3122,7 +3127,7 @@ select,
   background: none !important;
   border: 1px solid var(--panel-border) !important;
   color: var(--text-muted) !important;
-  font-family: 'IBM Plex Mono', 'JetBrains Mono', monospace !important;
+  font-family: var(--font-mono), 'JetBrains Mono', monospace !important;
   font-size: 11px !important;
   padding: 8px 12px !important;
   border-radius: 99px !important;
@@ -3159,7 +3164,7 @@ select,
 
 .schema-block pre {
   margin: 0 !important;
-  font-family: 'IBM Plex Mono', 'JetBrains Mono', monospace !important;
+  font-family: var(--font-mono), 'JetBrains Mono', monospace !important;
   font-size: 11px !important;
   line-height: 1.6 !important;
   color: #C9E4B5 !important;

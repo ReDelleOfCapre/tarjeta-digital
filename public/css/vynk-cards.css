@@ -118,7 +118,7 @@ body {
 .block-meta {
     font-size: 12px;
     color: var(--text-muted);
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: var(--font-mono);
 }
 
 .badge-accent {
@@ -204,7 +204,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 12px;
     color: #444;
 }
@@ -220,14 +220,14 @@ body {
 }
 
 .loc-address {
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 12px;
     color: var(--text-muted);
     margin-bottom: 12px;
 }
 
 .dist-display {
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: var(--font-mono);
     font-size: 24px;
     font-weight: 700;
     margin-bottom: 12px;

@@ -246,7 +246,7 @@
               <div style="font-size:2.2rem">💳</div>
               <div>
                 <div style="font-size:1.05rem;font-weight:700;color:var(--text-main);font-family:'Space Grotesk',sans-serif">¿Quieres recibir tu Tarjeta Física NFC personalizada?</div>
-                <div style="font-size:0.75rem;color:var(--text-muted);font-family:'IBM Plex Mono',monospace">ENVÍO INTERNACIONAL DIRECTO A TU DOMICILIO</div>
+                <div style="font-size:0.75rem;color:var(--text-muted);font-family:var(--font-mono)">ENVÍO INTERNACIONAL DIRECTO A TU DOMICILIO</div>
               </div>
             </div>
             <button class="btn btn-primary" onclick="openCheckoutModal('card-nfc-single', 'Tarjeta NFC Personalizada VYNK', 19.99)" style="white-space:nowrap;font-size:0.9rem">💳 Pedir Tarjeta Física NFC ($19.99 USD)</button>
@@ -259,7 +259,7 @@
             </div>
             <div>
               <div style="font-size:1.05rem;font-weight:700;color:var(--text-main);font-family:'Space Grotesk',sans-serif">Crear Nueva Identidad Digital</div>
-              <div style="font-size:0.8rem;color:var(--text-muted);font-family:'IBM Plex Mono',monospace">DISÉÑALA VISUALMENTE Y GENERA TU LINK Y QR</div>
+              <div style="font-size:0.8rem;color:var(--text-muted);font-family:var(--font-mono)">DISÉÑALA VISUALMENTE Y GENERA TU LINK Y QR</div>
             </div>
           </div>
 
@@ -285,7 +285,7 @@
         <div id="view-tab-tienda" class="tab-view-content hidden">
           <div style="margin-bottom:20px">
             <h2 style="font-size:1.4rem;font-weight:700;font-family:'Space Grotesk',sans-serif">Tienda VYNK NFC</h2>
-            <p style="font-size:0.85rem;color:var(--text-muted);font-family:'IBM Plex Mono',monospace">COMPRA TARJETAS INDIVIDUALES O PACKS MAYORISTAS EN BLANCO</p>
+            <p style="font-size:0.85rem;color:var(--text-muted);font-family:var(--font-mono)">COMPRA TARJETAS INDIVIDUALES O PACKS MAYORISTAS EN BLANCO</p>
           </div>
 
           <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));gap:16px;margin-bottom:24px">
@@ -337,7 +337,7 @@
         <div id="view-tab-inventario" class="tab-view-content hidden">
           <div style="margin-bottom:20px">
             <h2 style="font-size:1.4rem;font-weight:700;font-family:'Space Grotesk',sans-serif">Mi Inventario de Distribuidor</h2>
-            <p style="font-size:0.85rem;color:var(--text-muted);font-family:'IBM Plex Mono',monospace">ADMINISTRA Y ASIGNA TUS TARJETAS EN BLANCO A CLIENTES EN TIEMPO REAL</p>
+            <p style="font-size:0.85rem;color:var(--text-muted);font-family:var(--font-mono)">ADMINISTRA Y ASIGNA TUS TARJETAS EN BLANCO A CLIENTES EN TIEMPO REAL</p>
           </div>
 
           <div class="stats-bar" style="margin-top:0;margin-bottom:20px">
@@ -556,29 +556,29 @@
       </div>
 
       <div style="padding:12px;background:rgba(255,255,255,0.04);border-radius:8px;margin-bottom:16px">
-        <div style="font-size:0.75rem;color:var(--text-muted);font-family:'IBM Plex Mono',monospace">PRODUCTO SELECCIONADO</div>
+        <div style="font-size:0.75rem;color:var(--text-muted);font-family:var(--font-mono)">PRODUCTO SELECCIONADO</div>
         <div style="font-size:1rem;font-weight:700;color:var(--text-main)" id="checkout-item-title">Tarjeta NFC Personalizada</div>
         <div style="font-size:1.2rem;font-weight:700;color:var(--green);font-family:'Space Grotesk',sans-serif;margin-top:4px" id="checkout-item-price">$19.99 USD</div>
       </div>
 
       <form id="form-checkout-nfc" onsubmit="executeCheckout(event)">
         <div style="margin-bottom:12px">
-          <label for="checkout-name" style="display:block;font-size:0.75rem;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;margin-bottom:4px">NOMBRE COMPLETO</label>
+          <label for="checkout-name" style="display:block;font-size:0.75rem;color:var(--text-muted);font-family:var(--font-mono);margin-bottom:4px">NOMBRE COMPLETO</label>
           <input type="text" id="checkout-name" required placeholder="Ej. Giovanni Paolo" style="width:100%;padding:10px 12px;border-radius:6px;border:1px solid var(--border-subtle);background:rgba(255,255,255,0.05);color:var(--text-main);box-sizing:border-box">
         </div>
 
         <div style="margin-bottom:12px">
-          <label for="checkout-address" style="display:block;font-size:0.75rem;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;margin-bottom:4px">DIRECCIÓN DE ENVÍO</label>
+          <label for="checkout-address" style="display:block;font-size:0.75rem;color:var(--text-muted);font-family:var(--font-mono);margin-bottom:4px">DIRECCIÓN DE ENVÍO</label>
           <input type="text" id="checkout-address" required placeholder="Calle, Número, Colonia" style="width:100%;padding:10px 12px;border-radius:6px;border:1px solid var(--border-subtle);background:rgba(255,255,255,0.05);color:var(--text-main);box-sizing:border-box">
         </div>
 
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
           <div>
-            <label for="checkout-city" style="display:block;font-size:0.75rem;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;margin-bottom:4px">CIUDAD / ESTADO</label>
+            <label for="checkout-city" style="display:block;font-size:0.75rem;color:var(--text-muted);font-family:var(--font-mono);margin-bottom:4px">CIUDAD / ESTADO</label>
             <input type="text" id="checkout-city" required placeholder="Ciudad" style="width:100%;padding:10px 12px;border-radius:6px;border:1px solid var(--border-subtle);background:rgba(255,255,255,0.05);color:var(--text-main);box-sizing:border-box">
           </div>
           <div>
-            <label for="checkout-zip" style="display:block;font-size:0.75rem;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;margin-bottom:4px">CÓDIGO POSTAL</label>
+            <label for="checkout-zip" style="display:block;font-size:0.75rem;color:var(--text-muted);font-family:var(--font-mono);margin-bottom:4px">CÓDIGO POSTAL</label>
             <input type="text" id="checkout-zip" required placeholder="CP 00000" style="width:100%;padding:10px 12px;border-radius:6px;border:1px solid var(--border-subtle);background:rgba(255,255,255,0.05);color:var(--text-main);box-sizing:border-box">
           </div>
         </div>
@@ -598,17 +598,17 @@
 
       <form id="form-assign-client" onsubmit="executeAssignClient(event)">
         <div style="margin-bottom:12px">
-          <label for="assign-client-name" style="display:block;font-size:0.75rem;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;margin-bottom:4px">NOMBRE DEL CLIENTE</label>
+          <label for="assign-client-name" style="display:block;font-size:0.75rem;color:var(--text-muted);font-family:var(--font-mono);margin-bottom:4px">NOMBRE DEL CLIENTE</label>
           <input type="text" id="assign-client-name" required placeholder="Ej. Carlos Mendoza" style="width:100%;padding:10px 12px;border-radius:6px;border:1px solid var(--border-subtle);background:rgba(255,255,255,0.05);color:var(--text-main);box-sizing:border-box">
         </div>
 
         <div style="margin-bottom:12px">
-          <label for="assign-client-slug" style="display:block;font-size:0.75rem;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;margin-bottom:4px">SLUG / URL DEL PERFIL</label>
+          <label for="assign-client-slug" style="display:block;font-size:0.75rem;color:var(--text-muted);font-family:var(--font-mono);margin-bottom:4px">SLUG / URL DEL PERFIL</label>
           <input type="text" id="assign-client-slug" required placeholder="carlos-mendoza" style="width:100%;padding:10px 12px;border-radius:6px;border:1px solid var(--border-subtle);background:rgba(255,255,255,0.05);color:var(--text-main);box-sizing:border-box">
         </div>
 
         <div style="margin-bottom:16px">
-          <label for="assign-client-email" style="display:block;font-size:0.75rem;color:var(--text-muted);font-family:'IBM Plex Mono',monospace;margin-bottom:4px">CORREO DEL CLIENTE</label>
+          <label for="assign-client-email" style="display:block;font-size:0.75rem;color:var(--text-muted);font-family:var(--font-mono);margin-bottom:4px">CORREO DEL CLIENTE</label>
           <input type="email" id="assign-client-email" required placeholder="cliente@correo.com" style="width:100%;padding:10px 12px;border-radius:6px;border:1px solid var(--border-subtle);background:rgba(255,255,255,0.05);color:var(--text-main);box-sizing:border-box">
         </div>
 
