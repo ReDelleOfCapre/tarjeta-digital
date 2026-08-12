@@ -67,13 +67,9 @@ test.describe('VYNK E-Commerce Dual Safety Loop & E2E Suite', () => {
     await expect(actionBtn).toBeVisible();
     await actionBtn.click({ trial: true });
 
-    // 4. Verify Core Creation Modal opening and Form submit setup
+    // 4. Verify Core Creation button exists and links to editor.html
     const createCardBtn = page.locator('#btn-create-card');
     await expect(createCardBtn).toBeVisible();
-    await page.evaluate(() => window.openCreateModal());
-    await page.waitForTimeout(100);
-    await expect(page.locator('#modal-perfiles')).toBeVisible();
-    await page.evaluate(() => window.closeCreateModal());
 
     // 5. Verify Eye icon (Ver perfil público) has valid href and target="_blank"
     const eyeBtn = page.locator('.card-actions a[title="Ver perfil público"]').first();

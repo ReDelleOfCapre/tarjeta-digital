@@ -1,63 +1,113 @@
 /* ==========================================================================
-   VYNK — Apple Visual DNA Design System Tokens (tokens.css)
-   Pillars: Clarity · Deference · Depth
-   Fuente única de tokens (regla 3). Todas las páginas heredan de aquí.
+   VYNK — Design Tokens (tokens.css)
+   Fuente única de verdad. Todas las páginas heredan de aquí.
+   Metodología: Apple Human Interface / Design Tokens §32.
    :root = tema claro (marca/landing/legal/planes/perfil claro)
    html[data-theme="dark"] = tema dark-first (dashboard/analytics/compartir/editor)
+   Regla: NUNCA hardcodear colores/espaciados/tipos fuera de este archivo.
    ========================================================================== */
 
 :root {
-  /* --- Typography --- */
-  --font-apple: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", system-ui, sans-serif;
-  --font-family: var(--font-apple);
-  --font-heading: "SF Pro Display", -apple-system, "Inter", sans-serif;
-  --font-body: "SF Pro Text", -apple-system, "Inter", sans-serif;
-  --font-mono: "JetBrains Mono", SFMono-Regular, Menlo, monospace;
-  --font-display: "SF Pro Display", -apple-system, "Inter", sans-serif;
+  /* ============================================================
+     §6.1 — COLORES BASE (plan de identidad)
+     ============================================================ */
+  --vynk-background: #F5F5F7;
+  --vynk-surface: #FFFFFF;
+  --vynk-text-primary: #1D1D1F;
+  --vynk-text-secondary: #6E6E73;
+  --vynk-border: #D2D2D7;
+  --vynk-black: #161616;
 
-  /* Typography Scale */
-  --fs-hero: clamp(40px, 6vw, 64px);
-  --fs-h1: clamp(28px, 4vw, 40px);
-  --fs-h2: clamp(22px, 3vw, 32px);
-  --fs-h3: clamp(18px, 2.2vw, 24px);
-  --fs-body: 17px;
-  --fs-sub: 14.5px;
-  --fs-caption: 13px;
+  /* ============================================================
+     §6.2 — ACENTOS DE MARCA
+     ============================================================ */
+  --vynk-wine: #722F43;
+  --vynk-navy: #173B63;
+  --vynk-mono: #555555;
+  --vynk-gold: #9A7444;
+
+  /* ============================================================
+     §6.3 — SEMÁNTICOS (discretos y accesibles, WCAG AA)
+     ============================================================ */
+  --success: #1F8A4C;
+  --success-bg: rgba(31, 138, 76, 0.10);
+  --warning: #9A5B13;
+  --warning-bg: rgba(154, 91, 19, 0.10);
+  --error: #B3261E;
+  --error-bg: rgba(179, 38, 30, 0.10);
+  --info: #1A5FB4;
+  --info-bg: rgba(26, 95, 180, 0.10);
+
+  /* --- Typography Scale (§ FASE 2) --- */
+  --font-apple: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", system-ui, sans-serif;
+  --font-display: var(--font-apple);
+  --font-heading: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", system-ui, sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", system-ui, sans-serif;
+  --font-family: var(--font-body);
+  --font-mono: "JetBrains Mono", SFMono-Regular, Menlo, monospace;
+
+  /* Niveles tipográficos */
+  --text-display: clamp(34px, 5vw, 56px);
+  --text-h1: clamp(26px, 3.5vw, 40px);
+  --text-h2: clamp(22px, 2.8vw, 32px);
+  --text-h3: clamp(18px, 2.2vw, 24px);
+  --text-body-lg: 18px;
+  --text-body: 16px;
+  --text-body-sm: 14px;
+  --text-caption: 12px;
+  --text-label: 12px;
+
+  /* Deprecated type scale (back-compat) */
+  --fs-hero: var(--text-display);
+  --fs-h1: var(--text-h1);
+  --fs-h2: var(--text-h2);
+  --fs-h3: var(--text-h3);
+  --fs-body: var(--text-body);
+  --fs-sub: 14px;
+  --fs-caption: var(--text-caption);
+  --font-xs: 0.75rem;
+  --font-sm: 0.875rem;
+  --font-base: 1rem;
+  --font-md: 1.125rem;
+  --font-lg: 1.25rem;
+  --font-xl: 1.5rem;
+  --font-2xl: 2.25rem;
+  --font-3xl: 3rem;
 
   /* --- Color Palette — Light (VYNK marca) --- */
-  --bg-base: #FBF9FF;
-  --bg-elevated: #FFFFFF;
-  --bg-surface: #FFFFFF;
+  --bg-base: var(--vynk-background);
+  --bg-elevated: var(--vynk-surface);
+  --bg-surface: var(--vynk-surface);
   --bg-glass: rgba(255, 255, 255, 0.72);
-  --border-hairline: rgba(29, 24, 48, 0.10);
-  --border-subtle: rgba(29, 24, 48, 0.14);
+  --border-hairline: rgba(29, 29, 31, 0.10);
+  --border-subtle: rgba(29, 29, 31, 0.14);
 
-  --text-primary: #1D1830;
-  --text-secondary: #645C7A;
-  --text-tertiary: #887FA8;
-  --text-muted: #645C7A;
+  --text-primary: var(--vynk-text-primary);
+  --text-secondary: var(--vynk-text-secondary);
+  --text-tertiary: #86868B;
+  --text-muted: var(--vynk-text-secondary);
   --text-main: var(--text-primary);
 
   /* Primary Accent & Pastels */
-  --accent-blue: #5C48E6;
-  --accent-mint: #9FD8C4;
-  --accent-lilac: #C9BFF2;
+  --accent-blue: var(--vynk-navy);
+  --accent-mint: #D8E8DC;
+  --accent-lilac: #DDE3F0;
 
   /* Universal Semantic Tokens */
-  --primary: var(--accent-blue);
-  --accent: var(--accent-blue);
-  --accent-deep: #5C48E6;
-  --tint: #EEEAFC;
+  --primary: var(--vynk-navy);
+  --accent: var(--vynk-navy);
+  --accent-deep: #0F2C4E;
+  --tint: #E7ECF4;
   --canvas: var(--bg-base);
   --paper: var(--bg-elevated);
   --line: var(--border-hairline);
-  --peach: #FFD9BE;
+  --peach: #F5D9C4;
 
-  --green: #10B981;
-  --orange: #F59E0B;
-  --red: #EF4444;
-  --purple: #8B5CF6;
-  --pink: #EC4899;
+  --green: var(--success);
+  --orange: var(--warning);
+  --red: var(--error);
+  --purple: #6E5AC4;
+  --pink: #C2407E;
 
   /* --- Legacy VYNK aliases (back-compat) --- */
   --ink: var(--text-primary);
@@ -70,21 +120,27 @@
   --bg-card: var(--paper);
   --card-border: var(--line);
   --card-blur: 14px;
-  --card-shadow: 0 10px 24px -10px rgba(92, 72, 230, 0.15);
+  --card-shadow: 0 10px 24px -10px rgba(23, 59, 99, 0.16);
   --secondary: var(--tint);
-  --accent-glow: rgba(122, 106, 240, 0.15);
+  --accent-glow: rgba(23, 59, 99, 0.14);
   --separator: var(--line);
-  --overlay: rgba(29, 24, 48, 0.7);
+  --overlay: rgba(0, 0, 0, 0.5);
 
-  /* --- 8pt Grid Spacing Scale --- */
+  /* ============================================================
+     § FASE 3 — SPACING SCALE (4pt grid)
+     4 · 8 · 12 · 16 · 24 · 32 · 48 · 64 · 80 · 96
+     ============================================================ */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
   --space-4: 16px;
+  --space-5: 20px;
   --space-6: 24px;
   --space-8: 32px;
+  --space-10: 40px;
   --space-12: 48px;
   --space-16: 64px;
+  --space-20: 80px;
   --space-24: 96px;
   --space-xs: var(--space-2);
   --space-sm: var(--space-4);
@@ -92,71 +148,136 @@
   --space-lg: var(--space-8);
   --space-xl: var(--space-12);
 
-  /* --- Border Radius Scale --- */
-  --radius-sm: 12px;
-  --radius-md: 16px;
-  --radius-lg: 20px;
-  --radius-xl: 28px;
-  --radius-card: 20px;
-  --radius-btn: 12px;
-  --radius-pill: 999px;
-  --radius-full: 50%;
+  /* ============================================================
+     § FASE 4 — BORDER RADIUS
+     8 · 12 · 16 · 24 · 9999
+     ============================================================ */
+  --radius-1: 8px;
+  --radius-2: 12px;
+  --radius-3: 16px;
+  --radius-4: 24px;
+  --radius-full: 9999px;
+  --radius-sm: var(--radius-2);
+  --radius-md: var(--radius-3);
+  --radius-lg: var(--radius-4);
+  --radius-xl: 32px;
+  --radius-card: var(--radius-3);
+  --radius-btn: var(--radius-2);
+  --radius-pill: var(--radius-full);
+  --radius-full: 9999px;
 
-  /* --- Motion & Easing --- */
+  /* ============================================================
+     § FASE 4 — SUPERFICIES
+     Background · Surface · Elevated · Floating · Overlay
+     La separación se logra con espacio/contraste, no sombras.
+     ============================================================ */
+  --surface-background: var(--bg-base);
+  --surface-surface: var(--bg-elevated);
+  --surface-elevated: #FFFFFF;
+  --surface-floating: #FFFFFF;
+  --shadow-title: 0 1px 2px rgba(29, 29, 31, 0.10);
+  --shadow-sm: 0 1px 3px rgba(29, 29, 31, 0.08);
+  --shadow-md: 0 6px 20px -6px rgba(29, 29, 31, 0.18);
+  --shadow-lg: 0 18px 44px -18px rgba(29, 29, 31, 0.28);
+  --shadow-none: none;
+
+  /* --- Motion & Easing (§ FASE 14) --- */
   --ease-apple: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-magnetic: cubic-bezier(0.25, 1, 0.5, 1);
-  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-fast: 150ms;
+  --duration-base: 250ms;
+  --duration-slow: 400ms;
+  --transition-fast: var(--duration-fast) var(--ease-apple);
+  --transition-normal: var(--duration-base) var(--ease-apple);
+  --transition-slow: var(--duration-slow) var(--ease-apple);
+
+  /* Motion tokens */
+  --motion-micro: var(--duration-fast) var(--ease-apple);
+  --motion-standard: var(--duration-base) var(--ease-apple);
+  --motion-enter: var(--duration-slow) var(--ease-magnetic);
 
   /* --- Liquid Glass Surface Tokens --- */
   --glass-bg: rgba(255, 255, 255, 0.72);
-  --glass-border: 1px solid rgba(29, 24, 48, 0.12);
+  --glass-border: 1px solid rgba(29, 29, 31, 0.12);
   --glass-blur: blur(24px) saturate(180%);
-  --glass-shadow: 0 8px 32px 0 rgba(29, 24, 48, 0.12);
+  --glass-shadow: 0 8px 32px 0 rgba(29, 29, 31, 0.14);
 
-  /* Shadows */
-  --shadow-sm: 0 2px 8px rgba(29, 24, 48, 0.06);
-  --shadow-md: 0 8px 24px rgba(29, 24, 48, 0.10);
-  --shadow-lg: 0 16px 40px rgba(29, 24, 48, 0.16);
+  /* --- Z-INDEX SCALE --- */
+  --z-base: 0;
+  --z-sticky: 100;
+  --z-drawer: 200;
+  --z-overlay: 300;
+  --z-modal: 400;
+  --z-toast: 500;
+
+  /* --- BREAKPOINTS --- */
+  --bp-mobile: 480px;
+  --bp-tablet: 768px;
+  --bp-laptop: 1024px;
+  --bp-desktop: 1280px;
+  --bp-large: 1600px;
 
   color-scheme: light;
 }
 
-/* Specificity html[data-theme="dark"] (0,1,1) beats :root (0,1,0) en styles.css */
+/* ============================================================
+   DARK MODE (§ FASE 13) — html[data-theme="dark"] (0,1,1)
+   Dark no es invertir colores: es una paleta propia.
+   ============================================================ */
 html[data-theme="dark"] {
-  /* --- Color Palette — Dark-First (pantallas app) --- */
-  --bg-base: #0A0A0C;
-  --bg-elevated: #151517;
-  --bg-surface: #1C1C1E;
-  --bg-glass: rgba(255, 255, 255, 0.06);
+  --vynk-background: #101014;
+  --vynk-surface: #1C1C1F;
+  --vynk-text-primary: #F5F5F7;
+  --vynk-text-secondary: #98989D;
+  --vynk-border: #3A3A3C;
+  --vynk-black: #0A0A0C;
+
+  /* Acentos dark (variantes legibles) */
+  --vynk-wine: #D39AA8;
+  --vynk-navy: #8FB6E8;
+  --vynk-mono: #C7C7CC;
+  --vynk-gold: #CEB284;
+
+  --success: #30D158;
+  --success-bg: rgba(48, 209, 88, 0.14);
+  --warning: #FF9F0A;
+  --warning-bg: rgba(255, 159, 10, 0.14);
+  --error: #FF453A;
+  --error-bg: rgba(255, 69, 58, 0.14);
+  --info: #64B5F6;
+  --info-bg: rgba(100, 181, 246, 0.16);
+
+  --bg-base: var(--vynk-background);
+  --bg-elevated: #1D1D20;
+  --bg-surface: var(--vynk-surface);
+  --bg-glass: rgba(28, 28, 31, 0.72);
   --border-hairline: rgba(255, 255, 255, 0.08);
   --border-subtle: rgba(255, 255, 255, 0.12);
 
-  --text-primary: #F5F5F7;
-  --text-secondary: #98989D;
+  --text-primary: var(--vynk-text-primary);
+  --text-secondary: var(--vynk-text-secondary);
   --text-tertiary: #6E6E73;
-  --text-muted: #6E6E73;
+  --text-muted: var(--text-tertiary);
   --text-main: var(--text-primary);
 
-  --accent-blue: #0A84FF;
+  --accent-blue: var(--vynk-navy);
   --accent-mint: #C9F2E4;
   --accent-lilac: #E4D9F7;
 
-  --primary: var(--accent-blue);
-  --accent: var(--accent-blue);
-  --accent-deep: #0066CC;
-  --tint: rgba(10, 132, 255, 0.15);
+  --primary: #7FAEE8;
+  --accent: #7FAEE8;
+  --accent-deep: #4C86C8;
+  --tint: rgba(88, 145, 211, 0.16);
   --canvas: var(--bg-base);
   --paper: var(--bg-elevated);
   --line: var(--border-hairline);
-  --peach: #FFD9BE;
+  --peach: #F5D9C4;
 
-  --green: #30D158;
-  --orange: #FF9F0A;
-  --red: #FF453A;
-  --purple: #BF5AF2;
-  --pink: #FF375F;
+  --green: var(--success);
+  --orange: var(--warning);
+  --red: var(--error);
+  --purple: #BF8CF2;
+  --pink: #FF7AA2;
 
   /* Legacy VYNK aliases dark */
   --ink: var(--text-primary);
@@ -170,23 +291,30 @@ html[data-theme="dark"] {
   --card-border: var(--line);
   --card-shadow: 0 10px 24px -10px rgba(0, 0, 0, 0.5);
   --secondary: rgba(255, 255, 255, 0.08);
-  --accent-glow: rgba(10, 132, 255, 0.18);
+  --accent-glow: rgba(127, 174, 232, 0.16);
   --separator: var(--line);
   --overlay: rgba(0, 0, 0, 0.72);
 
-  --glass-bg: rgba(255, 255, 255, 0.06);
+  --surface-background: var(--bg-base);
+  --surface-surface: var(--bg-elevated);
+  --surface-elevated: #26262A;
+  --surface-floating: #2C2C2E;
+  --shadow-title: 0 1px 2px rgba(0, 0, 0, 0.40);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.40);
+  --shadow-md: 0 6px 20px -6px rgba(0, 0, 0, 0.50);
+  --shadow-lg: 0 18px 44px -18px rgba(0, 0, 0, 0.60);
+
+  --glass-bg: rgba(44, 44, 46, 0.60);
   --glass-border: 1px solid rgba(255, 255, 255, 0.10);
   --glass-blur: blur(24px) saturate(180%);
   --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.36);
 
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
-  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.35);
-  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.5);
-
   color-scheme: dark;
 }
 
-/* Base Body Styling */
+/* ============================================================
+   Base Body Styling
+   ============================================================ */
 body {
   background-color: var(--canvas);
   color: var(--ink);
@@ -197,6 +325,17 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* Typography utilities */
+.t-display { font-family: var(--font-display); font-size: var(--text-display); font-weight: 700; letter-spacing: -0.02em; line-height: 1.05; }
+.t-h1 { font-family: var(--font-heading); font-size: var(--text-h1); font-weight: 700; letter-spacing: -0.015em; line-height: 1.15; }
+.t-h2 { font-family: var(--font-heading); font-size: var(--text-h2); font-weight: 700; letter-spacing: -0.01em; line-height: 1.2; }
+.t-h3 { font-family: var(--font-heading); font-size: var(--text-h3); font-weight: 600; letter-spacing: -0.005em; line-height: 1.3; }
+.t-body-lg { font-size: var(--text-body-lg); line-height: 1.5; }
+.t-body { font-size: var(--text-body); line-height: 1.5; }
+.t-body-sm { font-size: var(--text-body-sm); line-height: 1.45; }
+.t-caption { font-size: var(--text-caption); line-height: 1.4; letter-spacing: 0.02em; }
+.t-label { font-size: var(--text-label); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
 
 /* Glass Surface Utility */
 .glass-surface {

@@ -788,9 +788,20 @@ window.executeCreatePerfil = async function(e) {
     if (overlay) overlay.classList.add('hidden');
   };
 
+  window.openEditModal = function(id) {
+    if (id) {
+      window.location.href = '/editor.html?id=' + id;
+    } else {
+      window.location.href = '/editor.html';
+    }
+  };
+
   window.openCreateModal = function(id) {
-    var m = document.getElementById('modal-perfiles');
-    if (m) m.classList.remove('hidden');
+    if (id) {
+      window.location.href = '/editor.html?id=' + id;
+    } else {
+      window.location.href = '/editor.html';
+    }
   };
 
   window.closeCreateModal = function() {
