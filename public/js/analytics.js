@@ -17,6 +17,7 @@
   // Colors tailored to VYNK 4.0 Light Brand DNA
   var textColor = '#1D1830';
   var gridColor = 'rgba(29,24,48,0.08)';
+  var isDark = false;
 
   // Format event names for display
   function formatEventName(evento) {
@@ -44,12 +45,17 @@
     '#FF6B6B'  // Coral
   ];
 
+  function setStat(id, value) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = value;
+  }
+
   function loadDemoData() {
     profileSelect.innerHTML = '<option value="demo">Tarjeta Demo VYNK (Personal)</option>';
-    document.getElementById('total-visitas').textContent = '1,420';
-    document.getElementById('total-interacciones').textContent = '389';
-    document.getElementById('tasa-conversion').textContent = '27%';
-    document.getElementById('top-evento').textContent = 'WhatsApp';
+    setStat('stat-visits', '1,420');
+    setStat('stat-interactions', '389');
+    setStat('stat-conversion', '27%');
+    setStat('stat-top-event', 'WhatsApp');
     
     // Render demo chart if canvas exists
     var visitsCanvas = document.getElementById('visitsChart');

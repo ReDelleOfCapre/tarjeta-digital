@@ -2,58 +2,231 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VYNK | Perfil Inteligente</title>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/vynk-cards.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>{{nombre_perfil}} — VYNK</title>
+    <meta name="description" content="{{bio_text}}">
+    <meta property="og:title" content="{{nombre_perfil}}">
+    <meta property="og:description" content="{{bio_text}}">
+    <meta property="og:image" content="{{og_image}}">
+    <meta property="og:url" content="{{base_url}}/u/{{slug}}">
+    <meta property="og:type" content="profile">
+    <link rel="canonical" href="{{base_url}}/u/{{slug}}">
+    <link rel="icon" href="/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="/css/styles.css">
+    {{tema_css}}
+    <style>
+        /* VYNK perfil público — pantalla tipo teléfono dark */
+        html, body { margin: 0; padding: 0; }
+        body {
+            background: #0B0E14;
+            background-image:
+                radial-gradient(1200px 600px at 20% -10%, rgba(124, 58, 237, 0.16), transparent 60%),
+                radial-gradient(900px 500px at 110% 10%, rgba(122, 106, 240, 0.10), transparent 55%);
+            background-attachment: fixed;
+            color: #EEEAE0;
+            font-family: 'Inter', system-ui, sans-serif;
+            min-height: 100vh;
+        }
+        .vynk-public {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 24px 18px calc(40px + env(safe-area-inset-bottom));
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .hero-banner {
+            margin: 0 -18px;
+            border-radius: 0 0 24px 24px;
+            overflow: hidden;
+            max-height: 200px;
+        }
+        .hero-banner img { width: 100%; height: 200px; object-fit: cover; display: block; }
+
+        .vp-head { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 6px; padding-top: 8px; }
+        .avatar-wrapper { margin: 0 auto; }
+        .avatar-wrapper .avatar {
+            width: 96px; height: 96px; border-radius: 28px;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden; color: #FFF; font-weight: 700;
+        }
+        .avatar-wrapper .avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .name {
+            font-family: 'Space Grotesk', sans-serif !important;
+            font-size: clamp(22px, 6vw, 30px) !important;
+            font-weight: 700 !important;
+            letter-spacing: -0.03em !important;
+            color: #EEEAE0 !important;
+            margin: 8px 0 0 !important;
+            line-height: 1.15 !important;
+        }
+        .bio { color: #8C96A3 !important; font-size: 0.95rem !important; max-width: 380px !important; margin: 0 auto !important; line-height: 1.6 !important; }
+        .tags { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 8px; }
+        .tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px; letter-spacing: 0.03em;
+            color: #A78BFA; background: rgba(124, 58, 237, 0.14);
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            padding: 4px 10px; border-radius: 999px; text-transform: capitalize;
+        }
+
+        /* Botones de acción directa */
+        .action-buttons { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+        .action-btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 12px 18px; border-radius: 14px;
+            font-weight: 600; font-size: 0.9rem; text-decoration: none; color: #FFF;
+            background: #1A1F26; border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .action-btn:hover { transform: translateY(-2px); }
+        .action-btn.action-whatsapp { background: #25D366; border-color: #25D366; }
+        .action-btn.action-call { background: #5C48E6; border-color: #5C48E6; }
+        .action-btn.action-email { background: #7A6AF0; border-color: #7A6AF0; }
+
+        .blocks-section, .bento-links-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; width: 100%; box-sizing: border-box; }
+        @media (max-width: 480px) { .blocks-section, .bento-links-grid { grid-template-columns: 1fr; } }
+        .block-wrapper { min-width: 0; }
+        .block-wrapper.block-whatsapp, .block-wrapper.bento-hero, .block-wrapper.block-pago,
+        .block-wrapper.block-seccion, .block-wrapper.block-email, .block-wrapper.block-pdf,
+        .block-wrapper.has-bento-rich, .block-wrapper.block-ubicacion, .block-wrapper.bento-media { grid-column: 1 / -1; }
+
+        .vp-foot { margin-top: 12px; display: flex; flex-direction: column; gap: 14px; text-align: center; }
+        .vp-vcard {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 13px; border-radius: 14px; font-weight: 600; font-size: 0.9rem;
+            color: #EEEAE0; background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12); text-decoration: none;
+        }
+        .vp-vcard:hover { background: rgba(255, 255, 255, 0.1); }
+        .vp-meta {
+            font-family: 'JetBrains Mono', monospace; font-size: 11px;
+            color: #6B7280; display: flex; gap: 10px; justify-content: center; letter-spacing: 0.02em;
+        }
+        .vp-meta a { color: #A78BFA; text-decoration: none; }
+
+        @media (prefers-reduced-motion: reduce) {
+            * { animation: none !important; transition: none !important; }
+        }
+    </style>
 </head>
 <body>
-    <div id="vynk-app"></div>
+    <main class="vynk-public" data-perfil-id="{{perfil_id}}">
+        {{banner_html}}
 
-    <script src="/js/vynk-renderer.js"></script>
+        <section class="vp-head">
+            {{avatar_html}}
+            <h1 class="name">{{nombre_perfil}}</h1>
+            {{tags_html}}
+            {{bio_html}}
+        </section>
+
+        {{action_buttons_html}}
+
+        <section class="blocks-section bento-links-grid" id="bloques">
+            {{bloques_html}}
+        </section>
+
+        {{archivos_section_html}}
+
+        <footer class="vp-foot">
+            <a class="vp-vcard" href="{{base_url}}/api/perfiles/{{slug}}/vcard" data-action="descarga_vcard">
+                <i class="fas fa-address-card"></i> Guardar contacto (.vcf)
+            </a>
+            <div class="vp-meta">
+                <span><i class="fas fa-eye"></i> {{visitas}} visitas</span>
+                <a href="{{base_url}}/">Hecho con ⚡ VYNK</a>
+            </div>
+        </footer>
+    </main>
+
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const profileData = {
-                theme: {
-                    primaryColor: '#FBBF24',
-                    backgroundColor: '#0A0A0A'
-                },
-                header: {
-                    avatar: '/img/default-avatar.png',
-                    name: 'La Capital Local',
-                    bio: 'Medio digital independiente y periodismo hiperlocal.',
-                    badge: 'Verificado'
-                },
-                blocks: [
-                    {
-                        type: 'hero_link',
-                        title: 'Envía una denuncia',
-                        meta: 'Atención 24/7 vía WhatsApp',
-                        badge: 'WhatsApp',
-                        url: 'https://wa.me/1234567890'
-                    },
-                    {
-                        type: 'social_grid',
-                        items: [
-                            { icon: '📸', label: 'Instagram', url: '#' },
-                            { icon: '🐦', label: 'Twitter / X', url: '#' },
-                            { icon: '📺', label: 'YouTube', url: '#' },
-                            { icon: '📰', label: 'Boletín', url: '#' }
-                        ]
-                    },
-                    {
-                        type: 'location_map',
-                        title: '📍 Redacción Central',
-                        subtitle: 'Ven a visitarnos o calcula tu ruta.',
-                        locationName: 'Oficinas La Capital',
-                        address: 'Av. Reforma 123, Centro Histórico'
-                    }
-                ]
-            };
+        (function () {
+            const PERFIL_ID = Number(document.querySelector('.vynk-public')?.getAttribute('data-perfil-id')) || 0;
+            const API = '{{api_base}}';
 
-            // Iniciar renderizado
-            renderVynkProfile(profileData, 'vynk-app');
-        });
+            function track(evento) {
+                if (!PERFIL_ID) return;
+                try {
+                    fetch(API + '/api/estadisticas', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ perfil_id: PERFIL_ID, evento: evento }),
+                        keepalive: true
+                    }).catch(() => {});
+                } catch (e) {}
+            }
+
+            // 1. Registrar visita (una sola vez por perfil por sesión)
+            try {
+                const key = 'vynk_visit_{{slug}}';
+                if (!sessionStorage.getItem(key)) {
+                    sessionStorage.setItem(key, '1');
+                    track('visita');
+                }
+            } catch (e) { track('visita'); }
+
+            // 2. Clics en acciones (WhatsApp, llamar, mapa, archivos, redes...)
+            document.addEventListener('click', function (e) {
+                const el = e.target.closest('[data-action]');
+                if (el && el.getAttribute('data-action')) {
+                    track(el.getAttribute('data-action'));
+                }
+            });
+
+            // 3. Countdown blocks
+            document.querySelectorAll('.block-countdown[data-countdown]').forEach(function (box) {
+                const target = Number(box.getAttribute('data-countdown')) || 0;
+                function tick() {
+                    const diff = Math.max(0, target - Date.now());
+                    const d = Math.floor(diff / 86400000);
+                    const h = Math.floor((diff % 86400000) / 3600000);
+                    const m = Math.floor((diff % 3600000) / 60000);
+                    const s = Math.floor((diff % 60000) / 1000);
+                    const pad = function (n) { return String(n).padStart(2, '0'); };
+                    box.querySelector('.days').textContent = pad(d);
+                    box.querySelector('.hours').textContent = pad(h);
+                    box.querySelector('.minutes').textContent = pad(m);
+                    box.querySelector('.seconds').textContent = pad(s);
+                }
+                tick();
+                setInterval(tick, 1000);
+            });
+
+            // 4. Captura de email (bloques email_capture)
+            document.querySelectorAll('form[data-perfil]').forEach(function (form) {
+                form.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    const input = form.querySelector('input[type="email"]');
+                    const email = input ? input.value.trim() : '';
+                    if (!email) return;
+                    const pid = form.getAttribute('data-perfil');
+                    fetch(API + '/api/perfiles/' + pid + '/suscribir', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: email })
+                    }).then(function (r) { return r.json(); }).then(function (data) {
+                        const msg = data && data.ok
+                            ? '✅ ¡Suscrito correctamente!'
+                            : (data && data.error ? '⚠️ ' + data.error : '⚠️ No se pudo suscribir.');
+                        const oldBtn = form.querySelector('button[type="submit"]');
+                        if (oldBtn) { oldBtn.disabled = true; oldBtn.textContent = msg; }
+                    }).catch(function () {
+                        const oldBtn = form.querySelector('button[type="submit"]');
+                        if (oldBtn) { oldBtn.disabled = true; oldBtn.textContent = '⚠️ Error de red'; }
+                    });
+                });
+            });
+
+            // 5. Acordeones inteligentes (detalles) enlazados al tracking de mapa
+            document.querySelectorAll('.smart-accordion a[href*="maps"]').forEach(function (a) {
+                a.addEventListener('click', function () { track('click_mapa'); });
+            });
+        })();
     </script>
 </body>
 </html>
