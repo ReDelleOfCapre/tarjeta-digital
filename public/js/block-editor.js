@@ -398,6 +398,18 @@
       );
     }
 
+    if (block.tipo === "whatsapp") {
+      return (
+        '<div class="preview-row" style="border-left: 3px solid #25D366; background: rgba(37, 211, 102, 0.08);">' +
+          '<div class="preview-icon" style="background:#25D366;color:#fff;border-radius:10px;display:grid;place-items:center;width:34px;height:34px"><i class="fab fa-whatsapp"></i></div>' +
+          '<div class="preview-row-copy">' +
+            '<strong style="color:var(--phone-text)">' + escapeHtml(title || "WhatsApp Directo") + "</strong>" +
+            '<span style="color:#25D366;font-size:0.75rem">⚡ Responde rápido</span>' +
+          "</div>" +
+        "</div>"
+      );
+    }
+
     return (
       '<div class="preview-row">' +
         '<div class="preview-icon">' + blockIcon(block.tipo) + "</div>" +
@@ -656,8 +668,9 @@
       html += formField("URL", "bf-url", existing.url || "", "https://...");
       html += formField("Subtitulo", "bf-sub", existing.subtitulo || "", "Descripcion corta");
     } else if (tipo === "whatsapp") {
-      html += formField("Numero", "bf-tel", existing.numero || "", "5215555555555");
-      html += formField("Mensaje inicial", "bf-msg", existing.mensaje_default || "", "Hola, te contacto desde VYNK");
+      html += formField("Titulo", "bf-titulo", existing.titulo || "WhatsApp Directo", "Ej. Pedidos por WhatsApp");
+      html += formField("Numero (con lada)", "bf-tel", existing.numero || existing.url || "", "522311556138");
+      html += formField("Mensaje inicial predeterminado", "bf-msg", existing.mensaje_default || "", "Hola, quiero información sobre tus servicios");
     } else if (tipo === "social_icons") {
       html += '<div class="mono-note" style="color:var(--editor-muted);margin-bottom:12px">Completa solo las redes que vayas a mostrar.</div>';
       SOCIAL_TYPES.forEach(function (social) {
@@ -779,8 +792,11 @@
         showToast("El numero es obligatorio", "error");
         return null;
       }
+      var cleanNum = tel.replace(/[^0-9]/g, "");
       return {
-        numero: tel.replace(/[^0-9]/g, ""),
+        titulo: gv("bf-titulo") || "WhatsApp Directo",
+        numero: cleanNum,
+        url: "https://wa.me/" + cleanNum,
         mensaje_default: gv("bf-msg")
       };
     }

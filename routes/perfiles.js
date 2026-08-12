@@ -426,6 +426,78 @@ async function perfilPublicoHandler(req, res) {
 
     // ---- Agrupar todos los bloques de ubicación en un único mapa interactivo ----
     const locaciones = [];
+
+    // Helper: extract lat/lng from Google Maps URL
+    function extractCoordsFromUrl(url) {
+      if (!url) return { lat: null, lng: null };
+      // Try @lat,lng,zoom pattern
+      const atMatch = url.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+      if (atMatch) return { lat: parseFloat(atMatch[1]), lng: parseFloat(atMatch[2]) };
+      // Try q=lat,lng pattern
+      const qMatch = url.match(/[?&]q=(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+      if (qMatch) return { lat: parseFloat(qMatch[1]), lng: parseFloat(qMatch[2]) };
+      return { lat: null, lng: null };
+    }
+
+    // Helper: extract structured data from link-type ubicacion blocks
+    function extractLocationData(bContent) {
+      const titulo = bContent?.titulo || '';
+      const subtitulo = bContent?.subtitulo || '';
+      const url = bContent?.url || '';
+      
+      // Extract clean name: remove emoji prefix, and get the part before — or :
+      let nombre = titulo.replace(/^[📍🗺️🏠🏢🏪🚗\s]+/, '').trim();
+      let direccion = bContent?.direccion || '';
+      
+      // If title has " — " or " - ", split into name/address  
+      const dashSplit = nombre.match(/^(.+?)\s*[—–\-]\s*(.+)$/);
+      if (dashSplit) {
+        nombre = dashSplit[1].trim();
+        if (!direccion) direccion = dashSplit[2].trim();
+      }
+      
+      // Extract phone from subtitle: "Tel: (231) 312-2032 | ..."
+      let telefono = bContent?.telefono || '';
+      if (!telefono) {
+        const telMatch = subtitulo.match(/Tel[:\.]?\s*([(\d\s\-)+]+)/i);
+        if (telMatch) telefono = telMatch[1].trim();
+      }
+      
+      // Extract horario from subtitle: after "Servicio" or after "|"
+      let horario = bContent?.horario || '';
+      if (!horario) {
+        const horMatch = subtitulo.match(/(?:Servicio|Horario|Abierto)[:\s]*(.+)/i);
+        if (horMatch) horario = horMatch[1].trim();
+        else if (subtitulo.includes('|')) {
+          const parts = subtitulo.split('|').map(s => s.trim());
+          // Use the part that looks like hours (contains AM/PM or :)
+          const hourPart = parts.find(p => /\d{1,2}:\d{2}|AM|PM|am|pm/i.test(p));
+          if (hourPart) horario = hourPart.replace(/^(Servicio|Horario)\s*/i, '').trim();
+        }
+        if (!horario && subtitulo && !subtitulo.match(/Tel/i)) {
+          horario = subtitulo;
+        }
+      }
+      
+      // If no explicit address, use subtitle (cleaned of phone/hours)
+      if (!direccion) {
+        direccion = subtitulo.replace(/Tel[:\.]?\s*[(\d\s\-)+]+\s*\|?\s*/i, '').replace(/Servicio\s*.+/i, '').trim();
+        if (!direccion) direccion = nombre; // fallback to name
+      }
+      
+      // Extract coords from URL
+      const coords = extractCoordsFromUrl(url);
+      
+      return {
+        nombre: nombre || 'Sucursal',
+        direccion: direccion,
+        horario: horario,
+        telefono: telefono,
+        lat: bContent?.lat || coords.lat,
+        lng: bContent?.lng || coords.lng
+      };
+    }
+
     for (const bloque of bloques) {
       let bContent = {};
       try { bContent = typeof bloque.contenido === 'string' ? JSON.parse(bloque.contenido) || {} : (bloque.contenido || {}); } catch (e) { bContent = {}; }
@@ -449,14 +521,7 @@ async function perfilPublicoHandler(req, res) {
           });
         });
       } else {
-        locaciones.push({
-          nombre: bContent?.titulo || bContent?.nombre || (locaciones.length ? 'Sucursal' : 'Ubicación'),
-          direccion: bContent?.direccion || bContent?.subtitulo || '',
-          horario: bContent?.horario || bContent?.subtitulo || '',
-          telefono: bContent?.telefono || '',
-          lat: bContent?.lat,
-          lng: bContent?.lng
-        });
+        locaciones.push(extractLocationData(bContent));
       }
     }
     const mapaHtml = renderMapaUbicaciones(locaciones);
@@ -626,14 +691,17 @@ async function perfilPublicoHandler(req, res) {
               break;
             }
             case 'whatsapp': {
-              const waLink = `https://wa.me/${(bContent?.numero || '').replace(/[^0-9]/g, '')}${bContent?.mensaje_default ? `?text=${encodeURIComponent(bContent.mensaje_default)}` : ''}`;
-              inner += `<a href="${escapeHtml(waLink)}" target="_blank" rel="noopener" class="block-wa bento-hero-card">
-                <div class="bl-icon" style="background:#25D366;color:#fff"><i class="fab fa-whatsapp"></i></div>
+              const waNum = (bContent?.numero || bContent?.url || bContent?.telefono || '').replace(/[^0-9]/g, '');
+              const waLink = waNum ? `https://wa.me/${waNum}${bContent?.mensaje_default ? `?text=${encodeURIComponent(bContent.mensaje_default)}` : ''}` : '#';
+              const waTitle = bContent?.titulo || bContent?.texto || 'WhatsApp Directo';
+              const waSub = bContent?.subtitulo || (bContent?.mensaje_default ? `"${bContent.mensaje_default}"` : 'Atención e informes instantáneos');
+              inner += `<a href="${escapeHtml(waLink)}" target="_blank" rel="noopener" class="block-wa bento-hero-card" data-action="click_whatsapp">
+                <div class="bl-icon" style="background:#25D366;color:#fff;box-shadow:0 4px 16px rgba(37,211,102,0.35)"><i class="fab fa-whatsapp"></i></div>
                 <div class="bl-text">
-                  <div class="bl-title">${escapeHtml(bContent?.texto || 'WhatsApp Directo')}</div>
-                  <div class="bl-sub">Atención e informes instantáneos</div>
+                  <div class="bl-title" style="font-weight:700;font-size:1.05rem;color:var(--text-primary,#FFF);font-family:'Space Grotesk',sans-serif">${escapeHtml(waTitle)}</div>
+                  <div class="bl-sub" style="font-size:0.85rem;color:var(--text-secondary,#94A3B8);margin-top:2px">${escapeHtml(waSub)}</div>
                 </div>
-                <span class="bento-badge">⚡ Responde rápido</span>
+                <span class="bento-badge" style="background:rgba(37,211,102,0.18);color:#25D366;border:1px solid rgba(37,211,102,0.3)">⚡ Responde rápido</span>
               </a>`;
               break;
             }
@@ -972,6 +1040,7 @@ function generateActionButtons(perfil, campos) {
       <a href="mailto:${escapeHtml(email.valor)}" class="action-btn action-email" data-action="click_email">
         <i class="fas fa-envelope action-icon"></i> Email
       </a>`);
+  }
   buttons.push(`
     <button type="button" onclick="openBookingModal()" class="action-btn action-booking" style="background:linear-gradient(135deg,#7C3AED,#0A84FF);border:none;color:#fff;cursor:pointer">
       <i class="fas fa-calendar-check action-icon"></i> Agendar Cita 📅
