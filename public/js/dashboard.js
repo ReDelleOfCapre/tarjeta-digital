@@ -463,25 +463,7 @@ window.executeCreatePerfil = async function(e) {
     });
   };
 
-  // Apple Spotlight Cmd+K Listener
-  document.addEventListener('keydown', function(e) {
-    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
-      e.preventDefault();
-      var modal = document.getElementById('spotlight-modal');
-      if (modal) {
-        modal.classList.toggle('hidden');
-        if (!modal.classList.contains('hidden')) {
-          var input = document.getElementById('spotlight-input');
-          if (input) input.focus();
-        }
-      }
-    } else if (e.key === 'Escape') {
-      var modal = document.getElementById('spotlight-modal');
-      if (modal && !modal.classList.contains('hidden')) {
-        modal.classList.add('hidden');
-      }
-    }
-  });
+  // Touch-optimized navigation for iOS / Mobile devices
 
   document.addEventListener('click', function(e) {
     var btn = e.target.closest('[data-action]');

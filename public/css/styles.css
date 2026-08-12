@@ -7,6 +7,39 @@
 
 /* ---- CSS Custom Properties: TODOS los tokens viven en tokens.css (fuente única). ---- */
 
+/* ==========================================================================
+   iOS / IPHONE 100% NATIVE TOUCH & PERFORMANCE OPTIMIZATIONS
+   ========================================================================== */
+html, body {
+  -webkit-tap-highlight-color: transparent !important;
+  touch-action: manipulation !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+@media screen and (max-width: 768px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="tel"],
+  input[type="url"],
+  input[type="time"],
+  select,
+  textarea,
+  .form-input {
+    font-size: 16px !important;
+  }
+  
+  body {
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 24px);
+  }
+  
+  .tesla-action-dock, .quick-resume-bar {
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
 body {
   background-color: var(--canvas);
   color: var(--ink);
@@ -1244,6 +1277,42 @@ p, .bio, .lede, .description, .card-desc {
     padding-bottom: 8px !important;
     -webkit-overflow-scrolling: touch !important;
   }
+@media (max-width: 768px) {
+  .editor-layout {
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 16px 12px !important;
+  }
+  .preview-sticky-panel {
+    position: relative !important;
+    top: 0 !important;
+    width: 100% !important;
+    margin-top: 24px !important;
+  }
+  .smartphone-frame {
+    margin: 0 auto !important;
+    max-width: 100% !important;
+  }
+  .wizard-bottom-nav {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    background: rgba(18, 18, 22, 0.94) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px)) !important;
+    z-index: 9999 !important;
+    display: flex !important;
+    gap: 12px !important;
+  }
+  .wizard-bottom-nav button {
+    flex: 1 !important;
+    min-height: 48px !important;
+    font-size: 1rem !important;
+  }
+}
+
   .selling-card-item {
     min-width: 140px !important;
     scroll-snap-align: start !important;
