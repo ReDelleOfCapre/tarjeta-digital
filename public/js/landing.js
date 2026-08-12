@@ -3,12 +3,16 @@
 // ============================================
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Redirect if logged in (ignora el token demo para que el login/registro siga accesible)
+  // Si está autenticado, transformar el botón del nav para ir directo al Dashboard sin bloquear navegación a inicio
   const existingToken = localStorage.getItem('token');
   const isDemoToken = existingToken && (existingToken === 'vynk_demo_active_token' || existingToken.startsWith('vynk_demo_'));
   if (existingToken && !isDemoToken) {
-    window.location.href = '/dashboard.html';
-    return;
+    const navAuthBtn = document.querySelector('a[href="#auth"]');
+    if (navAuthBtn) {
+      navAuthBtn.href = '/dashboard.html';
+      navAuthBtn.innerHTML = '🪪 Ir a mi Dashboard';
+      navAuthBtn.removeAttribute('data-tab');
+    }
   }
 
   // Handle URL params (e.g. ?plan=pro)
