@@ -9,6 +9,8 @@ const { uploadImage } = require('../middleware/upload');
 const { generateUniqueSlug } = require('../utils/slug');
 const { generateQR } = require('../utils/qr');
 const { generateVCard } = require('../utils/vcard');
+const { renderMapaUbicaciones } = require('../utils/mapaUbicaciones');
+const { buildThemeCss } = require('../utils/temas');
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 
@@ -378,7 +380,7 @@ async function perfilPublicoHandler(req, res) {
     const archivos = await db.prepare('SELECT * FROM archivos WHERE perfil_id = ? ORDER BY fecha_subida DESC').all(perfil.id) || [];
 
     const color = escapeHtml(perfil.color || '#007AFF');
-    const themeCss = `:root { --primary: ${color}; --accent: ${color}; }`;
+    const themeCss = buildThemeCss(perfil.tema, perfil.color || '#007AFF');
 
     const marcoStyle = perfil.marco_estilo || 'solid';
     let wrapperStyle = '';
@@ -422,6 +424,44 @@ async function perfilPublicoHandler(req, res) {
 
     const bloques = await db.prepare('SELECT * FROM bloques WHERE perfil_id = ? AND visible = 1 ORDER BY orden ASC').all(perfil.id) || [];
 
+    // ---- Agrupar todos los bloques de ubicación en un único mapa interactivo ----
+    const locaciones = [];
+    for (const bloque of bloques) {
+      let bContent = {};
+      try { bContent = typeof bloque.contenido === 'string' ? JSON.parse(bloque.contenido) || {} : (bloque.contenido || {}); } catch (e) { bContent = {}; }
+      const blockType = bloque.block_type || bloque.tipo || 'link';
+      const urlStr = bContent?.url || '';
+      const titStr = bContent?.titulo || '';
+      const isLoc = blockType === 'ubicacion' || blockType === 'location' || blockType === 'ubicaciones'
+        || urlStr.includes('maps.google.com') || urlStr.includes('google.com/maps')
+        || (titStr && (titStr.toLowerCase().includes('ubicacion') || titStr.toLowerCase().includes('mapa') || titStr.toLowerCase().includes('sucursal')));
+      if (!isLoc) continue;
+      if (blockType === 'ubicaciones' && Array.isArray(bContent?.sucursales)) {
+        bContent.sucursales.forEach(s => {
+          if (!s) return;
+          locaciones.push({
+            nombre: s.nombre || s.titulo || 'Sucursal',
+            direccion: s.direccion || '',
+            horario: s.horario || '',
+            telefono: s.telefono || '',
+            lat: s.lat,
+            lng: s.lng
+          });
+        });
+      } else {
+        locaciones.push({
+          nombre: bContent?.titulo || bContent?.nombre || (locaciones.length ? 'Sucursal' : 'Ubicación'),
+          direccion: bContent?.direccion || bContent?.subtitulo || '',
+          horario: bContent?.horario || bContent?.subtitulo || '',
+          telefono: bContent?.telefono || '',
+          lat: bContent?.lat,
+          lng: bContent?.lng
+        });
+      }
+    }
+    const mapaHtml = renderMapaUbicaciones(locaciones);
+    let mapaInyectado = false;
+
     let bloques_html = '';
     if (bloques.length > 0) {
       bloques_html = bloques.map(bloque => {
@@ -443,6 +483,15 @@ async function perfilPublicoHandler(req, res) {
           const bentoClass = (blockType === 'whatsapp' || blockType === 'pago' || blockType === 'email_capture' || blockType === 'ubicaciones' || isLocationBlock || hasRichImage)
             ? ' bento-hero'
             : (blockType === 'pdf' ? ' bento-media' : (isSocialLink ? ' bento-social' : ' bento-hero'));
+
+          const esBloqueUbicacion = blockType === 'ubicacion' || blockType === 'location' || blockType === 'ubicaciones' || isLocationBlock;
+          if (esBloqueUbicacion) {
+            if (!mapaInyectado && mapaHtml) {
+              mapaInyectado = true;
+              return mapaHtml;
+            }
+            return '';
+          }
 
           let inner = '';
 
@@ -569,16 +618,16 @@ async function perfilPublicoHandler(req, res) {
             case 'youtube':
             case 'tweet':
             case 'tiktok':
-              html += `<div class="block-embed">${bContent?.embed_html || ''}</div>`;
+              inner += `<div class="block-embed">${bContent?.embed_html || ''}</div>`;
               break;
             case 'texto': {
               const tStyle = bContent?.estilo === 'cita' ? 't-cita' : bContent?.estilo === 'titulo' ? 't-titulo' : 't-normal';
-              html += `<div class="block-text ${tStyle}">${escapeHtml(bContent?.texto || '')}</div>`;
+              inner += `<div class="block-text ${tStyle}">${escapeHtml(bContent?.texto || '')}</div>`;
               break;
             }
             case 'whatsapp': {
               const waLink = `https://wa.me/${(bContent?.numero || '').replace(/[^0-9]/g, '')}${bContent?.mensaje_default ? `?text=${encodeURIComponent(bContent.mensaje_default)}` : ''}`;
-              html += `<a href="${escapeHtml(waLink)}" target="_blank" rel="noopener" class="block-wa bento-hero-card">
+              inner += `<a href="${escapeHtml(waLink)}" target="_blank" rel="noopener" class="block-wa bento-hero-card">
                 <div class="bl-icon" style="background:#25D366;color:#fff"><i class="fab fa-whatsapp"></i></div>
                 <div class="bl-text">
                   <div class="bl-title">${escapeHtml(bContent?.texto || 'WhatsApp Directo')}</div>
@@ -589,23 +638,23 @@ async function perfilPublicoHandler(req, res) {
               break;
             }
             case 'social_icons': {
-              html += `<div class="block-socials">`;
+              inner += `<div class="block-socials">`;
               const redes = Array.isArray(bContent?.redes) ? bContent.redes : [];
               redes.forEach(red => {
                 if (red && red.url) {
                   const icon = getFieldIcon(red.tipo);
                   const color = getFieldColor(red.tipo);
                   const link = getFieldLink({ tipo: red.tipo, valor: red.url });
-                  html += `<a href="${escapeHtml(link)}" target="_blank" rel="noopener" class="social-icon" style="background: ${color};" title="${escapeHtml(red.tipo || '')}">
+                  inner += `<a href="${escapeHtml(link)}" target="_blank" rel="noopener" class="social-icon" style="background: ${color};" title="${escapeHtml(red.tipo || '')}">
                     ${icon}
                   </a>`;
                 }
               });
-              html += `</div>`;
+              inner += `</div>`;
               break;
             }
             case 'email_capture':
-              html += `<div class="block-email">
+              inner += `<div class="block-email">
                 <form data-perfil="${perfil.id}">
                   ${bContent?.titulo ? `<h3>${escapeHtml(bContent.titulo)}</h3>` : ''}
                   <div class="email-form-group">
@@ -616,22 +665,22 @@ async function perfilPublicoHandler(req, res) {
               </div>`;
               break;
             case 'galeria': {
-              html += `<div class="block-gallery">`;
+              inner += `<div class="block-gallery">`;
               const imagenes = Array.isArray(bContent?.imagenes) ? bContent.imagenes : [];
               imagenes.forEach(img => {
                 if (img && img.url) {
-                  html += `<div class="gallery-item">
+                  inner += `<div class="gallery-item">
                     <img src="${escapeHtml(img.url)}" alt="Galería">
                     ${img.caption ? `<div class="gallery-caption">${escapeHtml(img.caption)}</div>` : ''}
                   </div>`;
                 }
               });
-              html += `</div>`;
+              inner += `</div>`;
               break;
             }
             case 'countdown': {
               const targetDate = bContent?.fecha_fin ? new Date(bContent.fecha_fin).getTime() : Date.now();
-              html += `<div class="block-countdown" data-countdown="${targetDate}">
+              inner += `<div class="block-countdown" data-countdown="${targetDate}">
                 ${bContent?.titulo ? `<h3>${escapeHtml(bContent.titulo)}</h3>` : ''}
                 <div class="cd-digits">
                   <div class="cd-unit"><div class="cd-num days">00</div><div class="cd-lbl">Días</div></div>
@@ -643,7 +692,7 @@ async function perfilPublicoHandler(req, res) {
               break;
             }
             case 'pdf':
-              html += `<a href="${escapeHtml(bContent?.url || '#')}" target="_blank" rel="noopener" class="block-link block-pdf bento-media-card">
+              inner += `<a href="${escapeHtml(bContent?.url || '#')}" target="_blank" rel="noopener" class="block-link block-pdf bento-media-card">
                 <div class="bl-icon" style="background:rgba(239,68,68,0.15);color:#EF4444"><i class="fas fa-file-pdf"></i></div>
                 <div class="bl-text">
                   <div class="bl-title">${escapeHtml(bContent?.titulo || 'Documento PDF')}</div>
@@ -653,7 +702,7 @@ async function perfilPublicoHandler(req, res) {
               </a>`;
               break;
             case 'pago':
-              html += `<div class="block-pago">
+              inner += `<div class="block-pago">
                 <div class="pago-header">
                   <div class="pago-icon"><i class="fas fa-credit-card"></i></div>
                   <div>
@@ -669,7 +718,7 @@ async function perfilPublicoHandler(req, res) {
               </div>`;
               break;
             case 'nota':
-              html += `<div class="block-nota">
+              inner += `<div class="block-nota">
                 <i class="fas fa-thumbtack nota-icon"></i>
                 <div>${escapeHtml(bContent?.texto || '')}</div>
               </div>`;
@@ -677,7 +726,7 @@ async function perfilPublicoHandler(req, res) {
             case 'ubicacion':
             case 'location': {
               const locationQuery = bContent?.direccion || bContent?.url || bContent?.titulo || 'Ubicación';
-              html += `<div class="block-ubicacion" style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:18px;padding:14px;margin-bottom:12px">
+              inner += `<div class="block-ubicacion" style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:18px;padding:14px;margin-bottom:12px">
                 <div style="font-weight:700;font-size:0.95rem;margin-bottom:8px;display:flex;align-items:center;gap:8px">📍 <span>${escapeHtml(bContent?.titulo || 'Nuestra Ubicación')}</span></div>
                 <iframe width="100%" height="160" style="border:0;border-radius:12px;margin-bottom:10px" loading="lazy" src="https://maps.google.com/maps?q=${encodeURIComponent(locationQuery)}&output=embed"></iframe>
                 <div style="display:flex;gap:8px">
@@ -688,10 +737,10 @@ async function perfilPublicoHandler(req, res) {
               break;
             }
             case 'seccion':
-              html += `<div class="block-section-title">${escapeHtml(bContent?.titulo || '')}</div>`;
+              inner += `<div class="block-section-title">${escapeHtml(bContent?.titulo || '')}</div>`;
               break;
             default:
-              html += `<div class="block-unsupported">Bloque: ${escapeHtml(blockType)}</div>`;
+              inner += `<div class="block-unsupported">Bloque: ${escapeHtml(blockType)}</div>`;
           }
 
           if (!inner || !inner.trim()) return '';

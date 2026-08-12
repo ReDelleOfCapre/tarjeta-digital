@@ -11,7 +11,7 @@
   <link rel="manifest" href="manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/tokens.css">
   <link rel="stylesheet" href="css/styles.css">
   <style>
     :root {
@@ -33,9 +33,9 @@
       justify-content: space-between;
       align-items: center;
       padding: 1rem 2rem;
-      background: rgba(15, 11, 30, 0.9);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(255,255,255,0.1);
+      background: var(--glass-bg);
+      backdrop-filter: var(--glass-blur);
+      border-bottom: 1px solid var(--line);
     }
     .navbar a {
       color: var(--text-light);
@@ -58,7 +58,7 @@
       margin-bottom: 1rem;
     }
     .hero p {
-      color: #9CA3AF;
+      color: var(--text-secondary);
       font-size: 1.1rem;
       max-width: 600px;
       margin: 0 auto;
@@ -144,7 +144,7 @@
     }
     .plan-price span {
       font-size: 1rem;
-      color: #9CA3AF;
+      color: var(--text-secondary);
       font-weight: normal;
     }
     .plan-features {
@@ -157,7 +157,7 @@
       padding: 0.5rem 0;
       display: flex;
       align-items: center;
-      color: #D1D5DB;
+      color: var(--text-main);
     }
     .plan-features li::before {
       content: '✓';

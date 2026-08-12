@@ -14,10 +14,14 @@
   var visitsChartInstance = null;
   var eventsChartInstance = null;
 
-  // Colors tailored to VYNK 4.0 Light Brand DNA
-  var textColor = '#1D1830';
-  var gridColor = 'rgba(29,24,48,0.08)';
-  var isDark = false;
+  // Colors derived from the active theme (Clarity: data legible en cualquier tema)
+  function cssVar(name, fallback) {
+    var val = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    return val || fallback;
+  }
+  var isDark = (document.documentElement.getAttribute('data-theme') === 'dark');
+  var textColor = isDark ? '#F5F5F7' : '#1D1830';
+  var gridColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(29,24,48,0.08)';
 
   // Format event names for display
   function formatEventName(evento) {

@@ -1,7 +1,7 @@
 /* Legal pages use the same light VYNK system as the landing and app. */
 .legal-page { min-height: 100dvh; background: var(--canvas, #FBF9FF); color: var(--ink, #1D1830); font-family: var(--font-body, Inter, sans-serif); }
 .legal-page *, .legal-page *::before, .legal-page *::after { box-sizing: border-box; }
-.legal-page .legal-nav { position: sticky; top: 0; z-index: 10; background: rgba(251,249,255,.84); backdrop-filter: blur(16px) saturate(150%); border-bottom: 1px solid var(--line, rgba(29,24,48,.1)); }
+.legal-page .legal-nav { position: sticky; top: 0; z-index: 10; background: var(--glass-bg, rgba(251,249,255,.84)); backdrop-filter: var(--glass-blur, blur(16px) saturate(150%)); border-bottom: 1px solid var(--line, rgba(29,24,48,.1)); }
 .legal-page .legal-nav-inner, .legal-page .legal-shell { width: min(100% - 40px, 880px); margin-inline: auto; }
 .legal-page .legal-nav-inner { min-height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .legal-page .legal-brand { display: inline-flex; align-items: center; gap: 10px; color: var(--ink, #1D1830); font-family: var(--font-heading, 'Space Grotesk', sans-serif); font-size: 18px; font-weight: 700; text-decoration: none; }

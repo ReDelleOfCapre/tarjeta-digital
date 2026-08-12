@@ -68,6 +68,42 @@
       name: "Velvet",
       note: "Contraste profundo",
       preview: "linear-gradient(135deg, #261229, #53205B)"
+    },
+    {
+      id: "forest",
+      name: "Bosque",
+      note: "Natural y calmado",
+      preview: "linear-gradient(135deg, #0F231B, #2F6B4F)"
+    },
+    {
+      id: "sunset",
+      name: "Atardecer",
+      note: "Calido al anochecer",
+      preview: "linear-gradient(135deg, #2A1220, #CD5C2B)"
+    },
+    {
+      id: "midnight",
+      name: "Medianoche",
+      note: "Azul profundo y sereno",
+      preview: "linear-gradient(135deg, #0B1430, #36A3F5)"
+    },
+    {
+      id: "champagne",
+      name: "Champagne",
+      note: "Claro, calido y elegante",
+      preview: "linear-gradient(135deg, #F7EFDE, #C9B279)"
+    },
+    {
+      id: "mint",
+      name: "Menta",
+      note: "Fresco y luminoso",
+      preview: "linear-gradient(135deg, #E8F4EC, #7FBF9C)"
+    },
+    {
+      id: "rose",
+      name: "Rosa",
+      note: "Suave y romantico",
+      preview: "linear-gradient(135deg, #FBE9EE, #E05E8C)"
     }
   ];
 
@@ -482,6 +518,84 @@
         muted: "rgba(248,244,239,0.68)",
         primary: primary,
         secondary: mixHex(primary, "#F7D08A", 0.46),
+        onPrimary: readableText(primary)
+      };
+    }
+
+    if (themeId === "forest") {
+      return {
+        background: mixHex(primary, "#0F231B", 0.86),
+        surface: mixHex(primary, "#1B3A2B", 0.78),
+        card: mixHex(primary, "#2C533F", 0.66),
+        text: "#F2F5EC",
+        muted: "rgba(242,245,236,0.68)",
+        primary: primary,
+        secondary: mixHex(primary, "#8FD0A8", 0.48),
+        onPrimary: readableText(primary)
+      };
+    }
+
+    if (themeId === "sunset") {
+      return {
+        background: mixHex(primary, "#241018", 0.84),
+        surface: mixHex(primary, "#3A1B22", 0.74),
+        card: mixHex(primary, "#6E2F24", 0.6),
+        text: "#FFF6EF",
+        muted: "rgba(255,246,239,0.68)",
+        primary: primary,
+        secondary: mixHex(primary, "#FFB27A", 0.5),
+        onPrimary: readableText(primary)
+      };
+    }
+
+    if (themeId === "midnight") {
+      return {
+        background: mixHex(primary, "#070D22", 0.9),
+        surface: mixHex(primary, "#14203F", 0.8),
+        card: mixHex(primary, "#213258", 0.68),
+        text: "#F4F6FF",
+        muted: "rgba(244,246,255,0.68)",
+        primary: primary,
+        secondary: mixHex(primary, "#7FD8FF", 0.45),
+        onPrimary: readableText(primary)
+      };
+    }
+
+    if (themeId === "champagne") {
+      return {
+        background: "#F3EADB",
+        surface: "#FFFBEF",
+        card: "#EFE1C6",
+        text: "#2C2418",
+        muted: "#7A6A50",
+        primary: primary,
+        secondary: mixHex(primary, "#E7C99A", 0.5),
+        onPrimary: readableText(primary)
+      };
+    }
+
+    if (themeId === "mint") {
+      return {
+        background: "#E9F4EE",
+        surface: "#FFFFFF",
+        card: "#DDEFE4",
+        text: "#16301F",
+        muted: "#4F7260",
+        primary: primary,
+        secondary: mixHex(primary, "#A9E2C4", 0.5),
+        onPrimary: readableText(primary)
+      };
+    }
+
+    if (themeId === "rose") {
+      return {
+        background: "#FBEAF0",
+        surface: "#FFFFFF",
+        card: "#F6DCE7",
+        text: "#33202A",
+        muted: "#7A5666",
+        primary: primary,
+        secondary: mixHex(primary, "#F4A8C4", 0.45),
         onPrimary: readableText(primary)
       };
     }

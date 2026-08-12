@@ -1,0 +1,208 @@
+/* ==========================================================================
+   VYNK — Apple Visual DNA Design System Tokens (tokens.css)
+   Pillars: Clarity · Deference · Depth
+   Fuente única de tokens (regla 3). Todas las páginas heredan de aquí.
+   :root = tema claro (marca/landing/legal/planes/perfil claro)
+   html[data-theme="dark"] = tema dark-first (dashboard/analytics/compartir/editor)
+   ========================================================================== */
+
+:root {
+  /* --- Typography --- */
+  --font-apple: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", system-ui, sans-serif;
+  --font-family: var(--font-apple);
+  --font-heading: "SF Pro Display", -apple-system, "Inter", sans-serif;
+  --font-body: "SF Pro Text", -apple-system, "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", SFMono-Regular, Menlo, monospace;
+  --font-display: "SF Pro Display", -apple-system, "Inter", sans-serif;
+
+  /* Typography Scale */
+  --fs-hero: clamp(40px, 6vw, 64px);
+  --fs-h1: clamp(28px, 4vw, 40px);
+  --fs-h2: clamp(22px, 3vw, 32px);
+  --fs-h3: clamp(18px, 2.2vw, 24px);
+  --fs-body: 17px;
+  --fs-sub: 14.5px;
+  --fs-caption: 13px;
+
+  /* --- Color Palette — Light (VYNK marca) --- */
+  --bg-base: #FBF9FF;
+  --bg-elevated: #FFFFFF;
+  --bg-surface: #FFFFFF;
+  --bg-glass: rgba(255, 255, 255, 0.72);
+  --border-hairline: rgba(29, 24, 48, 0.10);
+  --border-subtle: rgba(29, 24, 48, 0.14);
+
+  --text-primary: #1D1830;
+  --text-secondary: #645C7A;
+  --text-tertiary: #887FA8;
+  --text-muted: #645C7A;
+  --text-main: var(--text-primary);
+
+  /* Primary Accent & Pastels */
+  --accent-blue: #5C48E6;
+  --accent-mint: #9FD8C4;
+  --accent-lilac: #C9BFF2;
+
+  /* Universal Semantic Tokens */
+  --primary: var(--accent-blue);
+  --accent: var(--accent-blue);
+  --accent-deep: #5C48E6;
+  --tint: #EEEAFC;
+  --canvas: var(--bg-base);
+  --paper: var(--bg-elevated);
+  --line: var(--border-hairline);
+  --peach: #FFD9BE;
+
+  --green: #10B981;
+  --orange: #F59E0B;
+  --red: #EF4444;
+  --purple: #8B5CF6;
+  --pink: #EC4899;
+
+  /* --- Legacy VYNK aliases (back-compat) --- */
+  --ink: var(--text-primary);
+  --ink-soft: var(--text-secondary);
+  --text: var(--text-primary);
+  --border: var(--line);
+  --bg-primary: var(--canvas);
+  --bg-secondary: var(--tint);
+  --bg-tertiary: var(--paper);
+  --bg-card: var(--paper);
+  --card-border: var(--line);
+  --card-blur: 14px;
+  --card-shadow: 0 10px 24px -10px rgba(92, 72, 230, 0.15);
+  --secondary: var(--tint);
+  --accent-glow: rgba(122, 106, 240, 0.15);
+  --separator: var(--line);
+  --overlay: rgba(29, 24, 48, 0.7);
+
+  /* --- 8pt Grid Spacing Scale --- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-24: 96px;
+  --space-xs: var(--space-2);
+  --space-sm: var(--space-4);
+  --space-md: var(--space-6);
+  --space-lg: var(--space-8);
+  --space-xl: var(--space-12);
+
+  /* --- Border Radius Scale --- */
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-card: 20px;
+  --radius-btn: 12px;
+  --radius-pill: 999px;
+  --radius-full: 50%;
+
+  /* --- Motion & Easing --- */
+  --ease-apple: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-magnetic: cubic-bezier(0.25, 1, 0.5, 1);
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* --- Liquid Glass Surface Tokens --- */
+  --glass-bg: rgba(255, 255, 255, 0.72);
+  --glass-border: 1px solid rgba(29, 24, 48, 0.12);
+  --glass-blur: blur(24px) saturate(180%);
+  --glass-shadow: 0 8px 32px 0 rgba(29, 24, 48, 0.12);
+
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(29, 24, 48, 0.06);
+  --shadow-md: 0 8px 24px rgba(29, 24, 48, 0.10);
+  --shadow-lg: 0 16px 40px rgba(29, 24, 48, 0.16);
+
+  color-scheme: light;
+}
+
+/* Specificity html[data-theme="dark"] (0,1,1) beats :root (0,1,0) en styles.css */
+html[data-theme="dark"] {
+  /* --- Color Palette — Dark-First (pantallas app) --- */
+  --bg-base: #0A0A0C;
+  --bg-elevated: #151517;
+  --bg-surface: #1C1C1E;
+  --bg-glass: rgba(255, 255, 255, 0.06);
+  --border-hairline: rgba(255, 255, 255, 0.08);
+  --border-subtle: rgba(255, 255, 255, 0.12);
+
+  --text-primary: #F5F5F7;
+  --text-secondary: #98989D;
+  --text-tertiary: #6E6E73;
+  --text-muted: #6E6E73;
+  --text-main: var(--text-primary);
+
+  --accent-blue: #0A84FF;
+  --accent-mint: #C9F2E4;
+  --accent-lilac: #E4D9F7;
+
+  --primary: var(--accent-blue);
+  --accent: var(--accent-blue);
+  --accent-deep: #0066CC;
+  --tint: rgba(10, 132, 255, 0.15);
+  --canvas: var(--bg-base);
+  --paper: var(--bg-elevated);
+  --line: var(--border-hairline);
+  --peach: #FFD9BE;
+
+  --green: #30D158;
+  --orange: #FF9F0A;
+  --red: #FF453A;
+  --purple: #BF5AF2;
+  --pink: #FF375F;
+
+  /* Legacy VYNK aliases dark */
+  --ink: var(--text-primary);
+  --ink-soft: var(--text-secondary);
+  --text: var(--text-primary);
+  --border: var(--line);
+  --bg-primary: var(--canvas);
+  --bg-secondary: var(--bg-elevated);
+  --bg-tertiary: var(--bg-elevated);
+  --bg-card: var(--bg-elevated);
+  --card-border: var(--line);
+  --card-shadow: 0 10px 24px -10px rgba(0, 0, 0, 0.5);
+  --secondary: rgba(255, 255, 255, 0.08);
+  --accent-glow: rgba(10, 132, 255, 0.18);
+  --separator: var(--line);
+  --overlay: rgba(0, 0, 0, 0.72);
+
+  --glass-bg: rgba(255, 255, 255, 0.06);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.10);
+  --glass-blur: blur(24px) saturate(180%);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.36);
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.5);
+
+  color-scheme: dark;
+}
+
+/* Base Body Styling */
+body {
+  background-color: var(--canvas);
+  color: var(--ink);
+  font-family: var(--font-apple);
+  font-size: var(--fs-body);
+  line-height: 1.5;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Glass Surface Utility */
+.glass-surface {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}

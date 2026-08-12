@@ -130,51 +130,14 @@ window.executeAssignClient = async function(e) {
 // ============================================
 window.openCreateModal = function() {
   editPerfilId = null;
-  var modal = document.getElementById('modal-perfiles');
-  if (modal) {
-    modal.classList.remove('hidden');
-    modal.style.display = 'flex';
-    var inputNombre = document.getElementById('create-perfil-nombre');
-    if (inputNombre) inputNombre.focus();
-  }
+  // El editor visual completo vive en editor.html (diseño Apple Wallet + guardado real).
+  window.location.href = '/editor.html';
 };
 
 window.openEditModal = async function(id) {
   editPerfilId = id;
-  var modal = document.getElementById('modal-perfiles');
-  if (!modal) return;
-  modal.classList.remove('hidden');
-  modal.style.display = 'flex';
-  try {
-    var p = await api('/perfiles/' + id);
-    if (p) {
-      var n = document.getElementById('create-perfil-nombre');
-      var s = document.getElementById('create-perfil-slug');
-      var t = document.getElementById('create-perfil-tipo');
-      var b = document.getElementById('create-perfil-bio');
-      var wa = document.getElementById('create-perfil-wa');
-      var ig = document.getElementById('create-perfil-ig');
-      var web = document.getElementById('create-perfil-web');
-      var cumple = document.getElementById('create-perfil-cumple');
-      var estudios = document.getElementById('create-perfil-estudios');
-      var pronombres = document.getElementById('create-perfil-pronombres');
-      var tema = document.getElementById('create-perfil-tema');
-
-      if (n) { n.value = p.nombre_perfil || ''; n.dispatchEvent(new Event('input')); }
-      if (s) s.value = p.slug || '';
-      if (t) t.value = p.tipo || 'personal';
-      if (b) { b.value = p.bio || ''; b.dispatchEvent(new Event('input')); }
-      if (wa) { wa.value = p.whatsapp || ''; wa.dispatchEvent(new Event('input')); }
-      if (ig) { ig.value = p.instagram || ''; ig.dispatchEvent(new Event('input')); }
-      if (web) { web.value = p.sitio_web || ''; web.dispatchEvent(new Event('input')); }
-      if (cumple) cumple.value = p.cumpleanos || '';
-      if (estudios) estudios.value = p.estudios || '';
-      if (pronombres) pronombres.value = p.pronombres || '';
-      if (tema) tema.value = p.tema_color || 'neon';
-    }
-  } catch (err) {
-    console.error('Error al cargar perfil para edición:', err);
-  }
+  // Edición completa vía el editor visual (mantiene preview = tarjeta publicada).
+  window.location.href = '/editor.html?id=' + encodeURIComponent(id);
 };
 
 window.closeCreateModal = function() {
@@ -602,28 +565,28 @@ window.executeCreatePerfil = async function(e) {
         ? (p.foto_url.startsWith('http') || p.foto_url.startsWith('data:image') ? p.foto_url : (p.foto_url.startsWith('/') ? p.foto_url : '/' + p.foto_url))
         : '';
       var avatarHtml = fotoUrl
-        ? '<div class="avatar avatar-md" style="border:2px solid ' + color + ';flex-shrink:0"><img src="' + fotoUrl + '" alt="" onerror="this.onerror=null;this.src=\'/img/default-avatar.png\';"></div>'
-        : '<div class="avatar avatar-md" style="background:' + color + ';flex-shrink:0">' + initials + '</div>';
+        ? '<div class="avatar avatar-md" style="border:1px solid var(--border-hairline);border-radius:50%;flex-shrink:0;width:44px;height:44px;overflow:hidden"><img src="' + fotoUrl + '" alt="" style="width:100%;height:100%;object-fit:cover" onerror="this.onerror=null;this.src=\'/img/default-avatar.png\';"></div>'
+        : '<div class="avatar avatar-md" style="background:rgba(255,255,255,0.08);border:1px solid var(--border-hairline);border-radius:50%;flex-shrink:0;width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--text-primary)">' + initials + '</div>';
 
-      return '<div class="profile-card" onclick="openEditModal(' + p.id + ')">' +
+      return '<div class="profile-card glass-card" onclick="openEditModal(' + p.id + ')" style="background:var(--bg-elevated);border:1px solid var(--border-hairline);border-radius:20px;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;box-shadow:0 8px 30px rgba(0,0,0,0.35);transition:transform 200ms cubic-bezier(0.4, 0, 0.2, 1);cursor:pointer">' +
         avatarHtml +
-        '<div class="card-info" style="flex:1;min-width:0;padding:0 8px">' +
-          '<div class="card-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + escapeHtml(p.nombre_perfil || '') + '</div>' +
-          '<div class="card-meta">' +
-            '<span>' + escapeHtml(p.tipo || 'personal') + '</span>' +
+        '<div class="card-info" style="flex:1;min-width:0">' +
+          '<div class="card-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;font-size:1.05rem;color:var(--text-primary)">' + escapeHtml(p.nombre_perfil || '') + '</div>' +
+          '<div class="card-meta" style="font-size:0.82rem;color:var(--text-secondary);margin-top:4px;display:flex;align-items:center;gap:8px">' +
+            '<span style="background:rgba(255,255,255,0.06);padding:2px 8px;border-radius:6px;font-size:0.75rem;text-transform:capitalize">' + escapeHtml(p.tipo || 'personal') + '</span>' +
             '<span>·</span>' +
             '<span>' + (p.visitas || 0) + ' visitas</span>' +
             '<span>·</span>' +
-            '<span>' + (p.total_campos || 0) + ' campos</span>' +
+            '<span>' + (p.total_campos || 0) + ' bloques</span>' +
           '</div>' +
         '</div>' +
-        '<div class="card-actions" style="display:flex;align-items:center;justify-content:center;gap:6px;width:max-content;flex-shrink:0">' +
-          '<button type="button" class="btn btn-icon btn-sm" onclick="event.stopPropagation(); openEditModal(' + p.id + ');" title="Abrir editor visual incrustado" style="width:34px;height:34px;min-width:34px;flex:0 0 34px;display:inline-flex;align-items:center;justify-content:center;color:var(--accent)">✏️</button>' +
-          '<a href="/u/' + (p.slug || p.id) + '" class="btn btn-icon btn-sm" onclick="event.stopPropagation()" target="_blank" title="Ver perfil público" style="width:34px;height:34px;min-width:34px;flex:0 0 34px;display:inline-flex;align-items:center;justify-content:center">👁</a>' +
-          '<a href="/analytics.html?id=' + p.id + '" class="btn btn-icon btn-sm" onclick="event.stopPropagation()" title="Analíticas" style="width:34px;height:34px;min-width:34px;flex:0 0 34px;display:inline-flex;align-items:center;justify-content:center">📊</a>' +
-          '<a href="/compartir.html?id=' + p.id + '&slug=' + (p.slug || p.id) + '" class="btn btn-icon btn-sm" onclick="event.stopPropagation()" title="Compartir & QR" style="width:34px;height:34px;min-width:34px;flex:0 0 34px;display:inline-flex;align-items:center;justify-content:center">↗</a>' +
-          '<a href="/compartir.html?id=' + p.id + '&slug=' + (p.slug || p.id) + '&nfc=true" class="btn btn-icon btn-sm" onclick="event.stopPropagation()" title="Grabar en NFC Física" style="width:34px;height:34px;min-width:34px;flex:0 0 34px;display:inline-flex;align-items:center;justify-content:center;color:#06B6D4">⚡</a>' +
-          '<button class="btn btn-icon btn-sm" onclick="event.stopPropagation();confirmDelete(' + p.id + ')" title="Eliminar" style="width:34px;height:34px;min-width:34px;flex:0 0 34px;display:inline-flex;align-items:center;justify-content:center;color:var(--red)">✕</button>' +
+        '<div class="card-actions" style="display:flex;align-items:center;gap:6px;flex-shrink:0">' +
+          '<button type="button" class="btn btn-icon btn-sm action-monochrome" onclick="event.stopPropagation(); openEditModal(' + p.id + ');" title="Abrir editor visual incrustado">✏️</button>' +
+          '<a href="/u/' + (p.slug || p.id) + '" class="btn btn-icon btn-sm action-monochrome" onclick="event.stopPropagation()" target="_blank" title="Ver perfil público">👁</a>' +
+          '<a href="/analytics.html?id=' + p.id + '" class="btn btn-icon btn-sm action-monochrome" onclick="event.stopPropagation()" title="Analíticas">📊</a>' +
+          '<a href="/compartir.html?id=' + p.id + '&slug=' + (p.slug || p.id) + '" class="btn btn-icon btn-sm action-monochrome" onclick="event.stopPropagation()" title="Compartir & QR">↗</a>' +
+          '<a href="/compartir.html?id=' + p.id + '&slug=' + (p.slug || p.id) + '&nfc=true" class="btn btn-icon btn-sm action-monochrome" onclick="event.stopPropagation()" title="Grabar en NFC Física">⚡</a>' +
+          '<button class="btn btn-icon btn-sm action-monochrome action-delete" onclick="event.stopPropagation();confirmDelete(' + p.id + ')" title="Eliminar">✕</button>' +
         '</div>' +
       '</div>';
     }).join('');
@@ -823,6 +786,16 @@ window.executeCreatePerfil = async function(e) {
   window.closeNfcModal = function() {
     var overlay = document.getElementById('nfc-modal-overlay');
     if (overlay) overlay.classList.add('hidden');
+  };
+
+  window.openCreateModal = function(id) {
+    var m = document.getElementById('modal-perfiles');
+    if (m) m.classList.remove('hidden');
+  };
+
+  window.closeCreateModal = function() {
+    var m = document.getElementById('modal-perfiles');
+    if (m) m.classList.add('hidden');
   };
 
   // ============================================

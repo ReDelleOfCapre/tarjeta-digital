@@ -16,16 +16,17 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="/css/tokens.css">
     <link rel="stylesheet" href="/css/styles.css">
     <style>{{tema_css}}</style>
     <style>
-        /* VYNK perfil público — pantalla tipo teléfono dark */
+        /* VYNK perfil público — pantalla tipo teléfono (theme-aware) */
         html, body { margin: 0; padding: 0; width: 100%; min-height: 100vh; }
         body {
             background: var(--bg-primary, #0B0E14);
             background-image:
-                radial-gradient(1200px 600px at 20% -10%, rgba(124, 58, 237, 0.16), transparent 60%),
-                radial-gradient(900px 500px at 110% 10%, rgba(122, 106, 240, 0.10), transparent 55%);
+                radial-gradient(1200px 600px at 20% -10%, var(--accent-glow, rgba(124, 58, 237, 0.16)), transparent 60%),
+                radial-gradient(900px 500px at 110% 10%, var(--accent-glow, rgba(122, 106, 240, 0.10)), transparent 55%);
             background-attachment: fixed;
             color: var(--text-primary, #F8FAFC);
             font-family: 'Inter', system-ui, -apple-system, sans-serif;
@@ -64,18 +65,18 @@
             font-size: clamp(24px, 6vw, 32px) !important;
             font-weight: 700 !important;
             letter-spacing: -0.03em !important;
-            color: #FFFFFF !important;
+            color: var(--text-primary, #FFFFFF) !important;
             margin: 10px 0 0 !important;
             line-height: 1.15 !important;
-            text-shadow: 0 2px 12px rgba(0,0,0,0.6);
+            text-shadow: 0 2px 12px rgba(0,0,0,0.35);
         }
-        .bio { color: #94A3B8 !important; font-size: 0.95rem !important; max-width: 380px !important; margin: 4px auto 0 !important; line-height: 1.6 !important; }
+        .bio { color: var(--text-secondary, #94A3B8) !important; font-size: 0.95rem !important; max-width: 380px !important; margin: 4px auto 0 !important; line-height: 1.6 !important; }
         .tags { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 8px; }
         .tag {
             font-family: 'JetBrains Mono', monospace;
             font-size: 11px; letter-spacing: 0.03em;
-            color: #A78BFA; background: rgba(124, 58, 237, 0.14);
-            border: 1px solid rgba(124, 58, 237, 0.3);
+            color: var(--accent, #A78BFA); background: var(--chip-bg, rgba(124, 58, 237, 0.14));
+            border: 1px solid var(--card-border, rgba(124, 58, 237, 0.3));
             padding: 4px 10px; border-radius: 999px; text-transform: capitalize;
         }
 
@@ -84,8 +85,8 @@
         .action-btn {
             display: inline-flex; align-items: center; gap: 8px;
             padding: 12px 18px; border-radius: 14px;
-            font-weight: 600; font-size: 0.9rem; text-decoration: none; color: #FFF;
-            background: #1A1F26; border: 1px solid rgba(255, 255, 255, 0.1);
+            font-weight: 600; font-size: 0.9rem; text-decoration: none; color: var(--text-primary, #FFF);
+            background: var(--bg-surface, #1A1F26); border: 1px solid var(--card-border, rgba(255, 255, 255, 0.1));
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         .action-btn:hover { transform: translateY(-2px); }
@@ -104,15 +105,15 @@
         .vp-vcard {
             display: flex; align-items: center; justify-content: center; gap: 8px;
             padding: 13px; border-radius: 14px; font-weight: 600; font-size: 0.9rem;
-            color: #EEEAE0; background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.12); text-decoration: none;
+            color: var(--text-primary, #EEEAE0); background: var(--bg-surface, rgba(255, 255, 255, 0.06));
+            border: 1px solid var(--card-border, rgba(255, 255, 255, 0.12)); text-decoration: none;
         }
-        .vp-vcard:hover { background: rgba(255, 255, 255, 0.1); }
+        .vp-vcard:hover { background: var(--chip-bg, rgba(255, 255, 255, 0.1)); }
         .vp-meta {
             font-family: 'JetBrains Mono', monospace; font-size: 11px;
-            color: #6B7280; display: flex; gap: 10px; justify-content: center; letter-spacing: 0.02em;
+            color: var(--text-secondary, #6B7280); display: flex; gap: 10px; justify-content: center; letter-spacing: 0.02em;
         }
-        .vp-meta a { color: #A78BFA; text-decoration: none; }
+        .vp-meta a { color: var(--accent, #A78BFA); text-decoration: none; }
 
         @media (prefers-reduced-motion: reduce) {
             * { animation: none !important; transition: none !important; }

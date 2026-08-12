@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -7,7 +7,7 @@
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="apple-touch-icon" sizes="180x180" href="favicon.svg">
   <meta name="apple-mobile-web-app-title" content="VYNK">
-  <meta name="theme-color" content="#FBF9FF">
+  <meta name="theme-color" content="#0A0A0C">
   <link rel="manifest" href="manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -184,7 +184,11 @@
     .form-input:focus { border-color: #7C3AED; }
     .form-input::placeholder { color: var(--editor-faint); }
 
-    .color-options { display: flex; gap: 12px; flex-wrap: wrap; margin: 16px 0 24px; }
+    .color-options { display: flex; gap: 12px; flex-wrap: wrap; margin: 12px 0 20px; }
+    .color-group-label {
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--editor-muted); margin: 6px 0 2px;
+    }
     .color-option {
       width: 42px; height: 42px; border-radius: 50%; border: 3px solid transparent;
       cursor: pointer; transition: all 160ms cubic-bezier(0.23, 1, 0.32, 1); box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
@@ -358,15 +362,48 @@
               <div id="theme-picker" class="theme-grid"></div>
 
               <div class="section-title" style="margin-top:24px"><div><div class="step-badge">Acento</div>Color</div></div>
+              <div class="color-group-label">Clásicos</div>
               <div class="color-options">
-                <button type="button" class="color-option" data-color="#E8A33D" style="background:#E8A33D" aria-label="Ámbar"></button>
-                <button type="button" class="color-option" data-color="#7C3AED" style="background:#7C3AED" aria-label="Violeta"></button>
-                <button type="button" class="color-option" data-color="#4C6FFF" style="background:#4C6FFF" aria-label="Azul"></button>
-                <button type="button" class="color-option" data-color="#06B6D4" style="background:#06B6D4" aria-label="Cian"></button>
-                <button type="button" class="color-option" data-color="#10B981" style="background:#10B981" aria-label="Esmeralda"></button>
-                <button type="button" class="color-option" data-color="#EC4899" style="background:#EC4899" aria-label="Rosa"></button>
-                <button type="button" class="color-option" data-color="#EF4444" style="background:#EF4444" aria-label="Rojo"></button>
-                <button type="button" class="color-option" data-color="#F59E0B" style="background:#F59E0B" aria-label="Naranja"></button>
+                <button type="button" class="color-option" data-color="#E8A33D" style="background:#E8A33D" aria-label="Ámbar" title="Ámbar"></button>
+                <button type="button" class="color-option" data-color="#7C3AED" style="background:#7C3AED" aria-label="Violeta" title="Violeta"></button>
+                <button type="button" class="color-option" data-color="#4C6FFF" style="background:#4C6FFF" aria-label="Azul" title="Azul"></button>
+                <button type="button" class="color-option" data-color="#06B6D4" style="background:#06B6D4" aria-label="Cian" title="Cian"></button>
+                <button type="button" class="color-option" data-color="#10B981" style="background:#10B981" aria-label="Esmeralda" title="Esmeralda"></button>
+                <button type="button" class="color-option" data-color="#EC4899" style="background:#EC4899" aria-label="Rosa" title="Rosa"></button>
+                <button type="button" class="color-option" data-color="#EF4444" style="background:#EF4444" aria-label="Rojo" title="Rojo"></button>
+                <button type="button" class="color-option" data-color="#F59E0B" style="background:#F59E0B" aria-label="Naranja" title="Naranja"></button>
+              </div>
+              <div class="color-group-label">Apple</div>
+              <div class="color-options">
+                <button type="button" class="color-option" data-color="#007AFF" style="background:#007AFF" aria-label="Azul Apple" title="Azul Apple"></button>
+                <button type="button" class="color-option" data-color="#34C759" style="background:#34C759" aria-label="Verde Apple" title="Verde Apple"></button>
+                <button type="button" class="color-option" data-color="#FF9500" style="background:#FF9500" aria-label="Naranja Apple" title="Naranja Apple"></button>
+                <button type="button" class="color-option" data-color="#FF3B30" style="background:#FF3B30" aria-label="Rojo Apple" title="Rojo Apple"></button>
+                <button type="button" class="color-option" data-color="#FF2D55" style="background:#FF2D55" aria-label="Rosa Apple" title="Rosa Apple"></button>
+                <button type="button" class="color-option" data-color="#AF52DE" style="background:#AF52DE" aria-label="Morado Apple" title="Morado Apple"></button>
+                <button type="button" class="color-option" data-color="#5856D6" style="background:#5856D6" aria-label="Índigo Apple" title="Índigo Apple"></button>
+                <button type="button" class="color-option" data-color="#00C7BE" style="background:#00C7BE" aria-label="Teal Apple" title="Teal Apple"></button>
+                <button type="button" class="color-option" data-color="#FFCC00" style="background:#FFCC00" aria-label="Amarillo Apple" title="Amarillo Apple"></button>
+                <button type="button" class="color-option" data-color="#8E8E93" style="background:#8E8E93" aria-label="Grafito Apple" title="Grafito Apple"></button>
+                <button type="button" class="color-option" data-color="#48484A" style="background:#48484A" aria-label="Espacio gris Apple" title="Espacio gris Apple"></button>
+                <button type="button" class="color-option" data-color="#F9D268" style="background:#F9D268" aria-label="Oro Apple" title="Oro Apple"></button>
+              </div>
+              <div class="color-group-label">Old Money</div>
+              <div class="color-options">
+                <button type="button" class="color-option" data-color="#1F3B2C" style="background:#1F3B2C" aria-label="Verde caza" title="Verde caza"></button>
+                <button type="button" class="color-option" data-color="#2E4B3C" style="background:#2E4B3C" aria-label="Verde bosque" title="Verde bosque"></button>
+                <button type="button" class="color-option" data-color="#C9A227" style="background:#C9A227" aria-label="Oro viejo" title="Oro viejo"></button>
+                <button type="button" class="color-option" data-color="#D4AF37" style="background:#D4AF37" aria-label="Oro metálico" title="Oro metálico"></button>
+                <button type="button" class="color-option" data-color="#BFA059" style="background:#BFA059" aria-label="Mostaza" title="Mostaza"></button>
+                <button type="button" class="color-option" data-color="#6B7A3F" style="background:#6B7A3F" aria-label="Verde oliva" title="Verde oliva"></button>
+                <button type="button" class="color-option" data-color="#0B2545" style="background:#0B2545" aria-label="Azul marino" title="Azul marino"></button>
+                <button type="button" class="color-option" data-color="#1B2A4A" style="background:#1B2A4A" aria-label="Navy profundo" title="Navy profundo"></button>
+                <button type="button" class="color-option" data-color="#722F37" style="background:#722F37" aria-label="Rojo vino" title="Rojo vino"></button>
+                <button type="button" class="color-option" data-color="#7B2D3C" style="background:#7B2D3C" aria-label="Borgoña" title="Borgoña"></button>
+                <button type="button" class="color-option" data-color="#6F4E37" style="background:#6F4E37" aria-label="Café tostado" title="Café tostado"></button>
+                <button type="button" class="color-option" data-color="#3D2B1F" style="background:#3D2B1F" aria-label="Café oscuro" title="Café oscuro"></button>
+                <button type="button" class="color-option" data-color="#B76E79" style="background:#B76E79" aria-label="Rosa viejo" title="Rosa viejo"></button>
+                <button type="button" class="color-option" data-color="#8B7D6B" style="background:#8B7D6B" aria-label="Gris topo" title="Gris topo"></button>
               </div>
             </div>
           </div>
