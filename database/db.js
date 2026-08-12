@@ -148,6 +148,24 @@ class PgDatabaseWrapper {
       await this.pool.query("ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS stripe_customer_id VARCHAR(255)");
       await this.pool.query("ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS hardware_orders JSONB DEFAULT '[]'::jsonb");
       await this.pool.query("ALTER TABLE perfiles ADD COLUMN IF NOT EXISTS marco_estilo VARCHAR(50) DEFAULT 'solid'");
+
+      // Tabla de agendamiento de citas con Google Calendar variables
+      await this.pool.query(`
+        CREATE TABLE IF NOT EXISTS citas (
+          id SERIAL PRIMARY KEY,
+          perfil_id INTEGER REFERENCES perfiles(id) ON DELETE CASCADE,
+          cliente_nombre VARCHAR(255) NOT NULL,
+          cliente_email VARCHAR(255) NOT NULL,
+          cliente_telefono VARCHAR(100),
+          servicio VARCHAR(255) DEFAULT 'Consulta General',
+          fecha_cita TIMESTAMP WITH TIME ZONE NOT NULL,
+          duracion_minutos INTEGER DEFAULT 30,
+          lugar TEXT DEFAULT 'Sucursal principal',
+          notas TEXT,
+          estado VARCHAR(50) DEFAULT 'confirmado',
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
     } catch (e) {
       console.error('Error corriendo migraciones PG:', e);
     }

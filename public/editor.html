@@ -24,11 +24,11 @@
       --editor-faint: #6E6976;
     }
 
-    .editor-page { background: radial-gradient(1200px 600px at 20% -10%, rgba(124, 58, 237, 0.12), transparent 60%), var(--editor-bg); min-height: 100vh; }
+    .editor-page { background: radial-gradient(1200px 600px at 20% -10%, var(--accent-glow), transparent 60%), var(--editor-bg); min-height: 100vh; }
 
     .editor-topbar {
       display: flex; align-items: center; gap: 14px;
-      padding: 12px 20px; min-height: 60px;
+      padding: 0 20px; height: 64px;
     }
     .editor-topbar .brand {
       display: flex; align-items: center; gap: 8px;
@@ -37,7 +37,7 @@
     }
     .editor-topbar .brand .logo-mark {
       display: grid; place-items: center; width: 34px; height: 34px;
-      border-radius: 12px; background: linear-gradient(135deg, #7C3AED, #06B6D4);
+      border-radius: 12px; background: var(--grad-primary, linear-gradient(135deg, #7C3AED, #06B6D4));
       color: #fff; font-size: 1.05rem;
     }
     .editor-topbar .topbar-title {

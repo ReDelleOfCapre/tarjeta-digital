@@ -972,7 +972,10 @@ function generateActionButtons(perfil, campos) {
       <a href="mailto:${escapeHtml(email.valor)}" class="action-btn action-email" data-action="click_email">
         <i class="fas fa-envelope action-icon"></i> Email
       </a>`);
-  }
+  buttons.push(`
+    <button type="button" onclick="openBookingModal()" class="action-btn action-booking" style="background:linear-gradient(135deg,#7C3AED,#0A84FF);border:none;color:#fff;cursor:pointer">
+      <i class="fas fa-calendar-check action-icon"></i> Agendar Cita 📅
+    </button>`);
   return buttons.length > 0 ? `<div class="action-buttons">${buttons.join('\n')}</div>` : '';
 }
 
@@ -1056,6 +1059,108 @@ function getSmartBrandColor(titulo, url) {
   if (u.includes('.pdf') || t.includes('pdf')) return '#EF4444';
   return null;
 }
+
+// =============================================
+// POST /api/perfiles/:id/agendar-cita
+// Agendamiento de citas con Google Calendar URL & envío de emails VYNK
+// =============================================
+router.post('/:id/agendar-cita', async (req, res) => {
+  try {
+    const perfilId = req.params.id;
+    const { nombre, email, telefono, fecha, servicio, duracion_minutos, lugar, notas } = req.body;
+
+    if (!nombre || !email || !fecha) {
+      return res.status(400).json({ error: 'Nombre, email y fecha son obligatorios' });
+    }
+
+    const perfil = await db.prepare(
+      "SELECT p.*, u.email as owner_email, u.nombre as owner_nombre FROM perfiles p JOIN usuarios u ON p.usuario_id = u.id WHERE p.id = $1 OR p.slug = $1 LIMIT 1"
+    ).get(perfilId);
+
+    if (!perfil) {
+      return res.status(404).json({ error: 'Perfil no encontrado' });
+    }
+
+    const fechaCita = new Date(fecha);
+    const duracion = parseInt(duracion_minutos || 30);
+    const fechaFin = new Date(fechaCita.getTime() + duracion * 60000);
+
+    const result = await db.prepare(`
+      INSERT INTO citas (perfil_id, cliente_nombre, cliente_email, cliente_telefono, servicio, fecha_cita, duracion_minutos, lugar, notas, estado)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'confirmado')
+      RETURNING id
+    `).run(
+      perfil.id,
+      nombre,
+      email,
+      telefono || '',
+      servicio || 'Servicio VYNK',
+      fechaCita.toISOString(),
+      duracion,
+      lugar || 'Sucursal principal',
+      notas || ''
+    );
+
+    // Formateo de fechas para enlace directo de Google Calendar TEMPLATE URL
+    const formatGCalDate = (d) => d.toISOString().replace(/-|:|\.\d\d\d/g, '');
+    const gCalDates = `${formatGCalDate(fechaCita)}/${formatGCalDate(fechaFin)}`;
+    const eventTitle = `${servicio || 'Cita'} - ${perfil.nombre_perfil}`;
+    const eventDetails = `Cliente: ${nombre}\nCorreo: ${email}\nTeléfono: ${telefono || 'N/A'}\nNotas: ${notas || 'Ninguna'}`;
+    const googleCalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(eventTitle)}&dates=${gCalDates}&details=${encodeURIComponent(eventDetails)}&location=${encodeURIComponent(lugar || 'Sucursal')}`;
+
+    // Envío silencioso/asíncrono de correos de notificación VYNK HTML
+    const emailUtils = require('../utils/email');
+    const dateStr = fechaCita.toLocaleString('es-MX', { dateStyle: 'full', timeStyle: 'short' });
+
+    emailUtils.sendOwnerAppointmentNotification({
+      ownerEmail: perfil.owner_email,
+      ownerName: perfil.owner_nombre || perfil.nombre_perfil,
+      clientName: nombre,
+      clientEmail: email,
+      clientPhone: telefono,
+      dateStr,
+      serviceName: servicio || 'Servicio VYNK',
+      location: lugar || 'Sucursal principal',
+      notes,
+      googleCalUrl
+    }).catch(e => console.error('Error enviando email al dueño:', e));
+
+    emailUtils.sendClientAppointmentConfirmation({
+      clientEmail: email,
+      clientName: nombre,
+      ownerName: perfil.nombre_perfil,
+      dateStr,
+      serviceName: servicio || 'Servicio VYNK',
+      location: lugar || 'Sucursal principal',
+      googleCalUrl
+    }).catch(e => console.error('Error enviando email al cliente:', e));
+
+    res.json({
+      ok: true,
+      cita_id: result.lastInsertRowid,
+      message: '✅ Cita agendada con éxito',
+      googleCalUrl,
+      dateStr
+    });
+  } catch (err) {
+    console.error('Error agendando cita:', err);
+    res.status(500).json({ error: 'Error al registrar la cita' });
+  }
+});
+
+// GET /api/perfiles/:id/citas (Consulta de Leads & Citas para el propietario)
+router.get('/:id/citas', auth, async (req, res) => {
+  try {
+    const perfilId = req.params.id;
+    const citas = await db.prepare(
+      "SELECT * FROM citas WHERE perfil_id = $1 ORDER BY fecha_cita DESC"
+    ).all(perfilId);
+    res.json({ ok: true, citas });
+  } catch (err) {
+    console.error('Error obteniendo citas:', err);
+    res.status(500).json({ error: 'Error obteniendo citas' });
+  }
+});
 
 module.exports = router;
 module.exports.perfilPublicoHandler = perfilPublicoHandler;
