@@ -1086,6 +1086,14 @@
         setValue("lugar_estudio", profile.lugar_estudio || "");
         setValue("pronombres", profile.pronombres || "");
         setValue("marco_estilo", profile.marco_estilo || "gradient");
+        var valMarco = profile.marco_estilo || 'gradient';
+        var marcoGroup = document.getElementById('marco-chip-group');
+        if (marcoGroup) {
+          marcoGroup.querySelectorAll('.radio-chip').forEach(function(chip) {
+            chip.classList.remove('active');
+            if (chip.getAttribute('data-val') === valMarco) chip.classList.add('active');
+          });
+        }
         setValue("hora_apertura", profile.hora_apertura || "09:00");
         setValue("hora_cierre", profile.hora_cierre || "20:00");
         setValue("audio_saludo_url", profile.audio_saludo_url || "");
@@ -1288,6 +1296,21 @@
     div.textContent = String(value);
     return div.innerHTML;
   }
+
+  window.selectRadioChip = function(groupType, val, el) {
+    var parent = el ? el.parentElement : null;
+    if (parent) {
+      parent.querySelectorAll('.radio-chip').forEach(function(chip) {
+        chip.classList.remove('active');
+      });
+      el.classList.add('active');
+    }
+    if (groupType === 'marco') {
+      var hiddenInput = document.getElementById('marco_estilo');
+      if (hiddenInput) hiddenInput.value = val;
+    }
+    if (typeof updateLivePreview === 'function') updateLivePreview();
+  };
 
   window.generateAiBio = function() {
     var name = document.getElementById('nombre_perfil') ? document.getElementById('nombre_perfil').value : '';

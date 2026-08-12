@@ -378,12 +378,13 @@
                 <input id="pronombres" class="form-input" type="text" placeholder="Ej. el / él">
               </div>
               <div class="field">
-                <label for="marco_estilo">Marco de la foto</label>
-                <select id="marco_estilo" class="form-input">
-                  <option value="gradient">Degradado</option>
-                  <option value="solid">Sólido</option>
-                  <option value="none">Sin marco</option>
-                </select>
+                <label>Marco de la foto</label>
+                <div class="radio-chip-group" id="marco-chip-group">
+                  <div class="radio-chip active" data-val="gradient" onclick="selectRadioChip('marco', 'gradient', this)">Degradado</div>
+                  <div class="radio-chip" data-val="solid" onclick="selectRadioChip('marco', 'solid', this)">Sólido</div>
+                  <div class="radio-chip" data-val="none" onclick="selectRadioChip('marco', 'none', this)">Sin marco</div>
+                </div>
+                <input type="hidden" id="marco_estilo" value="gradient">
               </div>
 
               <div class="section-title" style="margin-top:20px"><div><div class="step-badge">Horario</div>Atención & Disponibilidad</div></div>

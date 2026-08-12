@@ -122,7 +122,7 @@ router.get('/:id', auth, async (req, res) => {
     res.json({ ...perfil, bloques, campos, archivos });
   } catch (err) {
     console.error('Error obteniendo perfil por id:', err);
-    res.status(500).json({ error: 'Error al consultar el perfil' });
+    res.status(500).json({ error: 'No encontramos la información de esta tarjeta' });
   }
 });
 
