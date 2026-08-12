@@ -29,18 +29,21 @@ const UPLOAD_DIR = process.env.UPLOAD_DIR || './uploads';
 // Middlewares globales
 // =============================================
 
-// Seguridad HTTP con CSP optimizado (Permite Google Fonts, FontAwesome, jsDelivr y inline event attributes)
+// Seguridad HTTP con CSP optimizado y flexible para imágenes, CDNs, scripts inline y Service Worker
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://js.stripe.com", "https://cdn.jsdelivr.net", "https://kit.fontawesome.com", "https://cdnjs.cloudflare.com"],
+      defaultSrc: ["'self'", "https:", "http:", "data:", "blob:"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https:", "http:"],
+      scriptSrcElem: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https:", "http:"],
       scriptSrcAttr: ["'unsafe-inline'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://use.fontawesome.com", "https://cdnjs.cloudflare.com", "https://cdn.jsdelivr.net"],
-      fontSrc: ["'self'", "https://fonts.gstatic.com", "https://fonts.googleapis.com", "https://use.fontawesome.com", "https://cdnjs.cloudflare.com", "data:"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https:", "http:"],
+      styleSrcElem: ["'self'", "'unsafe-inline'", "https:", "http:"],
+      styleSrcAttr: ["'unsafe-inline'"],
+      fontSrc: ["'self'", "data:", "https:", "http:"],
       imgSrc: ["'self'", "data:", "blob:", "https:", "http:"],
-      frameSrc: ["'self'", "https://js.stripe.com", "https://hooks.stripe.com", "https://maps.google.com", "https://www.google.com", "https://www.youtube.com", "https://open.spotify.com"],
-      connectSrc: ["'self'", "https://api.stripe.com", "https://maps.google.com", "https://fonts.googleapis.com", "https://fonts.gstatic.com", "https://cdn.jsdelivr.net"],
+      frameSrc: ["'self'", "https:", "http:"],
+      connectSrc: ["'self'", "https:", "http:", "wss:", "ws:"],
       objectSrc: ["'none'"]
     }
   },
