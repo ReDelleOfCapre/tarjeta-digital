@@ -493,7 +493,7 @@
           <option value="Editor" selected>Editor</option>
           <option value="Viewer">Viewer</option>
         </select>
-        <button class="btn btn-primary" onclick="inviteTeamMember()" style="padding:12px 18px">+ Invitar</button>
+        <button class="btn btn-primary" onclick="sendInvite()" style="padding:12px 18px">+ Invitar</button>
       </div>
 
       <div style="font-size:0.8rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:10px">Miembros del Equipo Activos</div>
@@ -534,7 +534,7 @@
           <span>📊 Ver analíticas pro en tiempo real</span>
           <span style="font-size:0.72rem;color:var(--text-muted)">Métricas</span>
         </div>
-        <div class="cmd-item" onclick="location.href='/compartir.html?nfc=true'">
+        <div class="cmd-item" onclick="toggleCommandPalette(); cmdNfcShortcut();">
           <span>⚡ Grabar en tarjeta NFC física</span>
           <span style="font-size:0.72rem;color:var(--text-muted)">Hardware NFC</span>
         </div>

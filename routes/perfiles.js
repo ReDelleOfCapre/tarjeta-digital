@@ -134,22 +134,23 @@ router.post('/', auth, requireQuota, checkPlanLimit('perfil'), (req, res) => {
       return res.status(400).json({ error: err.message });
     }
 
-    const { nombre_perfil, tipo, color, bio, cumpleanos, lugar_estudio, pronombres, tema, foto_base64 } = req.body;
+    const { nombre_perfil, tipo, color, bio, cumpleanos, lugar_estudio, pronombres, tema, foto_base64, marco_estilo } = req.body;
 
     if (!nombre_perfil || !nombre_perfil.trim()) {
       return res.status(400).json({ error: 'El nombre del perfil es obligatorio.' });
     }
 
-    const slug = generateUniqueSlug(nombre_perfil);
+    const slug = await generateUniqueSlug(nombre_perfil);
     const foto_url = foto_base64 ? foto_base64 : (req.file ? `/uploads/${req.file.filename}` : null);
     const perfilColor = color || '#007AFF';
     const perfilTema = tema || 'ios';
+    const perfilMarco = marco_estilo || 'solid';
 
     const result = await db.prepare(
-      `INSERT INTO perfiles (usuario_id, slug, nombre_perfil, tipo, foto_url, color, tema, bio, cumpleanos, lugar_estudio, pronombres)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      `INSERT INTO perfiles (usuario_id, slug, nombre_perfil, tipo, foto_url, color, tema, bio, cumpleanos, lugar_estudio, pronombres, marco_estilo)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     ).run(req.user.id, slug, nombre_perfil.trim(), tipo || null, foto_url, perfilColor, perfilTema,
-          bio || null, cumpleanos || null, lugar_estudio || null, pronombres || null);
+          bio || null, cumpleanos || null, lugar_estudio || null, pronombres || null, perfilMarco);
 
     const perfil = await db.prepare('SELECT * FROM perfiles WHERE id = ?').get(result.lastInsertRowid);
 
@@ -189,7 +190,7 @@ router.put('/:id', auth, requireQuota, (req, res) => {
       return res.status(403).json({ error: 'No tienes permiso para editar este perfil.' });
     }
 
-    const { nombre_perfil, tipo, color, bio, cumpleanos, lugar_estudio, pronombres, tema, foto_base64 } = req.body;
+    const { nombre_perfil, tipo, color, bio, cumpleanos, lugar_estudio, pronombres, tema, foto_base64, marco_estilo } = req.body;
     let foto_url = perfil.foto_url;
 
     if (foto_base64) {
@@ -216,7 +217,8 @@ router.put('/:id', auth, requireQuota, (req, res) => {
            bio = ?,
            cumpleanos = ?,
            lugar_estudio = ?,
-           pronombres = ?
+           pronombres = ?,
+           marco_estilo = ?
        WHERE id = ?`
     ).run(
       nombre_perfil || null,
@@ -228,6 +230,7 @@ router.put('/:id', auth, requireQuota, (req, res) => {
       cumpleanos !== undefined ? (cumpleanos || null) : perfil.cumpleanos,
       lugar_estudio !== undefined ? (lugar_estudio || null) : perfil.lugar_estudio,
       pronombres !== undefined ? (pronombres || null) : perfil.pronombres,
+      marco_estilo !== undefined ? (marco_estilo || null) : perfil.marco_estilo,
       perfilId
     );
 
@@ -767,7 +770,7 @@ async function perfilPublicoHandler(req, res) {
     const tema = perfil.tema || 'ios';
 
     const banner_html = perfil.banner_url
-      ? `<div class="hero-banner"><img src="${escapeHtml(perfil.banner_url.startsWith('http') || perfil.banner_url.startsWith('/') ? perfil.banner_url : '/' + perfil.banner_url)}" alt="Portada" onerror="this.onerror=null;this.src='/img/hero-bg.jpg';"></div>`
+      ? `<div class="hero-banner"><img src="${escapeHtml(perfil.banner_url.startsWith('http') || perfil.banner_url.startsWith('/') ? perfil.banner_url : '/' + perfil.banner_url)}" alt="Portada" onerror="this.onerror=null;this.style.display='none';if(this.parentElement)this.parentElement.style.display='none';"></div>`
       : '';
 
     html = html

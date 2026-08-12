@@ -150,9 +150,9 @@ app.get(['/terminos', '/terminos.html'], (req, res) => {
   res.sendFile(path.join(process.cwd(), 'public', 'legal.html'));
 });
 
-// Redirect 301: editor.html eliminado → modal dentro del dashboard
-app.get(['/editor', '/editor.html'], (req, res) => {
-  res.redirect(301, '/dashboard.html');
+// Alias amigable: /editor → editor.html (el archivo estático sí se sirve)
+app.get('/editor', (req, res) => {
+  res.redirect(301, '/editor.html');
 });
 
 // =============================================

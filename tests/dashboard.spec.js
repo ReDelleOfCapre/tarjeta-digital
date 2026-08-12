@@ -30,7 +30,7 @@ test.describe('VYNK E-Commerce Dual Safety Loop & E2E Suite', () => {
 
     // Inject localStorage before document scripts execute
     await page.addInitScript(() => {
-      const mockUser = { id: 1, nombre: 'Test User', email: 'test@vynk.app', plan: 'paid' };
+      const mockUser = { id: 1, nombre: 'Test User', email: 'test@vynk.app', plan: 'paid', terms_accepted: true };
       localStorage.setItem('token', 'mock_e2e_test_token');
       localStorage.setItem('usuario', JSON.stringify(mockUser));
       localStorage.setItem('user', JSON.stringify(mockUser));

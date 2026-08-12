@@ -4,6 +4,7 @@
 var currentCheckoutProductId = 'card-nfc-single';
 var currentCheckoutItemTitle = 'Tarjeta NFC Personalizada';
 var currentCheckoutItemPrice = 19.99;
+var editPerfilId = null;
 
 function switchDashboardTab(tabId) {
   var allViews = document.querySelectorAll('.tab-view-content');
@@ -90,12 +91,17 @@ window.executeAssignClient = async function(e) {
   var name = document.getElementById('assign-client-name').value;
   var slug = document.getElementById('assign-client-slug').value;
 
+  if (!name || !slug) {
+    if (typeof showToast === 'function') showToast('Completa nombre y slug del cliente', 'error');
+    return;
+  }
+
   try {
     if (typeof showToast === 'function') showToast('Creando perfil para cliente ' + name + '...', 'info');
     if (typeof api === 'function') {
-      await api('/perfiles', {
+      var created = await api('/perfiles', {
         method: 'POST',
-        body: JSON.stringify({ nombre_perfil: name, slug: slug, tipo: 'personal', bio: 'Perfil activado por distribuidor' })
+        body: JSON.stringify({ nombre_perfil: name, tipo: 'personal', bio: 'Perfil activado por distribuidor' })
       });
     }
 
@@ -113,7 +119,7 @@ window.executeAssignClient = async function(e) {
     }
 
     if (typeof showToast === 'function') showToast('✅ Perfil creado. Inicie la grabación Web NFC acercando la tarjeta física.', 'success');
-    if (typeof writeNfcTag === 'function') writeNfcTag('/' + slug);
+    if (typeof writeNfcTag === 'function') writeNfcTag(window.location.origin + '/u/' + (created && created.slug ? created.slug : slug));
   } catch (err) {
     if (typeof showToast === 'function') showToast(err.error || 'Error asignando tarjeta a cliente', 'error');
   }
@@ -123,6 +129,7 @@ window.executeAssignClient = async function(e) {
 // CORE CREATION & MANAGEMENT LOGIC
 // ============================================
 window.openCreateModal = function() {
+  editPerfilId = null;
   var modal = document.getElementById('modal-perfiles');
   if (modal) {
     modal.classList.remove('hidden');
@@ -133,6 +140,7 @@ window.openCreateModal = function() {
 };
 
 window.openEditModal = async function(id) {
+  editPerfilId = id;
   var modal = document.getElementById('modal-perfiles');
   if (!modal) return;
   modal.classList.remove('hidden');
@@ -155,6 +163,7 @@ window.openEditModal = async function(id) {
 };
 
 window.closeCreateModal = function() {
+  editPerfilId = null;
   var modal = document.getElementById('modal-perfiles');
   if (modal) {
     modal.classList.add('hidden');
@@ -183,15 +192,23 @@ window.executeCreatePerfil = async function(e) {
   slug = slug.toLowerCase().replace(/[^a-z0-9_-]/g, '-');
 
   try {
-    if (typeof showToast === 'function') showToast('Creando nueva tarjeta digital...', 'info');
+    if (typeof showToast === 'function') showToast(editPerfilId ? 'Guardando cambios...' : 'Creando nueva tarjeta digital...', 'info');
     
-    var data = await api('/perfiles', {
-      method: 'POST',
-      body: JSON.stringify({ nombre_perfil: nombre, slug: slug, tipo: tipo, bio: bio })
-    });
+    var data;
+    if (editPerfilId) {
+      data = await api('/perfiles/' + editPerfilId, {
+        method: 'PUT',
+        body: JSON.stringify({ nombre_perfil: nombre, tipo: tipo, bio: bio })
+      });
+    } else {
+      data = await api('/perfiles', {
+        method: 'POST',
+        body: JSON.stringify({ nombre_perfil: nombre, slug: slug, tipo: tipo, bio: bio })
+      });
+    }
 
     closeCreateModal();
-    if (typeof showToast === 'function') showToast('✅ Tarjeta creada con éxito', 'success');
+    if (typeof showToast === 'function') showToast(editPerfilId ? '✅ Tarjeta actualizada con éxito' : '✅ Tarjeta creada con éxito', 'success');
 
     if (typeof window.loadProfilesGlobal === 'function') {
       window.loadProfilesGlobal();
@@ -273,6 +290,23 @@ window.executeCreatePerfil = async function(e) {
       if (!overlay.classList.contains('hidden')) {
         var input = document.getElementById('cmd-search-input');
         if (input) input.focus();
+      }
+    }
+  };
+
+  window.cmdNfcShortcut = function() {
+    var list = window.perfilesList || [];
+    var first = list[0];
+    if (first && first.slug) {
+      location.href = '/compartir.html?id=' + first.id + '&slug=' + first.slug + '&nfc=true';
+    } else {
+      list.forEach(function(p) {
+        if (p && p.slug && !first) first = p;
+      });
+      if (first && first.slug) {
+        location.href = '/compartir.html?id=' + first.id + '&slug=' + first.slug + '&nfc=true';
+      } else if (typeof showToast === 'function') {
+        showToast('Crea primero una tarjeta digital para sincronizar NFC', 'error');
       }
     }
   };
@@ -425,7 +459,7 @@ window.executeCreatePerfil = async function(e) {
     else if (action === 'logout') logout();
   });
 
-  var legalModal = document.getElementById('modal-terms') || document.getElementById('modal-legal');
+  var legalModal = document.getElementById('modal-legal-terms') || document.getElementById('modal-terms') || document.getElementById('modal-legal');
   if (legalModal && user && !user.terms_accepted) {
     legalModal.classList.remove('hidden');
     var btnAccept = document.getElementById('btn-accept-terms');
@@ -436,7 +470,7 @@ window.executeCreatePerfil = async function(e) {
             localStorage.setItem('token', res.token);
           }
           user.terms_accepted = true;
-          localStorage.setItem('user', JSON.stringify(user));
+          localStorage.setItem('usuario', JSON.stringify(user));
           legalModal.classList.add('hidden');
           showToast('Términos aceptados correctamente', 'success');
         }).catch(function(err) {
@@ -488,6 +522,7 @@ window.executeCreatePerfil = async function(e) {
       if (!data || data.error) return;
 
       var perfiles = Array.isArray(data) ? data : (data.perfiles || []);
+      window.perfilesList = perfiles;
       renderGrid(perfiles);
     }).catch(function(err) {
       showToast('Error cargando tarjetas', 'error');
@@ -540,7 +575,7 @@ window.executeCreatePerfil = async function(e) {
           '</div>' +
         '</div>' +
         '<div class="card-actions" style="display:flex;align-items:center;justify-content:center;gap:6px;width:max-content;flex-shrink:0">' +
-          '<button class="btn btn-icon btn-sm" onclick="event.stopPropagation();openEditModal(' + p.id + ')" title="Abrir editor visual" style="width:34px;height:34px;min-width:34px;flex:0 0 34px;display:inline-flex;align-items:center;justify-content:center;color:var(--accent)">✏️</button>' +
+          '<a href="/editor.html?id=' + p.id + '" class="btn btn-icon btn-sm" onclick="event.stopPropagation()" title="Abrir editor visual" style="width:34px;height:34px;min-width:34px;flex:0 0 34px;display:inline-flex;align-items:center;justify-content:center;color:var(--accent)">✏️</a>' +
           '<a href="/u/' + (p.slug || p.id) + '" class="btn btn-icon btn-sm" onclick="event.stopPropagation()" target="_blank" title="Ver perfil público" style="width:34px;height:34px;min-width:34px;flex:0 0 34px;display:inline-flex;align-items:center;justify-content:center">👁</a>' +
           '<a href="/analytics.html?id=' + p.id + '" class="btn btn-icon btn-sm" onclick="event.stopPropagation()" title="Analíticas" style="width:34px;height:34px;min-width:34px;flex:0 0 34px;display:inline-flex;align-items:center;justify-content:center">📊</a>' +
           '<a href="/compartir.html?id=' + p.id + '&slug=' + (p.slug || p.id) + '" class="btn btn-icon btn-sm" onclick="event.stopPropagation()" title="Compartir & QR" style="width:34px;height:34px;min-width:34px;flex:0 0 34px;display:inline-flex;align-items:center;justify-content:center">↗</a>' +
@@ -589,13 +624,6 @@ window.executeCreatePerfil = async function(e) {
             popover: {
               title: '📊 Métricas & Conexiones en Tiempo Real',
               description: 'Monitorea tus interacciones, escaneos NFC y descargas de vCard al instante.'
-            }
-          },
-          {
-            element: '#select-workspace',
-            popover: {
-              title: '💼 Workspaces Multi-Tenant B2B',
-              description: 'Alterna entre tu espacio personal y el corporativo para colaborar con tu equipo.'
             }
           }
         ],

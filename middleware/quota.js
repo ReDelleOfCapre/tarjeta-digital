@@ -9,7 +9,7 @@ async function requireQuota(req, res, next) {
     }
 
     const db = await dbReady;
-    const user = db.prepare('SELECT acciones_restantes, ultimo_reset FROM usuarios WHERE id = ?').get(req.user.id);
+    const user = await db.prepare('SELECT acciones_restantes, ultimo_reset FROM usuarios WHERE id = ?').get(req.user.id);
     
     if (!user) {
       return res.status(401).json({ error: 'Usuario no encontrado' });
@@ -31,13 +31,13 @@ async function requireQuota(req, res, next) {
     if (horasPasadas >= HORAS_COOLDOWN) {
       acciones = MAX_ACCIONES;
       // Reset the quota and timestamp (PostgreSQL: CURRENT_TIMESTAMP)
-      db.prepare('UPDATE usuarios SET acciones_restantes = ?, ultimo_reset = CURRENT_TIMESTAMP WHERE id = ?')
+      await db.prepare('UPDATE usuarios SET acciones_restantes = ?, ultimo_reset = CURRENT_TIMESTAMP WHERE id = ?')
         .run(acciones, req.user.id);
     }
 
     if (acciones > 0) {
       // Consume 1 action
-      db.prepare('UPDATE usuarios SET acciones_restantes = acciones_restantes - 1 WHERE id = ?')
+      await db.prepare('UPDATE usuarios SET acciones_restantes = acciones_restantes - 1 WHERE id = ?')
         .run(req.user.id);
       return next();
     } else {

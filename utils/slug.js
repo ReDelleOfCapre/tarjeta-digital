@@ -26,21 +26,22 @@ function slugify(text) {
 /**
  * Genera un slug único verificando contra la base de datos.
  * Si el slug base ya existe, agrega un sufijo numérico.
+ * Async porque el wrapper de DB (PgDatabaseWrapper) es async.
  *
  * @param {string} text - Texto base para el slug
- * @returns {string} Slug único
+ * @returns {Promise<string>} Slug único
  */
-function generateUniqueSlug(text) {
+async function generateUniqueSlug(text) {
   const base = slugify(text);
 
-  const existing = db.prepare('SELECT id FROM perfiles WHERE slug = ?').get(base);
+  const existing = await db.prepare('SELECT id FROM perfiles WHERE slug = ?').get(base);
   if (!existing) {
     return base;
   }
 
   for (let i = 1; i <= 100; i++) {
     const candidate = `${base}-${i}`;
-    const found = db.prepare('SELECT id FROM perfiles WHERE slug = ?').get(candidate);
+    const found = await db.prepare('SELECT id FROM perfiles WHERE slug = ?').get(candidate);
     if (!found) {
       return candidate;
     }

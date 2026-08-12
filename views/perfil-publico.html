@@ -17,7 +17,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="/css/styles.css">
-    {{tema_css}}
+    <style>{{tema_css}}</style>
     <style>
         /* VYNK perfil público — pantalla tipo teléfono dark */
         html, body { margin: 0; padding: 0; }
@@ -57,14 +57,15 @@
         .avatar-wrapper .avatar img { width: 100%; height: 100%; object-fit: cover; }
         .name {
             font-family: 'Space Grotesk', sans-serif !important;
-            font-size: clamp(22px, 6vw, 30px) !important;
+            font-size: clamp(24px, 6vw, 32px) !important;
             font-weight: 700 !important;
             letter-spacing: -0.03em !important;
-            color: #EEEAE0 !important;
-            margin: 8px 0 0 !important;
+            color: #FFFFFF !important;
+            margin: 10px 0 0 !important;
             line-height: 1.15 !important;
+            text-shadow: 0 2px 12px rgba(0,0,0,0.6);
         }
-        .bio { color: #8C96A3 !important; font-size: 0.95rem !important; max-width: 380px !important; margin: 0 auto !important; line-height: 1.6 !important; }
+        .bio { color: #94A3B8 !important; font-size: 0.95rem !important; max-width: 380px !important; margin: 4px auto 0 !important; line-height: 1.6 !important; }
         .tags { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 8px; }
         .tag {
             font-family: 'JetBrains Mono', monospace;
