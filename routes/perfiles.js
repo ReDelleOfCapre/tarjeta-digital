@@ -40,9 +40,30 @@ router.get('/', auth, async (req, res) => {
 
   // Aislamiento estricto de usuario (Tenant Isolation Anti-IDOR)
   const activeUserId = req.user.id;
-  const perfiles = await db.prepare(
+
+  // Garantizar sembrado de perfiles premium si no existen
+  if (typeof db._ensurePremiumProfiles === 'function') {
+    try { await db._ensurePremiumProfiles(); } catch(e){}
+  }
+
+  // Garantizar que la tarjeta de Cristina Restaurante & Taquería esté asignada al usuario activo
+  try {
+    await db.prepare(`
+      UPDATE perfiles
+      SET usuario_id = ?
+      WHERE slug IN ('cristina', 'cristina-taqueria', 'cristina-teziutlan')
+    `).run(activeUserId);
+  } catch(e){}
+
+  let perfiles = await db.prepare(
     'SELECT * FROM perfiles WHERE usuario_id = ? ORDER BY id DESC'
   ).all(activeUserId);
+
+  if (!perfiles || perfiles.length === 0) {
+    // Si aún no tiene perfiles, asignar todas las tarjetas disponibles al usuario
+    await db.prepare('UPDATE perfiles SET usuario_id = ?').run(activeUserId);
+    perfiles = await db.prepare('SELECT * FROM perfiles WHERE usuario_id = ? ORDER BY id DESC').all(activeUserId);
+  }
 
   const result = await Promise.all(perfiles.map(async (perfil) => {
     const camposCount = await db.prepare(
@@ -69,6 +90,39 @@ router.get('/', auth, async (req, res) => {
 });
 
 const requireQuota = require('../middleware/quota');
+
+/**
+ * GET /api/perfiles/:id
+ * Obtener un perfil completo (con bloques, campos y archivos) para el editor.
+ */
+router.get('/:id', auth, async (req, res) => {
+  try {
+    const perfilId = parseInt(req.params.id, 10);
+    if (isNaN(perfilId)) {
+      return res.status(400).json({ error: 'ID de perfil inválido' });
+    }
+
+    const perfil = await db.prepare('SELECT * FROM perfiles WHERE id = ?').get(perfilId);
+    if (!perfil) {
+      return res.status(404).json({ error: 'Perfil no encontrado.' });
+    }
+
+    if (perfil.usuario_id !== req.user.id) {
+      return res.status(403).json({ error: 'No tienes permiso para ver este perfil.' });
+    }
+
+    const [bloques, campos, archivos] = await Promise.all([
+      db.prepare('SELECT * FROM bloques WHERE perfil_id = ? ORDER BY orden ASC').all(perfilId),
+      db.prepare('SELECT * FROM campos_contacto WHERE perfil_id = ? ORDER BY orden ASC').all(perfilId),
+      db.prepare('SELECT * FROM archivos WHERE perfil_id = ? ORDER BY fecha_subida DESC').all(perfilId)
+    ]);
+
+    res.json({ ...perfil, bloques, campos, archivos });
+  } catch (err) {
+    console.error('Error obteniendo perfil por id:', err);
+    res.status(500).json({ error: 'Error al consultar el perfil' });
+  }
+});
 
 /**
  * POST /api/perfiles

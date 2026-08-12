@@ -30,8 +30,8 @@ async function requireQuota(req, res, next) {
     // Check if cooldown has passed
     if (horasPasadas >= HORAS_COOLDOWN) {
       acciones = MAX_ACCIONES;
-      // Reset the quota and timestamp
-      db.prepare('UPDATE usuarios SET acciones_restantes = ?, ultimo_reset = datetime("now") WHERE id = ?')
+      // Reset the quota and timestamp (PostgreSQL: CURRENT_TIMESTAMP)
+      db.prepare('UPDATE usuarios SET acciones_restantes = ?, ultimo_reset = CURRENT_TIMESTAMP WHERE id = ?')
         .run(acciones, req.user.id);
     }
 

@@ -21,7 +21,7 @@ function checkPlanLimit(resourceType) {
 
       switch (resourceType) {
         case 'perfil': {
-          const row = db.prepare(
+          const row = await db.prepare(
             'SELECT COUNT(*) as total FROM perfiles WHERE usuario_id = ?'
           ).get(req.user.id);
           count = row.total;
@@ -29,11 +29,11 @@ function checkPlanLimit(resourceType) {
         }
         case 'campo': {
           const perfilId = req.params.id;
-          const perfil = db.prepare('SELECT id, usuario_id FROM perfiles WHERE id = ?').get(perfilId);
+          const perfil = await db.prepare('SELECT id, usuario_id FROM perfiles WHERE id = ?').get(perfilId);
           if (!perfil || perfil.usuario_id !== req.user.id) {
             return res.status(403).json({ error: 'No autorizado' });
           }
-          const row = db.prepare(
+          const row = await db.prepare(
             'SELECT COUNT(*) as total FROM campos_contacto WHERE perfil_id = ?'
           ).get(perfilId);
           count = row.total;
@@ -41,11 +41,11 @@ function checkPlanLimit(resourceType) {
         }
         case 'archivo': {
           const perfilId = req.params.id;
-          const perfil = db.prepare('SELECT id, usuario_id FROM perfiles WHERE id = ?').get(perfilId);
+          const perfil = await db.prepare('SELECT id, usuario_id FROM perfiles WHERE id = ?').get(perfilId);
           if (!perfil || perfil.usuario_id !== req.user.id) {
             return res.status(403).json({ error: 'No autorizado' });
           }
-          const row = db.prepare(
+          const row = await db.prepare(
             'SELECT COUNT(*) as total FROM archivos WHERE perfil_id = ?'
           ).get(perfilId);
           count = row.total;
