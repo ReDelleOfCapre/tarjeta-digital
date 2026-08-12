@@ -653,7 +653,35 @@
 
               <div class="field">
                 <label for="create-perfil-bio">Descripción corta / Biografía</label>
-                <input type="text" id="create-perfil-bio" placeholder="Director de Innovación" />
+                <input type="text" id="create-perfil-bio" placeholder="Director de Innovación / Tu narrativa principal" />
+              </div>
+
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+                <div class="field" style="margin-bottom:0">
+                  <label for="create-perfil-cumple">Cumpleaños / Aniversario</label>
+                  <input type="date" id="create-perfil-cumple" style="padding:9px 12px;font-size:0.85rem" />
+                </div>
+                <div class="field" style="margin-bottom:0">
+                  <label for="create-perfil-estudios">Estudios / Profesión</label>
+                  <input type="text" id="create-perfil-estudios" placeholder="Universidad / Especialidad" />
+                </div>
+              </div>
+
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+                <div class="field" style="margin-bottom:0">
+                  <label for="create-perfil-pronombres">Pronombres</label>
+                  <input type="text" id="create-perfil-pronombres" placeholder="Ej. él/él, ella/ella" />
+                </div>
+                <div class="field" style="margin-bottom:0">
+                  <label for="create-perfil-tema">Estilo de Tema</label>
+                  <select id="create-perfil-tema" style="width:100%;padding:10px;border-radius:8px;background:rgba(255,255,255,0.05);color:var(--text-main);border:1px solid var(--panel-border)">
+                    <option value="food">Gourmet & Food (Taquería/Restaurante)</option>
+                    <option value="neon" selected>Neón Cyberpunk Ultra</option>
+                    <option value="minimal">Minimal Apple White</option>
+                    <option value="glass">Glassmorphism Pro</option>
+                    <option value="retro">Vintage Retro</option>
+                  </select>
+                </div>
               </div>
 
               <p class="panel-title" style="margin-top:16px;">Logo o Foto de Perfil</p>
@@ -666,18 +694,18 @@
               <input type="file" id="fileInput" accept="image/*" />
               <p class="upload-note" id="uploadNote"></p>
 
-              <p class="panel-title" style="margin-top:16px;">Enlaces y Contacto (Opcional)</p>
+              <p class="panel-title" style="margin-top:16px;">Enlaces y Contacto Directo</p>
               <div class="field">
-                <label for="create-perfil-wa">WhatsApp</label>
-                <input type="text" id="create-perfil-wa" placeholder="+52 123 456 7890" />
+                <label for="create-perfil-wa">WhatsApp (Número con lada)</label>
+                <input type="text" id="create-perfil-wa" placeholder="+52 231 130 2033" />
               </div>
               <div class="field">
                 <label for="create-perfil-ig">Instagram (Usuario)</label>
-                <input type="text" id="create-perfil-ig" placeholder="@usuario" />
+                <input type="text" id="create-perfil-ig" placeholder="@cristina_taqueria" />
               </div>
               <div class="field">
-                <label for="create-perfil-web">Sitio Web</label>
-                <input type="text" id="create-perfil-web" placeholder="https://miweb.com" />
+                <label for="create-perfil-web">Sitio Web / Catálogo URL</label>
+                <input type="text" id="create-perfil-web" placeholder="https://cristina-taqueria.com" />
               </div>
             </div>
 

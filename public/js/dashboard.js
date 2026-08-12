@@ -152,10 +152,25 @@ window.openEditModal = async function(id) {
       var s = document.getElementById('create-perfil-slug');
       var t = document.getElementById('create-perfil-tipo');
       var b = document.getElementById('create-perfil-bio');
+      var wa = document.getElementById('create-perfil-wa');
+      var ig = document.getElementById('create-perfil-ig');
+      var web = document.getElementById('create-perfil-web');
+      var cumple = document.getElementById('create-perfil-cumple');
+      var estudios = document.getElementById('create-perfil-estudios');
+      var pronombres = document.getElementById('create-perfil-pronombres');
+      var tema = document.getElementById('create-perfil-tema');
+
       if (n) { n.value = p.nombre_perfil || ''; n.dispatchEvent(new Event('input')); }
       if (s) s.value = p.slug || '';
       if (t) t.value = p.tipo || 'personal';
       if (b) { b.value = p.bio || ''; b.dispatchEvent(new Event('input')); }
+      if (wa) { wa.value = p.whatsapp || ''; wa.dispatchEvent(new Event('input')); }
+      if (ig) { ig.value = p.instagram || ''; ig.dispatchEvent(new Event('input')); }
+      if (web) { web.value = p.sitio_web || ''; web.dispatchEvent(new Event('input')); }
+      if (cumple) cumple.value = p.cumpleanos || '';
+      if (estudios) estudios.value = p.estudios || '';
+      if (pronombres) pronombres.value = p.pronombres || '';
+      if (tema) tema.value = p.tema_color || 'neon';
     }
   } catch (err) {
     console.error('Error al cargar perfil para edición:', err);
@@ -177,11 +192,25 @@ window.executeCreatePerfil = async function(e) {
   var slugInput = document.getElementById('create-perfil-slug');
   var tipoInput = document.getElementById('create-perfil-tipo');
   var bioInput = document.getElementById('create-perfil-bio');
+  var waInput = document.getElementById('create-perfil-wa');
+  var igInput = document.getElementById('create-perfil-ig');
+  var webInput = document.getElementById('create-perfil-web');
+  var cumpleInput = document.getElementById('create-perfil-cumple');
+  var estudiosInput = document.getElementById('create-perfil-estudios');
+  var pronombresInput = document.getElementById('create-perfil-pronombres');
+  var temaSelect = document.getElementById('create-perfil-tema');
 
   var nombre = nombreInput ? nombreInput.value.trim() : '';
   var slug = slugInput ? slugInput.value.trim() : '';
   var tipo = tipoInput ? tipoInput.value : 'personal';
   var bio = bioInput ? bioInput.value.trim() : '';
+  var whatsapp = waInput ? waInput.value.trim() : '';
+  var instagram = igInput ? igInput.value.trim() : '';
+  var sitio_web = webInput ? webInput.value.trim() : '';
+  var cumpleanos = cumpleInput ? cumpleInput.value.trim() : '';
+  var estudios = estudiosInput ? estudiosInput.value.trim() : '';
+  var pronombres = pronombresInput ? pronombresInput.value.trim() : '';
+  var tema_color = temaSelect ? temaSelect.value : 'neon';
 
   if (!nombre || !slug) {
     if (typeof showToast === 'function') showToast('Ingresa un nombre y link para tu tarjeta', 'error');
@@ -194,16 +223,30 @@ window.executeCreatePerfil = async function(e) {
   try {
     if (typeof showToast === 'function') showToast(editPerfilId ? 'Guardando cambios...' : 'Creando nueva tarjeta digital...', 'info');
     
+    var payload = {
+      nombre_perfil: nombre,
+      slug: slug,
+      tipo: tipo,
+      bio: bio,
+      whatsapp: whatsapp,
+      instagram: instagram,
+      sitio_web: sitio_web,
+      cumpleanos: cumpleanos,
+      estudios: estudios,
+      pronombres: pronombres,
+      tema_color: tema_color
+    };
+
     var data;
     if (editPerfilId) {
       data = await api('/perfiles/' + editPerfilId, {
         method: 'PUT',
-        body: JSON.stringify({ nombre_perfil: nombre, tipo: tipo, bio: bio })
+        body: JSON.stringify(payload)
       });
     } else {
       data = await api('/perfiles', {
         method: 'POST',
-        body: JSON.stringify({ nombre_perfil: nombre, slug: slug, tipo: tipo, bio: bio })
+        body: JSON.stringify(payload)
       });
     }
 
@@ -575,7 +618,7 @@ window.executeCreatePerfil = async function(e) {
           '</div>' +
         '</div>' +
         '<div class="card-actions" style="display:flex;align-items:center;justify-content:center;gap:6px;width:max-content;flex-shrink:0">' +
-          '<a href="/editor.html?id=' + p.id + '" class="btn btn-icon btn-sm" onclick="event.stopPropagation()" title="Abrir editor visual" style="width:34px;height:34px;min-width:34px;flex:0 0 34px;display:inline-flex;align-items:center;justify-content:center;color:var(--accent)">✏️</a>' +
+          '<button type="button" class="btn btn-icon btn-sm" onclick="event.stopPropagation(); openEditModal(' + p.id + ');" title="Abrir editor visual incrustado" style="width:34px;height:34px;min-width:34px;flex:0 0 34px;display:inline-flex;align-items:center;justify-content:center;color:var(--accent)">✏️</button>' +
           '<a href="/u/' + (p.slug || p.id) + '" class="btn btn-icon btn-sm" onclick="event.stopPropagation()" target="_blank" title="Ver perfil público" style="width:34px;height:34px;min-width:34px;flex:0 0 34px;display:inline-flex;align-items:center;justify-content:center">👁</a>' +
           '<a href="/analytics.html?id=' + p.id + '" class="btn btn-icon btn-sm" onclick="event.stopPropagation()" title="Analíticas" style="width:34px;height:34px;min-width:34px;flex:0 0 34px;display:inline-flex;align-items:center;justify-content:center">📊</a>' +
           '<a href="/compartir.html?id=' + p.id + '&slug=' + (p.slug || p.id) + '" class="btn btn-icon btn-sm" onclick="event.stopPropagation()" title="Compartir & QR" style="width:34px;height:34px;min-width:34px;flex:0 0 34px;display:inline-flex;align-items:center;justify-content:center">↗</a>' +
@@ -861,19 +904,25 @@ window.executeCreatePerfil = async function(e) {
 
     const BLOCKS = {
       personal: [
-        { id: 'contact',   label: 'Guardar contacto', hint: 'vCard con foto y datos', icon: 'user' },
-        { id: 'social',    label: 'Redes sociales',   hint: 'Instagram, LinkedIn…',  icon: 'share' },
-        { id: 'portfolio', label: 'Portafolio',       hint: 'Trabajos o servicios',  icon: 'briefcase' }
+        { id: 'contact',   label: 'Guardar contacto', hint: 'vCard interactiva con foto y datos', icon: 'user' },
+        { id: 'social',    label: 'Redes sociales',   hint: 'Instagram, Facebook, TikTok, LinkedIn', icon: 'share' },
+        { id: 'portfolio', label: 'Portafolio & Galería', hint: 'Muestra tus mejores proyectos y trabajos', icon: 'briefcase' },
+        { id: 'location',  label: 'Ubicación / Dirección', hint: 'Mapa interactivas y coordenadas GPS', icon: 'mapPin' },
+        { id: 'menu',      label: 'Servicios & Lista', hint: 'Servicios, menú o publicaciones', icon: 'book' },
+        { id: 'reviews',   label: 'Reseñas & Puntuación', hint: 'Google Maps y recomendaciones', icon: 'star' }
       ],
       negocio: [
-        { id: 'location', label: 'Sucursales', hint: 'Dirección + mapa',      icon: 'mapPin' },
-        { id: 'hours',    label: 'Horario',    hint: 'Días y horas de servicio', icon: 'clock' },
-        { id: 'menu',     label: 'Catálogo',   hint: 'Productos o platillos', icon: 'book' },
-        { id: 'delivery', label: 'Delivery',   hint: 'Uber Eats, Rappi…',     icon: 'truck' },
-        { id: 'reviews',  label: 'Reseñas',    hint: 'Google, TripAdvisor',   icon: 'star' }
+        { id: 'location', label: 'Sucursales (Ubicaciones)', hint: 'Dirección física + mapas integrados', icon: 'mapPin' },
+        { id: 'menu',     label: 'Menú Digital / Catálogo', hint: 'Platillos, cortes o productos', icon: 'book' },
+        { id: 'delivery', label: 'Botones Delivery', hint: 'Uber Eats, Rappi, Didi Food', icon: 'truck' },
+        { id: 'reviews',  label: 'Reseñas & Google Rating', hint: 'Calificación de clientes y opiniones', icon: 'star' },
+        { id: 'hours',    label: 'Horario de Atención', hint: 'Días y horas de servicio', icon: 'clock' },
+        { id: 'contact',  label: 'Guardar contacto vCard', hint: 'Descarga directa de contacto al celular', icon: 'user' },
+        { id: 'social',   label: 'Redes Sociales de Marca', hint: 'Instagram, Facebook, YouTube', icon: 'share' },
+        { id: 'portfolio', label: 'Galería de Productos', hint: 'Fotos de la sucursal y platillos', icon: 'briefcase' }
       ]
     };
-    const DEFAULT_BLOCKS = { personal: ['contact', 'social', 'portfolio'], negocio: ['location', 'hours', 'menu'] };
+    const DEFAULT_BLOCKS = { personal: ['contact', 'social', 'portfolio'], negocio: ['location', 'menu', 'delivery', 'reviews', 'hours'] };
 
     const state = {
       cardType: 'negocio',
