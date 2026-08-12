@@ -20,24 +20,28 @@
     <style>{{tema_css}}</style>
     <style>
         /* VYNK perfil público — pantalla tipo teléfono dark */
-        html, body { margin: 0; padding: 0; }
+        html, body { margin: 0; padding: 0; width: 100%; min-height: 100vh; }
         body {
-            background: #0B0E14;
+            background: var(--bg-primary, #0B0E14);
             background-image:
                 radial-gradient(1200px 600px at 20% -10%, rgba(124, 58, 237, 0.16), transparent 60%),
                 radial-gradient(900px 500px at 110% 10%, rgba(122, 106, 240, 0.10), transparent 55%);
             background-attachment: fixed;
-            color: #EEEAE0;
-            font-family: 'Inter', system-ui, sans-serif;
-            min-height: 100vh;
-        }
-        .vynk-public {
-            max-width: 480px;
-            margin: 0 auto;
-            padding: 24px 18px calc(40px + env(safe-area-inset-bottom));
+            color: var(--text-primary, #F8FAFC);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            align-items: center;
+        }
+        .vynk-public {
+            width: 100% !important;
+            max-width: 480px !important;
+            margin: 0 auto !important;
+            padding: 24px 20px calc(40px + env(safe-area-inset-bottom)) !important;
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 16px !important;
+            box-sizing: border-box !important;
         }
         .hero-banner {
             margin: 0 -18px;

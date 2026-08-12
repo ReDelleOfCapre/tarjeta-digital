@@ -440,35 +440,40 @@ async function perfilPublicoHandler(req, res) {
           const isLocationBlock = urlStr.includes('maps.google.com') || urlStr.includes('google.com/maps') || (titStr && (titStr.toLowerCase().includes('ubicacion') || titStr.toLowerCase().includes('mapa') || titStr.toLowerCase().includes('sucursal')));
           const isSocialLink = urlStr.includes('instagram.com') || urlStr.includes('tiktok.com') || urlStr.includes('twitter.com') || urlStr.includes('x.com') || urlStr.includes('facebook.com') || urlStr.includes('youtube.com') || urlStr.includes('linkedin.com');
           const hasRichImage = (bContent?.og_image || bContent?.image || isLocationBlock) ? ' has-bento-rich' : '';
-          const bentoClass = (blockType === 'whatsapp' || blockType === 'pago' || blockType === 'email_capture' || isLocationBlock || hasRichImage)
+          const bentoClass = (blockType === 'whatsapp' || blockType === 'pago' || blockType === 'email_capture' || blockType === 'ubicaciones' || isLocationBlock || hasRichImage)
             ? ' bento-hero'
             : (blockType === 'pdf' ? ' bento-media' : (isSocialLink ? ' bento-social' : ' bento-hero'));
-          let html = `<div class="block-wrapper block-${escapeHtml(blockType)}${hasRichImage}${bentoClass}" data-bloque-id="${bId}">`;
+
+          let inner = '';
 
           switch (blockType) {
             case 'link': {
               const url = urlStr;
               const titulo = bContent?.titulo || 'Enlace';
               const subtitulo = bContent?.subtitulo || '';
+              if (!url && !titulo) return '';
               if (url.includes('open.spotify.com')) {
                 let spotifyPath = url.replace('https://open.spotify.com/', '').replace('http://open.spotify.com/', '');
                 if (!spotifyPath.startsWith('embed/')) spotifyPath = 'embed/' + spotifyPath;
-                html += `<iframe class="smart-player" src="https://open.spotify.com/${escapeHtml(spotifyPath)}" width="100%" height="152" frameborder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
+                inner += `<iframe class="smart-player" src="https://open.spotify.com/${escapeHtml(spotifyPath)}" width="100%" height="152" frameborder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>`;
               } else if (isLocationBlock) {
                 const deepLinkUrl = url.includes('http') ? url : `https://maps.google.com/?q=${encodeURIComponent(titulo || 'Ubicación')}`;
-                html += `<details class="smart-accordion" open>
-                  <summary style="border-left:4px solid #EA4335">
-                    <div style="display:flex;align-items:center;gap:10px">
-                      <i class="fas fa-map-location-dot" style="color:#EA4335;font-size:1rem"></i>
-                      <span style="font-weight:700;font-size:0.95rem;color:#FFF;white-space:normal;line-height:1.4">📍 ${escapeHtml(titulo)}</span>
+                inner += `<details class="smart-accordion" open style="border-radius:20px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);overflow:hidden;box-sizing:border-box">
+                  <summary style="padding:16px 18px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;list-style:none">
+                    <div style="display:flex;align-items:center;gap:12px">
+                      <div class="bl-icon" style="background:rgba(239,111,124,0.15);color:#EF6F7C;width:40px;height:40px;border-radius:12px;display:grid;place-items:center"><i class="fas fa-map-marked-alt" style="font-size:1.1rem"></i></div>
+                      <div>
+                        <div class="bl-title" style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.05rem;color:var(--text-primary,#FFF);line-height:1.25">${escapeHtml(titulo)}</div>
+                        ${subtitulo ? `<div class="bl-sub" style="font-family:'Inter',sans-serif;font-size:0.85rem;color:var(--text-secondary,#94A3B8);margin-top:3px">${escapeHtml(subtitulo)}</div>` : ''}
+                      </div>
                     </div>
+                    <i class="fas fa-chevron-down" style="color:var(--text-tertiary,#64748B);font-size:0.85rem;margin-left:8px"></i>
                   </summary>
-                  <div class="smart-accordion-content" style="padding:16px 20px 20px 20px;display:flex;flex-direction:column;gap:12px">
-                    ${subtitulo ? `<div style="font-size:0.88rem;color:rgba(255,255,255,0.75);line-height:1.5;white-space:normal;word-break:break-word">${escapeHtml(subtitulo)}</div>` : ''}
-                    <a href="${escapeHtml(deepLinkUrl)}" target="_blank" rel="noopener" class="btn btn-secondary btn-block" style="margin-top:6px;padding:12px 16px;font-size:0.85rem;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;border-radius:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#FFF">
-                      <i class="fas fa-location-arrow" style="color:#EA4335;font-size:0.9rem"></i>
-                      <span>Abrir en Mapas Nativos del Sistema</span>
-                      <i class="fas fa-external-link-alt" style="opacity:0.6;font-size:0.75rem;margin-left:auto"></i>
+                  <div class="smart-accordion-content" style="padding:0 18px 18px 18px;display:flex;flex-direction:column;gap:12px">
+                    <a href="${escapeHtml(deepLinkUrl)}" target="_blank" rel="noopener" class="btn btn-secondary btn-block" style="margin-top:4px;padding:12px 18px;font-size:0.88rem;font-weight:600;display:flex;align-items:center;justify-content:center;gap:10px;border-radius:14px;background:rgba(239,111,124,0.15);border:1px solid rgba(239,111,124,0.3);color:#FFF">
+                      <i class="fas fa-location-arrow" style="color:#EF6F7C;font-size:0.95rem"></i>
+                      <span>Calcula tu ruta en Mapas (GPS Nactivo)</span>
+                      <i class="fas fa-external-link-alt" style="opacity:0.6;font-size:0.8rem;margin-left:auto"></i>
                     </a>
                   </div>
                 </details>`;
@@ -480,7 +485,7 @@ async function perfilPublicoHandler(req, res) {
                 const favicon = bContent?.favicon || '';
 
                 if (ogImage) {
-                  html += `<a href="${escapeHtml(url)}" target="_blank" rel="noopener" class="bento-rich-card bento-hero-card">
+                  inner += `<a href="${escapeHtml(url)}" target="_blank" rel="noopener" class="bento-rich-card bento-hero-card">
                     <img src="${escapeHtml(ogImage)}" alt="${escapeHtml(titulo)}" class="bento-thumb" onerror="this.style.display='none'">
                     <div class="bento-content">
                       <div class="bento-title">${escapeHtml(titulo)}</div>
@@ -494,7 +499,7 @@ async function perfilPublicoHandler(req, res) {
                   </a>`;
                 } else if (isSocialLink) {
                   const domain = bContent?.domain || url.replace(/https?:\/\/(www\.)?/, '').split('/')[0] || 'Social';
-                  html += `<a href="${escapeHtml(url)}" target="_blank" rel="noopener" class="block-link bento-social-card" style="border-left: 3px solid ${brandColor};">
+                  inner += `<a href="${escapeHtml(url)}" target="_blank" rel="noopener" class="block-link bento-social-card" style="border-left: 3px solid ${brandColor};">
                     <div class="bento-social-icon" style="color: ${brandColor}">${icon}</div>
                     <div class="bl-text" style="text-align:center">
                       <div class="bl-title" style="font-size:0.9rem">${escapeHtml(titulo)}</div>
@@ -502,7 +507,7 @@ async function perfilPublicoHandler(req, res) {
                     </div>
                   </a>`;
                 } else {
-                  html += `<a href="${escapeHtml(url)}" target="_blank" rel="noopener" class="block-link bento-hero-card" style="border-left: 4px solid ${brandColor};">
+                  inner += `<a href="${escapeHtml(url)}" target="_blank" rel="noopener" class="block-link bento-hero-card" style="border-left: 4px solid ${brandColor};">
                     <div class="bl-icon" style="color: ${brandColor}">${icon}</div>
                     <div class="bl-text">
                       <div class="bl-title">${escapeHtml(titulo)}</div>
@@ -522,37 +527,38 @@ async function perfilPublicoHandler(req, res) {
               const mapUrl = bContent?.url_mapa || (direccion ? `https://maps.google.com/?q=${encodeURIComponent(direccion)}` : '');
               const sucursales = Array.isArray(bContent?.sucursales) ? bContent.sucursales : [];
 
-              html += `<details class="smart-accordion" open style="border-radius:18px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);margin-bottom:12px;overflow:hidden">
-                <summary style="border-left:4px solid #EF6F7C;padding:16px 20px;cursor:pointer">
+              inner += `<details class="smart-accordion" open style="border-radius:20px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);overflow:hidden;box-sizing:border-box">
+                <summary style="padding:16px 18px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;list-style:none">
                   <div style="display:flex;align-items:center;gap:12px">
-                    <i class="fas fa-map-marked-alt" style="color:#EF6F7C;font-size:1.2rem"></i>
+                    <div class="bl-icon" style="background:rgba(239,111,124,0.15);color:#EF6F7C;width:40px;height:40px;border-radius:12px;display:grid;place-items:center"><i class="fas fa-map-marked-alt" style="font-size:1.1rem"></i></div>
                     <div>
-                      <div style="font-weight:700;font-size:1rem;color:#FFF">${escapeHtml(titulo)}</div>
-                      <div style="font-size:0.8rem;color:rgba(255,255,255,0.7)">${escapeHtml(subtitulo)}</div>
+                      <div class="bl-title" style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.05rem;color:var(--text-primary,#FFF);line-height:1.25">${escapeHtml(titulo)}</div>
+                      <div class="bl-sub" style="font-family:'Inter',sans-serif;font-size:0.85rem;color:var(--text-secondary,#94A3B8);margin-top:3px">${escapeHtml(subtitulo)}</div>
                     </div>
                   </div>
+                  <i class="fas fa-chevron-down" style="color:var(--text-tertiary,#64748B);font-size:0.85rem;margin-left:8px"></i>
                 </summary>
-                <div class="smart-accordion-content" style="padding:16px 20px 20px 20px;display:flex;flex-direction:column;gap:12px">
-                  ${direccion ? `<div style="font-size:0.88rem;color:rgba(255,255,255,0.9)"><i class="fas fa-location-dot" style="color:#EF6F7C;margin-right:6px"></i> <strong>Dirección:</strong> ${escapeHtml(direccion)}</div>` : ''}
-                  ${horario ? `<div style="font-size:0.85rem;color:rgba(255,255,255,0.75)"><i class="fas fa-clock" style="color:#F59E0B;margin-right:6px"></i> <strong>Horario:</strong> ${escapeHtml(horario)}</div>` : ''}
+                <div class="smart-accordion-content" style="padding:0 18px 18px 18px;display:flex;flex-direction:column;gap:12px">
+                  ${direccion ? `<div style="font-size:0.88rem;color:rgba(255,255,255,0.9);line-height:1.4"><i class="fas fa-location-dot" style="color:#EF6F7C;margin-right:8px"></i> <strong>Dirección:</strong> ${escapeHtml(direccion)}</div>` : ''}
+                  ${horario ? `<div style="font-size:0.85rem;color:rgba(255,255,255,0.75);line-height:1.4"><i class="fas fa-clock" style="color:#F59E0B;margin-right:8px"></i> <strong>Horario:</strong> ${escapeHtml(horario)}</div>` : ''}
                   ${sucursales.length > 0 ? `
-                    <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+                    <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px">
                       ${sucursales.map(s => `
-                        <div style="padding:10px 14px;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:space-between">
+                        <div style="padding:12px 16px;border-radius:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:space-between">
                           <div>
-                            <div style="font-size:0.85rem;font-weight:700;color:#FFF">${escapeHtml(s.nombre || 'Sucursal')}</div>
-                            <div style="font-size:0.75rem;color:rgba(255,255,255,0.65)">${escapeHtml(s.direccion || '')}</div>
+                            <div style="font-size:0.9rem;font-weight:700;color:var(--text-primary,#FFF);font-family:'Space Grotesk',sans-serif">${escapeHtml(s.nombre || 'Sucursal')}</div>
+                            <div style="font-size:0.8rem;color:var(--text-secondary,#94A3B8);margin-top:2px">${escapeHtml(s.direccion || '')}</div>
                           </div>
-                          ${s.telefono ? `<a href="tel:${escapeHtml(s.telefono)}" class="btn btn-sm btn-ghost" style="padding:4px 10px;font-size:0.75rem">📞 ${escapeHtml(s.telefono)}</a>` : ''}
+                          ${s.telefono ? `<a href="tel:${escapeHtml(s.telefono)}" class="btn btn-sm btn-ghost" style="padding:6px 12px;font-size:0.8rem;border-radius:10px;font-weight:600;color:#38BDF8">📞 ${escapeHtml(s.telefono)}</a>` : ''}
                         </div>
                       `).join('')}
                     </div>
                   ` : ''}
                   ${mapUrl ? `
-                    <a href="${escapeHtml(mapUrl)}" target="_blank" rel="noopener" class="btn btn-secondary btn-block" style="margin-top:8px;padding:12px 16px;font-size:0.85rem;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;border-radius:12px;background:rgba(239,111,124,0.15);border:1px solid rgba(239,111,124,0.3);color:#FFF">
-                      <i class="fas fa-location-arrow" style="color:#EF6F7C;font-size:0.9rem"></i>
-                      <span>Abrir en Mapas Nativos del Sistema (GPS)</span>
-                      <i class="fas fa-external-link-alt" style="opacity:0.6;font-size:0.75rem;margin-left:auto"></i>
+                    <a href="${escapeHtml(mapUrl)}" target="_blank" rel="noopener" class="btn btn-secondary btn-block" style="margin-top:6px;padding:12px 18px;font-size:0.88rem;font-weight:600;display:flex;align-items:center;justify-content:center;gap:10px;border-radius:14px;background:rgba(239,111,124,0.15);border:1px solid rgba(239,111,124,0.3);color:#FFF">
+                      <i class="fas fa-location-arrow" style="color:#EF6F7C;font-size:0.95rem"></i>
+                      <span>Calcula tu ruta en Mapas (GPS Nactivo)</span>
+                      <i class="fas fa-external-link-alt" style="opacity:0.6;font-size:0.8rem;margin-left:auto"></i>
                     </a>
                   ` : ''}
                 </div>
@@ -688,13 +694,13 @@ async function perfilPublicoHandler(req, res) {
               html += `<div class="block-unsupported">Bloque: ${escapeHtml(blockType)}</div>`;
           }
 
-          html += `</div>`;
-          return html;
+          if (!inner || !inner.trim()) return '';
+          return `<div class="block-wrapper block-${escapeHtml(blockType)}${hasRichImage}${bentoClass}" data-bloque-id="${bId}">${inner}</div>`;
         } catch (e) {
           console.error('[CRITICAL] Error al renderizar bloque individual:', e);
           return '';
         }
-      }).join('\n');
+      }).filter(Boolean).join('\n');
     } else {
       const campos_html = campos.map(campo => {
         const icon = getFieldIcon(campo.tipo);
