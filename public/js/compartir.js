@@ -77,11 +77,17 @@
 
   async function loadProfileInfo() {
     try {
-      const data = await api('/perfiles/slug/' + slug, { method: 'GET' });
+      const id = params.get('id');
+      const endpoint = id ? '/perfiles/' + id : null;
+      if (!endpoint) {
+        shareNombre.textContent = slug;
+        shareTipo.textContent = 'Tarjeta';
+        return;
+      }
+      const data = await api(endpoint, { method: 'GET' });
       if (data && !data.error) {
-        const perfil = data.perfil || data;
-        shareNombre.textContent = perfil.nombre_perfil || slug;
-        shareTipo.textContent = perfil.tipo || 'personal';
+        shareNombre.textContent = data.nombre_perfil || slug;
+        shareTipo.textContent = data.tipo || 'personal';
       } else {
         shareNombre.textContent = slug;
         shareTipo.textContent = 'Tarjeta';

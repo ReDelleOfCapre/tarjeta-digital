@@ -1,4 +1,4 @@
-const CACHE = 'vynk-v3';
+const CACHE = 'vynk-v4';
 
 self.addEventListener('install', e => {
   self.skipWaiting();

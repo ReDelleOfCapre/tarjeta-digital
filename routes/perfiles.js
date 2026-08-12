@@ -511,6 +511,51 @@ async function perfilPublicoHandler(req, res) {
               }
               break;
             }
+            case 'ubicaciones': {
+              const titulo = bContent?.titulo || '📍 Mapa & Sucursales';
+              const subtitulo = bContent?.subtitulo || 'Ven a visitarnos o calcula tu ruta GPS';
+              const direccion = bContent?.direccion || '';
+              const horario = bContent?.horario || '';
+              const mapUrl = bContent?.url_mapa || (direccion ? `https://maps.google.com/?q=${encodeURIComponent(direccion)}` : '');
+              const sucursales = Array.isArray(bContent?.sucursales) ? bContent.sucursales : [];
+
+              html += `<details class="smart-accordion" open style="border-radius:18px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);margin-bottom:12px;overflow:hidden">
+                <summary style="border-left:4px solid #EF6F7C;padding:16px 20px;cursor:pointer">
+                  <div style="display:flex;align-items:center;gap:12px">
+                    <i class="fas fa-map-marked-alt" style="color:#EF6F7C;font-size:1.2rem"></i>
+                    <div>
+                      <div style="font-weight:700;font-size:1rem;color:#FFF">${escapeHtml(titulo)}</div>
+                      <div style="font-size:0.8rem;color:rgba(255,255,255,0.7)">${escapeHtml(subtitulo)}</div>
+                    </div>
+                  </div>
+                </summary>
+                <div class="smart-accordion-content" style="padding:16px 20px 20px 20px;display:flex;flex-direction:column;gap:12px">
+                  ${direccion ? `<div style="font-size:0.88rem;color:rgba(255,255,255,0.9)"><i class="fas fa-location-dot" style="color:#EF6F7C;margin-right:6px"></i> <strong>Dirección:</strong> ${escapeHtml(direccion)}</div>` : ''}
+                  ${horario ? `<div style="font-size:0.85rem;color:rgba(255,255,255,0.75)"><i class="fas fa-clock" style="color:#F59E0B;margin-right:6px"></i> <strong>Horario:</strong> ${escapeHtml(horario)}</div>` : ''}
+                  ${sucursales.length > 0 ? `
+                    <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+                      ${sucursales.map(s => `
+                        <div style="padding:10px 14px;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:space-between">
+                          <div>
+                            <div style="font-size:0.85rem;font-weight:700;color:#FFF">${escapeHtml(s.nombre || 'Sucursal')}</div>
+                            <div style="font-size:0.75rem;color:rgba(255,255,255,0.65)">${escapeHtml(s.direccion || '')}</div>
+                          </div>
+                          ${s.telefono ? `<a href="tel:${escapeHtml(s.telefono)}" class="btn btn-sm btn-ghost" style="padding:4px 10px;font-size:0.75rem">📞 ${escapeHtml(s.telefono)}</a>` : ''}
+                        </div>
+                      `).join('')}
+                    </div>
+                  ` : ''}
+                  ${mapUrl ? `
+                    <a href="${escapeHtml(mapUrl)}" target="_blank" rel="noopener" class="btn btn-secondary btn-block" style="margin-top:8px;padding:12px 16px;font-size:0.85rem;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;border-radius:12px;background:rgba(239,111,124,0.15);border:1px solid rgba(239,111,124,0.3);color:#FFF">
+                      <i class="fas fa-location-arrow" style="color:#EF6F7C;font-size:0.9rem"></i>
+                      <span>Abrir en Mapas Nativos del Sistema (GPS)</span>
+                      <i class="fas fa-external-link-alt" style="opacity:0.6;font-size:0.75rem;margin-left:auto"></i>
+                    </a>
+                  ` : ''}
+                </div>
+              </details>`;
+              break;
+            }
             case 'spotify':
             case 'youtube':
             case 'tweet':

@@ -48,10 +48,11 @@ router.post('/perfiles/:perfilId/bloques', auth, requireQuota, async (req, res) 
 
     const maxRow = await db.prepare('SELECT MAX(orden) as max FROM bloques WHERE perfil_id = ?').get(perfilId);
     const maxOrden = (maxRow && maxRow.max) ? maxRow.max : 0;
+    const ordenFinal = Number.isInteger(req.body.orden) ? req.body.orden : maxOrden + 1;
 
     const result = await db.prepare(
       'INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES (?, ?, ?, ?)'
-    ).run(perfilId, tipo, JSON.stringify(parsedContent), maxOrden + 1);
+    ).run(perfilId, tipo, JSON.stringify(parsedContent), ordenFinal);
 
     const newBloque = await db.prepare('SELECT * FROM bloques WHERE id = ?').get(result.lastInsertRowid);
     res.status(201).json(newBloque);
@@ -74,7 +75,7 @@ router.put('/bloques/:id', auth, requireQuota, async (req, res) => {
     if (!bloque) return res.status(404).json({ error: 'Bloque no encontrado.' });
     if (bloque.usuario_id !== req.user.id) return res.status(403).json({ error: 'Acceso denegado.' });
 
-    const { contenido, visible } = req.body;
+    const { contenido, visible, orden } = req.body;
     let contentToSave = contenido;
 
     if (contenido) {
@@ -91,10 +92,11 @@ router.put('/bloques/:id', auth, requireQuota, async (req, res) => {
     }
 
     const visibleToSave = visible !== undefined ? visible : bloque.visible;
+    const ordenToSave = orden !== undefined ? orden : bloque.orden;
 
     await db.prepare(
-      'UPDATE bloques SET contenido = ?, visible = ? WHERE id = ?'
-    ).run(contentToSave, visibleToSave, bloqueId);
+      'UPDATE bloques SET contenido = ?, visible = ?, orden = ? WHERE id = ?'
+    ).run(contentToSave, visibleToSave, ordenToSave, bloqueId);
 
     const updatedBloque = await db.prepare('SELECT * FROM bloques WHERE id = ?').get(bloqueId);
     res.json(updatedBloque);

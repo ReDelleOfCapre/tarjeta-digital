@@ -3,8 +3,10 @@
 // ============================================
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Redirect if logged in
-  if (localStorage.getItem('token')) {
+  // Redirect if logged in (ignora el token demo para que el login/registro siga accesible)
+  const existingToken = localStorage.getItem('token');
+  const isDemoToken = existingToken && (existingToken === 'vynk_demo_active_token' || existingToken.startsWith('vynk_demo_'));
+  if (existingToken && !isDemoToken) {
     window.location.href = '/dashboard.html';
     return;
   }

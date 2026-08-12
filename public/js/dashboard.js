@@ -540,7 +540,7 @@ window.executeCreatePerfil = async function(e) {
           '</div>' +
         '</div>' +
         '<div class="card-actions" style="display:flex;align-items:center;justify-content:center;gap:6px;width:max-content;flex-shrink:0">' +
-          '<a href="/editor.html?id=' + p.id + '" class="btn btn-icon btn-sm" onclick="event.stopPropagation()" title="Abrir editor visual" style="width:34px;height:34px;min-width:34px;flex:0 0 34px;display:inline-flex;align-items:center;justify-content:center;color:var(--accent)">✏️</a>' +
+          '<button class="btn btn-icon btn-sm" onclick="event.stopPropagation();openEditModal(' + p.id + ')" title="Abrir editor visual" style="width:34px;height:34px;min-width:34px;flex:0 0 34px;display:inline-flex;align-items:center;justify-content:center;color:var(--accent)">✏️</button>' +
           '<a href="/u/' + (p.slug || p.id) + '" class="btn btn-icon btn-sm" onclick="event.stopPropagation()" target="_blank" title="Ver perfil público" style="width:34px;height:34px;min-width:34px;flex:0 0 34px;display:inline-flex;align-items:center;justify-content:center">👁</a>' +
           '<a href="/analytics.html?id=' + p.id + '" class="btn btn-icon btn-sm" onclick="event.stopPropagation()" title="Analíticas" style="width:34px;height:34px;min-width:34px;flex:0 0 34px;display:inline-flex;align-items:center;justify-content:center">📊</a>' +
           '<a href="/compartir.html?id=' + p.id + '&slug=' + (p.slug || p.id) + '" class="btn btn-icon btn-sm" onclick="event.stopPropagation()" title="Compartir & QR" style="width:34px;height:34px;min-width:34px;flex:0 0 34px;display:inline-flex;align-items:center;justify-content:center">↗</a>' +

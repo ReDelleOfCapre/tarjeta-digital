@@ -51,7 +51,12 @@ class PgDatabaseWrapper {
   }
 
   async query(sql, params = []) {
-    const finalSql = this._normalizeSql(sql);
+    let finalSql = this._normalizeSql(sql);
+    const isInsert = /^\s*INSERT\b/i.test(finalSql);
+    const hasReturning = /\bRETURNING\b/i.test(finalSql);
+    if (isInsert && !hasReturning) {
+      finalSql = finalSql.replace(/;?\s*$/, '') + ' RETURNING id';
+    }
     const res = await this.pool.query(finalSql, params);
     return {
       rows: res.rows || [],
