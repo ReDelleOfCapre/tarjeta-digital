@@ -240,8 +240,26 @@
             </div>
           </div>
 
+          <!-- Xbox Style Identity Strength Progress Ring -->
+          <div class="card p-20" style="padding:18px 24px;margin-top:16px;margin-bottom:16px;background:linear-gradient(135deg, rgba(124,58,237,0.1), rgba(10,132,255,0.06));border:1px solid rgba(124,58,237,0.25);border-radius:16px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+            <div style="display:flex;align-items:center;gap:16px">
+              <div style="position:relative;width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,0.06);display:grid;place-items:center">
+                <svg width="52" height="52" viewBox="0 0 36 36" style="transform:rotate(-90deg)">
+                  <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="3"/>
+                  <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#0A84FF" stroke-width="3" stroke-dasharray="85, 100"/>
+                </svg>
+                <span style="position:absolute;font-size:0.75rem;font-weight:700;color:#fff">85%</span>
+              </div>
+              <div>
+                <div style="font-size:0.95rem;font-weight:700;color:var(--text-main)">Nivel 4: Identidad PRO 🚀</div>
+                <div style="font-size:0.78rem;color:var(--text-muted)">Logro disponible: Agrega tu ubicación en mapa para llegar a 100%</div>
+              </div>
+            </div>
+            <button class="btn btn-secondary" onclick="window.location.href='/editor.html'" style="font-size:0.8rem;padding:8px 16px;border-radius:100px;border:1px solid rgba(255,255,255,0.15)">Completar perfil ➔</button>
+          </div>
+
           <!-- B2C Prominent CTA: Pedir Tarjeta Física NFC -->
-          <div class="card p-20" style="padding:18px 24px;margin-top:16px;margin-bottom:20px;background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:12px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+          <div class="card p-20" style="padding:18px 24px;margin-bottom:16px;background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:12px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
             <div style="display:flex;align-items:center;gap:14px">
               <div style="font-size:2.2rem">💳</div>
               <div>
@@ -765,6 +783,18 @@
       </div>
     </div>
   </div>
+
+  <!-- Xbox Style Quick-Resume Floating Bottom Bar -->
+  <aside class="quick-resume-bar" style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:99;background:rgba(18,22,27,0.88);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.14);padding:10px 20px;border-radius:100px;display:flex;align-items:center;gap:16px;box-shadow:0 12px 40px rgba(0,0,0,0.6)">
+    <div style="display:flex;align-items:center;gap:8px;font-size:0.82rem;color:#fff;font-weight:600">
+      <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#10B981;box-shadow:0 0 10px #10B981"></span>
+      <span>🟢 14 personas en vivo</span>
+    </div>
+    <div style="width:1px;height:16px;background:rgba(255,255,255,0.15)"></div>
+    <a href="/editor.html" style="display:inline-flex;align-items:center;gap:6px;color:#0A84FF;font-size:0.82rem;font-weight:700;text-decoration:none">
+      ⚡ Quick-Resume Editor ➔
+    </a>
+  </aside>
 
   <script src="js/app.js"></script>
   <script src="js/dashboard.js"></script>

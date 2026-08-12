@@ -70,6 +70,28 @@
             line-height: 1.15 !important;
             text-shadow: 0 2px 12px rgba(0,0,0,0.35);
         }
+        /* Spotify Sound Wave & Voice Greeting Pill */
+        .voice-greeting-pill {
+            display: inline-flex; align-items: center; gap: 10px;
+            padding: 8px 16px; border-radius: 100px;
+            background: rgba(30, 215, 96, 0.12); border: 1px solid rgba(30, 215, 96, 0.3);
+            color: #1DB954; font-size: 0.8rem; font-weight: 600; cursor: pointer;
+            margin: 8px auto 0; transition: transform 160ms ease, background 160ms ease; text-decoration: none;
+        }
+        .voice-greeting-pill:hover { transform: scale(1.03); background: rgba(30, 215, 96, 0.2); }
+        .sound-wave { display: flex; align-items: center; gap: 3px; height: 14px; }
+        .sound-wave span {
+            width: 3px; height: 100%; background: #1DB954; border-radius: 3px;
+            animation: sound-bar 1.2s ease-in-out infinite alternate;
+        }
+        .sound-wave span:nth-child(2) { animation-delay: 0.2s; height: 60%; }
+        .sound-wave span:nth-child(3) { animation-delay: 0.4s; height: 90%; }
+        .sound-wave span:nth-child(4) { animation-delay: 0.1s; height: 50%; }
+        @keyframes sound-bar {
+            0% { transform: scaleY(0.3); }
+            100% { transform: scaleY(1); }
+        }
+
         .bio { color: var(--text-secondary, #94A3B8) !important; font-size: 0.95rem !important; max-width: 380px !important; margin: 4px auto 0 !important; line-height: 1.6 !important; }
         .tags { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 8px; }
         .tag {
@@ -129,6 +151,12 @@
             <h1 class="name">{{nombre_perfil}}</h1>
             {{tags_html}}
             {{bio_html}}
+            <div class="voice-greeting-pill" onclick="playVoiceGreeting()">
+                <div class="sound-wave">
+                    <span></span><span></span><span></span><span></span>
+                </div>
+                <span>Escuchar saludo de voz 🎙️</span>
+            </div>
         </section>
 
         {{action_buttons_html}}
@@ -232,6 +260,20 @@
             document.querySelectorAll('.smart-accordion a[href*="maps"]').forEach(function (a) {
                 a.addEventListener('click', function () { track('click_mapa'); });
             });
+
+            // 6. Spotify Voice Bio Speech Player
+            window.playVoiceGreeting = function() {
+                var text = "¡Hola! Bienvenido a " + (document.querySelector('.name') ? document.querySelector('.name').textContent : 'mi tarjeta digital') + ". Gracias por conectarte.";
+                if ('speechSynthesis' in window) {
+                    var utterance = new SpeechSynthesisUtterance(text);
+                    utterance.lang = 'es-MX';
+                    utterance.pitch = 1.05;
+                    utterance.rate = 0.95;
+                    window.speechSynthesis.speak(utterance);
+                } else {
+                    alert(text);
+                }
+            };
         })();
     </script>
 </body>

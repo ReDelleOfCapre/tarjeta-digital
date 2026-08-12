@@ -25,6 +25,19 @@
       padding: 32px 24px;
       text-align: center;
       margin-top: 24px;
+      perspective: 1000px;
+      transform-style: preserve-3d;
+      transition: transform 150ms cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    .share-card::after {
+      content: '';
+      position: absolute;
+      inset: -50%;
+      background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 60%);
+      pointer-events: none;
+      opacity: 0.6;
     }
     .qr-wrapper {
       position: relative;
@@ -35,6 +48,7 @@
       border-radius: 24px;
       box-shadow: var(--shadow-sm);
       margin: 20px 0;
+      z-index: 2;
     }
     .qr-wrapper img {
       width: 220px;
@@ -50,16 +64,36 @@
       width: 48px;
       height: 48px;
       background: var(--tint);
-      border: 2px solid var(--accent-deep);
+      border: 2px solid var(--accent-blue);
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 12px rgba(92, 72, 230, 0.2);
+      box-shadow: 0 4px 12px rgba(10, 132, 255, 0.3);
     }
     .qr-badge img {
       width: 28px;
       height: 28px;
+    }
+    /* Sonar Pulse Effect for NFC */
+    .sonar-wave {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 100px;
+      height: 100px;
+      margin-left: -50px;
+      margin-top: -50px;
+      border-radius: 50%;
+      background: rgba(10, 132, 255, 0.25);
+      border: 1px solid var(--accent-blue);
+      animation: sonar-pulse 2s infinite ease-out;
+      pointer-events: none;
+      z-index: 1;
+    }
+    @keyframes sonar-pulse {
+      0% { transform: scale(0.8); opacity: 0.8; }
+      100% { transform: scale(4); opacity: 0; }
     }
   </style>
 </head>
@@ -164,6 +198,22 @@
           document.getElementById('share-name').textContent = perfil.nombre_perfil;
         }
       });
+
+      // Apple 3D Tilt Hologram Effect
+      var cardEl = document.querySelector('.share-card');
+      if (cardEl) {
+        cardEl.addEventListener('mousemove', function(e) {
+          var rect = cardEl.getBoundingClientRect();
+          var x = e.clientX - rect.left - rect.width / 2;
+          var y = e.clientY - rect.top - rect.height / 2;
+          var rotX = (-y / rect.height) * 16;
+          var rotY = (x / rect.width) * 16;
+          cardEl.style.transform = 'rotateX(' + rotX.toFixed(2) + 'deg) rotateY(' + rotY.toFixed(2) + 'deg) translateY(-4px)';
+        });
+        cardEl.addEventListener('mouseleave', function() {
+          cardEl.style.transform = 'rotateX(0deg) rotateY(0deg) translateY(0px)';
+        });
+      }
 
       document.getElementById('share-url').textContent = profileUrl;
       document.getElementById('btn-vcard').href = '/api/perfiles/' + slug + '/vcard';
