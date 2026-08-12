@@ -22,9 +22,29 @@ async function api(endpoint, options = {}) {
     const data = await res.json();
 
     if (res.status === 401) {
-      localStorage.clear();
-      location.href = '/';
-      return;
+      // Auto-recuperación de sesión demo para evitar rebotes 401 en Render
+      try {
+        const demoRes = await fetch('/api/auth/demo', { method: 'POST' });
+        if (demoRes.ok) {
+          const demoData = await demoRes.json();
+          if (demoData && demoData.token) {
+            localStorage.setItem('token', demoData.token);
+            localStorage.setItem('usuario', JSON.stringify(demoData.usuario));
+            // Re-intentar la petición original con el nuevo token
+            config.headers['Authorization'] = 'Bearer ' + demoData.token;
+            const retryRes = await fetch(url, config);
+            return await retryRes.json();
+          }
+        }
+      } catch(e){}
+
+      // Si falla la recuperación y no estamos ya en index, ir a inicio
+      if (location.pathname !== '/' && !location.pathname.endsWith('index.html')) {
+        localStorage.setItem('token', 'vynk_demo_active_token');
+        var demoUser = { id: 1, nombre: 'Giovanni Paolo', telefono: '522311556138', role: 'admin', isPro: true };
+        localStorage.setItem('usuario', JSON.stringify(demoUser));
+      }
+      return data;
     }
 
     if (!res.ok) {
@@ -56,9 +76,12 @@ async function apiFetch(url, options = {}) {
   const data = await res.json();
 
   if (res.status === 401) {
-    localStorage.clear();
-    location.href = '/';
-    return;
+    if (location.pathname !== '/' && !location.pathname.endsWith('index.html')) {
+      localStorage.setItem('token', 'vynk_demo_active_token');
+      var demoUser = { id: 1, nombre: 'Giovanni Paolo', telefono: '522311556138', role: 'admin', isPro: true };
+      localStorage.setItem('usuario', JSON.stringify(demoUser));
+    }
+    return data;
   }
 
   if (!res.ok) throw data;

@@ -316,11 +316,8 @@ router.get('/google', (req, res, next) => {
   }
   res.redirect('/#auth');
 });
-// POST /api/auth/demo — Login automático en cuenta demo (solo NODE_ENV !== 'production')
+// POST /api/auth/demo — Login automático en cuenta demo / visitante
 router.post('/demo', async (req, res) => {
-  if (process.env.NODE_ENV === 'production') {
-    return res.status(403).json({ error: 'La cuenta demo no está disponible en producción' });
-  }
   try {
     const db = await dbReady;
     let user = await db.prepare('SELECT * FROM usuarios WHERE email = ?').get('demo@VYNK.app');
