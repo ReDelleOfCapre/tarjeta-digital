@@ -16,153 +16,627 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.css">
   <script src="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.js.iife.js"></script>
   <style>
-    /* Glassmorphic Floating Support Chatbot */
+    /* ==========================================================
+       VYNK DESIGN SYSTEM — Apple Music × Apple TV editorial DNA
+       Dark is the primary experience. Accent #722F43 used sparingly.
+       ========================================================== */
+    :root {
+      --vynk-bg: #000000;
+      --vynk-surface: #111111;
+      --vynk-surface-2: #151515;
+      --vynk-surface-3: #1C1C1E;
+      --vynk-text: #FFFFFF;
+      --vynk-text-2: #F5F5F7;
+      --vynk-text-3: #A1A1A6;
+      --vynk-accent: #722F43;
+      --vynk-accent-hi: #9A4159;
+      --vynk-hairline: rgba(255,255,255,0.08);
+      --vynk-radius-lg: 22px;
+      --vynk-radius-md: 18px;
+      --vynk-ease: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body.dashboard-page {
+      background: var(--vynk-bg) !important;
+      color: var(--vynk-text-2);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", system-ui, sans-serif;
+      letter-spacing: -0.01em;
+      -webkit-font-smoothing: antialiased;
+    }
+    body.dashboard-page * { box-sizing: border-box; }
+
+    /* ---------- Glass Navbar (Apple style, compact) ---------- */
+    .dashboard-page .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 24px;
+      background: rgba(10, 10, 12, 0.72);
+      backdrop-filter: blur(28px) saturate(180%);
+      -webkit-backdrop-filter: blur(28px) saturate(180%);
+      border-bottom: 1px solid var(--vynk-hairline);
+    }
+    .dashboard-page .navbar .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 1.05rem;
+      letter-spacing: -0.02em;
+      color: var(--vynk-text);
+      text-decoration: none;
+    }
+    .dashboard-page .navbar .brand svg { flex-shrink: 0; }
+    .dashboard-page .navbar .user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .dashboard-page .navbar #user-name {
+      color: var(--vynk-text-2);
+      font-weight: 600;
+      font-size: 0.88rem;
+      margin-right: 4px;
+    }
+
+    /* ---------- Section rail (Apple TV style horizontal scroll) ---------- */
+    .vynk-rail {
+      display: flex;
+      gap: 16px;
+      overflow-x: auto;
+      padding: 4px 2px 16px;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+    }
+    .vynk-rail::-webkit-scrollbar { display: none; }
+    .vynk-rail > * { scroll-snap-align: start; }
+
+    /* ---------- Editorial section header ---------- */
+    .vynk-section {
+      margin-top: 40px;
+    }
+    .vynk-section-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+    .vynk-section-head h2 {
+      font-size: 1.45rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--vynk-text);
+      margin: 0;
+    }
+    .vynk-section-head p {
+      font-size: 0.85rem;
+      color: var(--vynk-text-3);
+      margin: 2px 0 0;
+    }
+    .vynk-see-all {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--vynk-text-3);
+      text-decoration: none;
+      transition: color 0.2s var(--vynk-ease);
+    }
+    .vynk-see-all:hover { color: var(--vynk-text); }
+
+    /* ---------- Unified cards (radius 18-24px, hairline, no glow) ---------- */
+    .dashboard-page .card,
+    .dashboard-page .profile-card {
+      background: var(--vynk-surface) !important;
+      border: 1px solid var(--vynk-hairline) !important;
+      border-radius: var(--vynk-radius-lg) !important;
+      box-shadow: none !important;
+      color: var(--vynk-text-2);
+    }
+
+    /* ---------- Metric cards (big editorial number) ---------- */
+    .vynk-metric-card {
+      background: var(--vynk-surface);
+      border: 1px solid var(--vynk-hairline);
+      border-radius: var(--vynk-radius-lg);
+      padding: 22px 24px;
+      min-width: 200px;
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+    .vynk-metric-card .vynk-metric-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      color: var(--vynk-text-3);
+      text-transform: uppercase;
+    }
+    .vynk-metric-card .vynk-metric-value {
+      font-size: 2.6rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      color: var(--vynk-text);
+      line-height: 1.05;
+      margin: 8px 0 4px;
+      font-variant-numeric: tabular-nums;
+    }
+    .vynk-metric-card .vynk-metric-sub {
+      font-size: 0.82rem;
+      color: var(--vynk-text-3);
+    }
+
+    /* ---------- Buttons (Apple: clear, pill, refined) ---------- */
+    .dashboard-page .btn {
+      font-family: inherit;
+      border-radius: 980px !important;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      transition: transform 0.18s var(--vynk-ease), background 0.2s var(--vynk-ease), border-color 0.2s var(--vynk-ease), color 0.2s var(--vynk-ease);
+    }
+    .dashboard-page .btn:active { transform: scale(0.97); }
+    .dashboard-page .btn-primary {
+      background: var(--vynk-accent) !important;
+      border: 1px solid var(--vynk-accent-hi) !important;
+      color: #FFF !important;
+    }
+    .dashboard-page .btn-primary:hover {
+      background: var(--vynk-accent-hi) !important;
+      transform: translateY(-1px);
+    }
+    .dashboard-page .btn-secondary,
+    .dashboard-page .btn-ghost {
+      background: var(--vynk-surface-3) !important;
+      border: 1px solid var(--vynk-hairline) !important;
+      color: var(--vynk-text-2) !important;
+    }
+    .dashboard-page .btn-secondary:hover,
+    .dashboard-page .btn-ghost:hover {
+      background: #2A2A2D !important;
+    }
+    .dashboard-page .btn-danger { border-radius: 980px !important; }
+
+    /* ---------- Glassmorphic Floating VYNK AI (discreet, premium) ---------- */
     #chat-bubble {
       position: fixed;
       bottom: 24px;
       right: 24px;
       z-index: 999;
-      width: 58px;
-      height: 58px;
+      width: 54px;
+      height: 54px;
       border-radius: 50%;
-      background: var(--grad-primary);
-      box-shadow: 0 10px 30px var(--accent-glow);
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(20px) saturate(160%);
+      -webkit-backdrop-filter: blur(20px) saturate(160%);
+      border: 1px solid var(--vynk-hairline);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: transform 0.2s cubic-bezier(0.23,1,0.32,1);
+      color: var(--vynk-text-2);
+      transition: transform 0.2s var(--vynk-ease), background 0.2s var(--vynk-ease), border-color 0.2s var(--vynk-ease);
     }
+    #chat-bubble:hover { border-color: var(--vynk-accent-hi); color: #FFF; }
     #chat-bubble:active { transform: scale(0.92); }
+    #chat-bubble::after {
+      content: "";
+      position: absolute;
+      top: 7px;
+      right: 7px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #34C759;
+      box-shadow: 0 0 0 3px rgba(52, 199, 89, 0.25);
+    }
     #chat-window {
       position: fixed;
-      bottom: 96px;
+      bottom: 92px;
       right: 24px;
       z-index: 1000;
       width: 360px;
       max-width: 90vw;
-      background: rgba(8, 8, 14, 0.92);
-      backdrop-filter: blur(28px);
-      -webkit-backdrop-filter: blur(28px);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 24px;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+      background: rgba(17, 17, 17, 0.9);
+      backdrop-filter: blur(32px) saturate(180%);
+      -webkit-backdrop-filter: blur(32px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 22px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7);
       overflow: hidden;
       display: flex;
       flex-direction: column;
     }
     .chat-header {
       padding: 16px 20px;
-      background: var(--tint);
-      border-bottom: 1px solid var(--border-subtle);
+      background: rgba(255, 255, 255, 0.04);
+      border-bottom: 1px solid var(--vynk-hairline);
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
-    .chat-body {
-      padding: 20px;
-      max-height: 340px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .chat-msg {
-      padding: 12px 16px;
-      border-radius: 16px;
-      font-size: 0.88rem;
-      line-height: 1.5;
-    }
+    .chat-body { padding: 16px; max-height: 340px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+    .chat-msg { padding: 12px 16px; border-radius: 16px; font-size: 0.88rem; line-height: 1.5; }
     .chat-bot {
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: var(--text-secondary);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--vynk-hairline);
+      color: var(--vynk-text-2);
       align-self: flex-start;
+      border-bottom-left-radius: 6px;
     }
     .chat-btn-option {
-      background: rgba(124, 58, 237, 0.12);
-      border: 1px solid rgba(124, 58, 237, 0.3);
-      color: #FFF;
+      background: rgba(114, 47, 67, 0.18);
+      border: 1px solid rgba(154, 65, 89, 0.35);
+      color: var(--vynk-text-2);
       padding: 10px 14px;
       border-radius: 12px;
       font-size: 0.84rem;
       font-weight: 500;
       cursor: pointer;
       text-align: left;
-      transition: background 0.2s;
+      transition: background 0.2s var(--vynk-ease), transform 0.18s var(--vynk-ease);
     }
-    .chat-btn-option:hover { background: rgba(124, 58, 237, 0.25); }
+    .chat-btn-option:hover { background: rgba(114, 47, 67, 0.32); transform: translateX(2px); }
 
-    /* Full-width Glassmorphic Create Card CTA */
+    /* ---------- Full-width Create Card CTA (quiet, editorial) ---------- */
+    .card-create-cta {
+      transition: transform 0.2s var(--vynk-ease), border-color 0.2s var(--vynk-ease), background 0.2s var(--vynk-ease) !important;
+    }
     .card-create-cta:hover {
-      background: rgba(124, 58, 237, 0.12) !important;
-      border-color: rgba(124, 58, 237, 0.7) !important;
+      border-color: rgba(154, 65, 89, 0.55) !important;
+      background: var(--vynk-surface-2) !important;
       transform: translateY(-2px);
-      box-shadow: 0 10px 30px rgba(124, 58, 237, 0.2);
     }
-    .card-create-cta:active {
-      transform: scale(0.98);
+    .card-create-cta:active { transform: scale(0.99); }
+
+    /* ---------- Tab pills (replaces sidebar) ---------- */
+    .nav-side-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 18px;
+      border-radius: 980px;
+      color: var(--vynk-text-3);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 600;
+      white-space: nowrap;
+      transition: all 0.2s var(--vynk-ease);
+      border: 1px solid transparent;
+    }
+    .nav-side-item:hover { color: var(--vynk-text); background: rgba(255,255,255,0.05); }
+    .nav-side-item.active {
+      background: var(--vynk-surface-3);
+      color: var(--vynk-text);
+      border-color: var(--vynk-hairline);
     }
 
-    /* Sidebar Navigation Menu Items */
-    .nav-side-item {
+    /* ---------- Hero ---------- */
+    .vynk-hero {
+      padding: 56px 4px 16px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .vynk-hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--vynk-text-3);
+      padding: 6px 14px;
+      border: 1px solid var(--vynk-hairline);
+      border-radius: 980px;
+      background: rgba(255,255,255,0.03);
+      margin-bottom: 18px;
+    }
+    .vynk-hero h1 {
+      font-size: clamp(2.4rem, 6vw, 4rem);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1.02;
+      color: var(--vynk-text);
+      margin: 0 0 16px;
+      max-width: 720px;
+    }
+    .vynk-hero p.vynk-hero-sub {
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      color: var(--vynk-text-3);
+      max-width: 560px;
+      margin: 0 0 28px;
+      line-height: 1.5;
+    }
+    .vynk-hero-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+    /* ---------- Profile cards in the rail ---------- */
+    .dashboard-page .profile-card {
+      min-width: 320px;
+      max-width: 360px;
+      border-radius: var(--vynk-radius-lg) !important;
+      cursor: pointer;
+      transition: transform 0.22s var(--vynk-ease), border-color 0.22s var(--vynk-ease);
+    }
+    .dashboard-page .profile-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(255,255,255,0.16) !important;
+    }
+    .dashboard-page .avatar.avatar-md {
+      border-radius: 50% !important;
+      width: 48px !important;
+      height: 48px !important;
+    }
+
+    /* ---------- Empty state ---------- */
+    .empty-state {
+      border-radius: var(--vynk-radius-lg) !important;
+      background: var(--vynk-surface) !important;
+      border: 1px solid var(--vynk-hairline) !important;
+    }
+
+    /* ---------- Insights & Activity (editorial cards) ---------- */
+    .vynk-insight-card {
+      background: var(--vynk-surface);
+      border: 1px solid var(--vynk-hairline);
+      border-radius: var(--vynk-radius-lg);
+      padding: 26px 28px;
+      flex: 1 1 380px;
+      min-width: 0;
+    }
+    .vynk-insight-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--vynk-text-3);
+      margin-bottom: 12px;
+    }
+    .vynk-insight-text {
+      font-size: 1.02rem;
+      line-height: 1.55;
+      color: var(--vynk-text-2);
+      margin: 0;
+    }
+    .vynk-insight-text strong { color: var(--vynk-text); font-weight: 700; }
+    .vynk-activity-item {
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 12px 16px;
-      border-radius: 14px;
-      color: var(--text-secondary);
-      text-decoration: none;
-      font-size: 0.92rem;
-      font-weight: 500;
-      transition: all 0.2s;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      color: var(--vynk-text-2);
+      font-size: 0.88rem;
     }
-    .nav-side-item:hover, .nav-side-item.active {
-      background: rgba(124, 58, 237, 0.15);
-      color: #FFF;
-      font-weight: 600;
+    .vynk-activity-item:last-child { border-bottom: none; }
+    .vynk-activity-item .vynk-activity-icon {
+      width: 34px;
+      height: 34px;
+      flex-shrink: 0;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--vynk-hairline);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--vynk-text-3);
+    }
+    .vynk-activity-item .vynk-activity-time { font-size: 0.72rem; color: var(--vynk-text-3); }
+
+    /* ---------- Quick resume bar ---------- */
+    .quick-resume-bar {
+      background: rgba(17, 17, 17, 0.85) !important;
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border: 1px solid var(--vynk-hairline) !important;
+      border-radius: 980px !important;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.6) !important;
     }
 
-    /* Social Selling Showcase Carousel in Dashboard Preview */
-    .selling-showcase-container {
+    /* ---------- Modals (consistent dark surfaces) ---------- */
+    .dashboard-page .modal-overlay {
+      background: rgba(0, 0, 0, 0.6) !important;
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+    .dashboard-page .modal.card {
+      background: var(--vynk-surface-2) !important;
+      border: 1px solid rgba(255,255,255,0.12) !important;
+      border-radius: 24px !important;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.8) !important;
+    }
+    .dashboard-page .modal h2,
+    .dashboard-page .modal h3 { letter-spacing: -0.02em; }
+    .dashboard-page input[type="text"],
+    .dashboard-page input[type="email"],
+    .dashboard-page input[type="tel"],
+    .dashboard-page select,
+    .dashboard-page textarea {
+      border-radius: 12px !important;
+      border: 1px solid var(--vynk-hairline) !important;
+      background: rgba(255,255,255,0.04) !important;
+      color: var(--vynk-text) !important;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s var(--vynk-ease);
+    }
+    .dashboard-page input:focus,
+    .dashboard-page select:focus {
+      border-color: rgba(154, 65, 89, 0.6) !important;
+    }
+
+    /* ---------- Command palette (Spotlight) ---------- */
+    .dashboard-page #cmd-palette-overlay .modal.card {
+      background: rgba(28, 28, 30, 0.92) !important;
+      backdrop-filter: blur(36px) saturate(180%);
+      -webkit-backdrop-filter: blur(36px) saturate(180%);
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+    .dashboard-page .cmd-item {
       display: flex;
-      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      color: var(--vynk-text-2);
+      cursor: pointer;
+      font-size: 0.92rem;
+      transition: background 0.15s var(--vynk-ease);
+    }
+    .dashboard-page .cmd-item:hover { background: rgba(255,255,255,0.06); }
+
+    /* ---------- Toast ---------- */
+    .dashboard-page .toast { border-radius: 14px !important; }
+
+    /* ---------- Section grid ---------- */
+    .vynk-duo {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .dashboard-page .dashboard-grid-container,
+    .dashboard-page .container-lg-dashboard {
+      max-width: 1200px !important;
+      width: 100% !important;
+      margin: 0 auto !important;
+      padding: 0 16px;
+      display: block !important;
+      grid-template-columns: none !important;
+    }
+    .dashboard-page .sidebar-panel {
+      display: none !important;
+    }
+    .dashboard-page .main-panel {
+      width: 100% !important;
+      display: block !important;
+    }
+    .dashboard-page .tab-view-content { width: 100%; }
+    .dashboard-page .hidden { display: none !important; }
+
+    /* Neutralize legacy stat card grid on the dashboard */
+    .dashboard-page #stats-bar,
+    .dashboard-page .stats-bar {
+      display: flex !important;
+      flex-wrap: wrap;
+      gap: 16px;
+      grid-template-columns: none !important;
+      margin: 0 !important;
+    }
+    .dashboard-page .stat-card.card {
+      background: var(--vynk-surface) !important;
+      border: 1px solid var(--vynk-hairline) !important;
+      border-radius: var(--vynk-radius-lg) !important;
+      box-shadow: none !important;
+      min-width: 200px;
+      flex: 1;
+      padding: 22px 24px;
+    }
+    .dashboard-page .stat-card .stat-value {
+      font-size: 2.6rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      color: var(--vynk-text);
+      line-height: 1.05;
+      margin: 8px 0 4px;
+      font-variant-numeric: tabular-nums;
+    }
+    .dashboard-page .stat-card .stat-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--vynk-text-3);
+      text-transform: uppercase;
+    }
+    .dashboard-page .profile-grid {
+      display: flex;
+      flex-wrap: nowrap;
       overflow-x: auto;
-      padding: 8px 0;
+      gap: 16px;
+      margin-top: 0;
       scrollbar-width: none;
     }
-    .selling-showcase-container::-webkit-scrollbar { display: none; }
-    .selling-card-item {
-      width: 140px;
-      flex-shrink: 0;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 16px;
-      padding: 12px;
-      text-align: center;
-      transition: transform 0.2s;
+    .dashboard-page .profile-grid::-webkit-scrollbar { display: none; }
+    .dashboard-page #profile-grid {
+      display: flex !important;
+      flex-direction: row !important;
+      flex-wrap: nowrap !important;
+      overflow-x: auto !important;
+      overflow-y: hidden !important;
+      gap: 16px !important;
+      margin-top: 0 !important;
+      padding: 4px 2px 16px !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      grid-template-columns: none !important;
+      scrollbar-width: none !important;
     }
-    .selling-card-item:hover { transform: translateY(-2px); }
+    .dashboard-page #profile-grid::-webkit-scrollbar { display: none !important; }
+    .dashboard-page #profile-grid .profile-card {
+      min-width: 320px;
+      max-width: 360px;
+      flex-shrink: 0;
+      width: auto !important;
+      max-width: 360px !important;
+      margin: 0 !important;
+    }
+
+    .pro-badge-lock {
+      border-radius: 980px !important;
+      background: var(--vynk-surface-3) !important;
+      border: 1px solid var(--vynk-hairline) !important;
+      color: var(--vynk-text-3) !important;
+    }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 860px) {
+      .dashboard-page .navbar { padding: 10px 16px; }
+      .dashboard-page .navbar .desktop-nav-item { display: none; }
+      .dashboard-page .navbar .mobile-only-btn { display: inline-flex !important; }
+      .vynk-hero { padding-top: 40px; }
+      .vynk-hero h1 { font-size: 2.3rem; }
+      .dashboard-page .profile-card { min-width: 270px; max-width: 280px; }
+    }
+    @media (max-width: 560px) {
+      .dashboard-page .navbar #user-name { display: none; }
+      .dashboard-page .nav-side-item { padding: 7px 14px; font-size: 0.82rem; }
+    }
   </style>
 </head>
 <body class="dashboard-page">
   <nav class="navbar">
     <a href="index.html" class="brand">
       <svg width="30" height="30" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="40" height="40" rx="12" fill="#EEEAFC"/>
-        <path d="M12 14L20 28L28 14" stroke="#5C48E6" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
-        <circle cx="28" cy="14" r="2.5" fill="#5C48E6"/>
+        <rect width="40" height="40" rx="12" fill="#1C1C1E"/>
+        <path d="M12 14L20 28L28 14" stroke="#722F43" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="28" cy="14" r="2.5" fill="#722F43"/>
       </svg>
       <span>VYNK</span>
     </a>
+
+    <!-- Editorial tabs rail -->
+    <div class="vynk-nav-tabs" style="display:flex;align-items:center;gap:6px">
+      <a href="javascript:void(0)" data-tab="tarjetas" onclick="switchDashboardTab('tarjetas')" class="nav-side-item active" id="nav-item-tarjetas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="11" r="2"/><path d="M5 16c.8-1.6 2.2-2 3-2s2.2.4 3 2"/><rect x="13" y="9" width="7" height="3" rx="1"/><path d="M13 15h7"/></svg> Mis Tarjetas</a>
+      <a href="javascript:void(0)" data-tab="tienda" onclick="switchDashboardTab('tienda')" class="nav-side-item" id="nav-item-tienda"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></svg> Tienda NFC</a>
+      <a href="javascript:void(0)" data-tab="inventario" onclick="switchDashboardTab('inventario')" class="nav-side-item" id="nav-item-inventario"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M21 8l-9-5-9 5v8l9 5 9-5V8z"/><path d="M3 8l9 5 9-5"/><path d="M12 13v9"/></svg> Inventario</a>
+    </div>
+
     <div class="user-info">
       <span id="user-name"></span>
-      <button onclick="toggleCommandPalette()" class="btn btn-sm btn-ghost" style="color:var(--text-secondary);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:6px 12px;font-size:0.82rem" title="Buscar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg> Buscar</button>
-      <a href="planes.html" class="btn btn-sm btn-ghost desktop-nav-item" id="btn-plan" title="Ver planes Pro">Centro de Control <span class="pro-badge-lock" style="font-size:0.65rem">Pro</span></a>
+      <button onclick="toggleCommandPalette()" class="btn btn-sm btn-ghost" style="color:var(--vynk-text-2);border:1px solid var(--vynk-hairline);border-radius:980px;padding:7px 14px;font-size:0.82rem" title="Buscar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg> <span class="desktop-nav-item">Buscar</span></button>
+      <a href="planes.html" class="btn btn-sm btn-ghost desktop-nav-item" id="btn-plan" title="Ver planes Pro"><span class="pro-badge-lock" style="font-size:0.65rem;background:rgba(114,47,67,0.35)!important;color:#FFD7E8!important;border-color:rgba(154,65,89,0.5)!important">Pro</span> Centro de Control</a>
       <a href="analytics.html" class="btn btn-sm btn-ghost desktop-nav-item" title="Analíticas en Tiempo Real"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M22 20H2"/></svg> Métrica</a>
       <a href="admin.html" class="btn btn-sm btn-ghost hidden desktop-nav-item" id="btn-admin" title="Admin Master"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> Master</a>
-      <button class="btn btn-sm btn-ghost desktop-nav-item" id="btn-logout" style="color:var(--red)">Salir</button>
-      <button onclick="toggleMobileNavDrawer()" class="btn btn-sm btn-ghost mobile-only-btn" aria-label="Abrir menú" title="Menú" style="font-size:1.4rem;padding:4px 10px;color:#FFF"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+      <button class="btn btn-sm btn-ghost desktop-nav-item" id="btn-logout" style="color:#FF6B81">Salir</button>
+      <button onclick="toggleMobileNavDrawer()" class="btn btn-sm btn-ghost mobile-only-btn" aria-label="Abrir menú" title="Menú" style="font-size:1.3rem;padding:4px 10px;color:#FFF"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
     </div>
   </nav>
 
@@ -191,245 +665,261 @@
   </div>
 
   <div class="container container-lg-dashboard">
-    <!-- Header / Micro-Copy -->
-    <div style="margin-top:24px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between">
-      <div>
-        <h1 style="font-size:1.8rem;font-weight:800;letter-spacing:-0.03em">Centro de Comando</h1>
-        <p style="font-size:0.88rem;color:var(--text-tertiary)">Gestiona tus identidades digitales desde un solo lugar.</p>
-      </div>
-      <span class="pro-badge-lock" style="padding:6px 12px;font-size:0.75rem">Sincronización NFC Activa</span>
-    </div>
 
-    <!-- 3-Column Desktop Grid Architecture -->
+    <!-- HERO — Editorial, Apple TV style -->
+    <header class="vynk-hero">
+      <span class="vynk-hero-eyebrow">
+        <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#34C759;box-shadow:0 0 0 3px rgba(52,199,89,0.2)"></span>
+        Sincronización NFC Activa
+      </span>
+      <h1>Tu identidad digital, <br>en una sola superficie.</h1>
+      <p class="vynk-hero-sub">Diseña, comparte y graba tus e-cards inteligentes en tarjetas físicas NFC. Todo desde el centro de comando VYNK.</p>
+      <div class="vynk-hero-actions">
+        <button class="btn btn-primary" onclick="window.location.href='/editor.html'" style="padding:12px 24px;font-size:0.95rem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M12 5v14M5 12h14"/></svg> Crear Nueva Identidad</button>
+        <a href="planes.html" class="btn btn-secondary" style="padding:12px 24px;font-size:0.95rem;text-decoration:none">Explorar VYNK Pro</a>
+      </div>
+    </header>
+
     <div class="dashboard-grid-container">
 
-      <!-- COLUMNA IZQUIERDA: Sidebar Nav (3 Clean E-Commerce Sections) -->
-      <aside class="sidebar-panel">
-        <div class="card p-20" style="padding:20px">
-          <div style="font-size:0.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">E-Commerce & VYNK NFC</div>
-          <nav style="display:flex;flex-direction:column;gap:6px">
-            <a href="javascript:void(0)" data-tab="tarjetas" onclick="switchDashboardTab('tarjetas')" class="nav-side-item active" id="nav-item-tarjetas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="11" r="2"/><path d="M5 16c.8-1.6 2.2-2 3-2s2.2.4 3 2"/><rect x="13" y="9" width="7" height="3" rx="1"/><path d="M13 15h7"/></svg> Mis Tarjetas</a>
-            <a href="javascript:void(0)" data-tab="tienda" onclick="switchDashboardTab('tienda')" class="nav-side-item" id="nav-item-tienda"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></svg> Tienda & Pedir NFC</a>
-            <a href="javascript:void(0)" data-tab="inventario" onclick="switchDashboardTab('inventario')" class="nav-side-item" id="nav-item-inventario"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M21 8l-9-5-9 5v8l9 5 9-5V8z"/><path d="M3 8l9 5 9-5"/><path d="M12 13v9"/></svg> Mi Inventario (Distribuidores)</a>
-          </nav>
-        </div>
-
-        <!-- Banner de Distribuidor B2B -->
-        <div class="card p-20" style="padding:20px;background:var(--bg-surface);border:1px solid var(--border-subtle)">
-          <div style="font-size:0.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:6px">Red de Revendedores B2B</div>
-          <div style="font-size:0.9rem;font-weight:700;color:var(--text-main);font-family:'Space Grotesk',sans-serif;margin-bottom:6px">¿Eres Distribuidor?</div>
-          <p style="font-size:0.8rem;color:var(--text-muted);line-height:1.4;margin-bottom:12px">Adquiere packs de tarjetas en blanco con hasta 40% de descuento y prográmalas en vivo para tus clientes.</p>
-          <button onclick="switchDashboardTab('tienda')" class="btn btn-secondary btn-sm btn-block" style="width:100%">Ver Packs Mayoristas →</button>
-        </div>
-      </aside>
-
-      <!-- COLUMNA CENTRAL: Main Content Panel (Tabbed Views) -->
       <main class="main-panel">
-        
-        <!-- TAB 1: MIS TARJETAS (B2C Visual Creator & Profile List) -->
+
+        <!-- TAB 1: MIS TARJETAS -->
         <div id="view-tab-tarjetas" class="tab-view-content">
-          <!-- Stats Bar -->
-          <div class="stats-bar" id="stats-bar" style="margin-top:0">
-            <div class="stat-card card">
-              <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M6 15h4"/></svg></div>
-              <div class="stat-value" id="total-perfiles" style="font-family:var(--font-mono)">0</div>
-              <div class="stat-label">Identidades Digitales</div>
-            </div>
-            <div class="stat-card card">
-              <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
-              <div class="stat-value" id="total-visitas" style="font-family:var(--font-mono)">0</div>
-              <div class="stat-label">Conexiones Recibidas</div>
-            </div>
-          </div>
 
-          <!-- Xbox Style Identity Strength Progress Ring -->
-          <div class="card p-20" style="padding:18px 24px;margin-top:16px;margin-bottom:16px;background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:16px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
-            <div style="display:flex;align-items:center;gap:16px">
-              <div style="position:relative;width:52px;height:52px;border-radius:50%;background:var(--bg-elevated);display:grid;place-items:center">
-                <svg width="52" height="52" viewBox="0 0 36 36" style="transform:rotate(-90deg)">
-                  <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="var(--border-subtle)" stroke-width="3"/>
-                  <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="var(--accent)" stroke-width="3" stroke-dasharray="85, 100"/>
-                </svg>
-                <span style="position:absolute;font-size:0.75rem;font-weight:700;color:var(--text-primary)">85%</span>
-              </div>
+          <!-- Tu actividad: editorial metrics -->
+          <section class="vynk-section" style="margin-top:8px">
+            <div class="vynk-section-head">
               <div>
-                <div style="font-size:0.95rem;font-weight:700;color:var(--text-main)">Nivel 4: Identidad PRO <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M5 15c-1.5 1-2 5-2 5s4-.5 5-2"/><path d="M14 4c3-3 8-2 8-2s1 5-2 8c-1.5 1.5-4 2.5-6 3L7 16l-3-7c.5-2 1.5-4.5 3-6z"/><circle cx="5" cy="19" r="2" transform="rotate(45 5 19)"/><path d="M13 9h.01"/></svg></div>
-                <div style="font-size:0.78rem;color:var(--text-muted)">Logro disponible: Agrega tu ubicación en mapa para llegar a 100%</div>
+                <h2>Tu actividad</h2>
+                <p>Métrica acumulada de tus identidades digitales.</p>
+              </div>
+              <a href="analytics.html" class="vynk-see-all">Analíticas <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:0.9em;height:0.9em;vertical-align:-0.125em"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+            </div>
+            <div class="vynk-duo" id="stats-bar" style="margin-top:0">
+              <div class="vynk-metric-card">
+                <div class="vynk-metric-label">Identidades digitales</div>
+                <div class="vynk-metric-value" id="total-perfiles">0</div>
+                <div class="vynk-metric-sub">Tarjetas activas en tu cuenta</div>
+              </div>
+              <div class="vynk-metric-card">
+                <div class="vynk-metric-label">Conexiones recibidas</div>
+                <div class="vynk-metric-value" id="total-visitas">0</div>
+                <div class="vynk-metric-sub">Visitas a tus perfiles en vivo</div>
+              </div>
+              <div class="vynk-metric-card" style="flex:0 0 auto;min-width:220px;background:var(--vynk-surface-2)">
+                <div class="vynk-metric-label" style="margin-bottom:10px">Nivel de identidad</div>
+                <div style="display:flex;align-items:center;gap:14px">
+                  <div style="position:relative;width:56px;height:56px;border-radius:50%;display:grid;place-items:center">
+                    <svg width="56" height="56" viewBox="0 0 36 36" style="transform:rotate(-90deg)">
+                      <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="3"/>
+                      <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#9A4159" stroke-width="3" stroke-linecap="round" stroke-dasharray="85, 100"/>
+                    </svg>
+                    <span style="position:absolute;font-size:0.8rem;font-weight:800;color:var(--vynk-text)">85%</span>
+                  </div>
+                  <div>
+                    <div style="font-weight:700;color:var(--vynk-text);font-size:0.95rem">Identidad PRO</div>
+                    <div style="font-size:0.78rem;color:var(--vynk-text-3);line-height:1.4">Agrega tu ubicación al mapa para llegar a 100%</div>
+                  </div>
+                </div>
+                <button class="btn btn-secondary" onclick="window.location.href='/editor.html'" style="margin-top:12px;font-size:0.8rem;padding:7px 14px">Completar perfil</button>
               </div>
             </div>
-            <button class="btn btn-secondary" onclick="window.location.href='/editor.html'" style="font-size:0.8rem;padding:8px 16px;border-radius:100px;border:1px solid rgba(255,255,255,0.15)">Completar perfil <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:0.9em;height:0.9em;vertical-align:-0.125em"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
-          </div>
+          </section>
 
-          <!-- B2C Prominent CTA: Pedir Tarjeta Física NFC -->
-          <div class="card p-20" style="padding:18px 24px;margin-bottom:16px;background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:12px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
-            <div style="display:flex;align-items:center;gap:14px">
-              <div style="font-size:2.2rem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M6 15h4"/></svg></div>
+          <!-- Pedir Tarjeta Física NFC CTA -->
+          <section class="vynk-section">
+            <div class="vynk-insight-card" style="display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;padding:22px 26px">
+              <div style="display:flex;align-items:center;gap:16px">
+                <div style="width:46px;height:46px;flex-shrink:0;border-radius:14px;background:var(--vynk-surface-3);border:1px solid var(--vynk-hairline);display:flex;align-items:center;justify-content:center;color:var(--vynk-text-2)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1.3em;height:1.3em"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M6 15h4"/></svg></div>
+                <div>
+                  <div style="font-size:1.02rem;font-weight:700;color:var(--vynk-text)">Tu tarjeta NFC física, lista en casa</div>
+                  <div style="font-size:0.8rem;color:var(--vynk-text-3)">Envío internacional directo a tu domicilio.</div>
+                </div>
+              </div>
+              <button class="btn btn-primary" onclick="openCheckoutModal('card-nfc-single', 'Tarjeta NFC Personalizada VYNK', 19.99)" style="white-space:nowrap;font-size:0.9rem;padding:11px 20px">Pedir Tarjeta Física NFC ($19.99 USD)</button>
+            </div>
+          </section>
+
+          <!-- Mis Tarjetas (rail) -->
+          <section class="vynk-section">
+            <div class="vynk-section-head">
               <div>
-                <div style="font-size:1.05rem;font-weight:700;color:var(--text-main);font-family:'Space Grotesk',sans-serif">¿Quieres recibir tu Tarjeta Física NFC personalizada?</div>
-                <div style="font-size:0.75rem;color:var(--text-muted);font-family:var(--font-mono)">ENVÍO INTERNACIONAL DIRECTO A TU DOMICILIO</div>
+                <h2>Mis tarjetas</h2>
+                <p>Tus identidades digitales en un vistazo.</p>
               </div>
+              <a href="/editor.html" class="vynk-see-all">Nueva <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:0.9em;height:0.9em;vertical-align:-0.125em"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
             </div>
-            <button class="btn btn-primary" onclick="openCheckoutModal('card-nfc-single', 'Tarjeta NFC Personalizada VYNK', 19.99)" style="white-space:nowrap;font-size:0.9rem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M6 15h4"/></svg> Pedir Tarjeta Física NFC ($19.99 USD)</button>
-          </div>
 
-          <!-- CTA Integrado (Crear Nueva Identidad Digital) -->
-          <div class="card-create-cta" id="btn-create-card" onclick="window.location.href='/editor.html'" style="margin-bottom:20px;padding:20px 24px;border:2px dashed var(--border-subtle);border-radius:12px;background:var(--bg-surface);display:flex;align-items:center;justify-content:center;gap:14px;cursor:pointer">
-            <div style="width:38px;height:38px;border-radius:6px;background:var(--text-main);display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:#12161B;font-weight:700">
-              +
+            <!-- CTA Integrado (Crear Nueva Identidad Digital) -->
+            <div class="card-create-cta" id="btn-create-card" onclick="window.location.href='/editor.html'" style="margin-bottom:18px;padding:20px 24px;border:1px dashed rgba(255,255,255,0.18);border-radius:var(--vynk-radius-lg);background:var(--vynk-surface);display:flex;align-items:center;justify-content:space-between;gap:14px;cursor:pointer">
+              <div style="display:flex;align-items:center;gap:14px">
+                <div style="width:40px;height:40px;border-radius:12px;background:var(--vynk-accent);display:flex;align-items:center;justify-content:center;color:#FFF"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1.15em;height:1.15em"><path d="M12 5v14M5 12h14"/></svg></div>
+                <div>
+                  <div style="font-size:1.02rem;font-weight:700;color:var(--vynk-text)">Crear Nueva Identidad Digital</div>
+                  <div style="font-size:0.8rem;color:var(--vynk-text-3)">Diseñá visualmente y guarda tu link y QR al instante</div>
+                </div>
+              </div>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1.2em;height:1.2em;color:var(--vynk-text-3);flex-shrink:0"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
             </div>
-            <div>
-              <div style="font-size:1.05rem;font-weight:700;color:var(--text-main);font-family:'Space Grotesk',sans-serif">Crear Nueva Identidad Digital</div>
-              <div style="font-size:0.8rem;color:var(--text-muted);font-family:var(--font-mono)">DISÉÑALA VISUALMENTE Y GENERA TU LINK Y QR</div>
+
+            <!-- Profile rail -->
+            <div class="vynk-rail" id="profile-grid" style="margin-top:0"></div>
+
+            <!-- Empty State -->
+            <div class="empty-state hidden" id="empty-state" style="background:var(--vynk-surface);border:1px solid var(--vynk-hairline);border-radius:var(--vynk-radius-lg);padding:48px 24px;text-align:center;margin-top:24px">
+              <div style="width:60px;height:60px;margin:0 auto 16px;border-radius:18px;background:var(--vynk-surface-3);border:1px solid var(--vynk-hairline);display:flex;align-items:center;justify-content:center;color:var(--vynk-text-3)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1.5em;height:1.5em"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></svg></div>
+              <h2 style="font-size:1.35rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:8px;color:var(--vynk-text)">Diseña tu primera e-Card inteligente</h2>
+              <p style="max-width:460px;margin:0 auto 24px;color:var(--vynk-text-3);font-size:0.9rem;line-height:1.55">
+                Conecta tus redes, catálogo o archivos y recíbela grabada en tu tarjeta NFC física.
+              </p>
+              <button class="btn btn-primary" onclick="window.location.href='/editor.html'" style="padding:11px 20px">
+                + Crear Mi Primera Tarjeta
+              </button>
             </div>
-          </div>
+          </section>
 
-
-
-          <!-- Profile Grid -->
-          <div class="profile-grid" id="profile-grid" style="margin-top:0"></div>
-
-          <!-- Empty State -->
-          <div class="empty-state hidden" id="empty-state" style="background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:12px;padding:48px 24px;text-align:center;margin-top:16px">
-            <div style="font-size:2.5rem;margin-bottom:12px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></svg></div>
-            <h2 style="font-size:1.4rem;font-weight:700;margin-bottom:8px;font-family:'Space Grotesk',sans-serif">Diseña tu primera e-Card inteligente</h2>
-            <p style="max-width:480px;margin:0 auto 24px;color:var(--text-muted);font-size:0.9rem;line-height:1.5">
-              Crea tu perfil inteligente, conecta tus redes, catálogo o archivos y recíbela grabada en tu tarjeta NFC física.
-            </p>
-            <button class="btn btn-primary" onclick="window.location.href='/editor.html'">
-              + Crear Mi Primera Tarjeta
-            </button>
-          </div>
         </div>
 
-        <!-- TAB 2: TIENDA & PEDIR NFC (B2C & B2B E-Commerce Catalog) -->
+        <!-- TAB 2: TIENDA & PEDIR NFC -->
         <div id="view-tab-tienda" class="tab-view-content hidden">
-          <div style="margin-bottom:20px">
-            <h2 style="font-size:1.4rem;font-weight:700;font-family:'Space Grotesk',sans-serif">Tienda VYNK NFC</h2>
-            <p style="font-size:0.85rem;color:var(--text-muted);font-family:var(--font-mono)">COMPRA TARJETAS INDIVIDUALES O PACKS MAYORISTAS EN BLANCO</p>
-          </div>
-
-          <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));gap:16px;margin-bottom:24px">
-            <!-- B2C Item -->
-            <div class="card p-20" style="display:flex;flex-direction:column;justify-content:space-between;gap:16px">
+          <section class="vynk-section" style="margin-top:8px">
+            <div class="vynk-section-head">
               <div>
-                <span class="pro-badge-lock" style="font-size:0.65rem">Cliente B2C</span>
-                <div style="font-size:2.2rem;margin:12px 0 6px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M6 15h4"/></svg></div>
-                <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:4px">Tarjeta NFC Individual</h3>
-                <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.4">Impresa a color con tu perfil digital pre-grabado de fábrica.</p>
-              </div>
-              <div>
-                <div style="font-size:1.4rem;font-weight:700;color:var(--text-main);font-family:'Space Grotesk',sans-serif;margin-bottom:12px">$19.99 USD</div>
-                <button class="btn btn-primary btn-block" onclick="openCheckoutModal('card-nfc-single', 'Tarjeta NFC Individual VYNK', 19.99)">Pedir Tarjeta →</button>
+                <h2>Tienda VYNK NFC</h2>
+                <p>Tarjetas individuales o packs mayoristas en blanco.</p>
               </div>
             </div>
 
-            <!-- B2B Pack 10 -->
-            <div class="card p-20" style="display:flex;flex-direction:column;justify-content:space-between;gap:16px;border-color:#6366F1!important">
-              <div>
-                <span class="pro-badge-lock" style="font-size:0.65rem;color:#818CF8;border-color:#818CF8">Pack Mayorista B2B (25% OFF)</span>
-                <div style="font-size:2.2rem;margin:12px 0 6px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M21 8l-9-5-9 5v8l9 5 9-5V8z"/><path d="M3 8l9 5 9-5"/><path d="M12 13v9"/></svg></div>
-                <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:4px">Pack de 10 Tarjetas NFC en Blanco</h3>
-                <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.4">10 Tarjetas vírgenes listas para ser programadas en vivo con tu celular para tus clientes.</p>
+            <div class="vynk-rail" style="grid-template-columns:none">
+              <!-- B2C Item -->
+              <div class="card p-20" style="display:flex;flex-direction:column;justify-content:space-between;gap:16px;min-width:260px;max-width:320px">
+                <div>
+                  <span class="pro-badge-lock" style="font-size:0.65rem">Cliente B2C</span>
+                  <div style="width:46px;height:46px;margin:14px 0 10px;border-radius:14px;background:var(--vynk-surface-3);border:1px solid var(--vynk-hairline);display:flex;align-items:center;justify-content:center;color:var(--vynk-text-2)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1.3em;height:1.3em"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M6 15h4"/></svg></div>
+                  <h3 style="font-size:1.05rem;font-weight:700;margin-bottom:4px;color:var(--vynk-text)">Tarjeta NFC Individual</h3>
+                  <p style="font-size:0.82rem;color:var(--vynk-text-3);line-height:1.45">Impresa a color con tu perfil digital pre-grabado de fábrica.</p>
+                </div>
+                <div>
+                  <div style="font-size:1.4rem;font-weight:800;letter-spacing:-0.02em;color:var(--vynk-text);margin-bottom:12px">$19.99 USD</div>
+                  <button class="btn btn-primary btn-block" onclick="openCheckoutModal('card-nfc-single', 'Tarjeta NFC Individual VYNK', 19.99)">Pedir Tarjeta →</button>
+                </div>
               </div>
-              <div>
-                <div style="font-size:1.4rem;font-weight:700;color:var(--text-main);font-family:'Space Grotesk',sans-serif;margin-bottom:12px">$149.00 USD</div>
-                <button class="btn btn-primary btn-block" onclick="openCheckoutModal('pack-10-b2b', 'Pack 10 Tarjetas NFC Vírgenes B2B', 149.00)">Comprar Pack 10 →</button>
-              </div>
-            </div>
 
-            <!-- B2B Pack 50 -->
-            <div class="card p-20" style="display:flex;flex-direction:column;justify-content:space-between;gap:16px;border-color:#10B981!important">
-              <div>
-                <span class="pro-badge-lock" style="font-size:0.65rem;color:#10B981;border-color:#10B981">Pack Distribuidor Pro (40% OFF)</span>
-                <div style="font-size:2.2rem;margin:12px 0 6px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M3 9l1-5h16l1 5"/><path d="M5 9v11h14V9"/><path d="M9 20v-6h6v6"/><path d="M3 9h18"/></svg></div>
-                <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:4px">Pack de 50 Tarjetas NFC en Blanco</h3>
-                <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.4">Lote mayorista para agencias y revendedores. Incluye soporte de Web NFC API.</p>
+              <!-- B2B Pack 10 -->
+              <div class="card p-20" style="display:flex;flex-direction:column;justify-content:space-between;gap:16px;min-width:260px;max-width:320px">
+                <div>
+                  <span class="pro-badge-lock" style="font-size:0.65rem">Pack Mayorista B2B · 25% OFF</span>
+                  <div style="width:46px;height:46px;margin:14px 0 10px;border-radius:14px;background:var(--vynk-surface-3);border:1px solid var(--vynk-hairline);display:flex;align-items:center;justify-content:center;color:var(--vynk-text-2)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1.3em;height:1.3em"><path d="M21 8l-9-5-9 5v8l9 5 9-5V8z"/><path d="M3 8l9 5 9-5"/><path d="M12 13v9"/></svg></div>
+                  <h3 style="font-size:1.05rem;font-weight:700;margin-bottom:4px;color:var(--vynk-text)">Pack de 10 Tarjetas NFC en Blanco</h3>
+                  <p style="font-size:0.82rem;color:var(--vynk-text-3);line-height:1.45">10 tarjetas vírgenes para programar en vivo con tu celular.</p>
+                </div>
+                <div>
+                  <div style="font-size:1.4rem;font-weight:800;letter-spacing:-0.02em;color:var(--vynk-text);margin-bottom:12px">$149.00 USD</div>
+                  <button class="btn btn-primary btn-block" onclick="openCheckoutModal('pack-10-b2b', 'Pack 10 Tarjetas NFC Vírgenes B2B', 149.00)">Comprar Pack 10 →</button>
+                </div>
               </div>
-              <div>
-                <div style="font-size:1.4rem;font-weight:700;color:var(--text-main);font-family:'Space Grotesk',sans-serif;margin-bottom:12px">$599.00 USD</div>
-                <button class="btn btn-primary btn-block" onclick="openCheckoutModal('pack-50-b2b', 'Pack 50 Tarjetas NFC Vírgenes B2B', 599.00)">Comprar Pack 50 →</button>
+
+              <!-- B2B Pack 50 -->
+              <div class="card p-20" style="display:flex;flex-direction:column;justify-content:space-between;gap:16px;min-width:260px;max-width:320px">
+                <div>
+                  <span class="pro-badge-lock" style="font-size:0.65rem">Pack Distribuidor Pro · 40% OFF</span>
+                  <div style="width:46px;height:46px;margin:14px 0 10px;border-radius:14px;background:var(--vynk-surface-3);border:1px solid var(--vynk-hairline);display:flex;align-items:center;justify-content:center;color:var(--vynk-text-2)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1.3em;height:1.3em"><path d="M3 9l1-5h16l1 5"/><path d="M5 9v11h14V9"/><path d="M9 20v-6h6v6"/><path d="M3 9h18"/></svg></div>
+                  <h3 style="font-size:1.05rem;font-weight:700;margin-bottom:4px;color:var(--vynk-text)">Pack de 50 Tarjetas NFC en Blanco</h3>
+                  <p style="font-size:0.82rem;color:var(--vynk-text-3);line-height:1.45">Lote mayorista para agencias y revendedores. Incluye soporte Web NFC API.</p>
+                </div>
+                <div>
+                  <div style="font-size:1.4rem;font-weight:800;letter-spacing:-0.02em;color:var(--vynk-text);margin-bottom:12px">$599.00 USD</div>
+                  <button class="btn btn-primary btn-block" onclick="openCheckoutModal('pack-50-b2b', 'Pack 50 Tarjetas NFC Vírgenes B2B', 599.00)">Comprar Pack 50 →</button>
+                </div>
               </div>
             </div>
-          </div>
+          </section>
         </div>
 
-        <!-- TAB 3: MI INVENTARIO B2B (Reseller Stock & Client Assignment) -->
+        <!-- TAB 3: MI INVENTARIO B2B -->
         <div id="view-tab-inventario" class="tab-view-content hidden">
-          <div style="margin-bottom:20px">
-            <h2 style="font-size:1.4rem;font-weight:700;font-family:'Space Grotesk',sans-serif">Mi Inventario de Distribuidor</h2>
-            <p style="font-size:0.85rem;color:var(--text-muted);font-family:var(--font-mono)">ADMINISTRA Y ASIGNA TUS TARJETAS EN BLANCO A CLIENTES EN TIEMPO REAL</p>
-          </div>
-
-          <div class="stats-bar" style="margin-top:0;margin-bottom:20px">
-            <div class="stat-card card">
-              <div class="stat-value" id="reseller-stock-count" style="color:#10B981!important">10</div>
-              <div class="stat-label">Tarjetas Vírgenes Disponibles</div>
-            </div>
-            <div class="stat-card card">
-              <div class="stat-value" id="reseller-assigned-count">2</div>
-              <div class="stat-label">Tarjetas Asignadas a Clientes</div>
-            </div>
-          </div>
-
-          <div class="card p-20" style="padding:24px;background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:12px;margin-bottom:20px">
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+          <section class="vynk-section" style="margin-top:8px">
+            <div class="vynk-section-head">
               <div>
-                <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:6px">Asignar Tarjeta NFC en Vivo</h3>
-                <p style="font-size:0.85rem;color:var(--text-muted);max-width:500px">
-                  Crea un nuevo perfil para tu cliente y grábalo directamente en su tarjeta física NFC usando la antena de tu dispositivo.
+                <h2>Mi inventario de distribuidor</h2>
+                <p>Administra y asigna tus tarjetas en blanco a clientes en tiempo real.</p>
+              </div>
+            </div>
+
+            <div class="vynk-duo" style="margin-bottom:20px">
+              <div class="vynk-metric-card">
+                <div class="vynk-metric-label">Tarjetas vírgenes disponibles</div>
+                <div class="vynk-metric-value" id="reseller-stock-count" style="color:#34C759">10</div>
+                <div class="vynk-metric-sub">Stock de tu lote mayorista</div>
+              </div>
+              <div class="vynk-metric-card">
+                <div class="vynk-metric-label">Tarjetas asignadas</div>
+                <div class="vynk-metric-value" id="reseller-assigned-count">2</div>
+                <div class="vynk-metric-sub">Perfiles activados para clientes</div>
+              </div>
+            </div>
+
+            <div class="vynk-insight-card" style="display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap">
+              <div>
+                <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:6px;color:var(--vynk-text)">Asignar tarjeta NFC en vivo</h3>
+                <p style="font-size:0.85rem;color:var(--vynk-text-3);max-width:500px;line-height:1.5">
+                  Crea un perfil para tu cliente y grábalo directamente en su tarjeta física usando la antena del dispositivo.
                 </p>
               </div>
-              <button class="btn btn-primary" onclick="openAssignClientModal()" style="font-size:0.9rem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></svg> Asignar a Cliente (Vía Web NFC)</button>
+              <button class="btn btn-primary" onclick="openAssignClientModal()" style="font-size:0.9rem;padding:11px 20px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></svg> Asignar a Cliente (Web NFC)</button>
             </div>
-          </div>
+          </section>
         </div>
 
       </main>
 
-      <!-- COLUMNA DERECHA: Insights & Live Smartphone Preview Mockup (Pro Only Modules) -->
-      <aside class="insights-panel pro-module">
-        <!-- Widget de Narrativa de Datos (Insights Inteligentes) -->
-        <div class="card p-20 pro-module" style="padding:20px;background:var(--bg-elevated)!important;border:1px solid var(--border-subtle)!important">
-          <div style="font-size:0.85rem;font-weight:700;color:#FFF;margin-bottom:8px;display:flex;align-items:center;gap:6px">
-            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M8 13a4.9 4.9 0 0 1 2.5-4.3A3.5 3.5 0 0 1 14.3 4C16.9 5.3 18 7.9 17.1 10 16.2 12 14 12.8 13 14h-2c-1-1.2-3-2-3-1z"/></svg></span> <span>Insights Inteligentes</span>
+      <!-- Insights + Actividad (Pro) — editorial duo -->
+      <section class="vynk-section">
+        <div class="vynk-section-head">
+          <div>
+            <h2>Hoy en VYNK</h2>
+            <p>Insight inteligente y actividad de tu red.</p>
           </div>
-          <p style="font-size:0.82rem;line-height:1.5;color:var(--text-secondary);margin:0">
-            "Tus enlaces de productos e Instagram tienen un <strong>28% más de interacción</strong> hoy. Es el momento perfecto para publicar tu nuevo inventario o lanzar una oferta."
-          </p>
         </div>
-
-        <!-- Actividad Reciente Stream -->
-        <div class="card p-20 pro-module" style="padding:20px">
-          <div style="font-size:0.85rem;font-weight:700;color:#FFF;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between">
-            <span>Actividad Reciente</span>
-            <span style="font-size:0.7rem;color:var(--green)">● En vivo</span>
+        <div class="vynk-duo pro-module">
+          <div class="vynk-insight-card pro-module">
+            <div class="vynk-insight-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M8 13a4.9 4.9 0 0 1 2.5-4.3A3.5 3.5 0 0 1 14.3 4C16.9 5.3 18 7.9 17.1 10 16.2 12 14 12.8 13 14h-2c-1-1.2-3-2-3-1z"/></svg>
+              Insight inteligente
+            </div>
+            <p class="vynk-insight-text">Tus enlaces de productos e Instagram tienen un <strong>28% más de interacción</strong> hoy. Es el momento perfecto para lanzar una oferta o tu nuevo inventario.</p>
           </div>
-          <div style="display:flex;flex-direction:column;gap:12px;font-size:0.82rem">
-            <div style="display:flex;align-items:center;gap:10px;color:var(--text-secondary)">
-              <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></svg></span>
-              <div>
+
+          <div class="vynk-insight-card pro-module">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+              <span class="vynk-insight-label" style="margin-bottom:0">Actividad reciente</span>
+              <span style="font-size:0.7rem;color:#34C759;font-weight:600">● En vivo</span>
+            </div>
+            <div class="vynk-activity-item">
+              <div class="vynk-activity-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></svg></div>
+              <div style="flex:1">
                 <div>Escaneo NFC en México DF</div>
-                <div style="font-size:0.72rem;color:var(--text-muted)">Hace 4 minutos</div>
+                <div class="vynk-activity-time">Hace 4 minutos</div>
               </div>
             </div>
-            <div style="display:flex;align-items:center;gap:10px;color:var(--text-secondary)">
-              <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></span>
-              <div>
+            <div class="vynk-activity-item">
+              <div class="vynk-activity-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></div>
+              <div style="flex:1">
                 <div>Vista de e-card por QR</div>
-                <div style="font-size:0.72rem;color:var(--text-muted)">Hace 18 minutos</div>
+                <div class="vynk-activity-time">Hace 18 minutos</div>
               </div>
             </div>
-            <div style="display:flex;align-items:center;gap:10px;color:var(--text-secondary)">
-              <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4.5 5-6.5 8-6.5s6.5 2 8 6.5"/></svg></span>
-              <div>
+            <div class="vynk-activity-item">
+              <div class="vynk-activity-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4.5 5-6.5 8-6.5s6.5 2 8 6.5"/></svg></div>
+              <div style="flex:1">
                 <div>Contacto vCard descargado</div>
-                <div style="font-size:0.72rem;color:var(--text-muted)">Hace 45 minutos</div>
+                <div class="vynk-activity-time">Hace 45 minutos</div>
               </div>
             </div>
           </div>
         </div>
-
-        </aside>
+      </section>
 
     </div>
   </div>
@@ -447,15 +937,15 @@
   </div>
 
   <!-- Inescapable Glassmorphism Legal Terms Modal -->
-  <div class="modal-overlay hidden" id="modal-legal-terms" style="background:rgba(3,3,6,0.92);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);z-index:9999;display:flex;align-items:center;justify-content:center">
-    <div class="modal card" style="max-width:480px;width:90%;background:rgba(15,11,30,0.85);border:1px solid rgba(255,255,255,0.18);border-radius:28px;padding:32px;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,0.8)">
-      <div style="font-size:2.8rem;margin-bottom:12px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M12 3v18M8 21h8"/><path d="M6.5 4h9l2 5a3 3 0 1 1-6 0 3 3 0 0 1-5 0l2-5z"/><path d="M19 12a3 3 0 0 1-6 0"/></svg></div>
-      <h2 style="font-size:1.4rem;font-weight:700;letter-spacing:-0.02em;margin-bottom:8px;color:#FFF">Términos de Servicio & Privacidad</h2>
+  <div class="modal-overlay hidden" id="modal-legal-terms" style="background:rgba(0,0,0,0.6);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);z-index:9999;display:flex;align-items:center;justify-content:center">
+    <div class="modal card" style="max-width:480px;width:90%;background:#151515;border:1px solid rgba(255,255,255,0.14);border-radius:24px;padding:32px;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,0.8)">
+      <div style="width:64px;height:64px;margin:0 auto 16px;border-radius:20px;background:var(--vynk-surface-3,#1C1C1E);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;color:var(--vynk-accent-hi,#9A4159)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1.6em;height:1.6em"><path d="M12 3v18M8 21h8"/><path d="M6.5 4h9l2 5a3 3 0 1 1-6 0 3 3 0 0 1-5 0l2-5z"/><path d="M19 12a3 3 0 0 1-6 0"/></svg></div>
+      <h2 style="font-size:1.4rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:8px;color:#FFF">Términos de Servicio & Privacidad</h2>
       <p class="text-muted" style="font-size:0.9rem;line-height:1.6;margin-bottom:20px">
-        Para garantizar la seguridad de tu identidad digital y cumplir con la regulación de protección de datos, debes revisar y aceptar nuestros <a href="legal.html" target="_blank" style="color:var(--accent);text-decoration:underline">Términos y Condiciones</a> y el <a href="legal.html" target="_blank" style="color:var(--accent);text-decoration:underline">Aviso de Privacidad</a>.
+        Para garantizar la seguridad de tu identidad digital y cumplir con la regulación de protección de datos, debes revisar y aceptar nuestros <a href="legal.html" target="_blank" style="color:var(--vynk-accent-hi,#9A4159);text-decoration:underline">Términos y Condiciones</a> y el <a href="legal.html" target="_blank" style="color:var(--vynk-accent-hi,#9A4159);text-decoration:underline">Aviso de Privacidad</a>.
       </p>
-      <button class="btn btn-primary btn-block" id="btn-accept-terms" style="padding:14px;border-radius:14px;font-weight:600;background:var(--grad-primary);color:#fff">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M5 12l4 4 10-10"/></svg> Aceptar y Desbloquear Centro de Comando
+      <button class="btn btn-primary btn-block" id="btn-accept-terms" style="padding:14px;border-radius:980px;font-weight:600;background:var(--vynk-accent,#722F43);color:#fff">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M5 12l4 4 10-10"/></svg> Aceptar y Desbloquear VYNK
       </button>
     </div>
   </div>
@@ -487,8 +977,8 @@
   </div>
 
   <!-- Team Members & RBAC Management Modal -->
-  <div class="modal-overlay hidden" id="modal-team-members" style="background:rgba(3,3,6,0.92);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);z-index:9999;display:flex;align-items:center;justify-content:center">
-    <div class="modal card" style="max-width:540px;width:92%;background:rgba(15,11,30,0.9);border:1px solid rgba(255,255,255,0.18);border-radius:28px;padding:32px;box-shadow:0 20px 50px rgba(0,0,0,0.8)">
+  <div class="modal-overlay hidden" id="modal-team-members" style="background:rgba(0,0,0,0.6);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);z-index:9999;display:flex;align-items:center;justify-content:center">
+    <div class="modal card" style="max-width:540px;width:92%;background:#151515;border:1px solid rgba(255,255,255,0.14);border-radius:24px;padding:32px;box-shadow:0 30px 80px rgba(0,0,0,0.8)">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
         <h2 style="font-size:1.4rem;font-weight:800;letter-spacing:-0.02em;color:#FFF;margin:0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M17 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9.5" cy="7" r="3.5"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg> Miembros del Equipo & Roles RBAC</h2>
         <button onclick="closeTeamModal()" aria-label="Cerrar" title="Cerrar" style="background:none;border:none;color:var(--text-muted);font-size:1.4rem;cursor:pointer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
@@ -534,7 +1024,7 @@
       <div style="display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid rgba(255,255,255,0.08)">
         <span style="font-size:1.2rem;color:var(--text-tertiary)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></span>
         <input type="text" id="cmd-search-input" placeholder="Buscar función o acción..." style="background:none!important;border:none!important;box-shadow:none!important;font-size:1.05rem;color:#FFF;width:100%">
-        <button onclick="toggleCommandPalette()" style="background:none;border:none;color:var(--text-tertiary);font-size:1.2rem">✕</button>
+        <button onclick="toggleCommandPalette()" aria-label="Cerrar" title="Cerrar" style="background:none;border:none;color:var(--vynk-text-3);font-size:1.2rem;cursor:pointer;display:flex;align-items:center;padding:6px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       </div>
       <div style="padding:12px;display:flex;flex-direction:column;gap:6px" id="cmd-results">
         <div class="cmd-item" onclick="toggleCommandPalette(); openCreateModal();">
@@ -779,12 +1269,12 @@
   <!-- Xbox Style Quick-Resume Floating Bottom Bar -->
   <aside class="quick-resume-bar" style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:99;background:rgba(18,22,27,0.88);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.14);padding:10px 20px;border-radius:100px;display:flex;align-items:center;gap:16px;box-shadow:0 12px 40px rgba(0,0,0,0.6)">
     <div style="display:flex;align-items:center;gap:8px;font-size:0.82rem;color:#fff;font-weight:600">
-      <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#10B981;box-shadow:0 0 10px #10B981"></span>
-      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><circle cx="12" cy="12" r="9" fill="currentColor" stroke="none"/></svg> 14 personas en vivo</span>
+      <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#34C759;box-shadow:0 0 8px rgba(52,199,89,0.5)"></span>
+      <span>14 personas en vivo ahora</span>
     </div>
     <div style="width:1px;height:16px;background:rgba(255,255,255,0.15)"></div>
-    <a href="/editor.html" style="display:inline-flex;align-items:center;gap:6px;color:var(--accent);font-size:0.82rem;font-weight:700;text-decoration:none">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></svg> Quick-Resume Editor <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:0.9em;height:0.9em;vertical-align:-0.125em"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    <a href="/editor.html" style="display:inline-flex;align-items:center;gap:6px;color:var(--vynk-accent-hi);font-size:0.82rem;font-weight:700;text-decoration:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></svg> Continuar editando <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:0.9em;height:0.9em;vertical-align:-0.125em"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
     </a>
   </aside>
 

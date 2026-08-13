@@ -177,6 +177,15 @@
     container.querySelectorAll("[data-theme-id]").forEach(function (node) {
       node.addEventListener("click", function () {
         selectedTheme = node.getAttribute("data-theme-id") || "auto";
+        if (selectedTheme === "auto") {
+          manualColorChosen = false;
+          var currentImg = (document.getElementById("prev-avatar-box") || {}).querySelector && document.getElementById("prev-avatar-box").querySelector("img");
+          if (currentImg && currentImg.complete) {
+            var reExtract = new Image();
+            reExtract.onload = function () { extractDominantColorFromImage(reExtract); };
+            reExtract.src = currentImg.src;
+          }
+        }
         renderThemePicker();
         updateLivePreview();
       });
