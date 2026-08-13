@@ -44,29 +44,28 @@ html, body {
    MOBILE-FIRST DEFAULT PLATFORM (iOS 17/18 HIG DESIGN SYSTEM)
    ========================================================================== */
 
-/* Universal mobile-first container max-width */
-.mobile-app-viewport, .container, .container-lg {
-  max-width: 520px !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
+/* Universal responsive container system */
+.mobile-app-viewport {
+  max-width: 520px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-@media (min-width: 1025px) {
-  /* On Desktop displays, present the mobile app in an elegant centered iOS Frame with official Apple wallpaper */
-  body {
-    background: #060608 url('/img/apple/hero_bg.jpg') center / cover no-repeat fixed !important;
-    min-height: 100vh;
-  }
-  
-  .mobile-app-viewport, .container, .container-lg {
-    border-left: 1px solid rgba(255, 255, 255, 0.15) !important;
-    border-right: 1px solid rgba(255, 255, 255, 0.15) !important;
-    box-shadow: 0 0 120px rgba(0, 0, 0, 0.95), 0 0 40px rgba(124, 58, 237, 0.25) !important;
-    background: rgba(10, 10, 12, 0.94) !important;
-    backdrop-filter: blur(40px) !important;
-    -webkit-backdrop-filter: blur(40px) !important;
-    min-height: 100vh;
-  }
+.container {
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.container-lg, .container-lg-dashboard {
+  max-width: 1540px;
+  width: 95%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 20px;
+  padding-right: 20px;
 }
 
 /* iOS Grouped List & Card Aesthetics */

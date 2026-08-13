@@ -146,8 +146,8 @@ function buildThemeCss(themeId, accent) {
 body {
   background-color: ${t.background} !important;
   background-image:
-    radial-gradient(1200px 600px at 20% -10%, var(--accent-glow, rgba(124, 58, 237, 0.16)), transparent 60%),
-    radial-gradient(900px 500px at 110% 10%, var(--accent-glow, rgba(122, 106, 240, 0.10)), transparent 55%) !important;
+    radial-gradient(1200px 600px at 20% -10%, var(--accent-glow, rgba(23, 59, 99, 0.16)), transparent 60%),
+    radial-gradient(900px 500px at 110% 10%, var(--accent-glow, rgba(127, 174, 232, 0.12)), transparent 55%) !important;
   background-attachment: fixed !important;
   color: var(--text-primary, #F8FAFC) !important;
 }

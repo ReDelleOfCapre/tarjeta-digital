@@ -941,7 +941,7 @@ async function perfilPublicoHandler(req, res) {
       html = fs.readFileSync(templatePath, 'utf-8');
     } catch (e) {
       console.error('Plantilla views/perfil-publico.html no encontrada');
-      return res.status(500).send(`<!DOCTYPE html><html lang="es"><body style="background:#0A0A0B;color:#FFF;font-family:sans-serif;padding:40px;text-align:center"><h1>500 - Plantilla no disponible</h1><p>Falta views/perfil-publico.html en el servidor.</p><a href="/" style="color:#7C3AED">Volver al inicio</a></body></html>`);
+      return res.status(500).send(`<!DOCTYPE html><html lang="es"><body style="background:#0A0A0B;color:#FFF;font-family:sans-serif;padding:40px;text-align:center"><h1>500 - Plantilla no disponible</h1><p>Falta views/perfil-publico.html en el servidor.</p><a href="/" style="color:#7FAEE8">Volver al inicio</a></body></html>`);
     }
 
     const bio_text = perfil.bio ? escapeHtml(perfil.bio) : 'Tarjeta digital de contacto';
@@ -983,7 +983,7 @@ async function perfilPublicoHandler(req, res) {
     res.send(html);
   } catch (err) {
     console.error('[CRITICAL] Error renderizando perfil:', err);
-    res.status(500).send(`<!DOCTYPE html><html lang="es"><body style="background:#0A0A0B;color:#FFF;font-family:sans-serif;padding:40px;text-align:center"><h1>500 - Error al Renderizar Perfil</h1><p>${escapeHtml(err.message)}</p><a href="/" style="color:#7C3AED">Volver al inicio</a></body></html>`);
+    res.status(500).send(`<!DOCTYPE html><html lang="es"><body style="background:#0A0A0B;color:#FFF;font-family:sans-serif;padding:40px;text-align:center"><h1>500 - Error al Renderizar Perfil</h1><p>${escapeHtml(err.message)}</p><a href="/" style="color:#7FAEE8">Volver al inicio</a></body></html>`);
   }
 }
 
@@ -1079,8 +1079,8 @@ function getFieldLink(campo) {
 
 function generateActionButtons(perfil, campos) {
   return `<div class="action-buttons" style="display:flex;justify-content:center;margin:8px 0 12px">
-    <button type="button" onclick="openBookingModal()" class="action-btn action-booking" style="background:linear-gradient(135deg,#7C3AED,#0A84FF);border:none;color:#fff;cursor:pointer;padding:12px 24px;border-radius:100px;font-weight:700;font-size:0.95rem;box-shadow:0 8px 24px rgba(124,58,237,0.4);display:inline-flex;align-items:center;gap:10px">
-      <i class="fas fa-calendar-check action-icon"></i> Agendar Cita 📅
+    <button type="button" onclick="openBookingModal()" class="action-btn action-booking" style="background:linear-gradient(135deg,var(--accent-deep,#0F2C4E),var(--primary,#7FAEE8));border:none;color:#fff;cursor:pointer;padding:12px 24px;border-radius:100px;font-weight:700;font-size:0.95rem;box-shadow:0 8px 24px var(--accent-glow,rgba(127,174,232,0.3));display:inline-flex;align-items:center;gap:10px">
+      <i class="fas fa-calendar-check action-icon"></i> Agendar Cita
     </button>
   </div>`;
 }
