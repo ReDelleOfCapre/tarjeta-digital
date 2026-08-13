@@ -15,7 +15,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="/css/tokens.css">
     <link rel="stylesheet" href="/css/styles.css">
     <style>{{tema_css}}</style>
@@ -54,17 +53,21 @@
 
         .vp-head { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 6px; padding-top: 8px; }
         .avatar-wrapper {
-            margin: 0 auto;
-            width: 104px; height: 104px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            overflow: hidden; box-sizing: border-box; flex-shrink: 0;
+            margin: 0 auto !important;
+            width: 104px !important; height: 104px !important;
+            border-radius: 50% !important;
+            display: flex !important; align-items: center !important; justify-content: center !important;
+            overflow: hidden !important; box-sizing: border-box !important;
+            flex-shrink: 0 !important;
         }
         .avatar-wrapper .avatar {
-            width: 100%; height: 100%; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            overflow: hidden; color: #FFF; font-weight: 700;
+            width: 100% !important; height: 100% !important;
+            border-radius: 50% !important;
+            display: flex !important; align-items: center !important; justify-content: center !important;
+            overflow: hidden !important; color: #FFF !important; font-weight: 700 !important;
+            font-size: 2.5rem !important; margin: 0 !important;
         }
-        .avatar-wrapper .avatar img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 50%; }
+        .avatar-wrapper .avatar img { width: 100% !important; height: 100% !important; object-fit: cover !important; display: block !important; border-radius: 50% !important; }
         .name {
             font-family: 'Space Grotesk', sans-serif !important;
             font-size: clamp(24px, 6vw, 32px) !important;
@@ -128,14 +131,73 @@
         .block-wrapper.block-seccion, .block-wrapper.block-email, .block-wrapper.block-pdf,
         .block-wrapper.has-bento-rich, .block-wrapper.block-ubicacion, .block-wrapper.bento-media { grid-column: 1 / -1; }
 
+        /* === ADN Apple: bloques como celdas iOS nativas === */
+        .block-wrapper > a,
+        .block-wrapper .bento-hero-card,
+        .block-wrapper .bento-social-card,
+        .block-wrapper .bento-media-card,
+        .block-wrapper .block-wa,
+        .block-wrapper .block-pdf {
+            position: relative;
+            display: flex; align-items: center; gap: 14px;
+            padding: 15px 16px;
+            border-radius: 20px;
+            background: var(--bg-surface, rgba(255, 255, 255, 0.08));
+            border: 1px solid var(--card-border, rgba(255, 255, 255, 0.1));
+            text-decoration: none;
+            color: var(--text-primary, #FFF);
+            transition: transform 0.2s cubic-bezier(0.2, 0.9, 0.3, 1.2), background 0.2s ease, border-color 0.2s ease;
+            overflow: hidden;
+        }
+        .block-wrapper > a:hover,
+        .block-wrapper .bento-hero-card:hover { transform: translateY(-2px); }
+        .block-wrapper > a:active,
+        .block-wrapper .bento-hero-card:active { transform: scale(0.97); }
+
+        .bl-icon {
+            flex-shrink: 0;
+            width: 46px; height: 46px;
+            border-radius: 14px;
+            display: grid; place-items: center;
+            background: var(--chip-bg, rgba(23, 59, 99, 0.2));
+            color: var(--accent, #7FAEE8);
+            font-size: 1.25rem;
+            box-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.06), 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+        .bl-icon svg { width: 1.25em; height: 1.25em; }
+        .bl-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+        .bl-title { font-weight: 600; font-size: 0.98rem; letter-spacing: -0.01em; line-height: 1.3; }
+        .bl-sub { font-size: 0.8rem; line-height: 1.45; color: var(--text-secondary, #94A3B8); }
+        .bento-badge {
+            flex-shrink: 0;
+            font-size: 0.68rem; font-weight: 600; letter-spacing: 0.02em;
+            padding: 5px 10px; border-radius: 100px;
+            background: var(--chip-bg, rgba(255, 255, 255, 0.08));
+            color: var(--accent, #7FAEE8);
+            border: 1px solid var(--card-border, rgba(255, 255, 255, 0.12));
+        }
+
+        /* Bloques ricos / destinos de ancho completo mantienen el glass */
+        .block-wrapper .bento-rich-card {
+            padding: 0; align-items: stretch; gap: 0; flex-direction: column;
+        }
+        .block-wrapper .bento-rich-card .bento-thumb { width: 100%; height: auto; max-height: 180px; object-fit: cover; }
+        .block-wrapper .bento-rich-card .bento-content { padding: 14px 16px 16px; }
+
+        /* Fila de texto libre tipo nota */
+        .block-wrapper .block-text,
+        .block-wrapper .block-nota { padding: 16px 18px; border-radius: 20px; }
+
         .vp-foot { margin-top: 12px; display: flex; flex-direction: column; gap: 14px; text-align: center; }
         .vp-vcard {
             display: flex; align-items: center; justify-content: center; gap: 8px;
-            padding: 13px; border-radius: 14px; font-weight: 600; font-size: 0.9rem;
+            padding: 14px; border-radius: 100px; font-weight: 600; font-size: 0.9rem;
             color: var(--text-primary, #EEEAE0); background: var(--bg-surface, rgba(255, 255, 255, 0.06));
             border: 1px solid var(--card-border, rgba(255, 255, 255, 0.12)); text-decoration: none;
+            transition: transform 0.2s cubic-bezier(0.2, 0.9, 0.3, 1.2), background 0.2s ease;
         }
-        .vp-vcard:hover { background: var(--chip-bg, rgba(255, 255, 255, 0.1)); }
+        .vp-vcard:hover { transform: translateY(-1px); background: var(--chip-bg, rgba(255, 255, 255, 0.1)); }
+        .vp-vcard:active { transform: scale(0.97); }
         .vp-meta {
             font-family: 'JetBrains Mono', monospace; font-size: 11px;
             color: var(--text-secondary, #6B7280); display: flex; gap: 10px; justify-content: center; letter-spacing: 0.02em;
@@ -181,10 +243,10 @@
 
         <footer class="vp-foot">
             <a class="vp-vcard" href="{{base_url}}/api/perfiles/{{slug}}/vcard" data-action="descarga_vcard">
-                <i class="fas fa-address-card"></i> Guardar contacto (.vcf)
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.15em"><path d="M4 6h16v12H4z"/><path d="M4 8h16M7 12h6M7 15h4"/></svg> Guardar contacto (.vcf)
             </a>
             <div class="vp-meta">
-                <span><i class="fas fa-eye"></i> {{visitas}} visitas</span>
+                <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:0.9em;height:0.9em;vertical-align:-0.15em"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg> {{visitas}} visitas</span>
                 <a href="{{base_url}}/">Hecho con <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:0.9em;height:0.9em;vertical-align:-0.15em"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></svg> VYNK</a>
             </div>
         </footer>

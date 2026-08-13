@@ -14,7 +14,7 @@
     { tipo: "seccion", label: "Seccion", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M20.6 13.4 12 22l-9-9V3h10l7.6 7.6a2 2 0 0 1 0 2.8z\"/><circle cx=\"7.5\" cy=\"7.5\" r=\"1.4\"/></svg>", color: "#7A68F8" },
     { tipo: "spotify", label: "Spotify", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M9 18V5l12-2v13\"/><circle cx=\"6\" cy=\"18\" r=\"3\"/><circle cx=\"18\" cy=\"16\" r=\"3\"/></svg>", color: "#1DB954" },
     { tipo: "youtube", label: "YouTube", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M6 4l14 8-14 8V4z\"/></svg>", color: "#FF3131" },
-    { tipo: "tiktok", label: "TikTok", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><rect x=\"2\" y=\"4\" width=\"20\" height=\"16\" rx=\"2\"/><path d=\"M7 4v16M17 4v16M2 9h5M2 15h5M17 9h5M17 15h5\"/></svg>", color: "#111111" },
+    { tipo: "tiktok", label: "TikTok", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M9 18V5l12-2v13\"/><circle cx=\"6\" cy=\"18\" r=\"3\"/><circle cx=\"18\" cy=\"16\" r=\"3\"/></svg>", color: "#111111" },
     { tipo: "texto", label: "Texto libre", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M12 20h9\"/><path d=\"M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z\"/></svg>", color: "#8C8A95" },
     { tipo: "email_capture", label: "Captura email", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><rect x=\"3\" y=\"5\" width=\"18\" height=\"14\" rx=\"2\"/><path d=\"m4 7 8 6 8-6\"/></svg>", color: "#F97316" },
     { tipo: "countdown", label: "Cuenta regresiva", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M7 3h10M7 21h10\"/><path d=\"M8 3v6l-4 9h16l-4-9V3\"/><path d=\"M12 12v3\"/></svg>", color: "#FF6B70" }
@@ -25,8 +25,8 @@
     { tipo: "tiktok", label: "TikTok", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M9 18V5l12-2v13\"/><circle cx=\"6\" cy=\"18\" r=\"3\"/><circle cx=\"18\" cy=\"16\" r=\"3\"/></svg>" },
     { tipo: "twitter", label: "X", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M6 6l12 12M18 6L6 18\"/></svg>" },
     { tipo: "youtube", label: "YouTube", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M6 4l14 8-14 8V4z\"/></svg>" },
-    { tipo: "facebook", label: "Facebook", icon: "f" },
-    { tipo: "linkedin", label: "LinkedIn", icon: "in" },
+    { tipo: "facebook", label: "Facebook", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z\"/></svg>" },
+    { tipo: "linkedin", label: "LinkedIn", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4V9h4v1.5a6 6 0 0 1 2-1.5z\"/><rect x=\"2\" y=\"9\" width=\"4\" height=\"12\"/><circle cx=\"4\" cy=\"4\" r=\"2\"/></svg>" },
     { tipo: "spotify", label: "Spotify", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M9 18V5l12-2v13\"/><circle cx=\"6\" cy=\"18\" r=\"3\"/><circle cx=\"18\" cy=\"16\" r=\"3\"/></svg>" },
     { tipo: "github", label: "GitHub", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M9 9V5a3 3 0 1 0-3 3h4z\"/><path d=\"M15 9V5a3 3 0 1 1 3 3h-4z\"/><path d=\"M15 15v4a3 3 0 1 1-3-3h3z\"/><path d=\"M9 15v4a3 3 0 1 0 3-3H9z\"/></svg>" },
     { tipo: "web", label: "Sitio", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z\"/></svg>" }
@@ -111,6 +111,7 @@
   var selectedTheme = "auto";
   var selectedColor = "#E8A33D";
   var autoExtractedColor = null;
+  var manualColorChosen = false;
   var blocks = [];
   var profileSlug = null;
   var editingBlockIdx = null;
@@ -212,6 +213,7 @@
         });
         option.classList.add("active");
         selectedColor = option.getAttribute("data-color") || "#E8A33D";
+        manualColorChosen = true;
         updateLivePreview();
       });
     });
@@ -307,7 +309,9 @@
   }
 
   function updateLivePreview() {
-    var accent = selectedTheme === "auto" && autoExtractedColor ? autoExtractedColor : selectedColor;
+    var accent = selectedTheme === "auto" && autoExtractedColor && !manualColorChosen
+      ? autoExtractedColor
+      : selectedColor;
     var theme = buildTheme(selectedTheme, accent);
     applyTheme(theme);
     renderIdentity(theme);
@@ -401,10 +405,10 @@
     if (block.tipo === "whatsapp") {
       return (
         '<div class="preview-row" style="border-left: 3px solid #25D366; background: rgba(37, 211, 102, 0.08);">' +
-          '<div class="preview-icon" style="background:#25D366;color:#fff;border-radius:10px;display:grid;place-items:center;width:34px;height:34px"><i class="fab fa-whatsapp"></i></div>' +
+          '<div class="preview-icon" style="background:#25D366;color:#fff;border-radius:10px;display:grid;place-items:center;width:34px;height:34px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1.1em;height:1.1em"><path d="M21 12a8 8 0 0 1-8 8H4l3-3a8 8 0 1 1 14-5z"/></svg></div>' +
           '<div class="preview-row-copy">' +
             '<strong style="color:var(--phone-text)">' + escapeHtml(title || "WhatsApp Directo") + "</strong>" +
-            '<span style="color:#25D366;font-size:0.75rem">⚡ Responde rápido</span>' +
+            '<span style="color:#25D366;font-size:0.75rem">Responde rápido</span>' +
           "</div>" +
         "</div>"
       );
@@ -1007,7 +1011,7 @@
     var formData = new FormData();
     formData.append("nombre_perfil", nombre);
     formData.append("tipo", gv("tipo_perfil") || "personal");
-    formData.append("color", selectedTheme === "auto" && autoExtractedColor ? autoExtractedColor : selectedColor);
+    formData.append("color", selectedTheme === "auto" && autoExtractedColor && !manualColorChosen ? autoExtractedColor : selectedColor);
     formData.append("tema", selectedTheme);
     formData.append("marco_estilo", gv("marco_estilo") || "gradient");
     formData.append("bio", gv("bio_perfil"));
@@ -1112,6 +1116,7 @@
             option.classList.remove("active");
           });
           colorOption.classList.add("active");
+          manualColorChosen = true;
         }
 
         if (profile.foto_url) {

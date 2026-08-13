@@ -588,19 +588,19 @@ async function perfilPublicoHandler(req, res) {
                 inner += `<details class="smart-accordion" open style="border-radius:20px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);overflow:hidden;box-sizing:border-box">
                   <summary style="padding:16px 18px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;list-style:none">
                     <div style="display:flex;align-items:center;gap:12px">
-                      <div class="bl-icon" style="background:rgba(239,111,124,0.15);color:#EF6F7C;width:40px;height:40px;border-radius:12px;display:grid;place-items:center"><i class="fas fa-map-marked-alt" style="font-size:1.1rem"></i></div>
+                      <div class="bl-icon" style="background:rgba(239,111,124,0.15);color:#EF6F7C;width:40px;height:40px;border-radius:12px;display:grid;place-items:center"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="font-size:1.1rem;width:1em;height:1em;vertical-align:-0.125em"><path d="M12 21s7-7.5 7-12a7 7 0 1 0-14 0c0 4.5 7 12 7 12z"/><circle cx="12" cy="9" r="2.4"/></svg></div>
                       <div>
                         <div class="bl-title" style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.05rem;color:var(--text-primary,#FFF);line-height:1.25">${escapeHtml(titulo)}</div>
                         ${subtitulo ? `<div class="bl-sub" style="font-family:'Inter',sans-serif;font-size:0.85rem;color:var(--text-secondary,#94A3B8);margin-top:3px">${escapeHtml(subtitulo)}</div>` : ''}
                       </div>
                     </div>
-                    <i class="fas fa-chevron-down" style="color:var(--text-tertiary,#64748B);font-size:0.85rem;margin-left:8px"></i>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:0.9em;height:0.9em;vertical-align:-0.15em"><path d="m6 9 6 6 6-6"/></svg>
                   </summary>
                   <div class="smart-accordion-content" style="padding:0 18px 18px 18px;display:flex;flex-direction:column;gap:12px">
                     <a href="${escapeHtml(deepLinkUrl)}" target="_blank" rel="noopener" class="btn btn-secondary btn-block" style="margin-top:4px;padding:12px 18px;font-size:0.88rem;font-weight:600;display:flex;align-items:center;justify-content:center;gap:10px;border-radius:14px;background:rgba(239,111,124,0.15);border:1px solid rgba(239,111,124,0.3);color:#FFF">
-                      <i class="fas fa-location-arrow" style="color:#EF6F7C;font-size:0.95rem"></i>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:0.95em;height:0.95em;vertical-align:-0.15em"><path d="M3 11l19-8-8 19-2-8-9-3z"/></svg>
                       <span>Calcula tu ruta en Mapas (GPS Nactivo)</span>
-                      <i class="fas fa-external-link-alt" style="opacity:0.6;font-size:0.8rem;margin-left:auto"></i>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:0.8em;height:0.8em;vertical-align:-0.1em"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6M10 14L21 3"/></svg>
                     </a>
                   </div>
                 </details>`;
@@ -638,7 +638,7 @@ async function perfilPublicoHandler(req, res) {
                     <span class="bento-badge" style="background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.12)">↗ Ver perfil</span>
                   </a>`;
                 } else {
-                  inner += `<a href="${escapeHtml(url)}" target="_blank" rel="noopener" class="block-link bento-hero-card" style="border-left: 4px solid ${brandColor};">
+                  inner += `<a href="${escapeHtml(url)}" target="_blank" rel="noopener" class="block-link bento-hero-card">
                     <div class="bl-icon" style="color: ${brandColor}">${icon}</div>
                     <div class="bl-text">
                       <div class="bl-title">${escapeHtml(titulo)}</div>
@@ -661,17 +661,17 @@ async function perfilPublicoHandler(req, res) {
               inner += `<details class="smart-accordion" open style="border-radius:20px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);overflow:hidden;box-sizing:border-box">
                 <summary style="padding:16px 18px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;list-style:none">
                   <div style="display:flex;align-items:center;gap:12px">
-                    <div class="bl-icon" style="background:rgba(239,111,124,0.15);color:#EF6F7C;width:40px;height:40px;border-radius:12px;display:grid;place-items:center"><i class="fas fa-map-marked-alt" style="font-size:1.1rem"></i></div>
+                    <div class="bl-icon" style="background:rgba(239,111,124,0.15);color:#EF6F7C;width:40px;height:40px;border-radius:12px;display:grid;place-items:center"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="font-size:1.1rem;width:1em;height:1em;vertical-align:-0.125em"><path d="M12 21s7-7.5 7-12a7 7 0 1 0-14 0c0 4.5 7 12 7 12z"/><circle cx="12" cy="9" r="2.4"/></svg></div>
                     <div>
                       <div class="bl-title" style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.05rem;color:var(--text-primary,#FFF);line-height:1.25">${escapeHtml(titulo)}</div>
                       <div class="bl-sub" style="font-family:'Inter',sans-serif;font-size:0.85rem;color:var(--text-secondary,#94A3B8);margin-top:3px">${escapeHtml(subtitulo)}</div>
                     </div>
                   </div>
-                  <i class="fas fa-chevron-down" style="color:var(--text-tertiary,#64748B);font-size:0.85rem;margin-left:8px"></i>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:0.9em;height:0.9em;vertical-align:-0.15em"><path d="m6 9 6 6 6-6"/></svg>
                 </summary>
                 <div class="smart-accordion-content" style="padding:0 18px 18px 18px;display:flex;flex-direction:column;gap:12px">
-                  ${direccion ? `<div style="font-size:0.88rem;color:rgba(255,255,255,0.9);line-height:1.4"><i class="fas fa-location-dot" style="color:#EF6F7C;margin-right:8px"></i> <strong>Dirección:</strong> ${escapeHtml(direccion)}</div>` : ''}
-                  ${horario ? `<div style="font-size:0.85rem;color:rgba(255,255,255,0.75);line-height:1.4"><i class="fas fa-clock" style="color:#F59E0B;margin-right:8px"></i> <strong>Horario:</strong> ${escapeHtml(horario)}</div>` : ''}
+                  ${direccion ? `<div style="font-size:0.88rem;color:rgba(255,255,255,0.9);line-height:1.4"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:0.9em;height:0.9em;vertical-align:-0.15em"><path d="M12 21s7-7.5 7-12a7 7 0 1 0-14 0c0 4.5 7 12 7 12z"/><circle cx="12" cy="9" r="2.4"/></svg> <strong>Dirección:</strong> ${escapeHtml(direccion)}</div>` : ''}
+                  ${horario ? `<div style="font-size:0.85rem;color:rgba(255,255,255,0.75);line-height:1.4"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:0.9em;height:0.9em;vertical-align:-0.15em"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> <strong>Horario:</strong> ${escapeHtml(horario)}</div>` : ''}
                   ${sucursales.length > 0 ? `
                     <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px">
                       ${sucursales.map(s => `
@@ -687,9 +687,9 @@ async function perfilPublicoHandler(req, res) {
                   ` : ''}
                   ${mapUrl ? `
                     <a href="${escapeHtml(mapUrl)}" target="_blank" rel="noopener" class="btn btn-secondary btn-block" style="margin-top:6px;padding:12px 18px;font-size:0.88rem;font-weight:600;display:flex;align-items:center;justify-content:center;gap:10px;border-radius:14px;background:rgba(239,111,124,0.15);border:1px solid rgba(239,111,124,0.3);color:#FFF">
-                      <i class="fas fa-location-arrow" style="color:#EF6F7C;font-size:0.95rem"></i>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:0.95em;height:0.95em;vertical-align:-0.15em"><path d="M3 11l19-8-8 19-2-8-9-3z"/></svg>
                       <span>Calcula tu ruta en Mapas (GPS Nactivo)</span>
-                      <i class="fas fa-external-link-alt" style="opacity:0.6;font-size:0.8rem;margin-left:auto"></i>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:0.8em;height:0.8em;vertical-align:-0.1em"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6M10 14L21 3"/></svg>
                     </a>
                   ` : ''}
                 </div>
@@ -713,7 +713,7 @@ async function perfilPublicoHandler(req, res) {
               const waTitle = bContent?.titulo || bContent?.texto || 'WhatsApp Directo';
               const waSub = bContent?.subtitulo || (bContent?.mensaje_default ? `"${bContent.mensaje_default}"` : 'Atención e informes instantáneos');
               inner += `<a href="${escapeHtml(waLink)}" target="_blank" rel="noopener" class="block-wa bento-hero-card" data-action="click_whatsapp">
-                <div class="bl-icon" style="background:#25D366;color:#fff;box-shadow:0 4px 16px rgba(37,211,102,0.35)"><i class="fab fa-whatsapp"></i></div>
+                <div class="bl-icon" style="background:#25D366;color:#fff;box-shadow:0 4px 16px rgba(37,211,102,0.35)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1.2em;height:1.2em;vertical-align:-0.15em"><path d="M21 12a8 8 0 0 1-8 8H4l3-3a8 8 0 1 1 14-5z"/></svg></div>
                 <div class="bl-text">
                   <div class="bl-title" style="font-weight:700;font-size:1.05rem;color:var(--text-primary,#FFF);font-family:'Space Grotesk',sans-serif">${escapeHtml(waTitle)}</div>
                   <div class="bl-sub" style="font-size:0.85rem;color:var(--text-secondary,#94A3B8);margin-top:2px">${escapeHtml(waSub)}</div>
@@ -782,7 +782,7 @@ async function perfilPublicoHandler(req, res) {
             }
             case 'pdf':
               inner += `<a href="${escapeHtml(bContent?.url || '#')}" target="_blank" rel="noopener" class="block-link block-pdf bento-media-card">
-                <div class="bl-icon" style="background:rgba(239,68,68,0.15);color:#EF4444"><i class="fas fa-file-pdf"></i></div>
+                <div class="bl-icon" style="background:rgba(239,68,68,0.15);color:#EF4444"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1.2em;height:1.2em;vertical-align:-0.15em"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-6-6z"/><path d="M14 3v6h6M9 13h6M9 17h4"/></svg></div>
                 <div class="bl-text">
                   <div class="bl-title">${escapeHtml(bContent?.titulo || 'Documento PDF')}</div>
                   ${bContent?.subtitulo ? `<div class="bl-sub">${escapeHtml(bContent.subtitulo)}</div>` : '<div class="bl-sub">Archivo adjunto descargable</div>'}
@@ -793,7 +793,7 @@ async function perfilPublicoHandler(req, res) {
             case 'pago':
               inner += `<div class="block-pago">
                 <div class="pago-header">
-                  <div class="pago-icon"><i class="fas fa-credit-card"></i></div>
+                  <div class="pago-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1.2em;height:1.2em;vertical-align:-0.15em"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M6 15h4"/></svg></div>
                   <div>
                     <div class="pago-title">${escapeHtml(bContent?.banco || 'Datos de Transferencia')}</div>
                     ${bContent?.beneficiario ? `<div class="pago-sub">Titular: ${escapeHtml(bContent.beneficiario)}</div>` : ''}
@@ -808,7 +808,7 @@ async function perfilPublicoHandler(req, res) {
               break;
             case 'nota':
               inner += `<div class="block-nota">
-                <i class="fas fa-thumbtack nota-icon"></i>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.15em"><path d="M12 2v9l4.5 4.5a1 1 0 0 1-.7 1.7H8.2a1 1 0 0 1-.7-1.7L12 11V2"/><path d="M8 21h8"/></svg>
                 <div>${escapeHtml(bContent?.texto || '')}</div>
               </div>`;
               break;
@@ -858,7 +858,7 @@ async function perfilPublicoHandler(req, res) {
               <span class="contact-label">${escapeHtml(label)}</span>
               <span class="contact-value">${escapeHtml(campo.valor)}</span>
             </div>
-            <i class="fas fa-chevron-right contact-arrow"></i>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:0.8em;height:0.8em;vertical-align:-0.1em"><path d="m9 18 6-6-6-6"/></svg>
           </a>`;
       }).join('\n');
 
@@ -873,7 +873,7 @@ async function perfilPublicoHandler(req, res) {
     }
 
     const archivos_html = archivos.map(archivo => {
-      const icon = (archivo.tipo || '').includes('pdf') ? '<i class="fas fa-file-pdf"></i>' : '<i class="fas fa-file-image"></i>';
+      const icon = (archivo.tipo || '').includes('pdf') ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1.2em;height:1.2em;vertical-align:-0.15em"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-6-6z"/><path d="M14 3v6h6M9 13h6M9 17h4"/></svg>' : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1.2em;height:1.2em;vertical-align:-0.15em"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></svg>';
       const displayName = (archivo.nombre || '').length > 35
         ? (archivo.nombre || '').substring(0, 32) + '...'
         : (archivo.nombre || '');
@@ -885,7 +885,7 @@ async function perfilPublicoHandler(req, res) {
             <span class="file-label">Archivo</span>
             <span class="file-name">${escapeHtml(displayName)}</span>
           </div>
-          <i class="fas fa-arrow-down file-download"></i>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:0.8em;height:0.8em;vertical-align:-0.1em"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
         </a>`;
     }).join('\n');
 
@@ -999,16 +999,29 @@ function escapeHtml(str) {
 
 function getFieldIcon(tipo) {
   const icons = {
-    whatsapp: '<i class="fab fa-whatsapp"></i>', telefono: '<i class="fas fa-phone"></i>', email: '<i class="fas fa-envelope"></i>', direccion: '<i class="fas fa-map-marker-alt"></i>',
-    facebook: '<i class="fab fa-facebook-f"></i>', instagram: '<i class="fab fa-instagram"></i>', tiktok: '<i class="fab fa-tiktok"></i>', linkedin: '<i class="fab fa-linkedin-in"></i>',
-    twitter: '<i class="fab fa-x-twitter"></i>', youtube: '<i class="fab fa-youtube"></i>', threads: '<i class="fab fa-threads"></i>', telegram: '<i class="fab fa-telegram-plane"></i>',
-    snapchat: '<i class="fab fa-snapchat-ghost"></i>', discord: '<i class="fab fa-discord"></i>', twitch: '<i class="fab fa-twitch"></i>', kick: '<i class="fas fa-play"></i>',
-    spotify: '<i class="fab fa-spotify"></i>', apple_music: '<i class="fab fa-apple"></i>', steam: '<i class="fab fa-steam"></i>', xbox: '<i class="fab fa-xbox"></i>', psn: '<i class="fab fa-playstation"></i>',
-    amazon_wishlist: '<i class="fab fa-amazon"></i>', pinterest: '<i class="fab fa-pinterest-p"></i>', reddit: '<i class="fab fa-reddit-alien"></i>', bereal: '<i class="fas fa-camera-retro"></i>',
-    web: '<i class="fas fa-globe"></i>', github: '<i class="fab fa-github"></i>', behance: '<i class="fab fa-behance"></i>', dribbble: '<i class="fab fa-dribbble"></i>', portafolio: '<i class="fas fa-briefcase"></i>',
-    otro: '<i class="fas fa-link"></i>'
+    whatsapp: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M21 12a8 8 0 0 1-8 8H4l3-3a8 8 0 1 1 14-5z"/></svg>',
+    telefono: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.13.96.36 1.9.7 2.8a2 2 0 0 1-.45 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.27a2 2 0 0 1 2.1-.45c.9.34 1.84.57 2.8.7A2 2 0 0 1 22 16.9z"/></svg>',
+    email: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg>',
+    direccion: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M12 21s7-7.5 7-12a7 7 0 1 0-14 0c0 4.5 7 12 7 12z"/><circle cx="12" cy="9" r="2.4"/></svg>',
+    facebook: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>',
+    instagram: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="12" cy="13" r="4"/><path d="M8.5 6l1-2h5l1 2"/></svg>',
+    tiktok: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>',
+    linkedin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4V9h4v1.5a6 6 0 0 1 2-1.5z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>',
+    twitter: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M4 4l16 16M20 4L4 20"/></svg>',
+    youtube: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M6 4l14 8-14 8V4z"/></svg>',
+    threads: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><circle cx="12" cy="12" r="2.5"/><path d="M12 2c4 0 6.5 2 6.5 5.5 0 2-1.2 3.2-2 3.7.8.5 2 1.7 2 3.7C18.5 18.5 16 20.5 12 20.5S5.5 18.5 5.5 15c0-1.4.5-2.5 1.3-3.5"/></svg>',
+    telegram: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg>',
+    snapchat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M12 2c2 0 3.5 1.6 4 4 .2 1 .6 1.6 1.3 2.2.5.4 1.2.5 1.8.4.4-.1.8.2.9.6.1.3-.1.6-.3.8-.7.7-2 .9-2.9 1.4-.4.2-.5.5-.4.9 0 .4.4.7 1 .9.9.4 2 .7 2.4 1.1.3.3.3.7 0 1-.3.3-1 .4-2 .4-.5 0-1 .1-1.4.3-.5.3-.6 1.1-1.7 1.1s-1.2-.8-1.7-1.1c-.4-.2-.9-.3-1.4-.3-1 0-1.7-.1-2-.4-.3-.3-.3-.7 0-1 .4-.4 1.5-.7 2.4-1.1.6-.2 1-.5 1-.9-.1-.4 0-.7-.4-.9-.9-.5-2.2-.7-2.9-1.4-.2-.2-.4-.5-.3-.8.1-.4.5-.7.9-.6.6.1 1.3 0 1.8-.4.7-.6 1.1-1.2 1.3-2.2.5-2.4 2-4 4-4z"/></svg>',
+    discord: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M18 7c-1.2-.6-2.5-1-3.8-1.1l-.5 1a11 11 0 0 0-3.4 0l-.5-1C8.5 6 7.2 6.4 6 7a17 17 0 0 0-2.7 13.4 13 13 0 0 0 4 2l.9-1.5c-.9-.3-1.8-.7-2.5-1.2l.6-.5a10 10 0 0 0 9.4 0l.6.5c-.7.5-1.6.9-2.5 1.2l.9 1.5a13 13 0 0 0 4-2A17 17 0 0 0 18 7z"/><path d="M9.5 12.5a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4zM14.5 12.5a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4z"/></svg>',
+    twitch: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M4 3h16v12l-4 4H11l-3 3v-3H4z"/><path d="M9 8v5M15 8v5"/></svg>',
+    spotify: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>',
+    apple_music: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>',
+    web: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
+    github: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M9 9V5a3 3 0 1 0-3 3h4z"/><path d="M15 9V5a3 3 0 1 1 3 3h-4z"/><path d="M15 15v4a3 3 0 1 1-3-3h3z"/><path d="M9 15v4a3 3 0 1 0 3-3H9z"/></svg>',
+    portafolio: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>',
+    otro: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>'
   };
-  return icons[tipo] || '<i class="fas fa-link"></i>';
+  return icons[tipo] || icons.otro;
 }
 
 function getFieldColor(tipo) {
@@ -1080,7 +1093,7 @@ function getFieldLink(campo) {
 function generateActionButtons(perfil, campos) {
   return `<div class="action-buttons" style="display:flex;justify-content:center;margin:8px 0 12px">
     <button type="button" onclick="openBookingModal()" class="action-btn action-booking" style="background:linear-gradient(135deg,var(--accent-deep,#0F2C4E),var(--primary,#7FAEE8));border:none;color:#fff;cursor:pointer;padding:12px 24px;border-radius:100px;font-weight:700;font-size:0.95rem;box-shadow:0 8px 24px var(--accent-glow,rgba(127,174,232,0.3));display:inline-flex;align-items:center;gap:10px">
-      <i class="fas fa-calendar-check action-icon"></i> Agendar Cita
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.15em"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="m9 16 2 2 4-4"/></svg> Agendar Cita
     </button>
   </div>`;
 }
@@ -1131,21 +1144,20 @@ function generate404Page() {
 function getSmartIcon(titulo, url) {
   const t = (titulo || '').toLowerCase();
   const u = (url || '').toLowerCase();
-  if (u.includes('whatsapp') || t.includes('whatsapp')) return '<i class="fab fa-whatsapp"></i>';
-  if (u.includes('facebook') || t.includes('facebook')) return '<i class="fab fa-facebook"></i>';
-  if (u.includes('instagram') || t.includes('instagram')) return '<i class="fab fa-instagram"></i>';
-  if (u.includes('youtube') || t.includes('youtube')) return '<i class="fab fa-youtube"></i>';
-  if (u.includes('tiktok') || t.includes('tiktok')) return '<i class="fab fa-tiktok"></i>';
-  if (u.includes('spotify') || t.includes('spotify')) return '<i class="fab fa-spotify"></i>';
-  if (u.includes('twitter') || u.includes('x.com') || t.includes('twitter')) return '<i class="fab fa-x-twitter"></i>';
-  if (u.includes('linkedin') || t.includes('linkedin')) return '<i class="fab fa-linkedin"></i>';
-  if (u.includes('github') || t.includes('github')) return '<i class="fab fa-github"></i>';
-  if (u.includes('uber') || t.includes('uber')) return '<i class="fas fa-motorcycle"></i>';
-  if (u.includes('tel:') || t.includes('llama') || t.includes('telefono')) return '<i class="fas fa-phone"></i>';
-  if (u.includes('mailto:') || t.includes('email') || t.includes('correo')) return '<i class="fas fa-envelope"></i>';
-  if (u.includes('maps') || t.includes('ubicacion') || t.includes('sucursal')) return '<i class="fas fa-location-dot"></i>';
-  if (u.includes('.pdf') || t.includes('pdf') || t.includes('menu')) return '<i class="fas fa-file-pdf"></i>';
-  return '<i class="fas fa-link"></i>';
+  if (u.includes('whatsapp') || t.includes('whatsapp')) return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M21 12a8 8 0 0 1-8 8H4l3-3a8 8 0 1 1 14-5z"/></svg>';
+  if (u.includes('facebook') || t.includes('facebook')) return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>';
+  if (u.includes('instagram') || t.includes('instagram')) return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="12" cy="13" r="4"/><path d="M8.5 6l1-2h5l1 2"/></svg>';
+  if (u.includes('youtube') || t.includes('youtube')) return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M6 4l14 8-14 8V4z"/></svg>';
+  if (u.includes('tiktok') || t.includes('tiktok')) return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>';
+  if (u.includes('spotify') || t.includes('spotify')) return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>';
+  if (u.includes('twitter') || u.includes('x.com') || t.includes('twitter')) return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M4 4l16 16M20 4L4 20"/></svg>';
+  if (u.includes('linkedin') || t.includes('linkedin')) return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4V9h4v1.5a6 6 0 0 1 2-1.5z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>';
+  if (u.includes('github') || t.includes('github')) return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M9 9V5a3 3 0 1 0-3 3h4z"/><path d="M15 9V5a3 3 0 1 1 3 3h-4z"/><path d="M15 15v4a3 3 0 1 1-3-3h3z"/><path d="M9 15v4a3 3 0 1 0 3-3H9z"/></svg>';
+  if (u.includes('tel:') || t.includes('llama') || t.includes('telefono')) return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.13.96.36 1.9.7 2.8a2 2 0 0 1-.45 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.27a2 2 0 0 1 2.1-.45c.9.34 1.84.57 2.8.7A2 2 0 0 1 22 16.9z"/></svg>';
+  if (u.includes('mailto:') || t.includes('email') || t.includes('correo')) return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg>';
+  if (u.includes('maps') || t.includes('ubicacion') || t.includes('sucursal')) return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M12 21s7-7.5 7-12a7 7 0 1 0-14 0c0 4.5 7 12 7 12z"/><circle cx="12" cy="9" r="2.4"/></svg>';
+  if (u.includes('.pdf') || t.includes('pdf') || t.includes('menu')) return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-6-6z"/><path d="M14 3v6h6M9 13h6M9 17h4"/></svg>';
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>';
 }
 
 function getSmartBrandColor(titulo, url) {

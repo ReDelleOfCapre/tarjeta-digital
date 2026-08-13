@@ -2607,7 +2607,7 @@ select,
   overflow-x: hidden !important;
 }
 
-.avatar-wrapper {
+.phone .avatar-wrapper {
   position: relative !important;
   width: 120px !important;
   height: 120px !important;
@@ -3288,7 +3288,7 @@ select,
   box-sizing: border-box !important;
 }
 
-.avatar {
+.phone .avatar {
   width: 76px !important;
   height: 76px !important;
   border-radius: 50% !important;
