@@ -138,11 +138,11 @@ async function loadAdminDashboard() {
           <td>${u.total_perfiles}</td>
           <td>
             <button class="btn-sm btn-view" onclick="verPerfiles(${u.id}, '${escapeHtml(u.nombre)}')">Ver Tarjetas</button>
-            <button class="btn-sm" style="background:#8B5CF6; color:white;" onclick="adminResetPassword(${u.id}, '${escapeHtml(u.nombre)}')">🔑 Pass</button>
+            <button class="btn-sm" style="background:#5C48E6; color:white;" onclick="adminResetPassword(${u.id}, '${escapeHtml(u.nombre)}')">Pass</button>
             <button class="btn-sm btn-toggle" onclick="togglePlan(${u.id}, '${u.plan === 'paid' ? 'free' : 'paid'}')">
               Hacer ${u.plan === 'paid' ? 'Free' : 'Pro'}
             </button>
-            ${u.plan === 'free' ? `<button class="btn-sm" style="background:#06B6D4; color:white;" onclick="resetQuota(${u.id})">Recargar Energía</button>` : ''}
+            ${u.plan === 'free' ? `<button class="btn-sm" style="background:##10B981; color:white;" onclick="resetQuota(${u.id})">Recargar Energía</button>` : ''}
           </td>
         </tr>
       `).join('');

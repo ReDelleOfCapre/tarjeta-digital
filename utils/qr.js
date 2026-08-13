@@ -9,7 +9,7 @@ const QRCode = require('qrcode');
  * @returns {Promise<Buffer>} Buffer con la imagen PNG del QR
  */
 async function generateQR(url, options = {}) {
-  const darkColor = options.darkColor || '#7C3AED';
+  const darkColor = options.darkColor || '#5C48E6';
   const lightColor = options.lightColor || '#08080E';
 
   const buffer = await QRCode.toBuffer(url, {

@@ -22,6 +22,7 @@
   var isDark = (document.documentElement.getAttribute('data-theme') === 'dark');
   var textColor = isDark ? '#F5F5F7' : '#1D1830';
   var gridColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(29,24,48,0.08)';
+  var accentColor = cssVar('--accent', '#5C48E6');
 
   // Format event names for display
   function formatEventName(evento) {
@@ -40,13 +41,13 @@
 
   // Define chart colors
   var chartColors = [
-    '#5C48E6', // Accent Deep
-    '#7A6AF0', // Accent
+    '#5C48E6', // Marca VYNK
+    '#173B63', // Navy
+    '#7FAEE8', // Accent claro
     '#10B981', // Emerald
     '#F59E0B', // Amber
-    '#EC4899', // Pink
-    '#3B82F6', // Blue
-    '#FF6B6B'  // Coral
+    '#722F43', // Wine
+    '#555555'  // Mono
   ];
 
   function setStat(id, value) {
@@ -211,10 +212,10 @@
 
     // Gradient fill
     var gradient = ctx.createLinearGradient(0, 0, 0, 400);
-    gradient.addColorStop(0, isDark ? 'rgba(10, 132, 255, 0.5)' : 'rgba(0, 122, 255, 0.5)');
-    gradient.addColorStop(1, isDark ? 'rgba(10, 132, 255, 0.0)' : 'rgba(0, 122, 255, 0.0)');
+    gradient.addColorStop(0, isDark ? 'rgba(92, 72, 230, 0.5)' : 'rgba(23, 59, 99, 0.5)');
+    gradient.addColorStop(1, isDark ? 'rgba(92, 72, 230, 0.0)' : 'rgba(23, 59, 99, 0.0)');
 
-    var accentColor = isDark ? '#0A84FF' : '#007AFF';
+    var accentColor = isDark ? '#7FAEE8' : '#173B63';
 
     visitsChartInstance = new Chart(ctx, {
       type: 'line',

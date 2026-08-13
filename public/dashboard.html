@@ -162,7 +162,7 @@
       <a href="analytics.html" class="btn btn-sm btn-ghost desktop-nav-item" title="Analíticas en Tiempo Real"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M22 20H2"/></svg> Métrica</a>
       <a href="admin.html" class="btn btn-sm btn-ghost hidden desktop-nav-item" id="btn-admin" title="Admin Master"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> Master</a>
       <button class="btn btn-sm btn-ghost desktop-nav-item" id="btn-logout" style="color:var(--red)">Salir</button>
-      <button onclick="toggleMobileNavDrawer()" class="btn btn-sm btn-ghost mobile-only-btn" style="font-size:1.4rem;padding:4px 10px;color:#FFF" title="Menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+      <button onclick="toggleMobileNavDrawer()" class="btn btn-sm btn-ghost mobile-only-btn" aria-label="Abrir menú" title="Menú" style="font-size:1.4rem;padding:4px 10px;color:#FFF"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
     </div>
   </nav>
 
@@ -174,7 +174,7 @@
         <img src="img/vynk-logo.svg" alt="VYNK Logo" style="height:26px">
         <span style="font-weight:800;font-size:0.95rem;color:#FFF">Menú VYNK</span>
       </div>
-      <button onclick="toggleMobileNavDrawer()" class="btn btn-sm btn-ghost" style="font-size:1.2rem;color:#FFF;padding:4px 8px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <button onclick="toggleMobileNavDrawer()" class="btn btn-sm btn-ghost" aria-label="Cerrar menú" title="Cerrar menú" style="font-size:1.2rem;color:#FFF;padding:4px 8px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
     <div class="mobile-nav-body">
       <button onclick="toggleCommandPalette(); toggleMobileNavDrawer();" class="btn btn-block btn-secondary" style="margin-bottom:8px;padding:12px;font-weight:600"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg> Buscar</button>
@@ -474,7 +474,7 @@
           <div style="font-size:0.72rem;color:var(--green)">● En Línea</div>
         </div>
       </div>
-      <button onclick="toggleSupportChat()" style="background:none;border:none;color:var(--text-muted);font-size:1.2rem;cursor:pointer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <button onclick="toggleSupportChat()" aria-label="Cerrar chat" title="Cerrar chat" style="background:none;border:none;color:var(--text-muted);font-size:1.2rem;cursor:pointer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
     <div class="chat-body" id="chat-body">
       <div class="chat-msg chat-bot">
@@ -491,7 +491,7 @@
     <div class="modal card" style="max-width:540px;width:92%;background:rgba(15,11,30,0.9);border:1px solid rgba(255,255,255,0.18);border-radius:28px;padding:32px;box-shadow:0 20px 50px rgba(0,0,0,0.8)">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
         <h2 style="font-size:1.4rem;font-weight:800;letter-spacing:-0.02em;color:#FFF;margin:0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M17 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9.5" cy="7" r="3.5"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg> Miembros del Equipo & Roles RBAC</h2>
-        <button onclick="closeTeamModal()" style="background:none;border:none;color:var(--text-muted);font-size:1.4rem;cursor:pointer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+        <button onclick="closeTeamModal()" aria-label="Cerrar" title="Cerrar" style="background:none;border:none;color:var(--text-muted);font-size:1.4rem;cursor:pointer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       </div>
       <p class="text-muted" style="font-size:0.85rem;line-height:1.5;margin-bottom:20px">
         Asigna permisos de acceso y control a tus colaboradores en el espacio de trabajo corporativo.
@@ -562,7 +562,7 @@
     <div class="modal card" style="max-width:500px;width:92%;background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:12px;padding:24px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
         <h3 style="font-size:1.2rem;font-weight:700;font-family:'Space Grotesk',sans-serif"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M6 15h4"/></svg> Finalizar Pedido NFC</h3>
-        <button onclick="closeCheckoutModal()" class="btn btn-ghost btn-sm" style="padding:4px 8px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+        <button onclick="closeCheckoutModal()" class="btn btn-ghost btn-sm" aria-label="Cerrar" title="Cerrar" style="padding:4px 8px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       </div>
 
       <div style="padding:12px;background:rgba(255,255,255,0.04);border-radius:8px;margin-bottom:16px">
@@ -603,7 +603,7 @@
     <div class="modal card" style="max-width:480px;width:92%;background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:12px;padding:24px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
         <h3 style="font-size:1.2rem;font-weight:700;font-family:'Space Grotesk',sans-serif"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></svg> Asignar Tarjeta NFC en Vivo</h3>
-        <button onclick="closeAssignClientModal()" class="btn btn-ghost btn-sm" style="padding:4px 8px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+        <button onclick="closeAssignClientModal()" class="btn btn-ghost btn-sm" aria-label="Cerrar" title="Cerrar" style="padding:4px 8px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       </div>
 
       <form id="form-assign-client" onsubmit="executeAssignClient(event)">
@@ -632,7 +632,7 @@
     <div class="modal card" style="max-width:1000px;width:95%;background:var(--console-bg);border:1px solid var(--panel-border);border-radius:16px;padding:32px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
         <h3 style="font-size:1.4rem;font-weight:700;font-family:'Space Grotesk',sans-serif"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="11" r="2"/><path d="M5 16c.8-1.6 2.2-2 3-2s2.2.4 3 2"/><rect x="13" y="9" width="7" height="3" rx="1"/><path d="M13 15h7"/></svg> Diseñar Identidad Digital</h3>
-        <button onclick="closeCreateModal()" class="btn btn-ghost btn-sm" style="padding:4px 8px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+        <button onclick="closeCreateModal()" class="btn btn-ghost btn-sm" aria-label="Cerrar" title="Cerrar" style="padding:4px 8px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       </div>
 
       <div class="vynk-theming-container" style="text-align:left">

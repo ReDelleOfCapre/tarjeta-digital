@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const navAuthBtn = document.querySelector('a[href="#auth"]');
     if (navAuthBtn) {
       navAuthBtn.href = '/dashboard.html';
-      navAuthBtn.innerHTML = '🪪 Ir a mi Dashboard';
+      navAuthBtn.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px"><path d="M12 7.5l1.8 3.8 4.2.6-3 2.9.7 4.2L12 16.8l-3.7 2 .7-4.2-3-2.9 4.2-.6z"/><path d="M4 4.5h16"/></svg>Ir a mi Dashboard';
       navAuthBtn.removeAttribute('data-tab');
     }
   }

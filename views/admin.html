@@ -12,8 +12,8 @@
   <link rel="stylesheet" href="/css/styles.css">
   <style>
     :root {
-      --primary: #7C3AED;
-      --secondary: #FF6B6B;
+      --primary: #5C48E6;
+      --secondary: #173B63;
       --bg-dark: #0F0B1E;
       --text-light: #F3F4F6;
       --card-bg: rgba(255, 255, 255, 0.05);
@@ -126,7 +126,7 @@
     .btn-approve { background: #10B981; color: white; }
     .btn-reject { background: #EF4444; color: white; }
     .btn-view { background: #3B82F6; color: white; }
-    .btn-toggle { background: #8B5CF6; color: white; }
+    .btn-toggle { background: #5C48E6; color: white; }
 
     /* Modal */
     .modal {
@@ -173,7 +173,7 @@
 </head>
 <body>
   <nav class="navbar">
-    <div class="brand">⚡ VYNK Admin Master</div>
+    <div class="brand"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></svg>VYNK Admin Master</div>
     <div>
       <a href="/dashboard.html" style="color:#9CA3AF; text-decoration:none; margin-right: 1.5rem;">Volver al App</a>
       <button onclick="adminLogout()" class="btn-sm btn-reject">Cerrar Sesión Master</button>
@@ -201,7 +201,7 @@
     </div>
 
     <!-- Pagos Pendientes -->
-    <div class="section-title">💳 Revisiones de Pago Pendientes</div>
+    <div class="section-title"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:8px"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="11" r="2"/><path d="M5 16c.8-1.6 2.2-2 3-2s2.2.4 3 2"/><rect x="13" y="9" width="7" height="3" rx="1"/><path d="M13 15h7"/></svg>Revisiones de Pago Pendientes</div>
     <div class="table-container">
       <table id="payments-table">
         <thead>
@@ -221,7 +221,7 @@
     </div>
 
     <!-- Gestión de Usuarios -->
-    <div class="section-title">👥 Todos los Usuarios</div>
+    <div class="section-title"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:8px"><circle cx="9" cy="8" r="3"/><path d="M4 20c.8-3.6 2.7-5.4 5-5.4s4.2 1.8 5 5.4"/><circle cx="17" cy="9" r="2.2"/><path d="M16 14.6c1.7.2 3 1.6 3.6 4.4"/></svg>Todos los Usuarios</div>
     <div class="table-container">
       <table id="users-table">
         <thead>
@@ -319,11 +319,11 @@
               <td>${u.total_perfiles}</td>
               <td>
                 <button class="btn-sm btn-view" onclick="verPerfiles(${u.id}, '${u.nombre}')">Ver Tarjetas</button>
-                <button class="btn-sm" style="background:#8B5CF6; color:white;" onclick="adminResetPassword(${u.id}, '${u.nombre}')">🔑 Pass</button>
+                <button class="btn-sm" style="background:#5C48E6; color:white;" onclick="adminResetPassword(${u.id}, '${u.nombre}')">Pass</button>
                 <button class="btn-sm btn-toggle" onclick="togglePlan(${u.id}, '${u.plan === 'paid' ? 'free' : 'paid'}')">
                   Hacer ${u.plan === 'paid' ? 'Free' : 'Pro'}
                 </button>
-                ${u.plan === 'free' ? `<button class="btn-sm" style="background:#06B6D4; color:white;" onclick="resetQuota(${u.id})">Recargar Energía</button>` : ''}
+                ${u.plan === 'free' ? `<button class="btn-sm" style="background:#10B981; color:white;" onclick="resetQuota(${u.id})">Recargar Energía</button>` : ''}
               </td>
             </tr>
           `).join('');

@@ -25,10 +25,10 @@ function wrapVynkEmailTemplate(title, bodyHtml) {
   <style>
     body { margin: 0; padding: 0; background-color: #0A0A0C; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', Roboto, sans-serif; color: #F8F4EF; }
     .email-container { max-width: 580px; margin: 30px auto; background: #151517; border: 1px solid rgba(255,255,255,0.15); border-radius: 24px; overflow: hidden; box-shadow: 0 30px 70px rgba(0,0,0,0.8); }
-    .email-header { padding: 32px 32px 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.08); background: linear-gradient(180deg, rgba(124,58,237,0.12), transparent); }
+    .email-header { padding: 32px 32px 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.08); background: linear-gradient(180deg, rgba(92,72,230,0.12), transparent); }
     .email-body { padding: 32px; font-size: 15px; line-height: 1.6; color: rgba(248,244,239,0.85); }
     .email-footer { padding: 24px 32px; text-align: center; font-size: 12px; color: rgba(248,244,239,0.4); border-top: 1px solid rgba(255,255,255,0.08); background: #0F0F12; }
-    .btn-cal { display: inline-block; padding: 14px 28px; border-radius: 100px; background: linear-gradient(135deg, #7C3AED, #0A84FF); color: #FFFFFF !important; font-weight: 700; font-size: 14px; text-decoration: none; box-shadow: 0 8px 24px rgba(124,58,237,0.4); margin-top: 16px; }
+    .btn-cal { display: inline-block; padding: 14px 28px; border-radius: 100px; background: linear-gradient(135deg, #5C48E6, #173B63); color: #FFFFFF !important; font-weight: 700; font-size: 14px; text-decoration: none; box-shadow: 0 8px 24px rgba(92,72,230,0.4); margin-top: 16px; }
     .meta-box { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 20px; margin: 20px 0; }
     .meta-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; }
     .meta-label { color: rgba(248,244,239,0.5); font-family: monospace; }
@@ -38,7 +38,7 @@ function wrapVynkEmailTemplate(title, bodyHtml) {
 <body>
   <div class="email-container">
     <div class="email-header">
-      <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#7C3AED,#0A84FF);margin:0 auto 12px;display:grid;place-items:center;font-weight:900;font-size:20px;color:#fff">V</div>
+      <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#5C48E6,#173B63);margin:0 auto 12px;display:grid;place-items:center;font-weight:900;font-size:20px;color:#fff">V</div>
       <h1 style="font-size:20px;font-weight:700;margin:0;color:#FFF;letter-spacing:-0.02em">${title}</h1>
     </div>
     <div class="email-body">
