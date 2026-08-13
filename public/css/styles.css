@@ -93,6 +93,18 @@ body {
   font-family: var(--font-body);
   margin: 0;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  letter-spacing: var(--tracking-body, -0.022em);
+}
+
+h1, h2, h3, .h1, .h2, .h3, .title, .hero-title, .vynk-name, .card-title {
+  font-family: var(--font-display);
+  letter-spacing: var(--tracking-headline, -0.003em);
+}
+
+.eyebrow, .step-badge, .badge, .mono-note {
+  letter-spacing: var(--tracking-eyebrow, 0.02em);
 }
 
 /* ---- Apple-Grade Frosted Glass Navigation ---- */
@@ -697,6 +709,7 @@ textarea.form-input { resize: vertical; min-height: 100px; }
 .stat-card:active { transform: scale(0.96) !important; }
 .stat-value { font-size: var(--font-2xl); font-weight: 800; color: var(--primary); line-height: 1; }
 .stat-label { font-size: var(--font-sm); color: var(--text-tertiary); margin-top: 8px; font-weight: 500; }
+.stat-icon { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 10px; background: var(--bg-elevated); border: 1px solid var(--border-hairline); color: var(--primary); margin-bottom: 12px; }
 
 /* ---- Profile Cards Grid & Mobile Responsive ---- */
 .profile-grid { display: flex; flex-direction: column; gap: 16px; margin-top: 24px; }

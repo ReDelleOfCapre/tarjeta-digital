@@ -15,13 +15,13 @@
   <link rel="stylesheet" href="css/styles.css">
   <style>
     :root {
-      --editor-bg: #101014;
-      --editor-panel: #181820;
-      --editor-panel-2: #20202B;
-      --editor-border: rgba(255, 255, 255, 0.08);
-      --editor-text: #F1EEEA;
-      --editor-muted: #9E98A6;
-      --editor-faint: #6E6976;
+      --editor-bg: var(--bg-base);
+      --editor-panel: var(--bg-elevated);
+      --editor-panel-2: var(--bg-surface);
+      --editor-border: var(--border-hairline);
+      --editor-text: var(--text-primary);
+      --editor-muted: var(--text-secondary);
+      --editor-faint: var(--text-tertiary);
     }
 
     .editor-page { background: radial-gradient(1200px 600px at 20% -10%, var(--accent-glow), transparent 60%), var(--editor-bg); min-height: 100vh; }
@@ -37,7 +37,7 @@
     }
     .editor-topbar .brand .logo-mark {
       display: grid; place-items: center; width: 34px; height: 34px;
-      border-radius: 12px; background: var(--grad-primary, linear-gradient(135deg, #7C3AED, #06B6D4));
+      border-radius: 12px; background: var(--grad-primary);
       color: #fff; font-size: 1.05rem;
     }
     .editor-topbar .topbar-title {
@@ -53,8 +53,15 @@
     .editor-back:hover { background: rgba(255, 255, 255, 0.06); color: var(--editor-text); }
 
     .builder-grid { max-width: 1440px; margin: 0 auto; padding: 24px 32px; display: grid; grid-template-columns: 1fr; gap: 32px; box-sizing: border-box; }
-    @media (min-width: 1025px) { .builder-grid { grid-template-columns: minmax(0, 1fr) 360px; align-items: start; } }
-    .preview-sticky-panel { display: flex; justify-content: center; position: sticky; top: 80px; align-self: start; }
+    @media (min-width: 1025px) { .builder-grid { grid-template-columns: minmax(0, 1fr) 400px; align-items: start; } }
+    .preview-sticky-panel { display: flex; flex-direction: column; align-items: center; justify-content: center; position: sticky; top: 80px; align-self: start; gap: 14px; }
+    .preview-caption {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.7rem;
+      text-transform: uppercase; letter-spacing: 0.12em; color: var(--editor-muted);
+      border: 1px solid var(--editor-border); border-radius: 100px; padding: 6px 14px;
+    }
+    .preview-caption .live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green, #10B981); box-shadow: 0 0 10px var(--green, #10B981); }
 
     .smartphone-frame {
       width: 320px; max-width: 100%; height: 630px; border-radius: 38px;
@@ -169,8 +176,8 @@
     .editor-btn:hover { background: rgba(255, 255, 255, 0.1); }
     .editor-btn:active { transform: scale(0.96); }
     .editor-btn.primary {
-      background: linear-gradient(135deg, #7C3AED, #5C48E6); border-color: transparent; color: #fff;
-      box-shadow: 0 8px 24px -8px rgba(124, 58, 237, 0.6);
+      background: var(--grad-primary); border-color: transparent; color: #fff;
+      box-shadow: 0 8px 24px -8px var(--accent-glow);
     }
     .editor-btn:disabled { opacity: 0.45; cursor: default; }
 
@@ -181,7 +188,7 @@
       background: var(--editor-panel-2); border: 1px solid var(--editor-border); color: var(--editor-text);
       font-size: 0.9rem; outline: none; transition: border 0.16s ease;
     }
-    .form-input:focus { border-color: #7C3AED; }
+    .form-input:focus { border-color: var(--accent); }
     .form-input::placeholder { color: var(--editor-faint); }
 
     .color-options { display: flex; gap: 12px; flex-wrap: wrap; margin: 12px 0 20px; }
@@ -204,7 +211,7 @@
       font-size: 0.82rem; font-weight: 600; min-height: 86px; word-break: break-word; box-sizing: border-box;
       transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), border-color 160ms ease;
     }
-    .block-chip:hover { border-color: #7C3AED; transform: translateY(-2px); }
+    .block-chip:hover { border-color: var(--accent); transform: translateY(-2px); }
     .block-chip:active { transform: scale(0.95); }
     .block-chip span { font-size: 0.68rem; color: var(--editor-muted); font-weight: 400; display: block; margin-top: 2px; }
 
@@ -229,7 +236,7 @@
       color: var(--editor-text); cursor: pointer; transition: border-color 160ms ease, transform 160ms ease;
     }
     .theme-card:hover { border-color: var(--editor-muted); }
-    .theme-card.active { border-color: #7C3AED; box-shadow: 0 0 0 1px rgba(124, 58, 237, 0.5); }
+    .theme-card.active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent-glow); }
     .theme-surface { height: 58px; border-radius: 12px; display: flex; flex-direction: column; gap: 8px; padding: 10px; box-sizing: border-box; }
     .theme-surface span { display: block; height: 8px; border-radius: 100px; background: rgba(255, 255, 255, 0.35); }
     .theme-surface span:last-child { width: 60%; }
@@ -255,7 +262,7 @@
       font-size: 0.8rem; color: var(--editor-text);
     }
     .wizard-step-dot.active .step-num {
-      background: #7C3AED; color: #fff;
+      background: var(--accent); color: #fff;
     }
     .wizard-step-title { font-weight: 700; font-size: 0.85rem; color: var(--editor-text); }
     .wizard-step-line { flex: 1; height: 1px; background: var(--editor-border); min-width: 16px; }
@@ -279,7 +286,7 @@
       display: flex; align-items: center; justify-content: center; overflow: hidden;
       border: 3px dashed var(--editor-border); cursor: pointer; transition: border-color 160ms ease;
     }
-    .photo-preview:hover { border-color: #7C3AED; }
+    .photo-preview:hover { border-color: var(--accent); }
     .photo-preview img { width: 100%; height: 100%; object-fit: cover; }
     .photo-preview .placeholder-text { color: var(--editor-faint); font-size: 1.6rem; }
     .hidden { display: none !important; }
@@ -359,8 +366,8 @@
               <div class="field">
                 <label for="bio_perfil">Bio / Narrativa</label>
                 <textarea id="bio_perfil" class="form-input" rows="3" placeholder="Tu historia principal en una o dos líneas"></textarea>
-                <button type="button" class="editor-btn" onclick="generateAiBio()" style="width:100%;margin-top:8px;background:linear-gradient(135deg,rgba(124,58,237,0.15),rgba(10,132,255,0.15));border:1px solid rgba(124,58,237,0.3);color:#A78BFA;font-size:0.8rem">
-                  ✨ Generar Narrativa de Lujo Silencioso con Asistente IA VYNK
+                <button type="button" class="editor-btn" onclick="generateAiBio()" style="width:100%;margin-top:8px;background:var(--tint);border:1px solid var(--border-subtle);color:var(--accent);font-size:0.8rem">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></svg> Generar Narrativa de Lujo Silencioso con Asistente IA VYNK
                 </button>
               </div>
               <div class="form-grid cols-2">
@@ -403,11 +410,11 @@
               <div style="display:flex;flex-direction:column;gap:10px;background:rgba(255,255,255,0.03);padding:14px;border-radius:14px;border:1px solid var(--border-color,#333)">
                 <label style="display:flex;align-items:center;gap:10px;font-size:0.85rem;cursor:pointer">
                   <input type="checkbox" id="mostrar_agendar_cita" checked style="width:18px;height:18px;accent-color:var(--primary)">
-                  <span>📅 Habilitar botón <strong>Agendar Cita</strong> (Google Calendar)</span>
+                  <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> Habilitar botón <strong>Agendar Cita</strong> (Google Calendar)</span>
                 </label>
                 <label style="display:flex;align-items:center;gap:10px;font-size:0.85rem;cursor:pointer">
                   <input type="checkbox" id="mostrar_saludo_voz" checked style="width:18px;height:18px;accent-color:var(--primary)">
-                  <span>🎙️ Habilitar botón <strong>Saludo de Voz / Promo Audio</strong></span>
+                  <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><path d="M12 17v5"/></svg> Habilitar botón <strong>Saludo de Voz / Promo Audio</strong></span>
                 </label>
                 <div class="field" style="margin-top:6px">
                   <label for="audio_saludo_url" style="font-size:0.78rem">URL Audio Promo / Canción Custom (Opcional MP3)</label>
@@ -503,6 +510,7 @@
     </section>
 
     <aside class="preview-sticky-panel">
+      <div class="preview-caption"><span class="live-dot"></span> Vista previa en vivo</div>
       <div id="smartphone-frame" class="smartphone-frame" data-theme="auto">
         <div class="phone-statusbar"><span>9:41</span><span>▮▮▮</span></div>
         <div id="prev-avatar-box" class="prev-avatar"><span id="prev-avatar-initials" class="prev-avatar-initials">V</span></div>

@@ -429,8 +429,8 @@ async function perfilPublicoHandler(req, res) {
     let tags_parts = [];
     if (perfil.tipo) tags_parts.push(escapeHtml(perfil.tipo));
     if (perfil.pronombres) tags_parts.push(escapeHtml(perfil.pronombres));
-    if (perfil.lugar_estudio) tags_parts.push('📚 ' + escapeHtml(perfil.lugar_estudio));
-    if (perfil.cumpleanos) tags_parts.push('🎂 ' + escapeHtml(perfil.cumpleanos));
+    if (perfil.lugar_estudio) tags_parts.push('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:0.9em;height:0.9em;vertical-align:-0.1em"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/></svg> ' + escapeHtml(perfil.lugar_estudio));
+    if (perfil.cumpleanos) tags_parts.push('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:0.9em;height:0.9em;vertical-align:-0.1em"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> ' + escapeHtml(perfil.cumpleanos));
     const tags_html = tags_parts.length > 0
       ? `<div class="tags">${tags_parts.map(t => `<span class="tag">${t}</span>`).join('')}</div>`
       : '';
@@ -912,11 +912,11 @@ async function perfilPublicoHandler(req, res) {
     const horario_badge_html = isOpen
       ? `<div style="display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:100px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);color:#10B981;font-size:0.75rem;font-weight:600;margin-top:4px">
           <span style="width:6px;height:6px;border-radius:50%;background:#10B981;box-shadow:0 0 8px #10B981"></span>
-          <span>🟢 Abierto ahora · (${escapeHtml(hApertura)} - ${escapeHtml(hCierre)})</span>
+          <span>Abierto ahora · (${escapeHtml(hApertura)} - ${escapeHtml(hCierre)})</span>
         </div>`
       : `<div style="display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:100px;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);color:#EF4444;font-size:0.75rem;font-weight:600;margin-top:4px">
           <span style="width:6px;height:6px;border-radius:50%;background:#EF4444;box-shadow:0 0 8px #EF4444"></span>
-          <span>🔴 Fuera de horario · Atendemos a partir de las ${escapeHtml(hApertura)}</span>
+          <span>Fuera de horario · Atendemos a partir de las ${escapeHtml(hApertura)}</span>
         </div>`;
 
     // 2. Saludo de voz / Audio promo opcional
@@ -926,7 +926,7 @@ async function perfilPublicoHandler(req, res) {
           <div class="sound-wave">
             <span></span><span></span><span></span><span></span>
           </div>
-          <span>Escuchar saludo de voz 🎙️</span>
+          <span>Escuchar saludo de voz <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:0.95em;height:0.95em;vertical-align:-0.15em"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><path d="M12 17v5"/></svg></span>
         </div>`
       : '';
 

@@ -38,20 +38,27 @@
   --info: #1A5FB4;
   --info-bg: rgba(26, 95, 180, 0.10);
 
-  /* --- Typography Scale (§ FASE 2) --- */
-  --font-apple: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
-  --font-display: "Space Grotesk", "Inter", -apple-system, sans-serif;
-  --font-heading: "Space Grotesk", "Inter", -apple-system, sans-serif;
-  --font-body: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+  /* --- Typography Scale (Official Apple iOS 18/27 HIG System) --- */
+  --font-apple: "SF Pro Text", "SF Pro Display", -apple-system, BlinkMacSystemFont, "SF Pro Icons", "Inter", system-ui, sans-serif;
+  --font-display: "SF Pro Display", "Space Grotesk", -apple-system, BlinkMacSystemFont, "SF Pro Icons", sans-serif;
+  --font-heading: "SF Pro Display", "Space Grotesk", -apple-system, BlinkMacSystemFont, "SF Pro Icons", sans-serif;
+  --font-body: "SF Pro Text", "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Icons", system-ui, sans-serif;
   --font-family: var(--font-body);
   --font-mono: "JetBrains Mono", SFMono-Regular, Menlo, monospace;
 
-  /* Niveles tipográficos */
-  --text-display: clamp(34px, 5vw, 56px);
-  --text-h1: clamp(26px, 3.5vw, 40px);
-  --text-h2: clamp(22px, 2.8vw, 32px);
-  --text-h3: clamp(18px, 2.2vw, 24px);
-  --text-body-lg: 18px;
+  /* Official Apple iOS HIG Letter Spacing Tokens */
+  --tracking-headline: -0.003em;
+  --tracking-title: -0.002em;
+  --tracking-body: -0.022em;
+  --tracking-caption: -0.016em;
+  --tracking-eyebrow: 0.02em;
+
+  /* Niveles tipográficos oficiales Apple */
+  --text-display: clamp(34px, 5vw, 48px);
+  --text-h1: clamp(26px, 3.5vw, 36px);
+  --text-h2: clamp(20px, 2.8vw, 28px);
+  --text-h3: clamp(17px, 2.2vw, 22px);
+  --text-body-lg: 17px;
   --text-body: 16px;
   --text-body-sm: 14px;
   --text-caption: 12px;
