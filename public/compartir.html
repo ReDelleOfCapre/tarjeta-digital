@@ -95,6 +95,19 @@
       0% { transform: scale(0.8); opacity: 0.8; }
       100% { transform: scale(4); opacity: 0; }
     }
+    /* NFC & QR status states (§25) */
+    .nfc-status-icon {
+      width: 52px; height: 52px; margin: 0 auto 12px; border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--tint); color: var(--accent); transition: background 200ms ease, color 200ms ease;
+    }
+    .nfc-status-icon.state-ready { background: var(--tint); color: var(--accent); }
+    .nfc-status-icon.state-detected { background: rgba(127, 174, 232, 0.16); color: var(--primary); animation: sonar-pulse 1.6s infinite ease-out; }
+    .nfc-status-icon.state-scanned { background: rgba(16, 185, 129, 0.14); color: #10B981; }
+    .nfc-status-icon.state-saved { background: rgba(16, 185, 129, 0.14); color: #10B981; }
+    .nfc-status-icon.state-shared { background: rgba(16, 185, 129, 0.14); color: #10B981; }
+    .nfc-status-icon.state-error { background: rgba(239, 68, 68, 0.14); color: #EF4444; }
+    .nfc-status-icon.state-warn { background: rgba(245, 158, 11, 0.14); color: #F59E0B; }
   </style>
 </head>
 <body>
@@ -130,31 +143,31 @@
     <!-- Actions -->
     <div class="share-actions" style="margin-top:24px;display:flex;flex-direction:column;gap:12px">
       <!-- Web NFC Native Write -->
-      <button class="btn btn-primary btn-block" id="btn-nfc" onclick="writeNFC()" style="background:linear-gradient(135deg, #7C3AED, #06B6D4);padding:16px">
-        ⚡ Grabar en Tarjeta NFC Física <span class="pro-badge-lock">Pro</span>
+      <button class="btn btn-primary btn-block" id="btn-nfc" onclick="writeNFC()" style="padding:16px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1.1em;height:1.1em;vertical-align:-0.15em"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></svg> Grabar en Tarjeta NFC Física <span class="pro-badge-lock">Pro</span>
       </button>
 
       <button class="btn btn-secondary btn-block" onclick="copyLink()" style="padding:14px">
-        📋 Copiar Enlace Directo
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 13h6M9 17h4"/></svg> Copiar Enlace Directo
       </button>
 
       <a class="btn btn-secondary btn-block" id="btn-vcard" href="#" style="padding:14px">
-        👤 Descargar Contacto (.vcf)
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="11" r="2"/><path d="M5 16c.8-1.6 2.2-2 3-2s2.2.4 3 2"/><rect x="13" y="9" width="7" height="3" rx="1"/><path d="M13 15h7"/></svg> Descargar Contacto (.vcf)
       </a>
 
       <button class="btn btn-secondary btn-block" onclick="shareNative()" style="padding:14px">
-        ↗ Compartir vía Redes...
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg> Compartir vía Redes...
       </button>
 
       <a class="btn btn-secondary btn-block" id="btn-qr-download" download="vynk-tarjeta-qr.png" href="#" style="padding:14px">
-        📥 Descargar QR de Alta Definición
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M21 15v4a2 2 0 0 1-2 2h-4M7 21H5a2 2 0 0 1-2-2v-4M21 9V5a2 2 0 0 0-2-2h-4M7 3H5a2 2 0 0 0-2 2v4"/><path d="M11 8h2v2h-2zM8 8h1M14 8h1M11 15h2v2h-2zM8 15h1M14 15h1M8 18h1M14 18h1M11 18h1"/></svg> Descargar QR de Alta Definición
       </a>
     </div>
 
     <!-- Official VYNK Badge Generator (Quiet Luxury Identity System) -->
     <div class="card p-20 mt-16" style="padding:22px;background:#0A0A0C;border:1px solid rgba(255,255,255,0.16);border-radius:20px;margin-top:20px;box-shadow:0 20px 50px rgba(0,0,0,0.5)">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-        <div style="font-size:0.95rem;font-weight:700;color:#FFF;font-family:'Space Grotesk',sans-serif">🛡️ Insignia Oficial de Autenticidad VYNK</div>
+        <div style="font-size:0.95rem;font-weight:700;color:#FFF;font-family:'Space Grotesk',sans-serif"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em;margin-right:6px"><path d="M12 2l8 3v6c0 5-3.5 9-8 11-4.5-2-8-6-8-11V5l8-3z"/><path d="M9 12l2 2 4-4"/></svg> Insignia Oficial de Autenticidad VYNK</div>
         <span style="font-size:0.68rem;padding:2px 8px;border-radius:100px;background:rgba(255,255,255,0.08);color:#C9F2E4;font-family:'JetBrains Mono',monospace">LUJO SILENCIOSO</span>
       </div>
       <p style="font-size:0.82rem;color:rgba(255,255,255,0.65);line-height:1.45;margin-bottom:16px">
@@ -183,13 +196,13 @@
       </div>
 
       <button onclick="copyBadgeEmbedCode()" class="btn btn-secondary btn-block" style="padding:12px;font-size:0.82rem">
-        📋 Copiar Código HTML de la Insignia Oficial
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em;margin-right:6px"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 13h6M9 17h4"/></svg> Copiar Código HTML de la Insignia Oficial
       </button>
     </div>
 
     <!-- Growth Loop: Sistema de Invitaciones B2B -->
     <div class="card p-20 mt-16" style="padding:20px;background:rgba(6,182,212,0.08);border:1px solid rgba(6,182,212,0.25);border-radius:20px;margin-top:16px">
-      <div style="font-size:0.95rem;font-weight:700;color:#FFF;margin-bottom:6px">✉️ Growth Loop: Invitar a un Colega a VYNK</div>
+      <div style="font-size:0.95rem;font-weight:700;color:#FFF;margin-bottom:6px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em;margin-right:6px"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 6L2 7"/></svg> Growth Loop: Invitar a un Colega a VYNK</div>
       <p style="font-size:0.82rem;color:var(--text-tertiary);line-height:1.4;margin-bottom:12px">
         Expande tu red corporativa enviando una invitación formal por correo electrónico con token exclusivo.
       </p>
@@ -200,9 +213,12 @@
     </div>
 
     <!-- NFC Status Panel -->
-    <div class="card p-16 mt-16 hidden" id="nfc-status" style="background:rgba(124,58,237,0.1);border:1px solid rgba(124,58,237,0.3);border-radius:16px;padding:20px;text-align:center">
+    <div class="card p-16 mt-16 hidden" id="nfc-status" style="background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:16px;padding:20px;text-align:center">
+      <div class="nfc-status-icon" id="nfc-status-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1.4em;height:1.4em"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/><path d="M12 6v6"/></svg>
+      </div>
       <p style="font-size:var(--font-sm);color:var(--text-secondary);margin:0" id="nfc-message">
-        📱 Acerca tu tarjeta NFC física o sticker al celular...
+        Acerca tu tarjeta NFC física o sticker al celular...
       </p>
     </div>
 
@@ -311,17 +327,21 @@
       window.writeNFC = async function() {
         var statusEl = document.getElementById('nfc-status');
         var msgEl = document.getElementById('nfc-message');
+        var iconEl = document.getElementById('nfc-status-icon');
         statusEl.classList.remove('hidden');
+        if (iconEl) iconEl.className = 'nfc-status-icon state-ready';
 
         if (!('NDEFReader' in window)) {
-          msgEl.textContent = '⚠️ Tu navegador o dispositivo no soporta la API Web NFC nativa (Disponible en Android Chrome). Puedes escribir tu URL manualmente: ' + profileUrl;
-          msgEl.style.color = '#FBBF24';
+          msgEl.textContent = 'Tu navegador o dispositivo no soporta la API Web NFC nativa (Disponible en Android Chrome). Puedes escribir tu URL manualmente: ' + profileUrl;
+          msgEl.style.color = '#F59E0B';
+          if (iconEl) iconEl.className = 'nfc-status-icon state-warn';
           return;
         }
 
         try {
-          msgEl.textContent = '📱 Acerca tu tarjeta NFC física o llavero al reverso de tu smartphone...';
-          msgEl.style.color = '#7C3AED';
+          msgEl.textContent = 'Acerca tu tarjeta NFC física o llavero al reverso de tu smartphone...';
+          msgEl.style.color = '';
+          if (iconEl) iconEl.className = 'nfc-status-icon state-detected';
 
           const ndef = new NDEFReader();
           await ndef.write({
@@ -331,15 +351,18 @@
             }]
           });
 
-          msgEl.textContent = '✅ ¡Tarjeta NFC física programada con éxito con tu perfil ' + profileUrl + '!';
+          msgEl.textContent = '¡Tarjeta NFC física programada con éxito con tu perfil ' + profileUrl + '!';
           msgEl.style.color = '#10B981';
+          if (iconEl) iconEl.className = 'nfc-status-icon state-saved';
           showToast('NFC programado con éxito', 'success');
         } catch (err) {
           console.error('Error Web NFC:', err);
           if (err.name === 'NotAllowedError') {
-            msgEl.textContent = '⚠️ Permiso denegado. Concede permiso de NFC en la barra de tu navegador.';
+            msgEl.textContent = 'Permiso denegado. Concede permiso de NFC en la barra de tu navegador.';
+            if (iconEl) iconEl.className = 'nfc-status-icon state-warn';
           } else {
-            msgEl.textContent = '❌ Error grabando NFC: ' + (err.message || 'Verifica que el tag NFC esté desbloqueado');
+            msgEl.textContent = 'Error grabando NFC: ' + (err.message || 'Verifica que el tag NFC esté desbloqueado');
+            if (iconEl) iconEl.className = 'nfc-status-icon state-error';
           }
           msgEl.style.color = '#EF4444';
         }

@@ -2498,7 +2498,7 @@ select,
   border: none !important;
   padding: 0 !important;
   opacity: 0 !important;
-  animation: vynkPinDrop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
+  animation: vynkPinDrop 0.4s var(--ease-magnetic) forwards !important;
   z-index: 10 !important;
 }
 
@@ -3000,6 +3000,12 @@ select,
    MOTOR DE THEMING — VYNK SMART PROFILE (WYSIWYG VISUAL CARD EDITOR)
    ========================================================================== */
 
+#form-perfil,
+.editor-theming {
+  --accent: #E8A33D;
+  --accent-soft: rgba(232, 163, 61, 0.14);
+}
+
 :root {
   --console-bg: #1B1A1F;
   --panel-bg: #242229;
@@ -3007,8 +3013,6 @@ select,
   --panel-border: #37343E;
   --text-muted: #9E98A6;
   --text-faint: #6E6976;
-  --accent: #E8A33D;
-  --accent-soft: rgba(232, 163, 61, 0.14);
 }
 
 .eyebrow {
