@@ -290,6 +290,122 @@
     .photo-preview img { width: 100%; height: 100%; object-fit: cover; }
     .photo-preview .placeholder-text { color: var(--editor-faint); font-size: 1.6rem; }
     .hidden { display: none !important; }
+
+    /* ============================================================
+       Identity Studio · 3 panes (rail · contenido · preview)
+       ============================================================ */
+    .topbar-center { flex: 1; display: flex; align-items: center; justify-content: center; gap: 12px; min-width: 0; }
+    .save-status {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; letter-spacing: 0.04em;
+      color: var(--editor-faint); border: 1px solid var(--editor-border);
+      border-radius: 100px; padding: 5px 12px; white-space: nowrap;
+      transition: color 160ms ease, border-color 160ms ease; flex-shrink: 0;
+    }
+    .save-status .save-status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--editor-faint); }
+    .save-status[data-state="dirty"] { color: var(--editor-muted); border-color: var(--editor-border); }
+    .save-status[data-state="dirty"] .save-status-dot { background: #FBBF24; box-shadow: 0 0 8px rgba(251,191,36,0.6); }
+    .save-status[data-state="saving"] { color: var(--editor-text); }
+    .save-status[data-state="saving"] .save-status-dot { background: #60A5FA; box-shadow: 0 0 8px rgba(96,165,250,0.7); animation: pulse-dot 1s ease-in-out infinite; }
+    .save-status[data-state="saved"] { color: #34D399; border-color: rgba(52,211,153,0.35); }
+    .save-status[data-state="saved"] .save-status-dot { background: #34D399; box-shadow: 0 0 8px rgba(52,211,153,0.6); }
+    .save-status[data-state="error"] { color: #F87171; border-color: rgba(248,113,113,0.35); }
+    .save-status[data-state="error"] .save-status-dot { background: #F87171; }
+    @keyframes pulse-dot { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+    @media (max-width: 640px) { .save-status { display: none; } }
+    @media (max-width: 560px) { .topbar-center { justify-content: flex-start; } }
+
+    /* Rail vertical (desktop) — el editor deja de sentirse wizard */
+    @media (min-width: 1180px) {
+      .builder-grid { grid-template-columns: minmax(0, 1fr) 460px !important; gap: 28px !important; padding: 28px 32px !important; }
+      .editor-panel-section {
+        display: grid !important;
+        grid-template-columns: 168px minmax(0, 1fr);
+        gap: 22px;
+        align-items: stretch;
+      }
+      .wizard-stepper-header {
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: flex-start;
+        height: 100%;
+        padding: 18px 14px;
+        gap: 4px;
+        overflow: visible;
+      }
+      .wizard-stepper-header .wizard-step-line {
+        width: 2px; height: 14px; min-width: 0;
+        margin: 4px 0 4px 15px;
+      }
+      .wizard-step-dot { width: 100%; border-radius: 12px; padding: 10px; }
+      .wizard-step-dot.active { background: var(--editor-panel-2); }
+      .wizard-bottom-nav { display: none; }
+    }
+
+    /* Todo el contenido a la vez (ultra-wide) — sin funnel */
+    @media (min-width: 1840px) {
+      .builder-grid { max-width: 1800px !important; }
+      .wizard-slides-track { width: 100% !important; transform: none !important; display: flex; align-items: flex-start; }
+      .wizard-slide {
+        width: 33.3333%;
+        padding: 0 20px;
+        box-sizing: border-box;
+        border-right: 1px solid var(--editor-border);
+      }
+      .wizard-slide:last-child { border-right: none; }
+    }
+
+    /* Controles de preview: dispositivo + modo */
+    .preview-controls { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 360px; }
+    .seg-group {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;
+      padding: 4px; border-radius: 14px;
+      background: var(--editor-panel); border: 1px solid var(--editor-border);
+    }
+    .seg {
+      padding: 8px 6px; border: none; border-radius: 10px; background: transparent;
+      color: var(--editor-muted); font-size: 0.72rem; font-weight: 600; cursor: pointer;
+      transition: background 160ms ease, color 160ms ease;
+    }
+    .seg:hover { color: var(--editor-text); }
+    .seg.active { background: var(--editor-panel-2); color: var(--editor-text); box-shadow: inset 0 0 0 1px var(--editor-border); }
+
+    /* Marco según dispositivo */
+    .smartphone-frame[data-device="android"] { width: 332px; border-radius: 26px; border: 8px solid #100F13; }
+    .smartphone-frame[data-device="desk"] { width: 392px; border-radius: 32px; border: 1px solid rgba(255,255,255,0.14); box-shadow: 0 30px 90px -30px rgba(0,0,0,0.85); }
+    .smartphone-frame[data-device="desk"] .phone-statusbar { display: none; }
+    .smartphone-frame:not([data-device="desk"]) { max-width: 100%; }
+
+    .preview-footer-save {
+      margin-top: 16px; padding: 12px 14px; border-radius: 16px;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      font-size: 0.8rem; font-weight: 700;
+      background: var(--phone-primary, #E8A33D); color: var(--phone-on-primary, #17151B);
+    }
+    .preview-footer-save svg { width: 1em; height: 1em; }
+
+    /* Biblioteca de bloques: fichas nativas */
+    .block-palette { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+    .block-chip { justify-content: flex-start; gap: 8px; padding: 12px; min-height: 108px; text-align: center; align-items: center; }
+    .chip-icon {
+      width: 42px; height: 42px; border-radius: 13px;
+      display: grid; place-items: center; flex-shrink: 0;
+      background: color-mix(in srgb, var(--chip-color, #4C6FFF) 18%, transparent);
+      color: var(--chip-color, #4C6FFF);
+    }
+    .chip-icon svg { width: 1.25em; height: 1.25em; }
+    .block-chip strong { font-size: 0.84rem; }
+    .chip-desc { font-size: 0.66rem; color: var(--editor-muted); font-weight: 400; line-height: 1.35; display: block; }
+    .block-chip span.chip-offset { display: none; }
+
+    /* Formulario de bloque: panel contextual */
+    #block-form-area { border: 1px solid var(--editor-border); border-radius: 18px; padding: 16px; background: var(--editor-panel); }
+    #block-form-area.hidden { display: none !important; padding: 0; border: none; }
+    .form-select {
+      width: 100%; box-sizing: border-box; padding: 11px 14px; border-radius: 12px;
+      background: var(--editor-panel-2); border: 1px solid var(--editor-border); color: var(--editor-text);
+      font-size: 0.9rem; outline: none;
+    }
   </style>
 </head>
 <body class="editor-page">
@@ -298,7 +414,10 @@
       <span class="logo-mark">V</span>
       <span>VYNK</span>
     </a>
-    <div id="page-title" class="topbar-title">Crea tu identidad digital</div>
+    <div class="topbar-center">
+      <div id="page-title" class="topbar-title">Identity Studio</div>
+      <div id="save-status" class="save-status" data-state="idle"><span class="save-status-dot"></span><span id="save-status-text">Sin cambios</span></div>
+    </div>
     <a id="btn-preview" class="editor-btn primary hidden" href="#" target="_blank" rel="noopener">Ver tarjeta</a>
     <button id="btn-save" type="button" class="editor-btn primary">Guardar</button>
   </nav>
@@ -511,13 +630,29 @@
 
     <aside class="preview-sticky-panel">
       <div class="preview-caption"><span class="live-dot"></span> Vista previa en vivo</div>
-      <div id="smartphone-frame" class="smartphone-frame" data-theme="auto">
+      <div class="preview-controls">
+        <div class="seg-group" role="group" aria-label="Dispositivo de vista previa">
+          <button type="button" class="seg active" data-device="iphone" onclick="setPreviewDevice('iphone')">iPhone</button>
+          <button type="button" class="seg" data-device="android" onclick="setPreviewDevice('android')">Android</button>
+          <button type="button" class="seg" data-device="desk" onclick="setPreviewDevice('desk')">Escritorio</button>
+        </div>
+        <div class="seg-group" role="group" aria-label="Modo de vista previa">
+          <button type="button" class="seg active" data-scheme="auto" onclick="setPreviewScheme('auto')">Auto</button>
+          <button type="button" class="seg" data-scheme="light" onclick="setPreviewScheme('light')">Claro</button>
+          <button type="button" class="seg" data-scheme="dark" onclick="setPreviewScheme('dark')">Oscuro</button>
+        </div>
+      </div>
+      <div id="smartphone-frame" class="smartphone-frame" data-theme="auto" data-scheme="auto" data-device="iphone">
         <div class="phone-statusbar"><span>9:41</span><span>▮▮▮</span></div>
         <div id="prev-avatar-box" class="prev-avatar"><span id="prev-avatar-initials" class="prev-avatar-initials">V</span></div>
         <div id="prev-name" class="prev-name">Tu nombre</div>
         <div id="prev-type" class="prev-type">personal</div>
         <div id="prev-bio" class="prev-bio">Tu narrativa principal aparecerá aquí con el nuevo sistema visual.</div>
         <div id="prev-blocks" class="prev-blocks"></div>
+        <div class="preview-footer-save">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16v12H4z"/><path d="M4 8h16M7 12h6M7 15h4"/></svg>
+          Guardar contacto · VYNK
+        </div>
       </div>
     </aside>
   </main>

@@ -32,6 +32,29 @@
     { tipo: "web", label: "Sitio", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z\"/></svg>" }
   ];
 
+  var BLOCK_DESCRIPTIONS = {
+    link: "Enlace destacado con vista previa",
+    ubicacion: "Mapa con dirección y GPS disponible",
+    whatsapp: "Chat directo con mensaje inicial",
+    social_icons: "Iconos de tus redes oficiales",
+    galeria: "Carrusel de imágenes y captions",
+    wishlist: "Idea, producto o deseo destacado",
+    pdf: "Documento descargable (menú, carta…)",
+    pago: "Datos de transferencia con CLABE",
+    nota: "Presupuesto o mensaje corto",
+    seccion: "Título separador para organizar",
+    spotify: "Reproductor embebido de Spotify",
+    youtube: "Video de YouTube incrustado",
+    tiktok: "Video de TikTok incrustado",
+    texto: "Texto libre con estilo (cita/título)",
+    email_capture: "Formulario para captar emails",
+    countdown: "Cuenta regresiva para tu lanzamiento"
+  };
+
+  function blockDescription(tipo) {
+    return BLOCK_DESCRIPTIONS[tipo] || "Bloque para añadir a tu tarjeta";
+  }
+
   var THEMES = [
     {
       id: "auto",
@@ -116,6 +139,11 @@
   var profileSlug = null;
   var editingBlockIdx = null;
   var currentStep = 1;
+  var previewDevice = "iphone";
+  var previewScheme = "auto";
+  var liveProfileId = editId ? editId : null;
+  var autosaveTimer = null;
+  var lastSnapshotJson = "";
 
   renderThemePicker();
   renderPalette();
@@ -154,6 +182,7 @@
     setupColorPicker();
     setupPhotoUpload();
     setupSortableDragAndDrop();
+    setupAutosave();
   }
 
   function renderThemePicker() {
@@ -199,9 +228,9 @@
     container.innerHTML = BLOCK_TYPES.map(function (block) {
       return (
         '<button type="button" class="block-chip" data-block-type="' + escapeHtml(block.tipo) + '">' +
-          '<div style="font-size:1.12rem">' + block.icon + "</div>" +
+          '<span class="chip-icon" style="--chip-color:' + escapeHtml(block.color || "#4C6FFF") + '">' + block.icon + "</span>" +
           "<strong>" + escapeHtml(block.label) + "</strong>" +
-          "<span>Agregar al preview</span>" +
+          '<span class="chip-desc">' + escapeHtml(blockDescription(block.tipo)) + "</span>" +
         "</button>"
       );
     }).join("");
@@ -322,9 +351,37 @@
       ? autoExtractedColor
       : selectedColor;
     var theme = buildTheme(selectedTheme, accent);
+    if (previewScheme === "light") theme = lightVariant(theme);
+    else if (previewScheme === "dark") theme = darkVariant(theme);
     applyTheme(theme);
     renderIdentity(theme);
     renderPreviewBlocks(theme);
+  }
+
+  function lightVariant(theme) {
+    return {
+      background: mixHex(theme.primary, "#F5F1E7", 0.94),
+      surface: "#FFFFFF",
+      card: mixHex(theme.primary, "#EFE7D8", 0.93),
+      text: "#211D19",
+      muted: "#6E6252",
+      primary: theme.primary,
+      secondary: mixHex(theme.primary, "#EAD5A0", 0.5),
+      onPrimary: readableText(theme.primary)
+    };
+  }
+
+  function darkVariant(theme) {
+    return {
+      background: mixHex(theme.primary, "#151218", 0.9),
+      surface: mixHex(theme.primary, "#262130", 0.8),
+      card: mixHex(theme.primary, "#3A3342", 0.72),
+      text: "#F8F4EF",
+      muted: "rgba(248,244,239,0.68)",
+      primary: theme.primary,
+      secondary: mixHex(theme.primary, "#FFD59B", 0.5),
+      onPrimary: readableText(theme.primary)
+    };
   }
 
   function renderIdentity(theme) {
@@ -652,6 +709,8 @@
     frame.style.color = theme.text;
     frame.style.boxShadow = "0 26px 54px -28px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.04)";
     frame.setAttribute("data-theme", selectedTheme);
+    frame.setAttribute("data-scheme", previewScheme);
+    frame.setAttribute("data-device", previewDevice);
   }
 
   function showBlockForm(tipo) {
@@ -1174,6 +1233,10 @@
     var navButton = document.getElementById("btn-save");
     var finalButton = document.getElementById("btn-final-save");
 
+    if (lock) updateSaveStatus("saving", "Guardando…");
+    else if (success) updateSaveStatus("saved", "Guardado");
+    else updateSaveStatus("idle", "Listo");
+
     if (navButton) {
       navButton.disabled = !!lock;
       navButton.textContent = text;
@@ -1339,8 +1402,161 @@
     var bioField = document.getElementById('bio_perfil');
     if (bioField) {
       bioField.value = (name ? name + " — " : "") + (bios[type] || bios.negocio);
-      updatePreview();
+      updateLivePreview();
+      scheduleAutosave();
       if (typeof showToast === 'function') showToast('✨ Narrativa de Lujo Silencioso generada por IA VYNK', 'success');
     }
   };
+
+  // ============================================================
+  // Identity Studio · preview device / scheme
+  // ============================================================
+  window.setPreviewDevice = function (device) {
+    previewDevice = device || "iphone";
+    var frame = document.getElementById("smartphone-frame");
+    if (frame) frame.setAttribute("data-device", previewDevice);
+    document.querySelectorAll('.preview-controls .seg[data-device]').forEach(function (node) {
+      node.classList.toggle("active", node.getAttribute("data-device") === previewDevice);
+    });
+  };
+
+  window.setPreviewScheme = function (scheme) {
+    previewScheme = scheme || "auto";
+    updateLivePreview();
+    document.querySelectorAll('.preview-controls .seg[data-scheme]').forEach(function (node) {
+      if (node.getAttribute("data-scheme")) {
+        node.classList.toggle("active", node.getAttribute("data-scheme") === previewScheme);
+      }
+    });
+  };
+
+  // ============================================================
+  // Identity Studio · estado de guardado + autosave
+  // ============================================================
+  function updateSaveStatus(state, text) {
+    var el = document.getElementById("save-status");
+    if (!el) return;
+    el.setAttribute("data-state", state || "idle");
+    var label = document.getElementById("save-status-text");
+    if (label) label.textContent = text || "";
+  }
+
+  function profileSnapshotJson() {
+    var accent = selectedTheme === "auto" && autoExtractedColor && !manualColorChosen
+      ? autoExtractedColor : selectedColor;
+    return JSON.stringify({
+      nombre: gv("nombre_perfil"),
+      tipo: gv("tipo_perfil"),
+      bio: gv("bio_perfil"),
+      cumpleanos: gv("cumpleanos"),
+      lugar_estudio: gv("lugar_estudio"),
+      pronombres: gv("pronombres"),
+      marco: gv("marco_estilo"),
+      tema: selectedTheme,
+      color: accent,
+      hora_apertura: gv("hora_apertura"),
+      hora_cierre: gv("hora_cierre"),
+      mostrar_agendar_cita: !!(document.getElementById("mostrar_agendar_cita") && document.getElementById("mostrar_agendar_cita").checked),
+      mostrar_saludo_voz: !!(document.getElementById("mostrar_saludo_voz") && document.getElementById("mostrar_saludo_voz").checked),
+      audio_saludo_url: gv("audio_saludo_url")
+    });
+  }
+
+  function scheduleAutosave() {
+    updateSaveStatus("dirty", "Cambios sin guardar");
+    clearTimeout(autosaveTimer);
+    autosaveTimer = setTimeout(runAutosave, 900);
+  }
+
+  function runAutosave() {
+    if (!gv("nombre_perfil")) {
+      updateSaveStatus("dirty", "Falta el nombre");
+      return;
+    }
+
+    var snapshot = profileSnapshotJson();
+    if (snapshot === lastSnapshotJson) {
+      updateSaveStatus("saved", "Guardado");
+      return;
+    }
+
+    var payload = new FormData();
+    payload.append("nombre_perfil", gv("nombre_perfil"));
+    payload.append("tipo", gv("tipo_perfil") || "personal");
+    payload.append("color", selectedTheme === "auto" && autoExtractedColor && !manualColorChosen ? autoExtractedColor : selectedColor);
+    payload.append("tema", selectedTheme);
+    payload.append("marco_estilo", gv("marco_estilo") || "gradient");
+    payload.append("bio", gv("bio_perfil"));
+    payload.append("cumpleanos", gv("cumpleanos"));
+    payload.append("lugar_estudio", gv("lugar_estudio"));
+    payload.append("pronombres", gv("pronombres"));
+    payload.append("hora_apertura", gv("hora_apertura") || "09:00");
+    payload.append("hora_cierre", gv("hora_cierre") || "20:00");
+    payload.append("mostrar_agendar_cita", document.getElementById("mostrar_agendar_cita") && document.getElementById("mostrar_agendar_cita").checked ? "1" : "0");
+    payload.append("mostrar_saludo_voz", document.getElementById("mostrar_saludo_voz") && document.getElementById("mostrar_saludo_voz").checked ? "1" : "0");
+    payload.append("audio_saludo_url", gv("audio_saludo_url") || "");
+
+    var fotoInput = document.getElementById("input-foto");
+    if (fotoInput && fotoInput.files && fotoInput.files[0]) {
+      payload.append("foto", fotoInput.files[0]);
+    }
+
+    updateSaveStatus("saving", "Guardando…");
+    var method = liveProfileId ? "PUT" : "POST";
+    var endpoint = liveProfileId ? "/perfiles/" + liveProfileId : "/perfiles";
+
+    api(endpoint, { method: method, body: payload, headers: {} })
+      .then(function (profile) {
+        if (!profile) throw new Error("No se pudo autoguardar el perfil");
+        if (!liveProfileId) liveProfileId = profile.id;
+        profileSlug = profile.slug || profileSlug;
+        updatePreviewButton();
+        lastSnapshotJson = snapshot;
+        updateSaveStatus("saved", "Guardado automáticamente");
+      })
+      .catch(function (error) {
+        updateSaveStatus("error", "No se pudo guardar");
+        if (error && error.error) showToast(error.error, "error");
+      });
+  }
+
+  function setupAutosave() {
+    var autosaveIds = [
+      "nombre_perfil",
+      "tipo_perfil",
+      "bio_perfil",
+      "cumpleanos",
+      "lugar_estudio",
+      "pronombres",
+      "marco_estilo",
+      "hora_apertura",
+      "hora_cierre",
+      "audio_saludo_url",
+      "mostrar_agendar_cita",
+      "mostrar_saludo_voz",
+      "input-foto"
+    ];
+    autosaveIds.forEach(function (id) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      el.addEventListener("input", scheduleAutosave);
+      el.addEventListener("change", scheduleAutosave);
+    });
+
+    var themeContainer = document.getElementById("theme-picker");
+    if (themeContainer && typeof MutationObserver !== "undefined") {
+      var observer = new MutationObserver(function () {
+        scheduleAutosave();
+      });
+      observer.observe(themeContainer, { childList: true, attributes: true, subtree: true });
+    }
+
+    var firstColorOption = document.querySelector(".color-option");
+    if (firstColorOption && !editId) {
+      var parent = firstColorOption.parentElement;
+      if (parent && typeof MutationObserver !== "undefined") {
+        new MutationObserver(scheduleAutosave).observe(parent, { attributes: true, subtree: true });
+      }
+    }
+  }
 })();

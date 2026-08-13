@@ -19,77 +19,171 @@
     <link rel="stylesheet" href="/css/styles.css">
     <style>{{tema_css}}</style>
     <style>
-        /* VYNK perfil público — pantalla tipo teléfono (theme-aware) */
+        /* ============================================================
+           VYNK e-card pública · Apple Wallet pass
+           La tarjeta vive dentro de un lienzo; en escritorio flota como
+           un pase (squircle, sombra profunda); en móvil ocupa la pantalla.
+           Fondos: tokens del tema, sin gradientes genéricos.
+           ============================================================ */
         html, body { margin: 0; padding: 0; width: 100%; min-height: 100vh; }
         body {
-            background: var(--bg-primary, #0B0E14);
-            background-image:
-                radial-gradient(1200px 600px at 20% -10%, var(--accent-glow, rgba(23, 59, 99, 0.16)), transparent 60%),
-                radial-gradient(900px 500px at 110% 10%, var(--accent-glow, rgba(127, 174, 232, 0.12)), transparent 55%);
-            background-attachment: fixed;
-            color: var(--text-primary, #F8FAFC);
+            background: var(--bg-primary, #141318);
+            color: var(--text-primary, #F8F4EF);
             font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Lienzo: centra y respira alrededor del pase */
+        .vynk-canvas {
+            position: relative;
+            min-height: 100vh;
+            display: block;
+            width: 100%;
+        }
+        /* Auroras únicas (derivadas del acento del tema, alfa bajo) */
+        .vynk-canvas::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            background:
+                radial-gradient(760px 420px at 50% -140px, var(--accent-glow, rgba(100,100,100,0.10)) 0%, transparent 70%);
+        }
+
+        /* El pase */
+        .vynk-public {
+            position: relative;
+            z-index: 1;
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 auto !important;
+            padding: 0 0 calc(96px + env(safe-area-inset-bottom)) !important;
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 18px !important;
+            box-sizing: border-box !important;
+            background: var(--bg-surface, rgba(255,255,255,0.02));
+            overflow: hidden;
+        }
+        @media (min-width: 560px) {
+            .vynk-public {
+                max-width: 520px !important;
+                margin: 16px auto !important;
+                border-radius: 32px !important;
+                border: 1px solid var(--card-border, rgba(255,255,255,0.10));
+                box-shadow: 0 1px 0 rgba(255,255,255,0.06) inset, 0 30px 80px rgba(0,0,0,0.45);
+            }
+        }
+        @media (min-width: 900px) {
+            .vynk-public {
+                max-width: 460px !important;
+                margin: 36px auto !important;
+            }
+        }
+
+        /* ===== Franja superior tipo pase ===== */
+        .pass-brand {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 14px 20px 0;
+        }
+        .pass-brand-mark {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 0.78rem;
+            letter-spacing: 0.22em;
+            color: var(--text-tertiary, rgba(255,255,255,0.55));
+        }
+        .pass-brand-sub {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.6rem;
+            letter-spacing: 0.14em;
+            color: var(--accent, #E8A33D);
+            border: 1px solid var(--card-border, rgba(255,255,255,0.12));
+            border-radius: 100px;
+            padding: 4px 10px;
+            text-transform: uppercase;
+        }
+
+        /* ===== Hero integrado (cover + identidad) ===== */
+        .pass-hero { display: flex; flex-direction: column; align-items: center; }
+        .hero-banner {
+            width: 100%;
+            overflow: hidden;
+            max-height: 230px;
+        }
+        .hero-banner img {
+            width: 100%;
+            height: 230px;
+            object-fit: cover;
+            display: block;
+        }
+        @media (min-width: 560px) {
+            .hero-banner { border-radius: 32px 32px 0 0; }
+        }
+
+        .vp-head {
+            text-align: center;
             display: flex;
             flex-direction: column;
             align-items: center;
+            gap: 6px;
+            padding: 20px 20px 0;
         }
-        .vynk-public {
-            width: 100% !important;
-            max-width: 480px !important;
-            margin: 0 auto !important;
-            padding: 24px 20px calc(40px + env(safe-area-inset-bottom)) !important;
-            display: flex !important;
-            flex-direction: column !important;
-            gap: 16px !important;
-            box-sizing: border-box !important;
-        }
-        .hero-banner {
-            margin: 0 -18px;
-            border-radius: 0 0 24px 24px;
-            overflow: hidden;
-            max-height: 200px;
-        }
-        .hero-banner img { width: 100%; height: 200px; object-fit: cover; display: block; }
 
-        .vp-head { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 6px; padding-top: 8px; }
+        /* Overlap del avatar sobre el cover (solo si hay banner) */
+        .pass-hero { position: relative; }
+        .hero-banner + .vp-head { padding-top: 0; }
+        .hero-banner + .vp-head .avatar-wrapper { margin-top: -52px !important; }
+
         .avatar-wrapper {
             margin: 0 auto !important;
-            width: 104px !important; height: 104px !important;
+            width: 112px !important; height: 112px !important;
             border-radius: 50% !important;
             display: flex !important; align-items: center !important; justify-content: center !important;
             overflow: hidden !important; box-sizing: border-box !important;
             flex-shrink: 0 !important;
+            background: var(--bg-primary);
         }
         .avatar-wrapper .avatar {
             width: 100% !important; height: 100% !important;
             border-radius: 50% !important;
             display: flex !important; align-items: center !important; justify-content: center !important;
             overflow: hidden !important; color: #FFF !important; font-weight: 700 !important;
-            font-size: 2.5rem !important; margin: 0 !important;
+            font-size: 2.6rem !important; margin: 0 !important;
         }
-        .avatar-wrapper .avatar img { width: 100% !important; height: 100% !important; object-fit: cover !important; display: block !important; border-radius: 50% !important; }
+        .avatar-wrapper .avatar img {
+            width: 100% !important; height: 100% !important;
+            object-fit: cover !important; display: block !important;
+            border-radius: 50% !important;
+        }
         .name {
             font-family: 'Space Grotesk', sans-serif !important;
-            font-size: clamp(24px, 6vw, 32px) !important;
+            font-size: clamp(26px, 6.5vw, 34px) !important;
             font-weight: 700 !important;
             letter-spacing: -0.03em !important;
             color: var(--text-primary, #FFFFFF) !important;
-            margin: 10px 0 0 !important;
-            line-height: 1.15 !important;
-            text-shadow: 0 2px 12px rgba(0,0,0,0.35);
+            margin: 8px 0 0 !important;
+            line-height: 1.12 !important;
         }
-        /* Spotify Sound Wave & Voice Greeting Pill */
+
+        /* Voice-greeting pill (Spotify-style sound wave) */
         .voice-greeting-pill {
             display: inline-flex; align-items: center; gap: 10px;
             padding: 8px 16px; border-radius: 100px;
-            background: rgba(30, 215, 96, 0.12); border: 1px solid rgba(30, 215, 96, 0.3);
-            color: #1DB954; font-size: 0.8rem; font-weight: 600; cursor: pointer;
+            background: var(--chip-bg, rgba(30, 215, 96, 0.12));
+            border: 1px solid var(--card-border, rgba(30, 215, 96, 0.3));
+            color: var(--accent, #1DB954); font-size: 0.8rem; font-weight: 600; cursor: pointer;
             margin: 8px auto 0; transition: transform 160ms ease, background 160ms ease; text-decoration: none;
         }
-        .voice-greeting-pill:hover { transform: scale(1.03); background: rgba(30, 215, 96, 0.2); }
+        .voice-greeting-pill:hover { transform: scale(1.04); background: var(--chip-bg, rgba(30, 215, 96, 0.2)); }
         .sound-wave { display: flex; align-items: center; gap: 3px; height: 14px; }
         .sound-wave span {
-            width: 3px; height: 100%; background: #1DB954; border-radius: 3px;
+            width: 3px; height: 100%; border-radius: 3px;
+            background: currentColor;
             animation: sound-bar 1.2s ease-in-out infinite alternate;
         }
         .sound-wave span:nth-child(2) { animation-delay: 0.2s; height: 60%; }
@@ -100,18 +194,25 @@
             100% { transform: scaleY(1); }
         }
 
-        .bio { color: var(--text-secondary, #94A3B8) !important; font-size: 0.95rem !important; max-width: 380px !important; margin: 4px auto 0 !important; line-height: 1.6 !important; }
-        .tags { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 8px; }
+        .bio {
+            color: var(--text-secondary, #94A3B8) !important;
+            font-size: 0.95rem !important;
+            max-width: 380px !important;
+            margin: 4px auto 0 !important;
+            line-height: 1.6 !important;
+        }
+        .tags { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 8px 20px 0; }
         .tag {
             font-family: 'JetBrains Mono', monospace;
             font-size: 11px; letter-spacing: 0.03em;
-            color: var(--accent, #7FAEE8); background: var(--chip-bg, rgba(23, 59, 99, 0.16));
+            color: var(--accent-soft, var(--accent, #E8A33D));
+            background: var(--chip-bg, rgba(23, 59, 99, 0.16));
             border: 1px solid var(--card-border, rgba(23, 59, 99, 0.3));
             padding: 4px 10px; border-radius: 999px; text-transform: capitalize;
         }
 
-        /* Botones de acción directa */
-        .action-buttons { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+        /* Acciones directas (Agendar cita, etc.) */
+        .action-buttons { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; padding: 2px 20px 0; }
         .action-btn {
             display: inline-flex; align-items: center; gap: 8px;
             padding: 12px 18px; border-radius: 14px;
@@ -120,18 +221,27 @@
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         .action-btn:hover { transform: translateY(-2px); }
-        .action-btn.action-whatsapp { background: #25D366; border-color: #25D366; }
+        .action-btn.action-whatsapp { background: #25D366; border-color: #25D366; color: #04120B; }
         .action-btn.action-call { background: var(--accent, #7FAEE8); border-color: var(--accent, #7FAEE8); }
-        .action-btn.action-email { background: var(--tint, rgba(23, 59, 99, 0.8)); border-color: var(--tint, rgba(23, 59, 99, 0.8)); }
+        .action-btn.action-email { background: var(--chip-bg, rgba(23, 59, 99, 0.8)); border-color: var(--card-border); }
 
-        .blocks-section, .bento-links-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; width: 100%; box-sizing: border-box; }
+        /* Grupos de bloques: celda iOS, respetando el encuadre del pase */
+        .blocks-section, .bento-links-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 0 18px;
+        }
         @media (max-width: 480px) { .blocks-section, .bento-links-grid { grid-template-columns: 1fr; } }
         .block-wrapper { min-width: 0; }
         .block-wrapper.block-whatsapp, .block-wrapper.bento-hero, .block-wrapper.block-pago,
         .block-wrapper.block-seccion, .block-wrapper.block-email, .block-wrapper.block-pdf,
-        .block-wrapper.has-bento-rich, .block-wrapper.block-ubicacion, .block-wrapper.bento-media { grid-column: 1 / -1; }
+        .block-wrapper.has-bento-rich, .block-wrapper.block-ubicacion, .block-wrapper.bento-media,
+        .block-wrapper.bento-social { grid-column: 1 / -1; }
 
-        /* === ADN Apple: bloques como celdas iOS nativas === */
+        /* Bloques como celdas iOS nativas (glass del tema) */
         .block-wrapper > a,
         .block-wrapper .bento-hero-card,
         .block-wrapper .bento-social-card,
@@ -142,7 +252,7 @@
             display: flex; align-items: center; gap: 14px;
             padding: 15px 16px;
             border-radius: 20px;
-            background: var(--bg-surface, rgba(255, 255, 255, 0.08));
+            background: var(--card-border, rgba(255, 255, 255, 0.08));
             border: 1px solid var(--card-border, rgba(255, 255, 255, 0.1));
             text-decoration: none;
             color: var(--text-primary, #FFF);
@@ -177,32 +287,211 @@
             border: 1px solid var(--card-border, rgba(255, 255, 255, 0.12));
         }
 
-        /* Bloques ricos / destinos de ancho completo mantienen el glass */
-        .block-wrapper .bento-rich-card {
-            padding: 0; align-items: stretch; gap: 0; flex-direction: column;
-        }
+        .block-wrapper .bento-rich-card { padding: 0; align-items: stretch; gap: 0; flex-direction: column; }
         .block-wrapper .bento-rich-card .bento-thumb { width: 100%; height: auto; max-height: 180px; object-fit: cover; }
         .block-wrapper .bento-rich-card .bento-content { padding: 14px 16px 16px; }
 
-        /* Fila de texto libre tipo nota */
         .block-wrapper .block-text,
         .block-wrapper .block-nota { padding: 16px 18px; border-radius: 20px; }
 
-        .vp-foot { margin-top: 12px; display: flex; flex-direction: column; gap: 14px; text-align: center; }
+        .block-section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 1.05rem;
+            letter-spacing: -0.01em;
+            color: var(--text-primary, #FFF);
+            padding: 6px 4px 0;
+        }
+
+        /* ===== Comparte tu identidad · pase premium ===== */
+        .share-pass {
+            margin: 4px 18px 0;
+            padding: 16px;
+            border-radius: 24px;
+            background: var(--chip-bg, rgba(255,255,255,0.05));
+            border: 1px solid var(--card-border, rgba(255,255,255,0.12));
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .share-pass-label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .share-label-text {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 0.9rem;
+            letter-spacing: -0.01em;
+            color: var(--text-primary, #FFF);
+        }
+        .share-status-pill {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.62rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--accent, #E8A33D);
+            border: 1px solid var(--card-border, rgba(255,255,255,0.14));
+            padding: 4px 10px;
+            border-radius: 100px;
+            background: var(--bg-surface, rgba(0,0,0,0.2));
+        }
+        .share-pass-body { display: flex; align-items: center; gap: 16px; }
+        @media (max-width: 480px) { .share-pass-body { flex-direction: column; align-items: stretch; text-align: center; } }
+        .share-qr {
+            flex-shrink: 0;
+            width: 108px; height: 108px;
+            padding: 6px;
+            border-radius: 22px;
+            background: #FFFFFF;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+        }
+        .share-qr-img { width: 100%; height: 100%; border-radius: 18px; display: block; image-rendering: pixelated; }
+        .share-qr-hint {
+            font-size: 0.58rem;
+            letter-spacing: 0.06em;
+            color: #6B5B45;
+            font-family: 'JetBrains Mono', monospace;
+            margin-top: 2px;
+        }
+        .share-actions { flex: 1; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+        .share-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 14px;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--text-primary, #FFF);
+            background: var(--chip-bg, rgba(255,255,255,0.08));
+            border: 1px solid var(--card-border, rgba(255,255,255,0.12));
+            text-decoration: none;
+            cursor: pointer;
+            transition: transform 0.18s ease, background 0.18s ease;
+        }
+        .share-btn:hover { transform: translateY(-1px); background: var(--card-border, rgba(255,255,255,0.14)); }
+        .share-btn:active { transform: scale(0.97); }
+        .share-btn svg { width: 1em; height: 1em; vertical-align: -0.125em; }
+        .share-btn.is-accent {
+            background: var(--accent, #E8A33D);
+            color: var(--on-accent, #141318);
+            border-color: transparent;
+        }
+        .share-toast {
+            position: fixed;
+            left: 50%;
+            bottom: calc(92px + env(safe-area-inset-bottom));
+            transform: translateX(-50%) translateY(8px);
+            background: rgba(18,18,22,0.92);
+            color: #FFF;
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 10px 18px;
+            border-radius: 100px;
+            border: 1px solid rgba(255,255,255,0.14);
+            box-shadow: 0 14px 40px rgba(0,0,0,0.5);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            z-index: 1000;
+        }
+        .share-toast.is-visible { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* ===== Archivos ===== */
+        .files-section { display: flex; flex-direction: column; gap: 12px; padding: 0 18px; }
+        .files-section .section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.82rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: var(--text-tertiary, rgba(255,255,255,0.55));
+            margin: 0;
+        }
+        .file-list { display: flex; flex-direction: column; gap: 10px; }
+        .file-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 13px 16px;
+            border-radius: 18px;
+            background: var(--card-border, rgba(255,255,255,0.05));
+            border: 1px solid var(--card-border, rgba(255,255,255,0.1));
+            color: var(--text-primary, #FFF);
+            text-decoration: none;
+        }
+        .file-icon { color: var(--accent, #E8A33D); display: grid; place-items: center; width: 20px; }
+        .file-info { flex: 1; min-width: 0; }
+        .file-label { display: block; font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-tertiary, rgba(255,255,255,0.5)); }
+        .file-name { font-size: 0.88rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+        /* ===== Pie ===== */
+        .vp-foot {
+            margin: 4px 18px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            text-align: center;
+        }
         .vp-vcard {
             display: flex; align-items: center; justify-content: center; gap: 8px;
-            padding: 14px; border-radius: 100px; font-weight: 600; font-size: 0.9rem;
-            color: var(--text-primary, #EEEAE0); background: var(--bg-surface, rgba(255, 255, 255, 0.06));
-            border: 1px solid var(--card-border, rgba(255, 255, 255, 0.12)); text-decoration: none;
-            transition: transform 0.2s cubic-bezier(0.2, 0.9, 0.3, 1.2), background 0.2s ease;
+            padding: 14px; border-radius: 100px; font-weight: 700; font-size: 0.9rem;
+            color: var(--on-accent, #141318);
+            background: var(--accent, #E8A33D);
+            border: 1px solid transparent;
+            text-decoration: none;
+            transition: transform 0.2s cubic-bezier(0.2, 0.9, 0.3, 1.2), filter 0.2s ease;
         }
-        .vp-vcard:hover { transform: translateY(-1px); background: var(--chip-bg, rgba(255, 255, 255, 0.1)); }
+        .vp-vcard:hover { transform: translateY(-1px); filter: brightness(1.06); }
         .vp-vcard:active { transform: scale(0.97); }
         .vp-meta {
             font-family: 'JetBrains Mono', monospace; font-size: 11px;
-            color: var(--text-secondary, #6B7280); display: flex; gap: 10px; justify-content: center; letter-spacing: 0.02em;
+            color: var(--text-tertiary, rgba(255,255,255,0.5));
+            display: flex; gap: 12px; justify-content: center; letter-spacing: 0.02em; margin-bottom: 4px;
         }
-        .vp-meta a { color: var(--accent, #7FAEE8); text-decoration: none; }
+        .vp-meta a { color: var(--accent, #E8A33D); text-decoration: none; }
+
+        /* ===== Dock flotante tipo pase ===== */
+        .dock-pill {
+            position: fixed;
+            bottom: calc(20px + env(safe-area-inset-bottom));
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 998;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px;
+            border-radius: 100px;
+            background: rgba(16,16,20,0.82);
+            -webkit-backdrop-filter: blur(28px) saturate(180%);
+            backdrop-filter: blur(28px) saturate(180%);
+            border: 1px solid rgba(255,255,255,0.14);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+        }
+        .dock-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 10px 16px;
+            border-radius: 100px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-decoration: none;
+            color: #FFF;
+            transition: background 0.18s ease;
+        }
+        .dock-link svg { width: 0.95em; height: 0.95em; }
+        .dock-link:hover { background: rgba(255,255,255,0.08); }
+        .dock-link.is-accent { background: var(--accent, #E8A33D); color: #141318; font-weight: 700; }
+        .dock-link.is-accent:hover { filter: brightness(1.06); }
+        .dock-sep { width: 1px; height: 18px; background: rgba(255,255,255,0.16); }
 
         @media (prefers-reduced-motion: reduce) {
             * { animation: none !important; transition: none !important; }
@@ -210,47 +499,136 @@
     </style>
 </head>
 <body>
-    <main class="vynk-public" data-perfil-id="{{perfil_id}}">
-        {{banner_html}}
+    <div class="vynk-canvas">
+        <main class="vynk-public" data-perfil-id="{{perfil_id}}">
 
-        <section class="vp-head">
-            {{avatar_html}}
-            <h1 class="name">{{nombre_perfil}}</h1>
-            {{horario_badge_html}}
-            {{tags_html}}
-            {{bio_html}}
-            {{saludo_voz_html}}
-        </section>
+            <div class="pass-brand">
+                <span class="pass-brand-mark">VYNK</span>
+                <span class="pass-brand-sub">Identidad</span>
+            </div>
 
-        {{action_buttons_html}}
+            <section class="pass-hero">
+                {{banner_html}}
+                <div class="vp-head">
+                    {{avatar_html}}
+                    <h1 class="name">{{nombre_perfil}}</h1>
+                    {{horario_badge_html}}
+                    {{tags_html}}
+                    {{bio_html}}
+                    {{saludo_voz_html}}
+                </div>
+            </section>
 
-        <!-- Tesla Style Floating Action Dock -->
-        <nav class="tesla-action-dock" style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:999;background:rgba(15,15,18,0.85);backdrop-filter:blur(32px) saturate(180%);-webkit-backdrop-filter:blur(32px) saturate(180%);border:1px solid rgba(255,255,255,0.15);padding:8px 16px;border-radius:100px;display:flex;align-items:center;gap:14px;box-shadow:0 20px 50px rgba(0,0,0,0.6)">
-            <a href="#bloques" style="color:#fff;font-size:0.8rem;font-weight:600;text-decoration:none;display:flex;align-items:center;gap:6px">
-                <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:0.95em;height:0.95em;vertical-align:-0.15em"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> Menú & Bloques</span>
+            {{action_buttons_html}}
+
+            <section class="blocks-section bento-links-grid" id="bloques">
+                {{bloques_html}}
+            </section>
+
+            {{archivos_section_html}}
+
+            <section class="share-pass" aria-label="Comparte tu identidad">
+                <div class="share-pass-label">
+                    <span class="share-label-text">Comparte tu identidad</span>
+                    <span class="share-status-pill">Contacto + NFC</span>
+                </div>
+                <div class="share-pass-body">
+                    <div class="share-qr">
+                        <img class="share-qr-img" src="{{base_url}}/api/perfiles/{{slug}}/qr" alt="Código QR de {{nombre_perfil}}" width="128" height="128" loading="lazy">
+                        <span class="share-qr-hint">ESCANEA PARA ABRIR</span>
+                    </div>
+                    <div class="share-actions">
+                        <button type="button" class="share-btn" onclick="copyProfileLink()" data-action="copiar_enlace">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+                            Copiar enlace
+                        </button>
+                        <button type="button" class="share-btn is-accent" onclick="shareProfile()" data-action="compartir">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v14M6 8l6-6 6 6"/><path d="M4 14v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6"/></svg>
+                            Compartir
+                        </button>
+                        <button type="button" class="share-btn" onclick="handleNfc()" data-action="anadir_wallet">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12a14.4 14.4 0 0 1 9 3.5"/><path d="M5 7.5A19 19 0 0 1 18 12"/><path d="M5 16.5a10 10 0 0 1 4.8 2.3"/><circle cx="5" cy="18" r="1.2" fill="currentColor"/><circle cx="5" cy="12" r="1.2" fill="currentColor"/><circle cx="5" cy="6.5" r="1.2" fill="currentColor"/></svg>
+                            NFC · Añadir a Wallet
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <footer class="vp-foot">
+                <a class="vp-vcard" href="{{base_url}}/api/perfiles/{{slug}}/vcard" data-action="descarga_vcard">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.15em"><path d="M4 6h16v12H4z"/><path d="M4 8h16M7 12h6M7 15h4"/></svg>
+                    Guardar contacto (.vcf)
+                </a>
+                <div class="vp-meta">
+                    <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:0.9em;height:0.9em;vertical-align:-0.15em"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg> {{visitas}} visitas</span>
+                    <a href="{{base_url}}/">Hecho con <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:0.9em;height:0.9em;vertical-align:-0.15em"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></svg> VYNK</a>
+                </div>
+            </footer>
+        </main>
+
+        <!-- Dock flotante tipo pase -->
+        <nav class="dock-pill" aria-label="Acciones rápidas">
+            <a href="#bloques" class="dock-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                Menú
             </a>
-            <div style="width:1px;height:16px;background:rgba(255,255,255,0.15)"></div>
-            <a href="{{base_url}}/api/perfiles/{{slug}}/vcard" style="color:var(--accent,#7FAEE8);font-size:0.8rem;font-weight:700;text-decoration:none;display:flex;align-items:center;gap:6px">
-                <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:0.95em;height:0.95em;vertical-align:-0.15em"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4.5 5-6.5 8-6.5s6.5 2 8 6.5"/></svg> Guardar Contacto</span>
+            <span class="dock-sep"></span>
+            <a href="{{base_url}}/api/perfiles/{{slug}}/vcard" class="dock-link is-accent" data-action="descarga_vcard">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4.5 5-6.5 8-6.5s6.5 2 8 6.5"/></svg>
+                Guardar Contacto
             </a>
         </nav>
 
-        <section class="blocks-section bento-links-grid" id="bloques">
-            {{bloques_html}}
-        </section>
+        <div id="share-toast" class="share-toast" role="status" aria-live="polite"></div>
+    </div>
 
-        {{archivos_section_html}}
+    <!-- Modal de Agendamiento de Citas con Google Calendar -->
+    <div id="booking-modal" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.75);backdrop-filter:blur(20px);align-items:center;justify-content:center;padding:16px">
+        <div style="width:100%;max-width:440px;background:#151517;border:1px solid rgba(255,255,255,0.18);border-radius:24px;padding:24px;color:#fff;box-shadow:0 30px 80px rgba(0,0,0,0.8);position:relative">
+            <button type="button" onclick="closeBookingModal()" style="position:absolute;top:16px;right:16px;background:none;border:none;color:#98989D;font-size:1.2rem;cursor:pointer">✕</button>
 
-        <footer class="vp-foot">
-            <a class="vp-vcard" href="{{base_url}}/api/perfiles/{{slug}}/vcard" data-action="descarga_vcard">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.15em"><path d="M4 6h16v12H4z"/><path d="M4 8h16M7 12h6M7 15h4"/></svg> Guardar contacto (.vcf)
-            </a>
-            <div class="vp-meta">
-                <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:0.9em;height:0.9em;vertical-align:-0.15em"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg> {{visitas}} visitas</span>
-                <a href="{{base_url}}/">Hecho con <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:0.9em;height:0.9em;vertical-align:-0.15em"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></svg> VYNK</a>
-            </div>
-        </footer>
-    </main>
+            <div style="font-size:1.15rem;font-weight:700;margin-bottom:4px;font-family:'Space Grotesk',sans-serif"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em;margin-right:6px"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Agendar Cita en Vivo</div>
+            <div style="font-size:0.8rem;color:#98989D;margin-bottom:18px">Reserva tu fecha y hora. Se sincronizará automáticamente con Google Calendar.</div>
+
+            <form id="booking-form" onsubmit="submitBooking(event)">
+                <div style="margin-bottom:12px">
+                    <label style="display:block;font-size:0.75rem;color:#98989D;margin-bottom:4px;font-weight:600">Tu Nombre Completo *</label>
+                    <input type="text" id="bk-nombre" required placeholder="Ej. Ana María Gómez" style="width:100%;padding:10px 14px;border-radius:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#fff;font-size:0.9rem;box-sizing:border-box">
+                </div>
+                <div style="margin-bottom:12px">
+                    <label style="display:block;font-size:0.75rem;color:#98989D;margin-bottom:4px;font-weight:600">Correo Electrónico *</label>
+                    <input type="email" id="bk-email" required placeholder="tu@correo.com" style="width:100%;padding:10px 14px;border-radius:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#fff;font-size:0.9rem;box-sizing:border-box">
+                </div>
+                <div style="margin-bottom:12px">
+                    <label style="display:block;font-size:0.75rem;color:#98989D;margin-bottom:4px;font-weight:600">Teléfono WhatsApp</label>
+                    <input type="tel" id="bk-telefono" placeholder="+52 55 1234 5678" style="width:100%;padding:10px 14px;border-radius:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#fff;font-size:0.9rem;box-sizing:border-box">
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+                    <div>
+                        <label style="display:block;font-size:0.75rem;color:#98989D;margin-bottom:4px;font-weight:600">Fecha y Hora *</label>
+                        <input type="datetime-local" id="bk-fecha" required style="width:100%;padding:10px 8px;border-radius:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#fff;font-size:0.85rem;box-sizing:border-box">
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:0.75rem;color:#98989D;margin-bottom:4px;font-weight:600">Servicio</label>
+                        <select id="bk-servicio" style="width:100%;padding:10px 8px;border-radius:12px;background:#151517;border:1px solid rgba(255,255,255,0.12);color:#fff;font-size:0.85rem;box-sizing:border-box">
+                            <option value="Consulta / Atención General">Consulta General</option>
+                            <option value="Corte de Cabello / Barbería">Corte / Estética</option>
+                            <option value="Reserva de Mesa / Restaurante">Reserva Restaurante</option>
+                            <option value="Asesoría Profesional">Asesoría Profesional</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="margin-bottom:18px">
+                    <label style="display:block;font-size:0.75rem;color:#98989D;margin-bottom:4px;font-weight:600">Notas / Detalles Especiales</label>
+                    <textarea id="bk-notas" rows="2" placeholder="Especificaciones adicionales..." style="width:100%;padding:10px 14px;border-radius:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#fff;font-size:0.85rem;box-sizing:border-box"></textarea>
+                </div>
+
+                <button type="submit" id="bk-btn-submit" style="width:100%;padding:14px;border-radius:100px;background:var(--accent,#E8A33D);border:none;color:#141318;font-weight:700;font-size:0.95rem;cursor:pointer">
+                    Confirmar Cita &amp; Sincronizar
+                </button>
+            </form>
+        </div>
+    </div>
 
     <script>
         (function () {
@@ -278,7 +656,7 @@
                 }
             } catch (e) { track('visita'); }
 
-            // 2. Clics en acciones (WhatsApp, llamar, mapa, archivos, redes...)
+            // 2. Clics en acciones
             document.addEventListener('click', function (e) {
                 const el = e.target.closest('[data-action]');
                 if (el && el.getAttribute('data-action')) {
@@ -319,23 +697,23 @@
                         body: JSON.stringify({ email: email })
                     }).then(function (r) { return r.json(); }).then(function (data) {
                         const msg = data && data.ok
-                            ? '✅ ¡Suscrito correctamente!'
-                            : (data && data.error ? '⚠️ ' + data.error : '⚠️ No se pudo suscribir.');
+                            ? 'Suscrito correctamente'
+                            : (data && data.error ? data.error : 'No se pudo suscribir');
                         const oldBtn = form.querySelector('button[type="submit"]');
                         if (oldBtn) { oldBtn.disabled = true; oldBtn.textContent = msg; }
                     }).catch(function () {
                         const oldBtn = form.querySelector('button[type="submit"]');
-                        if (oldBtn) { oldBtn.disabled = true; oldBtn.textContent = '⚠️ Error de red'; }
+                        if (oldBtn) { oldBtn.disabled = true; oldBtn.textContent = 'Error de red'; }
                     });
                 });
             });
 
-            // 5. Acordeones inteligentes (detalles) enlazados al tracking de mapa
+            // 5. Acordeones inteligentes (mapa)
             document.querySelectorAll('.smart-accordion a[href*="maps"]').forEach(function (a) {
                 a.addEventListener('click', function () { track('click_mapa'); });
             });
 
-            // 6. Spotify Voice Bio Speech Player / Audio Promo Player
+            // 6. Spotify Voice Bio Speech / Audio promocional
             window.playVoiceGreeting = function() {
                 var customAudio = '{{audio_saludo_url}}';
                 if (customAudio && customAudio.trim() !== '' && customAudio !== '{{audio_saludo_url}}') {
@@ -359,7 +737,7 @@
                 }
             };
 
-            // 7. Modal de Agendamiento Citas Google Calendar
+            // 7. Modal Agendar cita
             window.openBookingModal = function() {
                 var m = document.getElementById('booking-modal');
                 if (m) m.style.display = 'flex';
@@ -389,69 +767,106 @@
                     body: JSON.stringify(bodyData)
                 }).then(function(r) { return r.json(); }).then(function(data) {
                     if (data && data.ok) {
-                        alert('✅ ¡Cita agendada con éxito para ' + data.dateStr + '!\n\nSe ha abierto tu enlace directo para añadir a Google Calendar.');
+                        alert('Cita agendada con éxito para ' + data.dateStr + '.\n\nSe ha abierto tu enlace directo para añadir a Google Calendar.');
                         if (data.googleCalUrl) {
                             window.open(data.googleCalUrl, '_blank');
                         }
                         closeBookingModal();
                     } else {
-                        alert('⚠️ ' + (data.error || 'Error al agendar cita'));
+                        alert('Hubo un error: ' + (data.error || 'revisa los datos'));
                     }
-                    if (btn) { btn.disabled = false; btn.textContent = '📅 Confirmar Cita & Sincronizar'; }
+                    if (btn) { btn.disabled = false; btn.textContent = 'Confirmar Cita & Sincronizar'; }
                 }).catch(function() {
-                    alert('⚠️ Error de red al registrar la cita.');
-                    if (btn) { btn.disabled = false; btn.textContent = '📅 Confirmar Cita & Sincronizar'; }
+                    alert('Error de red al registrar la cita.');
+                    if (btn) { btn.disabled = false; btn.textContent = 'Confirmar Cita & Sincronizar'; }
                 });
             };
         })();
     </script>
 
-  <!-- Modal de Agendamiento de Citas con Google Calendar -->
-  <div id="booking-modal" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.75);backdrop-filter:blur(20px);align-items:center;justify-content:center;padding:16px">
-    <div style="width:100%;max-width:440px;background:#151517;border:1px solid rgba(255,255,255,0.18);border-radius:24px;padding:24px;color:#fff;box-shadow:0 30px 80px rgba(0,0,0,0.8);position:relative">
-      <button type="button" onclick="closeBookingModal()" style="position:absolute;top:16px;right:16px;background:none;border:none;color:#98989D;font-size:1.2rem;cursor:pointer">✕</button>
-      
-      <div style="font-size:1.15rem;font-weight:700;margin-bottom:4px;font-family:'Space Grotesk',sans-serif"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em;margin-right:6px"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Agendar Cita en Vivo</div>
-      <div style="font-size:0.8rem;color:#98989D;margin-bottom:18px">Reserva tu fecha y hora. Se sincronizará automáticamente con Google Calendar.</div>
+    <script>
+        // E-card: Compartir · Copiar · NFC Web (real, con fallback honesto)
+        (function () {
+            const PROFILE_URL = '{{base_url}}/u/{{slug}}';
+            const VCARD_URL = '{{base_url}}/api/perfiles/{{slug}}/vcard';
 
-      <form id="booking-form" onsubmit="submitBooking(event)">
-        <div style="margin-bottom:12px">
-          <label style="display:block;font-size:0.75rem;color:#98989D;margin-bottom:4px;font-weight:600">Tu Nombre Completo *</label>
-          <input type="text" id="bk-nombre" required placeholder="Ej. Ana María Gómez" style="width:100%;padding:10px 14px;border-radius:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#fff;font-size:0.9rem;box-sizing:border-box">
-        </div>
-        <div style="margin-bottom:12px">
-          <label style="display:block;font-size:0.75rem;color:#98989D;margin-bottom:4px;font-weight:600">Correo Electrónico *</label>
-          <input type="email" id="bk-email" required placeholder="tu@correo.com" style="width:100%;padding:10px 14px;border-radius:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#fff;font-size:0.9rem;box-sizing:border-box">
-        </div>
-        <div style="margin-bottom:12px">
-          <label style="display:block;font-size:0.75rem;color:#98989D;margin-bottom:4px;font-weight:600">Teléfono WhatsApp</label>
-          <input type="tel" id="bk-telefono" placeholder="+52 55 1234 5678" style="width:100%;padding:10px 14px;border-radius:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#fff;font-size:0.9rem;box-sizing:border-box">
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
-          <div>
-            <label style="display:block;font-size:0.75rem;color:#98989D;margin-bottom:4px;font-weight:600">Fecha y Hora *</label>
-            <input type="datetime-local" id="bk-fecha" required style="width:100%;padding:10px 8px;border-radius:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#fff;font-size:0.85rem;box-sizing:border-box">
-          </div>
-          <div>
-            <label style="display:block;font-size:0.75rem;color:#98989D;margin-bottom:4px;font-weight:600">Servicio</label>
-            <select id="bk-servicio" style="width:100%;padding:10px 8px;border-radius:12px;background:#151517;border:1px solid rgba(255,255,255,0.12);color:#fff;font-size:0.85rem;box-sizing:border-box">
-              <option value="Consulta / Atención General">Consulta General</option>
-              <option value="Corte de Cabello / Barbería">Corte / Estética</option>
-              <option value="Reserva de Mesa / Restaurante">Reserva Restaurante</option>
-              <option value="Asesoría Profesional">Asesoría Profesional</option>
-            </select>
-          </div>
-        </div>
-        <div style="margin-bottom:18px">
-          <label style="display:block;font-size:0.75rem;color:#98989D;margin-bottom:4px;font-weight:600">Notas / Detalles Especiales</label>
-          <textarea id="bk-notas" rows="2" placeholder="Especificaciones adicionales..." style="width:100%;padding:10px 14px;border-radius:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#fff;font-size:0.85rem;box-sizing:border-box"></textarea>
-        </div>
+            let toastTimer = null;
+            function showToast(msg) {
+                const el = document.getElementById('share-toast');
+                if (!el) return alert(msg);
+                el.textContent = msg;
+                el.classList.add('is-visible');
+                clearTimeout(toastTimer);
+                toastTimer = setTimeout(function () { el.classList.remove('is-visible'); }, 2400);
+            }
 
-        <button type="submit" id="bk-btn-submit" style="width:100%;padding:14px;border-radius:100px;background:linear-gradient(135deg,var(--accent-deep,#0F2C4E),var(--primary,#7FAEE8));border:none;color:#fff;font-weight:700;font-size:0.95rem;cursor:pointer;box-shadow:0 8px 24px var(--accent-glow,rgba(127,174,232,0.3))">
-          Confirmar Cita & Sincronizar
-        </button>
-      </form>
-    </div>
-  </div>
+            window.copyProfileLink = function () {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(PROFILE_URL).then(function () {
+                        showToast('Enlace copiado al portapapeles');
+                    }).catch(function () { fallbackCopy(); });
+                } else { fallbackCopy(); }
+            };
+            function fallbackCopy() {
+                try {
+                    const ta = document.createElement('textarea');
+                    ta.value = PROFILE_URL;
+                    ta.style.position = 'fixed'; ta.style.opacity = '0';
+                    document.body.appendChild(ta);
+                    ta.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(ta);
+                    showToast('Enlace copiado al portapapeles');
+                } catch (e) { prompt('Copia tu enlace:', PROFILE_URL); }
+            }
+
+            window.shareProfile = function () {
+                const data = {
+                    title: document.title || 'VYNK',
+                    text: 'Mira mi tarjeta de identidad digital',
+                    url: PROFILE_URL
+                };
+                if (navigator.share) {
+                    navigator.share(data).catch(function () {});
+                } else if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(PROFILE_URL).then(function () {
+                        showToast('Enlace copiado para compartir');
+                    }).catch(function () {});
+                } else {
+                    prompt('Copia tu enlace:', PROFILE_URL);
+                }
+            };
+
+            // NFC Web: solo actúa si el navegador la expone; si no, guarda como contacto.
+            window.handleNfc = function () {
+                const btn = event && event.target && event.target.closest ? event.target.closest('.share-btn') : null;
+                const original = btn ? btn.innerHTML : null;
+                function busy(msg) { if (btn) btn.innerHTML = msg; }
+                function restore() { if (btn && original) { btn.innerHTML = original; } }
+
+                if ('NDEFReader' in window) {
+                    busy('Acércate a otro teléfono…');
+                    try {
+                        const reader = new NDEFReader();
+                        reader.write({
+                            records: [{ type: 'url', data: PROFILE_URL }]
+                        }).then(function () {
+                            showToast('NFC actualizado: tu tarjeta se comparte al tocar');
+                            restore();
+                        }).catch(function (err) {
+                            restore();
+                            showToast(err && err.name === 'SecurityError' ? 'NFC requiere una página segura (HTTPS) e interacción previa.' : 'No se encontró otro dispositivo NFC.');
+                        });
+                    } catch (e) {
+                        restore();
+                        showToast('Web NFC no disponible en este navegador.');
+                    }
+                } else {
+                    // Fallback honesto: el .vcf ES la vía hacia Apple/Google Contactos.
+                    window.location.href = VCARD_URL;
+                }
+            };
+        })();
+    </script>
 </body>
 </html>

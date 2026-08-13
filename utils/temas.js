@@ -142,12 +142,12 @@ function buildThemeCss(themeId, accent) {
   --chip-bg: ${chipBg};
 }
 
-/* Overrides públicos: la tarjeta de perfil usa tokens del tema en vez de colores fijos dark */
+/* Overrides públicos: la tarjeta de perfil usa tokens del tema en vez de colores fijos dark.
+   Solo una aurora sutil derivada del acento (nada de gradientes genéricos). */
 body {
   background-color: ${t.background} !important;
   background-image:
-    radial-gradient(1200px 600px at 20% -10%, var(--accent-glow, rgba(23, 59, 99, 0.16)), transparent 60%),
-    radial-gradient(900px 500px at 110% 10%, var(--accent-glow, rgba(127, 174, 232, 0.12)), transparent 55%) !important;
+    radial-gradient(720px 400px at 50% -160px, ${glow} 0%, transparent 70%) !important;
   background-attachment: fixed !important;
   color: var(--text-primary, #F8FAFC) !important;
 }
