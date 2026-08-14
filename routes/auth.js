@@ -278,6 +278,7 @@ router.post('/login', rateLimit(10, 15 * 60 * 1000), [
 
     const { telefono, password } = req.body;
     const input = (telefono || '').trim();
+    const telefonoNorm = normalizePhone(input);
 
     const db = await dbReady;
 
@@ -285,7 +286,6 @@ router.post('/login', rateLimit(10, 15 * 60 * 1000), [
     if (input.includes('@')) {
       user = await db.prepare('SELECT * FROM usuarios WHERE LOWER(email) = LOWER(?)').get(input);
     } else {
-      const telefonoNorm = normalizePhone(input);
       user = await db.prepare("SELECT * FROM usuarios WHERE REPLACE(telefono, '+', '') = ? OR telefono = ?").get(telefonoNorm, input);
     }
 
@@ -383,6 +383,74 @@ router.post('/sso/google', rateLimit(10, 15 * 60 * 1000), async (req, res) => {
   } catch (err) {
     console.error('Error en SSO Google:', err.message);
     res.status(401).json({ error: 'No se pudo verificar tu cuenta de Google' });
+  }
+});
+
+// In-memory store para Códigos de Acceso Rápido Sin Contraseña (OTP valid 10 mins)
+const magicOtpStore = new Map();
+
+// POST /api/auth/magic-login — Iniciar sesión sin contraseña (Passwordless Magic Code)
+router.post('/magic-login', rateLimit(5, 15 * 60 * 1000), async (req, res) => {
+  try {
+    const { email } = req.body || {};
+    if (!email || !email.includes('@')) {
+      return res.status(400).json({ error: 'Correo electrónico válido requerido para inicio de sesión sin contraseña' });
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = Date.now() + 10 * 60 * 1000;
+
+    magicOtpStore.set(cleanEmail, { code, expiresAt });
+
+    try {
+      const emailUtils = require('../utils/email');
+      emailUtils.sendWelcomeEmail(cleanEmail, `Tu código de acceso seguro VYNK es: ${code}`);
+    } catch (e) {}
+
+    res.json({
+      ok: true,
+      mensaje: `Código de acceso rápido enviado a ${cleanEmail}`,
+      demoCode: process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test' ? code : undefined
+    });
+  } catch (err) {
+    console.error('Error enviando Magic Code:', err);
+    res.status(500).json({ error: 'Error enviando código sin contraseña' });
+  }
+});
+
+// POST /api/auth/verify-magic-code — Verificar código sin contraseña y autenticar
+router.post('/verify-magic-code', rateLimit(10, 15 * 60 * 1000), async (req, res) => {
+  try {
+    const { email, code } = req.body || {};
+    if (!email || !code) {
+      return res.status(400).json({ error: 'Correo y código de 6 dígitos requeridos' });
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    const stored = magicOtpStore.get(cleanEmail);
+
+    if (!stored || Date.now() > stored.expiresAt) {
+      return res.status(401).json({ error: 'El código ha expirado o no es válido. Solicita uno nuevo.' });
+    }
+
+    if (stored.code !== code.trim()) {
+      return res.status(401).json({ error: 'Código de acceso incorrecto' });
+    }
+
+    magicOtpStore.delete(cleanEmail);
+
+    const user = await upsertSsoUser('magic', {
+      sub: 'magic_' + cleanEmail,
+      email: cleanEmail,
+      nombre: cleanEmail.split('@')[0],
+      verified: true
+    });
+
+    res.json(ssoSessionPayload(user));
+  } catch (err) {
+    console.error('Error verificando Magic Code:', err);
+    res.status(500).json({ error: 'Error al verificar autenticación sin contraseña' });
   }
 });
 
