@@ -20,6 +20,7 @@ const adminRoutes = require('./routes/admin');
 const bloquesRoutes = require('./routes/bloques');
 const suscriptoresRoutes = require('./routes/suscriptores');
 const workspacesRoutes = require('./routes/workspaces');
+const intelligenceRoutes = require('./routes/intelligence');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -206,6 +207,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api', bloquesRoutes);
 app.use('/api', suscriptoresRoutes);
 app.use('/api/workspaces', workspacesRoutes);
+app.use('/api/intelligence', intelligenceRoutes);
 
 const pagosRoutes = require('./routes/pagos');
 app.use('/api/pagos', pagosRoutes);

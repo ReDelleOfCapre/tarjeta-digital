@@ -93,7 +93,14 @@
     pinterest: '<circle cx="12" cy="12" r="10"/><path d="M12 8c-2 0-3.5 1.5-3.5 3.5 0 1.2.7 2.3 1.8 2.7"/><path d="M12 16l-1.5 4"/>',
     reddit: '<circle cx="12" cy="12" r="10"/><circle cx="9.5" cy="10.5" r="1.5"/><circle cx="14.5" cy="10.5" r="1.5"/><path d="M12 14c2 0 3 1.5 3 1.5s-1 1.5-3 1.5-3-1.5-3-1.5 1-1.5 3-1.5z"/>',
     behance: '<path d="M3 6h7M3 12h8M3 18h5"/><circle cx="15" cy="9" r="2"/><path d="M13 9h6M16 9v7c2 0 4-1 4-3 0-1.5-1.5-2.5-3-2.5"/>',
-    dribbble: '<circle cx="12" cy="12" r="10"/><path d="M8 3.5a20 20 0 0 0 0 17"/><path d="M16 3a20 20 0 0 1 0 18"/><path d="M2.5 12h19"/>'
+    dribbble: '<circle cx="12" cy="12" r="10"/><path d="M8 3.5a20 20 0 0 0 0 17"/><path d="M16 3a20 20 0 0 1 0 18"/><path d="M2.5 12h19"/>',
+
+    /* IA / Inteligencia */
+    sparkles: '<path d="M12 3l1.7 4.6 4.6 1.7-4.6 1.7L12 15.6l-1.7-4.6L5.7 9.3l4.6-1.7L12 3z"/><path d="M19 14l.9 2.4 2.4.9-2.4.9L19 20.6l-.9-2.4-2.4-.9 2.4-.9L19 14z"/>',
+    palette: '<circle cx="13.5" cy="6.5" r="1.2"/><circle cx="17.5" cy="10.5" r="1.2"/><circle cx="8.5" cy="7.5" r="1.2"/><circle cx="6.5" cy="12.5" r="1.2"/><path d="M12 2a10 10 0 0 0 0 20c1.1 0 2-.9 2-2 0-.5-.2-.9-.5-1.3-.3-.3-.5-.8-.5-1.2a2 2 0 0 1 2-2h3a5 5 0 0 0 5-5C23 7 18.1 2 12 2z"/>',
+    file: '<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-6-6z"/><path d="M14 3v6h6M9 14h6M9 17h4"/>',
+    target: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',
+    brain: '<path d="M9.5 3a2.5 2.5 0 0 1 2.5 2.5v13a2.5 2.5 0 0 1-5 0V8.5a2.5 2.5 0 0 1 2.5-2.5z"/><path d="M14.5 3a2.5 2.5 0 0 0-2.5 2.5v13a2.5 2.5 0 0 0 5 0V5.5A2.5 2.5 0 0 0 14.5 3z"/>'
   };
 
   /** Resolutor de dimensiones: vynkIcon('eye') | vynkIcon('eye', 18) | vynkIcon('eye', {size:18}) */

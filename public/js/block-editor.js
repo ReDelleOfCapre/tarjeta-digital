@@ -1540,4 +1540,89 @@
       }
     }
   }
+
+  // ============================================================
+  // VYNK Intelligence · puente editor ↔ panel de inteligencia
+  // Permite que el panel lea/escrita el estado real del editor
+  // y aplique mejoras con undo/redo. Determinístico.
+  // ============================================================
+  function accentValue() {
+    return selectedTheme === "auto" && autoExtractedColor && !manualColorChosen
+      ? autoExtractedColor
+      : selectedColor;
+  }
+
+  window.vynkEditorBridge = {
+    getState: function () {
+      return {
+        theme: selectedTheme,
+        color: accentValue(),
+        blocks: blocks.map(function (b) {
+          return { id: b.id, tipo: b.tipo, contenido: b.contenido || {}, visible: b.visible !== false, orden: b.orden };
+        })
+      };
+    },
+
+    setTheme: function (themeId) {
+      if (!themeId) return;
+      selectedTheme = themeId;
+      if (themeId !== "auto") manualColorChosen = true;
+      renderThemePicker();
+      updateLivePreview();
+      scheduleAutosave();
+    },
+
+    setColor: function (hex) {
+      if (!hex) return;
+      selectedColor = hex;
+      manualColorChosen = true;
+      var options = document.querySelectorAll(".color-option");
+      options.forEach(function (option) {
+        option.classList.remove("active");
+        if ((option.getAttribute("data-color") || "").toUpperCase() === String(hex).toUpperCase()) {
+          option.classList.add("active");
+        }
+      });
+      updateLivePreview();
+      scheduleAutosave();
+    },
+
+    reorderByTipo: function (order) {
+      if (!Array.isArray(order)) return;
+      var byTipo = {};
+      blocks.forEach(function (b) { byTipo[b.tipo] = b; });
+      var newBlocks = [];
+      var used = {};
+      order.forEach(function (tipo) {
+        if (used[tipo]) return;
+        used[tipo] = true;
+        if (byTipo[tipo]) newBlocks.push(byTipo[tipo]);
+      });
+      blocks.forEach(function (b) {
+        if (used[b.tipo]) return;
+        used[b.tipo] = true;
+        newBlocks.push(b);
+      });
+      blocks = newBlocks;
+      normalizeOrder();
+      renderBlockList();
+      updateLivePreview();
+      scheduleAutosave();
+    },
+
+    addBlock: function (tipo) {
+      if (!tipo) return;
+      showBlockForm(tipo);
+      var area = document.getElementById("block-form-area");
+      if (area) area.scrollIntoView({ behavior: "smooth", block: "center" });
+    },
+
+    focusField: function (fieldId) {
+      var el = document.getElementById(fieldId);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        el.focus();
+      }
+    }
+  };
 })();

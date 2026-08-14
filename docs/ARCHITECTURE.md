@@ -38,8 +38,8 @@ Everything behind the scenes.
 | HTTP server/routing | `server.js`, `routes/` |
 | Business logic | `services/` |
 | Data access | `database/` + lowdb/JSON store |
-| AI | `services/` AI layer (Design Generator, Brand Intelligence, Insights, Copilot) |
 | Auth | middleware/services (SSO currently stubbed) |
+| Intelligence | `services/ai/` (provider interface + DeterministicProvider activo) y `services/intelligence/` (motor VynkIntelligence: rules, palette, branding, layout, profile, insights, recommendations) |
 | Email | mailer service |
 | Uploads | `uploads/` for photos/QR |
 
@@ -49,7 +49,7 @@ Everything behind the scenes.
 - Renderer + editor shared the SAME card components (single story) — the main consistency win is in place.
 - `public/css/tokens.css` centralizes design tokens with scales (spacing, radius, typography, shadows) and a styleguide.
 - Server renders public pages server-side; renderer enhances/maintains experience.
-- 9 tests pass (create/edit/save/share).
+- 13 tests pass (create/edit/save/share + intelligence determinística).
 
 ### Problems
 1. **Competing token declarations**: `dashboard.html`, `editor.html`, `legal.html`, `mapa` each re-declare `:root` tokens (some as `--vynk-bg`, others `--vynk-background`, `--vynk-facebook` / `--vynk-fb`). Multiple sources of truth.
@@ -79,8 +79,8 @@ Everything behind the scenes.
 3. Editor — consume system, remove local overrides.
 4. Dashboard — consume system, remove local `:root`.
 5. Share experience + QR + vCard.
-6. Intelligence (Auto Design, Brand, Insights, Copilot).
-7. Auth (real SSO + linking).
+6. Intelligence (Auto Design, Brand, Insights, Copilot) — ✅ determinística v1 (capa LLM-ready en `services/ai/`).
+7. Auth (real SSO + linking) — ⏳ pendiente.
 8. QA.
 
 ## Data contract (profile object)
