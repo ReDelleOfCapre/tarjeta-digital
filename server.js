@@ -24,6 +24,23 @@ const workspacesRoutes = require('./routes/workspaces');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const UPLOAD_DIR = process.env.UPLOAD_DIR || './uploads';
+const STARTED_AT = Date.now();
+
+// =============================================
+// Guards de proceso — estabilidad preventiva
+// =============================================
+process.on('unhandledRejection', (reason) => {
+  console.error('⚠️ Promesa no manejada (el proceso continúa):', reason);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('⚠️ Excepción no capturada (el proceso continúa):', err);
+});
+
+process.on('warning', (warning) => {
+  if (warning && warning.name === 'MaxListenersExceededWarning') return;
+  console.warn('⚠️ Warning:', warning && warning.message || warning);
+});
 
 // =============================================
 // Middlewares globales
@@ -272,6 +289,30 @@ const viewsDir = path.join(process.cwd(), 'views');
 if (!fs.existsSync(viewsDir)) {
   fs.mkdirSync(viewsDir, { recursive: true });
 }
+
+// =============================================
+// Health check — estado de la API
+// =============================================
+
+const { version } = require('./package.json');
+
+app.get('/api/health', async (req, res) => {
+  const base = {
+    ok: true,
+    service: 'vynk',
+    uptime: Math.round((Date.now() - STARTED_AT) / 1000),
+    timestamp: new Date().toISOString(),
+    version: version
+  };
+  try {
+    const db = await dbReady;
+    await db.prepare('SELECT 1 AS ok').get();
+    res.json({ ...base, db: 'connected' });
+  } catch (err) {
+    console.error('❌ Health check: DB no disponible:', err.message);
+    res.status(503).json({ ...base, ok: false, db: 'error', error: err.message });
+  }
+});
 
 // =============================================
 // Manejador de errores global

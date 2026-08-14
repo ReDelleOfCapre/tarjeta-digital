@@ -91,7 +91,7 @@ router.put('/bloques/:id', auth, requireQuota, async (req, res) => {
       contentToSave = bloque.contenido;
     }
 
-    const visibleToSave = visible !== undefined ? visible : bloque.visible;
+    const visibleToSave = visible !== undefined ? (visible ? 1 : 0) : bloque.visible;
     const ordenToSave = orden !== undefined ? orden : bloque.orden;
 
     await db.prepare(
@@ -106,8 +106,35 @@ router.put('/bloques/:id', auth, requireQuota, async (req, res) => {
   }
 });
 
-router.delete('/bloques/:id', auth, requireQuota, async (req, res) => {
+router.post('/bloques/:id/duplicar', auth, requireQuota, async (req, res) => {
   try {
+    const bloqueId = parseInt(req.params.id, 10);
+    const bloque = await db.prepare(`
+      SELECT b.*, p.usuario_id
+      FROM bloques b
+      JOIN perfiles p ON b.perfil_id = p.id
+      WHERE b.id = ?
+    `).get(bloqueId);
+
+    if (!bloque) return res.status(404).json({ error: 'Bloque no encontrado.' });
+    if (bloque.usuario_id !== req.user.id) return res.status(403).json({ error: 'Acceso denegado.' });
+
+    const maxRow = await db.prepare('SELECT MAX(orden) as max FROM bloques WHERE perfil_id = ?').get(bloque.perfil_id);
+    const maxOrden = (maxRow && maxRow.max) ? maxRow.max : 0;
+
+    const result = await db.prepare(
+      'INSERT INTO bloques (perfil_id, tipo, contenido, visible, orden) VALUES (?, ?, ?, ?, ?)'
+    ).run(bloque.perfil_id, bloque.tipo, bloque.contenido, bloque.visible, maxOrden + 1);
+
+    const newBloque = await db.prepare('SELECT * FROM bloques WHERE id = ?').get(result.lastInsertRowid);
+    res.status(201).json(newBloque);
+  } catch (err) {
+    console.error('Error duplicando bloque:', err);
+    res.status(500).json({ error: 'Error al duplicar bloque' });
+  }
+});
+
+router.delete('/bloques/:id', auth, requireQuota, async (req, res) => {  try {
     const bloqueId = parseInt(req.params.id, 10);
     const bloque = await db.prepare(`
       SELECT b.id, p.usuario_id

@@ -823,7 +823,8 @@
         _tempId: "tmp_" + Date.now(),
         tipo: tipo,
         contenido: content,
-        orden: blocks.length
+        orden: blocks.length,
+        visible: true
       });
       showToast("Bloque agregado", "success");
     }
@@ -1144,7 +1145,8 @@
           var body = JSON.stringify({
             tipo: block.tipo,
             contenido: block.contenido,
-            orden: index
+            orden: index,
+            visible: block.visible === false ? 0 : 1
           });
 
           if (block.id) {
@@ -1239,7 +1241,8 @@
             id: block.id,
             tipo: block.tipo,
             contenido: typeof block.contenido === "string" ? JSON.parse(block.contenido) : (block.contenido || {}),
-            orden: block.orden
+            orden: block.orden,
+            visible: block.visible !== false && block.visible !== "false" && Number(block.visible) !== 0
           };
         }).sort(function (a, b) {
           return (a.orden || 0) - (b.orden || 0);

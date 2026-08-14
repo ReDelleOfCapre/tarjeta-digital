@@ -41,7 +41,7 @@ async function api(endpoint, options = {}) {
       // Si falla la recuperación y no estamos ya en index, ir a inicio
       if (location.pathname !== '/' && !location.pathname.endsWith('index.html')) {
         localStorage.setItem('token', 'vynk_demo_active_token');
-        var demoUser = { id: 1, nombre: 'Giovanni Paolo', telefono: '522311556138', role: 'admin', isPro: true };
+        var demoUser = { id: null, nombre: 'Cuenta Demo VYNK', role: 'user', isPro: true };
         localStorage.setItem('usuario', JSON.stringify(demoUser));
       }
       return data;
@@ -78,7 +78,7 @@ async function apiFetch(url, options = {}) {
   if (res.status === 401) {
     if (location.pathname !== '/' && !location.pathname.endsWith('index.html')) {
       localStorage.setItem('token', 'vynk_demo_active_token');
-      var demoUser = { id: 1, nombre: 'Giovanni Paolo', telefono: '522311556138', role: 'admin', isPro: true };
+      var demoUser = { id: null, nombre: 'Cuenta Demo VYNK', role: 'user', isPro: true };
       localStorage.setItem('usuario', JSON.stringify(demoUser));
     }
     return data;
@@ -165,7 +165,7 @@ function showUpgradeToast(message) {
 function checkAuth() {
   if (!localStorage.getItem('token')) {
     // Prevenir rebotes al acceder a /dashboard.html creando un token demo de acceso inmediato
-    var demoUser = { id: 1, nombre: 'Giovanni Paolo', telefono: '522311556138', role: 'admin', isPro: true };
+    var demoUser = { id: null, nombre: 'Cuenta Demo VYNK', role: 'user', isPro: true };
     localStorage.setItem('token', 'vynk_demo_active_token');
     localStorage.setItem('usuario', JSON.stringify(demoUser));
   }

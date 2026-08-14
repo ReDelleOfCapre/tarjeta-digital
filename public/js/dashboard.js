@@ -258,6 +258,29 @@ window.executeCreatePerfil = async function(e) {
     });
   }
 
+  // Guided Onboarding Tour (Non-intrusive, User-initiated)
+  window.startGuidedTour = function() {
+    if (typeof driver === 'undefined' || typeof driver.driver !== 'function') {
+      if (typeof showToast === 'function') showToast('La guía interactiva se está cargando...', 'info');
+      return;
+    }
+    var driverObj = driver.driver({
+      showProgress: true,
+      animate: true,
+      allowClose: true,
+      doneBtnText: '¡Comprendido!',
+      nextBtnText: 'Siguiente →',
+      prevBtnText: '← Anterior',
+      steps: [
+        { element: '#profile-grid', popover: { title: '📇 Tu Galería de Identidades', description: 'Aquí residen todas tus tarjetas digitales VYNK. Toca cualquier tarjeta para editar sus bloques y colores.', side: 'bottom', align: 'start' } },
+        { element: '#fab-new', popover: { title: '✨ Crear Nueva Tarjeta', description: 'Genera identidades digitales para uso personal o para tu negocio en segundos.', side: 'left', align: 'center' } },
+        { element: '#nav-item-tienda', popover: { title: '📱 Tienda NFC & Tarjetas Físicas', description: 'Vincula tus tarjetas virtuales a llaveros y tarjetas físicas NFC en 1 clic.', side: 'bottom', align: 'center' } },
+        { element: '#btn-plan', popover: { title: '⚡ Centro de Control Pro', description: 'Accede a analíticas de métricas en tiempo real, descargas de vCard y características avanzadas.', side: 'bottom', align: 'end' } }
+      ]
+    });
+    driverObj.drive();
+  };
+
   // Show admin button if admin
   if (user.role === 'admin') {
     document.getElementById('btn-admin').classList.remove('hidden');

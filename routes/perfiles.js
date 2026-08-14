@@ -294,14 +294,19 @@ router.delete('/:id', auth, requireQuota, async (req, res) => {
 router.get('/:slug/qr', async (req, res) => {
   try {
     const { slug } = req.params;
-    const perfil = await db.prepare('SELECT id FROM perfiles WHERE slug = ?').get(slug);
+    const perfil = await db.prepare('SELECT color, tema FROM perfiles WHERE slug = ? OR id = ?').get(slug, isNaN(slug) ? -1 : parseInt(slug));
 
-    if (!perfil) {
-      return res.status(404).json({ error: 'Perfil no encontrado.' });
-    }
+    const host = req.get('host') || 'vynk.app';
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'https';
+    const targetUrl = `${protocol}://${host}/p/${slug}`;
 
-    const url = `${BASE_URL}/u/${slug}`;
-    const qrBuffer = await generateQR(url);
+    const darkColor = (perfil && perfil.color && perfil.color.startsWith('#')) ? perfil.color : '#000000';
+
+    const qrBuffer = await generateQR(targetUrl, {
+      darkColor: darkColor,
+      lightColor: '#FFFFFF',
+      width: 400
+    });
 
     res.set('Content-Type', 'image/png');
     res.set('Cache-Control', 'public, max-age=86400');
@@ -1300,6 +1305,40 @@ router.get('/:id/citas', auth, async (req, res) => {
   } catch (err) {
     console.error('Error obteniendo citas:', err);
     res.status(500).json({ error: 'Error obteniendo citas' });
+  }
+});
+
+// GET /api/perfiles/:identifier/qr
+// Genera e inyecta dinámicamente la imagen PNG del código QR de la tarjeta
+router.get('/:identifier/qr', async (req, res) => {
+  try {
+    const identifier = req.params.identifier;
+    const db = await dbReady;
+
+    let perfil;
+    if (/^\d+$/.test(identifier)) {
+      perfil = await db.prepare("SELECT slug, nombre_perfil FROM perfiles WHERE id = ?").get(parseInt(identifier));
+    } else {
+      perfil = await db.prepare("SELECT slug, nombre_perfil FROM perfiles WHERE slug = ?").get(identifier);
+    }
+
+    const slug = perfil ? perfil.slug : identifier;
+    const host = req.get('host') || 'vynk.app';
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'https';
+    const profileUrl = `${protocol}://${host}/p/${slug}`;
+
+    const qrPngBuffer = await generateQR(profileUrl, {
+      darkColor: '#000000',
+      lightColor: '#FFFFFF',
+      width: 400
+    });
+
+    res.setHeader('Content-Type', 'image/png');
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    res.send(qrPngBuffer);
+  } catch (err) {
+    console.error('Error generando QR:', err);
+    res.status(500).send('Error generando código QR');
   }
 });
 
