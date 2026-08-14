@@ -222,6 +222,36 @@ app.post('/api/metadata', async (req, res) => {
   }
 });
 
+// POST /api/metadata/analyze-connections — Lector y Analizador Inteligente de Conexiones & Enlaces en Lote
+app.post('/api/metadata/analyze-connections', async (req, res) => {
+  try {
+    const { urls } = req.body || {};
+    if (!urls || !Array.isArray(urls)) {
+      return res.status(400).json({ error: 'Se requiere un arreglo de URLs para analizar' });
+    }
+
+    const cleanUrls = urls.filter(u => typeof u === 'string' && u.trim().length > 0).slice(0, 20);
+    const resultados = await Promise.all(
+      cleanUrls.map(async (u) => {
+        const meta = await fetchUrlMetadata(u);
+        return {
+          url: u,
+          ...meta
+        };
+      })
+    );
+
+    res.json({
+      ok: true,
+      total_analizadas: resultados.length,
+      conexiones: resultados
+    });
+  } catch (err) {
+    console.error('Error analizando lote de conexiones:', err);
+    res.status(500).json({ error: 'Error al procesar lote de metadatos' });
+  }
+});
+
 // =============================================
 // Motor Transaccional B2B & Growth Loop Invitaciones
 // =============================================
