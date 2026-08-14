@@ -66,47 +66,48 @@
 
     .smartphone-frame {
       width: 320px; max-width: 100%; height: 630px; border-radius: 38px;
-      border: 9px solid #100F13; background: #17151B; color: #F8F4EF;
+      border: 9px solid #100F13; background: var(--bg-primary, #17151B); color: #F8F4EF;
       overflow-y: auto; position: relative; scrollbar-width: none;
       box-shadow: 0 30px 70px -24px rgba(0, 0, 0, 0.85);
-      padding: 20px 16px; box-sizing: border-box;
+      padding: 0; box-sizing: border-box;
     }
     .smartphone-frame::-webkit-scrollbar { display: none; }
     .phone-statusbar {
       display: flex; justify-content: space-between; align-items: center;
-      font-size: 0.7rem; color: var(--phone-muted, rgba(248, 244, 239, 0.6));
-      padding: 2px 6px 10px; font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem; color: var(--text-tertiary, rgba(248, 244, 239, 0.6));
+      padding: 16px 20px 4px; font-family: 'JetBrains Mono', monospace;
+      position: sticky; top: 0; z-index: 5;
     }
-    .prev-avatar,
-    .prev-avatar img,
-    .prev-avatar-initials,
-    .prev-name,
-    .prev-type,
-    .prev-bio,
-    .prev-blocks,
-    .preview-empty,
-    .preview-cta,
-    .preview-cta small,
-    .preview-card,
-    .preview-card h3,
-    .preview-card p,
-    .preview-row,
-    .preview-icon,
-    .preview-row-copy,
-    .preview-row-copy strong,
-    .preview-row-copy span,
-    .preview-location-shell,
-    .location-map,
-    .location-map-grid,
-    .location-pin,
-    .location-ticket,
-    .location-ticket strong,
-    .location-ticket p,
-    .location-meta-row,
-    .location-pill,
-    .location-list,
-    .location-list-item,
-    .location-list-item span { display: none !important; }
+    .smartphone-frame .prev-avatar,
+    .smartphone-frame .prev-avatar img,
+    .smartphone-frame .prev-avatar-initials,
+    .smartphone-frame .prev-name,
+    .smartphone-frame .prev-type,
+    .smartphone-frame .prev-bio,
+    .smartphone-frame .prev-blocks,
+    .smartphone-frame .preview-empty,
+    .smartphone-frame .preview-cta,
+    .smartphone-frame .preview-cta small,
+    .smartphone-frame .preview-card,
+    .smartphone-frame .preview-card h3,
+    .smartphone-frame .preview-card p,
+    .smartphone-frame .preview-row,
+    .smartphone-frame .preview-icon,
+    .smartphone-frame .preview-row-copy,
+    .smartphone-frame .preview-row-copy strong,
+    .smartphone-frame .preview-row-copy span,
+    .smartphone-frame .preview-location-shell,
+    .smartphone-frame .location-map,
+    .smartphone-frame .location-map-grid,
+    .smartphone-frame .location-pin,
+    .smartphone-frame .location-ticket,
+    .smartphone-frame .location-ticket strong,
+    .smartphone-frame .location-ticket p,
+    .smartphone-frame .location-meta-row,
+    .smartphone-frame .location-pill,
+    .smartphone-frame .location-list,
+    .smartphone-frame .location-list-item,
+    .smartphone-frame .location-list-item span { display: none !important; }
 
     .vynk-preview-canvas {
       display: flex; flex-direction: column; gap: 18px;

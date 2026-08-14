@@ -210,7 +210,7 @@
         selectedTheme = node.getAttribute("data-theme-id") || "auto";
         if (selectedTheme === "auto") {
           manualColorChosen = false;
-          var currentImg = (document.getElementById("prev-avatar-box") || {}).querySelector && document.getElementById("prev-avatar-box").querySelector("img");
+          var currentImg = (document.getElementById("photo-preview") || {}).querySelector && document.getElementById("photo-preview").querySelector("img");
           if (currentImg && currentImg.complete) {
             var reExtract = new Image();
             reExtract.onload = function () { extractDominantColorFromImage(reExtract); };
@@ -278,13 +278,12 @@
       reader.onload = function (loadEvent) {
         var src = loadEvent.target.result;
         var photoPreview = document.getElementById("photo-preview");
-        var avatarBox = document.getElementById("prev-avatar-box");
         if (photoPreview) photoPreview.innerHTML = '<img src="' + src + '" alt="preview">';
-        if (avatarBox) avatarBox.innerHTML = '<img src="' + src + '" alt="avatar">';
 
         var img = new Image();
         img.onload = function () {
           extractDominantColorFromImage(img);
+          updateLivePreview();
         };
         img.src = src;
       };
@@ -1167,9 +1166,7 @@
 
         if (profile.foto_url) {
           var photoPreview = document.getElementById("photo-preview");
-          var avatarBox = document.getElementById("prev-avatar-box");
           if (photoPreview) photoPreview.innerHTML = '<img src="' + profile.foto_url + '" alt="foto">';
-          if (avatarBox) avatarBox.innerHTML = '<img src="' + profile.foto_url + '" alt="avatar">';
         }
 
         renderThemePicker();
@@ -1244,15 +1241,7 @@
     return content.subtitulo || content.url || content.texto || "";
   }
 
-  function fallbackMeta(block, content) {
-    if (block.tipo === "pdf") return "Documento listo para descargar";
-    if (block.tipo === "spotify") return "Reproductor embebido";
-    if (block.tipo === "youtube" || block.tipo === "tiktok") return "Contenido multimedia";
-    return content.subtitulo || "Bloque activo";
-  }
-
-  function blockColor(tipo) {
-    var block = BLOCK_TYPES.find(function (item) { return item.tipo === tipo; });
+  function blockColor(tipo) {    var block = BLOCK_TYPES.find(function (item) { return item.tipo === tipo; });
     return block ? block.color : "#8C8A95";
   }
 
@@ -1288,26 +1277,10 @@
     if (el) el.textContent = value;
   }
 
-  function getInitials(name) {
-    return String(name || "")
-      .trim()
-      .split(/\s+/)
-      .slice(0, 2)
-      .map(function (part) { return part.charAt(0); })
-      .join("")
-      .toUpperCase() || "V";
-  }
-
   function normalizeOrder() {
     blocks.forEach(function (block, index) {
       block.orden = index;
     });
-  }
-
-  function trimPreview(value, size) {
-    var text = String(value || "");
-    if (text.length <= size) return text;
-    return text.slice(0, size - 1) + "…";
   }
 
   function readableText(hex) {
