@@ -356,8 +356,45 @@
     if (previewScheme === "light") theme = lightVariant(theme);
     else if (previewScheme === "dark") theme = darkVariant(theme);
     applyTheme(theme);
-    renderIdentity(theme);
-    renderPreviewBlocks(theme);
+    renderLivePreview(theme, accent);
+  }
+
+  // ============================================================
+  // Identity Studio · vista previa en vivo
+  // Renderiza con el MISMO renderer/componentes que la página
+  // pública (vynk-renderer.js + vynk-cards.css). Cero duplicación.
+  // ============================================================
+  function renderLivePreview(theme, accent) {
+    var canvas = document.getElementById("vynk-preview");
+    if (!canvas || typeof window.renderVynkProfile !== "function") return;
+
+    var avatarSrc = "";
+    var photoEl = document.getElementById("photo-preview");
+    if (photoEl) {
+      var imgEl = photoEl.querySelector("img");
+      if (imgEl) avatarSrc = imgEl.getAttribute("src") || "";
+    }
+
+    var data = {
+      nombre: gv("nombre_perfil") || "Tu nombre",
+      bio: gv("bio_perfil") || "Tu narrativa principal aparecerá aquí con el nuevo sistema visual.",
+      tipo: gv("tipo_perfil") || "personal",
+      pronombres: gv("pronombres"),
+      lugar_estudio: gv("lugar_estudio"),
+      cumpleanos: gv("cumpleanos"),
+      hora_apertura: gv("hora_apertura") || "09:00",
+      hora_cierre: gv("hora_cierre") || "20:00",
+      marco: gv("marco_estilo") || "gradient",
+      color: accent,
+      foto_url: avatarSrc,
+      blocks: blocks
+        .filter(function (b) { return b.visible !== false; })
+        .map(function (b) {
+          return { type: b.tipo, content: b.contenido || {} };
+        })
+    };
+
+    window.renderVynkProfile(data, canvas, { accent: accent });
   }
 
   function lightVariant(theme) {
@@ -384,160 +421,6 @@
       secondary: mixHex(theme.primary, "#FFD59B", 0.5),
       onPrimary: readableText(theme.primary)
     };
-  }
-
-  function renderIdentity(theme) {
-    var name = gv("nombre_perfil") || "Tu nombre";
-    var type = gv("tipo_perfil") || "personal";
-    var bio = gv("bio_perfil") || "Tu narrativa principal aparecera aqui con el nuevo sistema visual.";
-    var marcoEstilo = gv("marco_estilo") || "gradient";
-
-    setText("prev-name", name);
-    setText("prev-type", type);
-    setText("prev-bio", bio);
-
-    var initialsEl = document.getElementById("prev-avatar-initials");
-    if (initialsEl) initialsEl.textContent = getInitials(name);
-
-    var avatarBox = document.getElementById("prev-avatar-box");
-    if (avatarBox) {
-      if (marcoEstilo === "none") {
-        avatarBox.style.background = "rgba(255,255,255,0.08)";
-        avatarBox.style.boxShadow = "none";
-      } else if (marcoEstilo === "solid") {
-        avatarBox.style.background = theme.surface;
-        avatarBox.style.boxShadow = "inset 0 0 0 3px " + theme.primary;
-      } else {
-        avatarBox.style.background = "linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.03))";
-        avatarBox.style.boxShadow = "inset 0 0 0 1px rgba(255,255,255,0.06)";
-      }
-    }
-  }
-
-  function renderPreviewBlocks(theme) {
-    var container = document.getElementById("prev-blocks");
-    if (!container) return;
-
-    if (!blocks.length) {
-      container.innerHTML = '<div class="preview-empty">Tus bloques apareceran aqui en cuanto los agregues.</div>';
-      return;
-    }
-
-    var visibleBlocks = blocks.filter(function (block) { return block.visible !== false; });
-    var locationBlocks = visibleBlocks.filter(function (block) { return block.tipo === "ubicacion"; });
-    var otherBlocks = visibleBlocks.filter(function (block) { return block.tipo !== "ubicacion"; });
-    var parts = [];
-
-    if (otherBlocks.length) {
-      var first = otherBlocks[0];
-      parts.push(renderPrimaryPreview(first));
-      otherBlocks.slice(1).forEach(function (block) {
-        parts.push(renderSecondaryPreview(block));
-      });
-    }
-
-    if (locationBlocks.length) {
-      parts.push(renderLocationCluster(locationBlocks));
-    }
-
-    container.innerHTML = parts.join("");
-  }
-
-  function renderPrimaryPreview(block) {
-    var icon = blockIcon(block.tipo);
-    var content = block.contenido || {};
-    var title = previewTitle(block);
-    var meta = previewMeta(block);
-
-    return (
-      '<div class="preview-cta">' +
-        "<span>" + icon + " " + escapeHtml(title) + "</span>" +
-        '<small style="opacity:0.78">' + escapeHtml(meta || "Listo") + "</small>" +
-      "</div>"
-    );
-  }
-
-  function renderSecondaryPreview(block) {
-    var content = block.contenido || {};
-    var title = previewTitle(block);
-    var meta = previewMeta(block);
-
-    if (block.tipo === "texto" || block.tipo === "nota" || block.tipo === "seccion") {
-      return (
-        '<div class="preview-card">' +
-          "<h3>" + escapeHtml(title) + "</h3>" +
-          "<p>" + escapeHtml(meta || "Contenido libre") + "</p>" +
-        "</div>"
-      );
-    }
-
-    if (block.tipo === "whatsapp") {
-      return (
-        '<div class="preview-row" style="border-left: 3px solid #25D366; background: rgba(37, 211, 102, 0.08);">' +
-          '<div class="preview-icon" style="background:#25D366;color:#fff;border-radius:10px;display:grid;place-items:center;width:34px;height:34px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1.1em;height:1.1em"><path d="M21 12a8 8 0 0 1-8 8H4l3-3a8 8 0 1 1 14-5z"/></svg></div>' +
-          '<div class="preview-row-copy">' +
-            '<strong style="color:var(--phone-text)">' + escapeHtml(title || "WhatsApp Directo") + "</strong>" +
-            '<span style="color:#25D366;font-size:0.75rem">Responde rápido</span>' +
-          "</div>" +
-        "</div>"
-      );
-    }
-
-    return (
-      '<div class="preview-row">' +
-        '<div class="preview-icon">' + blockIcon(block.tipo) + "</div>" +
-        '<div class="preview-row-copy">' +
-          "<strong>" + escapeHtml(title) + "</strong>" +
-          "<span>" + escapeHtml(meta || fallbackMeta(block, content)) + "</span>" +
-        "</div>" +
-      "</div>"
-    );
-  }
-
-  function renderLocationCluster(locationBlocks) {
-    var lead = locationBlocks[0];
-    var leadContent = lead.contenido || {};
-    var pins = locationBlocks.slice(0, 4).map(function (block, index) {
-      var coords = [
-        { top: "64%", left: "24%" },
-        { top: "36%", left: "58%" },
-        { top: "70%", left: "76%" },
-        { top: "26%", left: "82%" }
-      ][index] || { top: "50%", left: "50%" };
-      return (
-        '<div class="location-pin" style="top:' + coords.top + ";left:" + coords.left + '"></div>'
-      );
-    }).join("");
-
-    var list = locationBlocks.map(function (block, index) {
-      var content = block.contenido || {};
-      var label = content.titulo || "Sucursal " + (index + 1);
-      var hint = content.horario || content.direccion || "Ubicacion disponible";
-      return (
-        '<div class="location-list-item">' +
-          "<span>" + escapeHtml(label) + "</span>" +
-          '<small style="color:var(--phone-muted)">' + escapeHtml(trimPreview(hint, 30)) + "</small>" +
-        "</div>"
-      );
-    }).join("");
-
-    return (
-      '<div class="preview-location-shell">' +
-        '<div class="location-map">' +
-          '<div class="location-map-grid"></div>' +
-          pins +
-        "</div>" +
-        '<div class="location-ticket">' +
-          "<strong>" + escapeHtml(leadContent.titulo || "Ubicaciones") + "</strong>" +
-          "<p>" + escapeHtml(leadContent.direccion || "Selecciona la sede mas cercana desde tu tarjeta.") + "</p>" +
-          '<div class="location-meta-row">' +
-            '<span class="location-pill">' + escapeHtml(locationBlocks.length + " sedes activas") + "</span>" +
-            (leadContent.horario ? '<span class="location-pill">' + escapeHtml(leadContent.horario) + "</span>" : "") +
-          "</div>" +
-          '<div class="location-list">' + list + "</div>" +
-        "</div>" +
-      "</div>"
-    );
   }
 
   function buildTheme(themeId, accent) {
@@ -708,6 +591,38 @@
     frame.style.setProperty("--phone-text", theme.text);
     frame.style.setProperty("--phone-muted", theme.muted);
     frame.style.setProperty("--phone-on-primary", theme.onPrimary);
+
+    // Tokens de vynk-cards.css (mismo derivado que buildThemeCss del server).
+    var rgb = hexToRgb(theme.primary);
+    var isLight = luminance(String(theme.background).replace("#", "")) > 0.5;
+    var glow = "rgba(" + rgb.r + "," + rgb.g + "," + rgb.b + "," + (isLight ? 0.12 : 0.22) + ")";
+    var border = isLight ? "rgba(43,36,29,0.14)" : "rgba(255,255,255,0.12)";
+    var chipBg = "rgba(" + rgb.r + "," + rgb.g + "," + rgb.b + "," + (isLight ? 0.12 : 0.16) + ")";
+    var textTertiary = isLight
+      ? mixHex(String(theme.text).replace("#", ""), "#FFFFFF", 0.55)
+      : "rgba(255,255,255,0.55)";
+    var tagColor = isLight ? mixHex(theme.primary, String(theme.text).replace("#", ""), 0.25) : theme.secondary;
+
+    var tokens = {
+      "--primary": theme.primary,
+      "--accent": theme.primary,
+      "--accent-soft": tagColor,
+      "--accent-glow": glow,
+      "--bg-primary": theme.background,
+      "--bg-surface": theme.surface,
+      "--bg-card": theme.card,
+      "--bg-tertiary": theme.surface,
+      "--text-primary": theme.text,
+      "--text-secondary": theme.muted,
+      "--text-tertiary": textTertiary,
+      "--card-border": border,
+      "--separator": border,
+      "--chip-bg": chipBg
+    };
+    Object.keys(tokens).forEach(function (key) {
+      frame.style.setProperty(key, tokens[key]);
+    });
+
     frame.style.background = theme.background;
     frame.style.color = theme.text;
     frame.style.boxShadow = "0 26px 54px -28px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.04)";
@@ -1399,6 +1314,14 @@
     var rgb = hexToRgb(hex);
     var luminance = (0.2126 * rgb.r + 0.7152 * rgb.g + 0.0722 * rgb.b) / 255;
     return luminance > 0.62 ? "#17151B" : "#FFF8F0";
+  }
+
+  function luminance(hex) {
+    var raw = String(hex || "").replace("#", "").toUpperCase();
+    var r = parseInt(raw.slice(0, 2), 16) / 255;
+    var g = parseInt(raw.slice(2, 4), 16) / 255;
+    var b = parseInt(raw.slice(4, 6), 16) / 255;
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
   }
 
   function hexToRgb(hex) {

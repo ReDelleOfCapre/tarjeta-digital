@@ -13,6 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/vynk-cards.css">
   <style>
     :root {
       --editor-bg: var(--bg-base);
@@ -76,90 +77,42 @@
       font-size: 0.7rem; color: var(--phone-muted, rgba(248, 244, 239, 0.6));
       padding: 2px 6px 10px; font-family: 'JetBrains Mono', monospace;
     }
-    .prev-avatar {
-      width: 78px; height: 78px; border-radius: 50%; margin: 4px auto 14px;
-      display: flex; align-items: center; justify-content: center;
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.03));
-      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
-      overflow: hidden;
-    }
-    .prev-avatar img { width: 100%; height: 100%; object-fit: cover; }
-    .prev-avatar-initials {
-      font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1.7rem;
-      color: var(--phone-on-primary, #FFF8F0);
-    }
-    .prev-name { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1.25rem; text-align: center; }
-    .prev-type {
-      text-align: center; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em;
-      color: var(--phone-primary, #FFD59B); margin-top: 4px; font-family: 'JetBrains Mono', monospace;
-    }
-    .prev-bio { text-align: center; font-size: 0.82rem; color: var(--phone-muted, rgba(248, 244, 239, 0.66)); margin: 10px 0 16px; line-height: 1.5; }
-    .prev-blocks { display: flex; flex-direction: column; gap: 10px; }
-    .preview-empty {
-      border: 1.5px dashed rgba(255, 255, 255, 0.12); border-radius: 18px;
-      padding: 26px 18px; text-align: center; font-size: 0.82rem;
-      color: var(--phone-muted, rgba(248, 244, 239, 0.55));
-    }
-    .preview-cta {
-      display: flex; flex-direction: column; gap: 3px; padding: 14px 16px;
-      border-radius: 16px; background: var(--phone-surface, rgba(255, 255, 255, 0.08));
-      color: var(--phone-text, #F8F4EF); font-size: 0.9rem; font-weight: 600;
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
-      border: 1px solid var(--phone-primary, rgba(255, 255, 255, 0.14));
-    }
-    .preview-cta small { font-size: 0.75rem; color: var(--phone-muted, rgba(248, 244, 239, 0.66)); font-weight: 500; }
-    .preview-card {
-      background: var(--phone-card, rgba(255, 255, 255, 0.06)); border-radius: 16px; padding: 14px 16px;
-      border: 1px solid var(--phone-card, rgba(255, 255, 255, 0.08));
-    }
-    .preview-card h3 { font-size: 0.92rem; margin: 0 0 4px; color: var(--phone-text, #F8F4EF); }
-    .preview-card p { font-size: 0.78rem; margin: 0; color: var(--phone-muted, rgba(248, 244, 239, 0.66)); }
-    .preview-row {
-      display: flex; align-items: center; gap: 12px; padding: 12px 14px;
-      background: var(--phone-surface, rgba(255, 255, 255, 0.08)); border-radius: 16px;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-    }
-    .preview-icon {
-      width: 40px; height: 40px; border-radius: 14px; display: grid; place-items: center;
-      background: var(--phone-primary, #FFD59B); color: var(--phone-on-primary, #17151B); font-size: 1.05rem; flex-shrink: 0;
-    }
-    .preview-row-copy { display: flex; flex-direction: column; min-width: 0; flex: 1; }
-    .preview-row-copy strong { font-size: 0.86rem; color: var(--phone-text, #F8F4EF); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .preview-row-copy span { font-size: 0.74rem; color: var(--phone-muted, rgba(248, 244, 239, 0.66)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .prev-avatar,
+    .prev-avatar img,
+    .prev-avatar-initials,
+    .prev-name,
+    .prev-type,
+    .prev-bio,
+    .prev-blocks,
+    .preview-empty,
+    .preview-cta,
+    .preview-cta small,
+    .preview-card,
+    .preview-card h3,
+    .preview-card p,
+    .preview-row,
+    .preview-icon,
+    .preview-row-copy,
+    .preview-row-copy strong,
+    .preview-row-copy span,
+    .preview-location-shell,
+    .location-map,
+    .location-map-grid,
+    .location-pin,
+    .location-ticket,
+    .location-ticket strong,
+    .location-ticket p,
+    .location-meta-row,
+    .location-pill,
+    .location-list,
+    .location-list-item,
+    .location-list-item span { display: none !important; }
 
-    .preview-location-shell { display: flex; flex-direction: column; gap: 10px; }
-    .location-map {
-      height: 110px; border-radius: 18px; position: relative; overflow: hidden;
-      background: linear-gradient(135deg, var(--phone-surface, rgba(255, 255, 255, 0.1)), var(--phone-card, rgba(255, 255, 255, 0.04)));
-      border: 1px solid rgba(255, 255, 255, 0.08);
+    .vynk-preview-canvas {
+      display: flex; flex-direction: column; gap: 18px;
+      padding-bottom: 8px; width: 100%; box-sizing: border-box;
     }
-    .location-map-grid {
-      position: absolute; inset: 0;
-      background-image: linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px);
-      background-size: 22px 22px;
-    }
-    .location-pin {
-      position: absolute; width: 12px; height: 12px; border-radius: 50%;
-      background: var(--phone-primary, #FFD59B); box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.12);
-      transform: translate(-50%, -50%);
-    }
-    .location-ticket {
-      background: var(--phone-surface, rgba(255, 255, 255, 0.08)); border-radius: 18px; padding: 14px 16px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-    .location-ticket strong { font-size: 0.92rem; color: var(--phone-text, #F8F4EF); }
-    .location-ticket p { font-size: 0.76rem; color: var(--phone-muted, rgba(248, 244, 239, 0.66)); margin: 4px 0 10px; line-height: 1.45; }
-    .location-meta-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
-    .location-pill {
-      font-size: 0.68rem; padding: 4px 10px; border-radius: 100px;
-      background: var(--phone-card, rgba(255, 255, 255, 0.08)); color: var(--phone-text, #F8F4EF);
-    }
-    .location-list { display: flex; flex-direction: column; gap: 6px; }
-    .location-list-item {
-      display: flex; flex-direction: column; gap: 2px; padding: 8px 10px;
-      border-radius: 12px; background: rgba(255, 255, 255, 0.05);
-    }
-    .location-list-item span { font-size: 0.8rem; color: var(--phone-text, #F8F4EF); font-weight: 600; }
+    .vynk-preview-canvas a { text-decoration: none; }
 
     .step-badge {
       display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.68rem;
@@ -646,11 +599,7 @@
       </div>
       <div id="smartphone-frame" class="smartphone-frame" data-theme="auto" data-scheme="auto" data-device="iphone">
         <div class="phone-statusbar"><span>9:41</span><span>▮▮▮</span></div>
-        <div id="prev-avatar-box" class="prev-avatar"><span id="prev-avatar-initials" class="prev-avatar-initials">V</span></div>
-        <div id="prev-name" class="prev-name">Tu nombre</div>
-        <div id="prev-type" class="prev-type">personal</div>
-        <div id="prev-bio" class="prev-bio">Tu narrativa principal aparecerá aquí con el nuevo sistema visual.</div>
-        <div id="prev-blocks" class="prev-blocks"></div>
+        <div id="vynk-preview" class="vynk-preview-canvas"></div>
         <div class="preview-footer-save">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16v12H4z"/><path d="M4 8h16M7 12h6M7 15h4"/></svg>
           Guardar contacto · VYNK
@@ -663,6 +612,7 @@
 
   <script src="js/app.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
+  <script src="js/vynk-renderer.js"></script>
   <script src="js/block-editor.js"></script>
 </body>
 </html>
