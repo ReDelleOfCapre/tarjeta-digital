@@ -10,6 +10,7 @@ const { generateUniqueSlug } = require('../utils/slug');
 const { generateQR } = require('../utils/qr');
 const { generateVCard } = require('../utils/vcard');
 const { renderMapaUbicaciones } = require('../utils/mapaUbicaciones');
+const iconUtil = require('../utils/icons');
 const { buildThemeCss } = require('../utils/temas');
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
@@ -323,7 +324,12 @@ router.get('/:slug/qr', async (req, res) => {
 router.get('/:slug/vcard', async (req, res) => {
   try {
     const { slug } = req.params;
-    const perfil = await db.prepare('SELECT * FROM perfiles WHERE slug = ?').get(slug);
+    let perfil;
+    if (/^\d+$/.test(slug)) {
+      perfil = await db.prepare('SELECT * FROM perfiles WHERE id = ?').get(parseInt(slug, 10));
+    } else {
+      perfil = await db.prepare('SELECT * FROM perfiles WHERE LOWER(slug) = LOWER(?)').get(slug);
+    }
     if (!perfil) {
       return res.status(404).json({ error: 'Perfil no encontrado.' });
     }
@@ -334,7 +340,10 @@ router.get('/:slug/vcard', async (req, res) => {
 
     const vcardContent = generateVCard(perfil, campos, BASE_URL);
 
-    const filename = perfil.nombre_perfil.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]/g, '').trim() || 'contacto';
+    const filename = String(perfil.nombre_perfil || '')
+      .replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]/g, ' ')
+      .replace(/\s{2,}/g, ' ')
+      .trim() || 'contacto';
 
     res.set('Content-Type', 'text/vcard; charset=utf-8');
     res.set('Content-Disposition', `attachment; filename="${filename}.vcf"`);
@@ -429,13 +438,13 @@ async function perfilPublicoHandler(req, res) {
     }
 
     let bio_html = '';
-    if (perfil.bio) bio_html = `<p class="bio">${escapeHtml(perfil.bio)}</p>`;
+    if (perfil.bio) bio_html = `<p class="bio">${escClean(perfil.bio)}</p>`;
 
     let tags_parts = [];
-    if (perfil.tipo) tags_parts.push(escapeHtml(perfil.tipo));
-    if (perfil.pronombres) tags_parts.push(escapeHtml(perfil.pronombres));
-    if (perfil.lugar_estudio) tags_parts.push('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:0.9em;height:0.9em;vertical-align:-0.1em"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/></svg> ' + escapeHtml(perfil.lugar_estudio));
-    if (perfil.cumpleanos) tags_parts.push('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:0.9em;height:0.9em;vertical-align:-0.1em"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> ' + escapeHtml(perfil.cumpleanos));
+    if (perfil.tipo) tags_parts.push(escapeHtml(stripEmoji(perfil.tipo)));
+    if (perfil.pronombres) tags_parts.push(escapeHtml(stripEmoji(perfil.pronombres)));
+    if (perfil.lugar_estudio) tags_parts.push('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:0.9em;height:0.9em;vertical-align:-0.1em"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/></svg> ' + escapeHtml(stripEmoji(perfil.lugar_estudio)));
+    if (perfil.cumpleanos) tags_parts.push('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:0.9em;height:0.9em;vertical-align:-0.1em"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> ' + escapeHtml(stripEmoji(perfil.cumpleanos)));
     const tags_html = tags_parts.length > 0
       ? `<div class="tags">${tags_parts.map(t => `<span class="tag">${t}</span>`).join('')}</div>`
       : '';
@@ -519,6 +528,7 @@ async function perfilPublicoHandler(req, res) {
     for (const bloque of bloques) {
       let bContent = {};
       try { bContent = typeof bloque.contenido === 'string' ? JSON.parse(bloque.contenido) || {} : (bloque.contenido || {}); } catch (e) { bContent = {}; }
+      bContent = sanitizeStrings(bContent);
       const blockType = bloque.block_type || bloque.tipo || 'link';
       const urlStr = bContent?.url || '';
       const titStr = bContent?.titulo || '';
@@ -556,6 +566,7 @@ async function perfilPublicoHandler(req, res) {
           } else if (bloque.contenido && typeof bloque.contenido === 'object') {
             bContent = bloque.contenido;
           }
+          bContent = sanitizeStrings(bContent);
 
           const blockType = bloque.block_type || bloque.tipo || 'link';
           const urlStr = bContent?.url || '';
@@ -656,7 +667,7 @@ async function perfilPublicoHandler(req, res) {
               break;
             }
             case 'ubicaciones': {
-              const titulo = bContent?.titulo || '📍 Mapa & Sucursales';
+              const titulo = bContent?.titulo || 'Mapa & Sucursales';
               const subtitulo = bContent?.subtitulo || 'Ven a visitarnos o calcula tu ruta GPS';
               const direccion = bContent?.direccion || '';
               const horario = bContent?.horario || '';
@@ -685,7 +696,7 @@ async function perfilPublicoHandler(req, res) {
                             <div style="font-size:0.9rem;font-weight:700;color:var(--text-primary,#FFF);font-family:'Space Grotesk',sans-serif">${escapeHtml(s.nombre || 'Sucursal')}</div>
                             <div style="font-size:0.8rem;color:var(--text-secondary,#94A3B8);margin-top:2px">${escapeHtml(s.direccion || '')}</div>
                           </div>
-                          ${s.telefono ? `<a href="tel:${escapeHtml(s.telefono)}" class="btn btn-sm btn-ghost" style="padding:6px 12px;font-size:0.8rem;border-radius:10px;font-weight:600;color:#38BDF8">📞 ${escapeHtml(s.telefono)}</a>` : ''}
+                          ${s.telefono ? `<a href="tel:${escapeHtml(s.telefono)}" class="btn btn-sm btn-ghost" style="padding:6px 12px;font-size:0.8rem;border-radius:10px;font-weight:600;color:#38BDF8;display:inline-flex;align-items:center;gap:6px">${iconUtil.icon('phone')} ${escapeHtml(s.telefono)}</a>` : ''}
                         </div>
                       `).join('')}
                     </div>
@@ -723,7 +734,7 @@ async function perfilPublicoHandler(req, res) {
                   <div class="bl-title" style="font-weight:700;font-size:1.05rem;color:var(--text-primary,#FFF);font-family:'Space Grotesk',sans-serif">${escapeHtml(waTitle)}</div>
                   <div class="bl-sub" style="font-size:0.85rem;color:var(--text-secondary,#94A3B8);margin-top:2px">${escapeHtml(waSub)}</div>
                 </div>
-                <span class="bento-badge" style="background:rgba(37,211,102,0.18);color:#25D366;border:1px solid rgba(37,211,102,0.3)">⚡ Responde rápido</span>
+                <span class="bento-badge" style="background:rgba(37,211,102,0.18);color:#25D366;border:1px solid rgba(37,211,102,0.3)">${iconUtil.icon('zap')} Responde rápido</span>
               </a>`;
               break;
             }
@@ -792,7 +803,7 @@ async function perfilPublicoHandler(req, res) {
                   <div class="bl-title">${escapeHtml(bContent?.titulo || 'Documento PDF')}</div>
                   ${bContent?.subtitulo ? `<div class="bl-sub">${escapeHtml(bContent.subtitulo)}</div>` : '<div class="bl-sub">Archivo adjunto descargable</div>'}
                 </div>
-                <span class="bento-badge">📄 PDF</span>
+                <span class="bento-badge">${iconUtil.icon('pdf')} PDF</span>
               </a>`;
               break;
             case 'pago':
@@ -807,7 +818,7 @@ async function perfilPublicoHandler(req, res) {
                 ${bContent?.clabe ? `
                   <div class="pago-clabe-box">
                     <span class="clabe-num">${escapeHtml(bContent.clabe)}</span>
-                    <button type="button" class="btn-copy-clabe" onclick="navigator.clipboard.writeText('${escapeHtml(bContent.clabe)}');this.textContent='¡Copiado! ✓';setTimeout(()=>this.textContent='Copiar CLABE',2000)">Copiar CLABE</button>
+                    <button type="button" class="btn-copy-clabe" onclick="navigator.clipboard.writeText('${escapeHtml(bContent.clabe)}');this.textContent='¡Copiado!';setTimeout(()=>this.textContent='Copiar CLABE',2000)">Copiar CLABE</button>
                   </div>` : ''}
               </div>`;
               break;
@@ -821,11 +832,11 @@ async function perfilPublicoHandler(req, res) {
             case 'location': {
               const locationQuery = bContent?.direccion || bContent?.url || bContent?.titulo || 'Ubicación';
               inner += `<div class="block-ubicacion" style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:18px;padding:14px;margin-bottom:12px">
-                <div style="font-weight:700;font-size:0.95rem;margin-bottom:8px;display:flex;align-items:center;gap:8px">📍 <span>${escapeHtml(bContent?.titulo || 'Nuestra Ubicación')}</span></div>
+                <div style="font-weight:700;font-size:0.95rem;margin-bottom:8px;display:flex;align-items:center;gap:8px">${iconUtil.icon('mapPin')} <span>${escapeHtml(bContent?.titulo || 'Nuestra Ubicación')}</span></div>
                 <iframe width="100%" height="160" style="border:0;border-radius:12px;margin-bottom:10px" loading="lazy" src="https://maps.google.com/maps?q=${encodeURIComponent(locationQuery)}&output=embed"></iframe>
                 <div style="display:flex;gap:8px">
-                  <a href="https://maps.google.com/?q=${encodeURIComponent(locationQuery)}" target="_blank" rel="noopener" class="btn btn-sm" style="flex:1;background:#EA4335;color:#fff;text-align:center;border-radius:10px;padding:10px;font-weight:700;font-size:0.82rem;text-decoration:none;display:inline-block">🗺️ Abrir en Google Maps</a>
-                  <a href="https://maps.apple.com/?q=${encodeURIComponent(locationQuery)}" target="_blank" rel="noopener" class="btn btn-sm" style="flex:1;background:#007AFF;color:#fff;text-align:center;border-radius:10px;padding:10px;font-weight:700;font-size:0.82rem;text-decoration:none;display:inline-block">🍎 Abrir en Apple Maps</a>
+                  <a href="https://maps.google.com/?q=${encodeURIComponent(locationQuery)}" target="_blank" rel="noopener" class="btn btn-sm" style="flex:1;background:#EA4335;color:#fff;text-align:center;border-radius:10px;padding:10px;font-weight:700;font-size:0.82rem;text-decoration:none;display:inline-block;align-items:center;justify-content:center;gap:6px">${iconUtil.icon('navigation')} Abrir en Google Maps</a>
+                  <a href="https://maps.apple.com/?q=${encodeURIComponent(locationQuery)}" target="_blank" rel="noopener" class="btn btn-sm" style="flex:1;background:#007AFF;color:#fff;text-align:center;border-radius:10px;padding:10px;font-weight:700;font-size:0.82rem;text-decoration:none;display:inline-block;align-items:center;justify-content:center;gap:6px">${iconUtil.icon('mapPin')} Abrir en Apple Maps</a>
                 </div>
               </div>`;
               break;
@@ -938,14 +949,8 @@ async function perfilPublicoHandler(req, res) {
     const isOpen = currentMins >= openMins && currentMins < closeMins;
 
     const horario_badge_html = isOpen
-      ? `<div style="display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:100px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);color:#10B981;font-size:0.75rem;font-weight:600;margin-top:4px">
-          <span style="width:6px;height:6px;border-radius:50%;background:#10B981;box-shadow:0 0 8px #10B981"></span>
-          <span>Abierto ahora · (${escapeHtml(hApertura)} - ${escapeHtml(hCierre)})</span>
-        </div>`
-      : `<div style="display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:100px;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);color:#EF4444;font-size:0.75rem;font-weight:600;margin-top:4px">
-          <span style="width:6px;height:6px;border-radius:50%;background:#EF4444;box-shadow:0 0 8px #EF4444"></span>
-          <span>Fuera de horario · Atendemos a partir de las ${escapeHtml(hApertura)}</span>
-        </div>`;
+      ? `<span class="horario-badge is-open"><span class="dot" aria-hidden="true"></span><span>Abierto ahora &middot; (${escapeHtml(hApertura)} - ${escapeHtml(hCierre)})</span></span>`
+      : `<span class="horario-badge is-closed"><span class="dot" aria-hidden="true"></span><span>Fuera de horario &middot; Atendemos a partir de las ${escapeHtml(hApertura)}</span></span>`;
 
     // 2. Saludo de voz / Audio promo opcional
     const mostrarVoicePill = perfil.mostrar_saludo_voz !== false && perfil.mostrar_saludo_voz !== 0 && perfil.mostrar_saludo_voz !== 'false';
@@ -972,7 +977,7 @@ async function perfilPublicoHandler(req, res) {
       return res.status(500).send(`<!DOCTYPE html><html lang="es"><body style="background:#0A0A0B;color:#FFF;font-family:sans-serif;padding:40px;text-align:center"><h1>500 - Plantilla no disponible</h1><p>Falta views/perfil-publico.html en el servidor.</p><a href="/" style="color:#7FAEE8">Volver al inicio</a></body></html>`);
     }
 
-    const bio_text = perfil.bio ? escapeHtml(perfil.bio) : 'Tarjeta digital de contacto';
+    const bio_text = perfil.bio ? escClean(perfil.bio) : 'Tarjeta digital de contacto';
     const tema = perfil.tema || 'ios';
 
     const banner_html = perfil.banner_url
@@ -982,11 +987,12 @@ async function perfilPublicoHandler(req, res) {
     const audioUrlEscaped = escapeHtml(perfil.audio_saludo_url || '');
 
     html = html
+      .replace(/\{\{icon:([a-zA-Z0-9]+)\}\}/g, (m, name) => iconUtil.icon(name))
       .replace(/\{\{tema_css\}\}/g, themeCss)
       .replace(/\{\{tema\}\}/g, tema)
       .replace(/\{\{bio_text\}\}/g, bio_text)
-      .replace(/\{\{nombre_perfil\}\}/g, escapeHtml(perfil.nombre_perfil || ''))
-      .replace(/\{\{tipo\}\}/g, escapeHtml(perfil.tipo || ''))
+      .replace(/\{\{nombre_perfil\}\}/g, escClean(perfil.nombre_perfil || ''))
+      .replace(/\{\{tipo\}\}/g, escClean(perfil.tipo || ''))
       .replace(/\{\{slug\}\}/g, escapeHtml(perfil.slug || ''))
       .replace(/\{\{color\}\}/g, color)
       .replace(/\{\{og_image\}\}/g, og_image)
@@ -1025,31 +1031,41 @@ function escapeHtml(str) {
     .replace(/'/g, '&#x27;');
 }
 
+/**
+ * Elimina emoji y pictogramas del texto visible.
+ * Regla VYNK: cero emojis como iconos o adornos en el lienzo público.
+ */
+function stripEmoji(str) {
+  if (str === undefined || str === null) return '';
+  return String(str)
+    .replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}\u{1F1E6}-\u{1F1FF}\u{2B05}\u{2B06}\u{2B07}\u{27A1}\u{2B1B}\u{2B1C}]/gu, '')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+}
+
+/**
+ * Escapa y limpia emoji en un solo paso para texto visible.
+ */
+function escClean(str) {
+  return escapeHtml(stripEmoji(str));
+}
+
+/**
+ * Limpia recursivamente todos los strings de un objeto/array (contenido de bloques).
+ */
+function sanitizeStrings(obj) {
+  if (typeof obj === 'string') return stripEmoji(obj);
+  if (Array.isArray(obj)) return obj.map(sanitizeStrings);
+  if (obj && typeof obj === 'object') {
+    const out = {};
+    for (const k of Object.keys(obj)) out[k] = sanitizeStrings(obj[k]);
+    return out;
+  }
+  return obj;
+}
+
 function getFieldIcon(tipo) {
-  const icons = {
-    whatsapp: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M21 12a8 8 0 0 1-8 8H4l3-3a8 8 0 1 1 14-5z"/></svg>',
-    telefono: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.13.96.36 1.9.7 2.8a2 2 0 0 1-.45 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.27a2 2 0 0 1 2.1-.45c.9.34 1.84.57 2.8.7A2 2 0 0 1 22 16.9z"/></svg>',
-    email: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg>',
-    direccion: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M12 21s7-7.5 7-12a7 7 0 1 0-14 0c0 4.5 7 12 7 12z"/><circle cx="12" cy="9" r="2.4"/></svg>',
-    facebook: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>',
-    instagram: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="12" cy="13" r="4"/><path d="M8.5 6l1-2h5l1 2"/></svg>',
-    tiktok: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>',
-    linkedin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4V9h4v1.5a6 6 0 0 1 2-1.5z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>',
-    twitter: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M4 4l16 16M20 4L4 20"/></svg>',
-    youtube: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M6 4l14 8-14 8V4z"/></svg>',
-    threads: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><circle cx="12" cy="12" r="2.5"/><path d="M12 2c4 0 6.5 2 6.5 5.5 0 2-1.2 3.2-2 3.7.8.5 2 1.7 2 3.7C18.5 18.5 16 20.5 12 20.5S5.5 18.5 5.5 15c0-1.4.5-2.5 1.3-3.5"/></svg>',
-    telegram: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg>',
-    snapchat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M12 2c2 0 3.5 1.6 4 4 .2 1 .6 1.6 1.3 2.2.5.4 1.2.5 1.8.4.4-.1.8.2.9.6.1.3-.1.6-.3.8-.7.7-2 .9-2.9 1.4-.4.2-.5.5-.4.9 0 .4.4.7 1 .9.9.4 2 .7 2.4 1.1.3.3.3.7 0 1-.3.3-1 .4-2 .4-.5 0-1 .1-1.4.3-.5.3-.6 1.1-1.7 1.1s-1.2-.8-1.7-1.1c-.4-.2-.9-.3-1.4-.3-1 0-1.7-.1-2-.4-.3-.3-.3-.7 0-1 .4-.4 1.5-.7 2.4-1.1.6-.2 1-.5 1-.9-.1-.4 0-.7-.4-.9-.9-.5-2.2-.7-2.9-1.4-.2-.2-.4-.5-.3-.8.1-.4.5-.7.9-.6.6.1 1.3 0 1.8-.4.7-.6 1.1-1.2 1.3-2.2.5-2.4 2-4 4-4z"/></svg>',
-    discord: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M18 7c-1.2-.6-2.5-1-3.8-1.1l-.5 1a11 11 0 0 0-3.4 0l-.5-1C8.5 6 7.2 6.4 6 7a17 17 0 0 0-2.7 13.4 13 13 0 0 0 4 2l.9-1.5c-.9-.3-1.8-.7-2.5-1.2l.6-.5a10 10 0 0 0 9.4 0l.6.5c-.7.5-1.6.9-2.5 1.2l.9 1.5a13 13 0 0 0 4-2A17 17 0 0 0 18 7z"/><path d="M9.5 12.5a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4zM14.5 12.5a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4z"/></svg>',
-    twitch: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M4 3h16v12l-4 4H11l-3 3v-3H4z"/><path d="M9 8v5M15 8v5"/></svg>',
-    spotify: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>',
-    apple_music: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>',
-    web: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
-    github: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M9 9V5a3 3 0 1 0-3 3h4z"/><path d="M15 9V5a3 3 0 1 1 3 3h-4z"/><path d="M15 15v4a3 3 0 1 1-3-3h3z"/><path d="M9 15v4a3 3 0 1 0 3-3H9z"/></svg>',
-    portafolio: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>',
-    otro: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>'
-  };
-  return icons[tipo] || icons.otro;
+  return iconUtil.icon(tipo);
 }
 
 function getFieldColor(tipo) {
@@ -1170,22 +1186,7 @@ function generate404Page() {
 }
 
 function getSmartIcon(titulo, url) {
-  const t = (titulo || '').toLowerCase();
-  const u = (url || '').toLowerCase();
-  if (u.includes('whatsapp') || t.includes('whatsapp')) return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M21 12a8 8 0 0 1-8 8H4l3-3a8 8 0 1 1 14-5z"/></svg>';
-  if (u.includes('facebook') || t.includes('facebook')) return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>';
-  if (u.includes('instagram') || t.includes('instagram')) return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="12" cy="13" r="4"/><path d="M8.5 6l1-2h5l1 2"/></svg>';
-  if (u.includes('youtube') || t.includes('youtube')) return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M6 4l14 8-14 8V4z"/></svg>';
-  if (u.includes('tiktok') || t.includes('tiktok')) return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>';
-  if (u.includes('spotify') || t.includes('spotify')) return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>';
-  if (u.includes('twitter') || u.includes('x.com') || t.includes('twitter')) return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M4 4l16 16M20 4L4 20"/></svg>';
-  if (u.includes('linkedin') || t.includes('linkedin')) return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4V9h4v1.5a6 6 0 0 1 2-1.5z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>';
-  if (u.includes('github') || t.includes('github')) return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M9 9V5a3 3 0 1 0-3 3h4z"/><path d="M15 9V5a3 3 0 1 1 3 3h-4z"/><path d="M15 15v4a3 3 0 1 1-3-3h3z"/><path d="M9 15v4a3 3 0 1 0 3-3H9z"/></svg>';
-  if (u.includes('tel:') || t.includes('llama') || t.includes('telefono')) return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.13.96.36 1.9.7 2.8a2 2 0 0 1-.45 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.27a2 2 0 0 1 2.1-.45c.9.34 1.84.57 2.8.7A2 2 0 0 1 22 16.9z"/></svg>';
-  if (u.includes('mailto:') || t.includes('email') || t.includes('correo')) return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></svg>';
-  if (u.includes('maps') || t.includes('ubicacion') || t.includes('sucursal')) return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M12 21s7-7.5 7-12a7 7 0 1 0-14 0c0 4.5 7 12 7 12z"/><circle cx="12" cy="9" r="2.4"/></svg>';
-  if (u.includes('.pdf') || t.includes('pdf') || t.includes('menu')) return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-6-6z"/><path d="M14 3v6h6M9 13h6M9 17h4"/></svg>';
-  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>';
+  return iconUtil.icon(iconUtil.resolveForUrl(url, titulo));
 }
 
 function getSmartBrandColor(titulo, url) {
@@ -1325,12 +1326,13 @@ router.get('/:identifier/qr', async (req, res) => {
     const slug = perfil ? perfil.slug : identifier;
     const host = req.get('host') || 'vynk.app';
     const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'https';
-    const profileUrl = `${protocol}://${host}/p/${slug}`;
+    const profileUrl = `${protocol}://${host}/u/${slug}`;
 
     const qrPngBuffer = await generateQR(profileUrl, {
       darkColor: '#000000',
       lightColor: '#FFFFFF',
-      width: 400
+      width: 420,
+      margin: 4
     });
 
     res.setHeader('Content-Type', 'image/png');

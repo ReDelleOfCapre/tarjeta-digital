@@ -22,14 +22,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/tokens.css">
     <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/vynk-cards.css">
     <style>{{tema_css}}</style>
     <style>
-        /* ============================================================
-           VYNK e-card pública · Apple Wallet pass
-           La tarjeta vive dentro de un lienzo; en escritorio flota como
-           un pase (squircle, sombra profunda); en móvil ocupa la pantalla.
-           Fondos: tokens del tema, sin gradientes genéricos.
-           ============================================================ */
         html, body { margin: 0; padding: 0; width: 100%; min-height: 100vh; }
         body {
             background: var(--bg-primary, #141318);
@@ -38,491 +33,55 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* Lienzo: centra y respira alrededor del pase */
-        .vynk-canvas {
-            position: relative;
-            min-height: 100vh;
-            display: block;
-            width: 100%;
+        /* Estados del QR: skeleton → LISTO → ERROR */
+        .qr-state { display: none; }
+        .share-qr[data-qr="loading"] .qr-loading { display: flex; }
+        .share-qr[data-qr="ready"] .share-qr-img { display: block; }
+        .share-qr[data-qr="error"] .qr-error { display: flex; }
+        .qr-loading, .qr-error {
+            width: 100%; height: 100%;
+            flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+            color: #8E8E93; text-align: center; padding: 8px; box-sizing: border-box;
         }
-        /* Auroras únicas (derivadas del acento del tema, alfa bajo) */
-        .vynk-canvas::before {
-            content: "";
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            z-index: 0;
-            background:
-                radial-gradient(760px 420px at 50% -140px, var(--accent-glow, rgba(100,100,100,0.10)) 0%, transparent 70%);
+        .qr-error { font-size: 0.62rem; line-height: 1.4; }
+        .qr-error a { color: #007AFF; text-decoration: none; }
+        .qr-skeleton {
+            width: 72px; height: 72px; border-radius: 14px;
+            background: linear-gradient(100deg, #E8E8ED 40%, #F4F4F6 50%, #E8E8ED 60%);
+            background-size: 200% 100%;
+            animation: qr-shimmer 1.4s ease infinite;
         }
-
-        /* El pase */
-        .vynk-public {
-            position: relative;
-            z-index: 1;
-            width: 100% !important;
-            max-width: 100% !important;
-            margin: 0 auto !important;
-            padding: 0 0 calc(96px + env(safe-area-inset-bottom)) !important;
-            display: flex !important;
-            flex-direction: column !important;
-            gap: 18px !important;
-            box-sizing: border-box !important;
-            background: var(--bg-surface, rgba(255,255,255,0.02));
-            overflow: hidden;
-        }
-        @media (min-width: 560px) {
-            .vynk-public {
-                max-width: 520px !important;
-                margin: 16px auto !important;
-                border-radius: 32px !important;
-                border: 1px solid var(--card-border, rgba(255,255,255,0.10));
-                box-shadow: 0 1px 0 rgba(255,255,255,0.06) inset, 0 30px 80px rgba(0,0,0,0.45);
-            }
-        }
-        @media (min-width: 900px) {
-            .vynk-public {
-                max-width: 460px !important;
-                margin: 36px auto !important;
-            }
+        @keyframes qr-shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
         }
 
-        /* ===== Franja superior tipo pase ===== */
-        .pass-brand {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-            padding: 14px 20px 0;
-        }
-        .pass-brand-mark {
-            font-family: 'Space Grotesk', sans-serif;
-            font-weight: 700;
-            font-size: 0.78rem;
-            letter-spacing: 0.22em;
-            color: var(--text-tertiary, rgba(255,255,255,0.55));
-        }
-        .pass-brand-sub {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.6rem;
-            letter-spacing: 0.14em;
-            color: var(--accent, #E8A33D);
-            border: 1px solid var(--card-border, rgba(255,255,255,0.12));
-            border-radius: 100px;
-            padding: 4px 10px;
-            text-transform: uppercase;
+        /* Redes: accesibilidad y tamaño táctil */
+        .social-icon { position: relative; }
+        .social-icon:focus-visible,
+        .dock-link:focus-visible,
+        .share-btn:focus-visible,
+        .action-btn:focus-visible,
+        .row-item:focus-visible,
+        .voice-greeting-pill:focus-visible {
+            outline: 2px solid var(--accent, #7FAEE8);
+            outline-offset: 2px;
         }
 
-        /* ===== Hero integrado (cover + identidad) ===== */
-        .pass-hero { display: flex; flex-direction: column; align-items: center; }
-        .hero-banner {
-            width: 100%;
-            overflow: hidden;
-            max-height: 230px;
-        }
-        .hero-banner img {
-            width: 100%;
-            height: 230px;
-            object-fit: cover;
-            display: block;
-        }
-        @media (min-width: 560px) {
-            .hero-banner { border-radius: 32px 32px 0 0; }
-        }
-
-        .vp-head {
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 6px;
-            padding: 20px 20px 0;
-        }
-
-        /* Overlap del avatar sobre el cover (solo si hay banner) */
-        .pass-hero { position: relative; }
-        .hero-banner + .vp-head { padding-top: 0; }
-        .hero-banner + .vp-head .avatar-wrapper { margin-top: -52px !important; }
-
-        .avatar-wrapper {
-            margin: 0 auto !important;
-            width: 112px !important; height: 112px !important;
-            border-radius: 50% !important;
-            display: flex !important; align-items: center !important; justify-content: center !important;
-            overflow: hidden !important; box-sizing: border-box !important;
-            flex-shrink: 0 !important;
-            background: var(--bg-primary);
-        }
-        .avatar-wrapper .avatar {
-            width: 100% !important; height: 100% !important;
-            border-radius: 50% !important;
-            display: flex !important; align-items: center !important; justify-content: center !important;
-            overflow: hidden !important; color: #FFF !important; font-weight: 700 !important;
-            font-size: 2.6rem !important; margin: 0 !important;
-        }
-        .avatar-wrapper .avatar img {
-            width: 100% !important; height: 100% !important;
-            object-fit: cover !important; display: block !important;
-            border-radius: 50% !important;
-        }
-        .name {
-            font-family: 'Space Grotesk', sans-serif !important;
-            font-size: clamp(26px, 6.5vw, 34px) !important;
-            font-weight: 700 !important;
-            letter-spacing: -0.03em !important;
-            color: var(--text-primary, #FFFFFF) !important;
-            margin: 8px 0 0 !important;
-            line-height: 1.12 !important;
-        }
-
-        /* Voice-greeting pill (Spotify-style sound wave) */
-        .voice-greeting-pill {
-            display: inline-flex; align-items: center; gap: 10px;
-            padding: 8px 16px; border-radius: 100px;
-            background: var(--chip-bg, rgba(30, 215, 96, 0.12));
-            border: 1px solid var(--card-border, rgba(30, 215, 96, 0.3));
-            color: var(--accent, #1DB954); font-size: 0.8rem; font-weight: 600; cursor: pointer;
-            margin: 8px auto 0; transition: transform 160ms ease, background 160ms ease; text-decoration: none;
-        }
-        .voice-greeting-pill:hover { transform: scale(1.04); background: var(--chip-bg, rgba(30, 215, 96, 0.2)); }
-        .sound-wave { display: flex; align-items: center; gap: 3px; height: 14px; }
-        .sound-wave span {
-            width: 3px; height: 100%; border-radius: 3px;
-            background: currentColor;
-            animation: sound-bar 1.2s cubic-bezier(0.77, 0, 0.175, 1) infinite alternate;
-        }
-        .sound-wave span:nth-child(2) { animation-delay: 0.2s; height: 60%; }
-        .sound-wave span:nth-child(3) { animation-delay: 0.4s; height: 90%; }
-        .sound-wave span:nth-child(4) { animation-delay: 0.1s; height: 50%; }
-        @keyframes sound-bar {
-            0% { transform: scaleY(0.3); }
-            100% { transform: scaleY(1); }
-        }
-
-        .bio {
-            color: var(--text-secondary, #94A3B8) !important;
-            font-size: 0.95rem !important;
-            max-width: 380px !important;
-            margin: 4px auto 0 !important;
-            line-height: 1.6 !important;
-        }
-        .tags { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 8px 20px 0; }
-        .tag {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 11px; letter-spacing: 0.03em;
-            color: var(--accent-soft, var(--accent, #E8A33D));
-            background: var(--chip-bg, rgba(23, 59, 99, 0.16));
-            border: 1px solid var(--card-border, rgba(23, 59, 99, 0.3));
-            padding: 4px 10px; border-radius: 999px; text-transform: capitalize;
-        }
-
-        /* Acciones directas (Agendar cita, etc.) */
-        .action-buttons { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; padding: 2px 20px 0; }
-        .action-btn {
-            display: inline-flex; align-items: center; gap: 8px;
-            padding: 12px 18px; border-radius: 14px;
-            font-weight: 600; font-size: 0.9rem; text-decoration: none; color: var(--text-primary, #FFF);
-            background: var(--bg-surface, #1A1F26); border: 1px solid var(--card-border, rgba(255, 255, 255, 0.1));
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        .action-btn:hover { transform: translateY(-2px); }
-        .action-btn.action-whatsapp { background: #25D366; border-color: #25D366; color: #04120B; }
-        .action-btn.action-call { background: var(--accent, #7FAEE8); border-color: var(--accent, #7FAEE8); }
-        .action-btn.action-email { background: var(--chip-bg, rgba(23, 59, 99, 0.8)); border-color: var(--card-border); }
-
-        /* Grupos de bloques: celda iOS, respetando el encuadre del pase */
-        .blocks-section, .bento-links-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 14px;
-            width: 100%;
-            box-sizing: border-box;
-            padding: 0 18px;
-        }
-        @media (max-width: 480px) { .blocks-section, .bento-links-grid { grid-template-columns: 1fr; } }
-        .block-wrapper { min-width: 0; }
-        .block-wrapper.block-whatsapp, .block-wrapper.bento-hero, .block-wrapper.block-pago,
-        .block-wrapper.block-seccion, .block-wrapper.block-email, .block-wrapper.block-pdf,
-        .block-wrapper.has-bento-rich, .block-wrapper.block-ubicacion, .block-wrapper.bento-media,
-        .block-wrapper.bento-social { grid-column: 1 / -1; }
-
-        /* Bloques como celdas iOS nativas (glass del tema) */
-        .block-wrapper > a,
-        .block-wrapper .bento-hero-card,
-        .block-wrapper .bento-social-card,
-        .block-wrapper .bento-media-card,
-        .block-wrapper .block-wa,
-        .block-wrapper .block-pdf {
-            position: relative;
-            display: flex; align-items: center; gap: 14px;
-            padding: 15px 16px;
-            border-radius: 20px;
-            background: var(--card-border, rgba(255, 255, 255, 0.08));
-            border: 1px solid var(--card-border, rgba(255, 255, 255, 0.1));
-            text-decoration: none;
-            color: var(--text-primary, #FFF);
-            transition: transform 0.2s cubic-bezier(0.2, 0.9, 0.3, 1.2), background 0.2s ease, border-color 0.2s ease;
-            overflow: hidden;
-        }
-        .block-wrapper > a:hover,
-        .block-wrapper .bento-hero-card:hover { transform: translateY(-2px); }
-        .block-wrapper > a:active,
-        .block-wrapper .bento-hero-card:active { transform: scale(0.97); }
-
-        .bl-icon {
-            flex-shrink: 0;
-            width: 46px; height: 46px;
-            border-radius: 14px;
-            display: grid; place-items: center;
-            background: var(--chip-bg, rgba(23, 59, 99, 0.2));
-            color: var(--accent, #7FAEE8);
-            font-size: 1.25rem;
-            box-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.06), 0 2px 8px rgba(0, 0, 0, 0.15);
-        }
-        .bl-icon svg { width: 1.25em; height: 1.25em; }
-        .bl-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-        .bl-title { font-weight: 600; font-size: 0.98rem; letter-spacing: -0.01em; line-height: 1.3; }
-        .bl-sub { font-size: 0.8rem; line-height: 1.45; color: var(--text-secondary, #94A3B8); }
-        .bento-badge {
-            flex-shrink: 0;
-            font-size: 0.68rem; font-weight: 600; letter-spacing: 0.02em;
-            padding: 5px 10px; border-radius: 100px;
-            background: var(--chip-bg, rgba(255, 255, 255, 0.08));
-            color: var(--accent, #7FAEE8);
-            border: 1px solid var(--card-border, rgba(255, 255, 255, 0.12));
-        }
-
-        .block-wrapper .bento-rich-card { padding: 0; align-items: stretch; gap: 0; flex-direction: column; }
-        .block-wrapper .bento-rich-card .bento-thumb { width: 100%; height: auto; max-height: 180px; object-fit: cover; }
-        .block-wrapper .bento-rich-card .bento-content { padding: 14px 16px 16px; }
-
-        .block-wrapper .block-text,
-        .block-wrapper .block-nota { padding: 16px 18px; border-radius: 20px; }
-
-        .block-section-title {
-            font-family: 'Space Grotesk', sans-serif;
-            font-weight: 700;
-            font-size: 1.05rem;
-            letter-spacing: -0.01em;
-            color: var(--text-primary, #FFF);
-            padding: 6px 4px 0;
-        }
-
-        /* ===== Comparte tu identidad · pase premium ===== */
-        .share-pass {
-            margin: 4px 18px 0;
-            padding: 16px;
-            border-radius: 24px;
-            background: var(--chip-bg, rgba(255,255,255,0.05));
-            border: 1px solid var(--card-border, rgba(255,255,255,0.12));
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-        }
-        .share-pass-label {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-        }
-        .share-label-text {
-            font-family: 'Space Grotesk', sans-serif;
-            font-weight: 700;
-            font-size: 0.9rem;
-            letter-spacing: -0.01em;
-            color: var(--text-primary, #FFF);
-        }
-        .share-status-pill {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.62rem;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            color: var(--accent, #E8A33D);
-            border: 1px solid var(--card-border, rgba(255,255,255,0.14));
-            padding: 4px 10px;
-            border-radius: 100px;
-            background: var(--bg-surface, rgba(0,0,0,0.2));
-        }
-        .share-pass-body { display: flex; align-items: center; gap: 16px; }
-        @media (max-width: 480px) { .share-pass-body { flex-direction: column; align-items: stretch; text-align: center; } }
-        .share-qr {
-            flex-shrink: 0;
-            width: 108px; height: 108px;
-            padding: 6px;
-            border-radius: 22px;
-            background: #FFFFFF;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 2px;
-        }
-        .share-qr-img { width: 100%; height: 100%; border-radius: 18px; display: block; image-rendering: pixelated; }
-        .share-qr-hint {
-            font-size: 0.58rem;
-            letter-spacing: 0.06em;
-            color: #6B5B45;
-            font-family: 'JetBrains Mono', monospace;
-            margin-top: 2px;
-        }
-        .share-actions { flex: 1; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
-        .share-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 12px 14px;
-            border-radius: 14px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            color: var(--text-primary, #FFF);
-            background: var(--chip-bg, rgba(255,255,255,0.08));
-            border: 1px solid var(--card-border, rgba(255,255,255,0.12));
-            text-decoration: none;
-            cursor: pointer;
-            transition: transform 0.18s ease, background 0.18s ease;
-        }
-        .share-btn:hover { transform: translateY(-1px); background: var(--card-border, rgba(255,255,255,0.14)); }
-        .share-btn:active { transform: scale(0.97); }
-        .share-btn svg { width: 1em; height: 1em; vertical-align: -0.125em; }
-        .share-btn.is-accent {
-            background: var(--accent, #E8A33D);
-            color: var(--on-accent, #141318);
-            border-color: transparent;
-        }
-        .share-toast {
-            position: fixed;
-            left: 50%;
-            bottom: calc(92px + env(safe-area-inset-bottom));
-            transform: translateX(-50%) translateY(8px);
-            background: rgba(18,18,22,0.92);
-            color: #FFF;
-            font-size: 0.8rem;
-            font-weight: 600;
-            padding: 10px 18px;
-            border-radius: 100px;
-            border: 1px solid rgba(255,255,255,0.14);
-            box-shadow: 0 14px 40px rgba(0,0,0,0.5);
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.2s cubic-bezier(0.23, 1, 0.32, 1), transform 0.2s cubic-bezier(0.23, 1, 0.32, 1);
-            z-index: 1000;
-        }
-        .share-toast.is-visible { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-        /* Modal de agendar cita — entrada animada (scale 0.95 + opacity, curva del sistema) */
-        .booking-card { animation: bookingEnter 250ms cubic-bezier(0.23, 1, 0.32, 1) both; }
-        @keyframes bookingEnter {
-            from { opacity: 0; transform: scale(0.95) translateY(10px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
-        }
-        @media (prefers-reduced-motion: reduce) { .booking-card { animation: none; } }
-
-        /* ===== Archivos ===== */
-        .files-section { display: flex; flex-direction: column; gap: 12px; padding: 0 18px; }
-        .files-section .section-title {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 0.82rem;
-            font-weight: 700;
-            letter-spacing: 0.04em;
-            text-transform: uppercase;
-            color: var(--text-tertiary, rgba(255,255,255,0.55));
-            margin: 0;
-        }
-        .file-list { display: flex; flex-direction: column; gap: 10px; }
-        .file-item {
-            display: flex; align-items: center; gap: 12px;
-            padding: 13px 16px;
-            border-radius: 18px;
-            background: var(--card-border, rgba(255,255,255,0.05));
-            border: 1px solid var(--card-border, rgba(255,255,255,0.1));
-            color: var(--text-primary, #FFF);
-            text-decoration: none;
-        }
-        .file-icon { color: var(--accent, #E8A33D); display: grid; place-items: center; width: 20px; }
-        .file-info { flex: 1; min-width: 0; }
-        .file-label { display: block; font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-tertiary, rgba(255,255,255,0.5)); }
-        .file-name { font-size: 0.88rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
-        /* ===== Pie ===== */
-        .vp-foot {
-            margin: 4px 18px 0;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            text-align: center;
-        }
-        .vp-vcard {
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            padding: 14px; border-radius: 100px; font-weight: 700; font-size: 0.9rem;
-            color: var(--on-accent, #141318);
-            background: var(--accent, #E8A33D);
-            border: 1px solid transparent;
-            text-decoration: none;
-            transition: transform 0.2s cubic-bezier(0.2, 0.9, 0.3, 1.2), filter 0.2s ease;
-        }
-        .vp-vcard:hover { transform: translateY(-1px); filter: brightness(1.06); }
-        .vp-vcard:active { transform: scale(0.97); }
-        .vp-meta {
-            font-family: 'JetBrains Mono', monospace; font-size: 11px;
-            color: var(--text-tertiary, rgba(255,255,255,0.5));
-            display: flex; gap: 12px; justify-content: center; letter-spacing: 0.02em; margin-bottom: 4px;
-        }
-        .vp-meta a { color: var(--accent, #E8A33D); text-decoration: none; }
-
-        /* ===== Dock flotante tipo pase ===== */
-        .dock-pill {
-            position: fixed;
-            bottom: calc(20px + env(safe-area-inset-bottom));
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 998;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 8px;
-            border-radius: 100px;
-            background: rgba(16,16,20,0.82);
-            -webkit-backdrop-filter: blur(28px) saturate(180%);
-            backdrop-filter: blur(28px) saturate(180%);
-            border: 1px solid rgba(255,255,255,0.14);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
-        }
-        .dock-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
-            padding: 10px 16px;
-            border-radius: 100px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            text-decoration: none;
-            color: #FFF;
-            transition: background 0.18s ease, transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
-        }
-        .dock-link svg { width: 0.95em; height: 0.95em; }
-        .dock-link:hover { background: rgba(255,255,255,0.08); }
-        .dock-link:active { transform: scale(0.97); }
-        .dock-link.is-accent { background: var(--accent, #E8A33D); color: #141318; font-weight: 700; }
-        .dock-link.is-accent:hover { filter: brightness(1.06); }
-        .dock-link.is-accent:active { transform: scale(0.97); }
-        .dock-sep { width: 1px; height: 18px; background: rgba(255,255,255,0.16); }
-
-        @media (prefers-reduced-motion: reduce) {
-            * { animation: none !important; transition: none !important; }
-        }
+        .share-qr-img { display: none; }
     </style>
 </head>
 <body>
     <div class="vynk-canvas">
         <main class="vynk-public" data-perfil-id="{{perfil_id}}">
 
+            <!-- ===== HEADER · Identidad del pase ===== -->
             <div class="pass-brand">
                 <span class="pass-brand-mark">VYNK</span>
-                <span class="pass-brand-sub">Identidad</span>
+                <span class="pass-brand-sub">{{icon:shield}} Identidad</span>
             </div>
 
-            <section class="pass-hero">
+            <section class="pass-hero" aria-label="Identidad de {{nombre_perfil}}">
                 {{banner_html}}
                 <div class="vp-head">
                     {{avatar_html}}
@@ -534,97 +93,117 @@
                 </div>
             </section>
 
+            <!-- ===== ACCIONES directas ===== -->
             {{action_buttons_html}}
 
-            <section class="blocks-section bento-links-grid" id="bloques">
-                {{bloques_html}}
-            </section>
+            <!-- ===== CONTENIDO · bloques ===== -->
+            {{bloques_html}}
 
+            <!-- ===== ARCHIVOS ===== -->
             {{archivos_section_html}}
 
+            <!-- ===== COMPARTIR · QR + enlace ===== -->
             <section class="share-pass" aria-label="Comparte tu identidad">
                 <div class="share-pass-label">
                     <span class="share-label-text">Comparte tu identidad</span>
-                    <span class="share-status-pill">Contacto + NFC</span>
+                    <span class="share-status-pill">Pase digital</span>
                 </div>
                 <div class="share-pass-body">
-                    <div class="share-qr">
-                        <img class="share-qr-img" src="{{base_url}}/api/perfiles/{{slug}}/qr" alt="Código QR de {{nombre_perfil}}" width="128" height="128" loading="lazy">
-                        <span class="share-qr-hint">ESCANEA PARA ABRIR</span>
+                    <div class="share-qr" data-qr="loading" role="img" aria-label="Código QR de {{nombre_perfil}}">
+                        <div class="qr-state qr-loading"><div class="qr-skeleton" aria-hidden="true"></div><span>GENERANDO</span></div>
+                        <img class="share-qr-img" src="{{base_url}}/api/perfiles/{{slug}}/qr" alt="Código QR de {{nombre_perfil}}" width="120" height="120" loading="eager">
+                        <div class="qr-state qr-error">
+                            <span>No se pudo cargar el QR</span>
+                            <a href="{{base_url}}/u/{{slug}}" target="_blank" rel="noopener">Abrir enlace</a>
+                        </div>
                     </div>
                     <div class="share-actions">
                         <button type="button" class="share-btn" onclick="copyProfileLink()" data-action="copiar_enlace">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
-                            Copiar enlace
+                            {{icon:copy}} Copiar enlace
                         </button>
                         <button type="button" class="share-btn is-accent" onclick="shareProfile()" data-action="compartir">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v14M6 8l6-6 6 6"/><path d="M4 14v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6"/></svg>
-                            Compartir
-                        </button>
-                        <button type="button" class="share-btn" onclick="handleNfc()" data-action="anadir_wallet">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12a14.4 14.4 0 0 1 9 3.5"/><path d="M5 7.5A19 19 0 0 1 18 12"/><path d="M5 16.5a10 10 0 0 1 4.8 2.3"/><circle cx="5" cy="18" r="1.2" fill="currentColor"/><circle cx="5" cy="12" r="1.2" fill="currentColor"/><circle cx="5" cy="6.5" r="1.2" fill="currentColor"/></svg>
-                            NFC · Añadir a Wallet
+                            {{icon:shareIos}} Compartir
                         </button>
                     </div>
                 </div>
             </section>
 
+            <!-- ===== WALLET + NFC · separados ===== -->
+            <section class="share-pass" aria-label="Guarda esta identidad">
+                <div class="share-pass-label">
+                    <span class="share-label-text">Guarda esta identidad</span>
+                    <span class="share-status-pill">Contacto + NFC</span>
+                </div>
+                <div class="share-pass-body">
+                    <div class="share-actions">
+                        <button type="button" class="share-btn" onclick="addToWallet()" data-action="anadir_wallet">
+                            {{icon:wallet}} Añadir a Wallet
+                        </button>
+                        <button type="button" class="share-btn is-nfc" onclick="handleNfc()" data-action="nfc">
+                            {{icon:nfc}} Compartir por NFC
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== PIE ===== -->
             <footer class="vp-foot">
-                <a class="vp-vcard" href="{{base_url}}/api/perfiles/{{slug}}/vcard" data-action="descarga_vcard">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.15em"><path d="M4 6h16v12H4z"/><path d="M4 8h16M7 12h6M7 15h4"/></svg>
-                    Guardar contacto (.vcf)
+                <a class="vp-vcard" href="{{base_url}}/api/perfiles/{{slug}}/vcard" data-action="descarga_vcard" download="contacto-{{slug}}.vcf">
+                    {{icon:download}} Guardar contacto (.vcf)
                 </a>
                 <div class="vp-meta">
-                    <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:0.9em;height:0.9em;vertical-align:-0.15em"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg> {{visitas}} visitas</span>
-                    <a href="{{base_url}}/">Hecho con <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:0.9em;height:0.9em;vertical-align:-0.15em"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></svg> VYNK</a>
+                    <span>{{icon:eye}} {{visitas}} visitas</span>
+                    <a href="{{base_url}}/">Hecho con {{icon:zap}} VYNK</a>
                 </div>
             </footer>
         </main>
 
-        <!-- Dock flotante tipo pase -->
+        <!-- Dock flotante: acciones rápidas -->
         <nav class="dock-pill" aria-label="Acciones rápidas">
             <a href="#bloques" class="dock-link">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-                Menú
+                {{icon:grid}} Menú
             </a>
             <span class="dock-sep"></span>
-            <a href="{{base_url}}/api/perfiles/{{slug}}/vcard" class="dock-link is-accent" data-action="descarga_vcard">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4.5 5-6.5 8-6.5s6.5 2 8 6.5"/></svg>
-                Guardar Contacto
+            <button type="button" class="dock-link" onclick="shareProfile()" data-action="compartir">
+                {{icon:shareIos}} Compartir
+            </button>
+            <span class="dock-sep"></span>
+            <a href="{{base_url}}/api/perfiles/{{slug}}/vcard" class="dock-link is-accent" data-action="descarga_vcard" download="contacto-{{slug}}.vcf">
+                {{icon:user}} Guardar Contacto
             </a>
         </nav>
 
         <div id="share-toast" class="share-toast" role="status" aria-live="polite"></div>
     </div>
 
-    <!-- Modal de Agendamiento de Citas con Google Calendar -->
+    <!-- ===== Modal de Agendamiento de Citas ===== -->
     <div id="booking-modal" class="booking-modal" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.75);backdrop-filter:blur(20px);align-items:center;justify-content:center;padding:16px">
         <div class="booking-card" style="width:100%;max-width:440px;background:#151517;border:1px solid rgba(255,255,255,0.18);border-radius:24px;padding:24px;color:#fff;box-shadow:0 30px 80px rgba(0,0,0,0.8);position:relative">
-            <button type="button" onclick="closeBookingModal()" style="position:absolute;top:16px;right:16px;background:none;border:none;color:#98989D;font-size:1.2rem;cursor:pointer">✕</button>
+            <button type="button" onclick="closeBookingModal()" aria-label="Cerrar" style="position:absolute;top:16px;right:16px;background:none;border:none;color:#98989D;font-size:1.2rem;cursor:pointer">{{icon:x}}</button>
 
-            <div style="font-size:1.15rem;font-weight:700;margin-bottom:4px;font-family:'Space Grotesk',sans-serif"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.125em;margin-right:6px"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Agendar Cita en Vivo</div>
+            <div style="font-size:1.15rem;font-weight:700;margin-bottom:4px;font-family:'Space Grotesk',sans-serif">{{icon:calendar}} Agendar Cita en Vivo</div>
             <div style="font-size:0.8rem;color:#98989D;margin-bottom:18px">Reserva tu fecha y hora. Se sincronizará automáticamente con Google Calendar.</div>
 
             <form id="booking-form" onsubmit="submitBooking(event)">
-                <div style="margin-bottom:12px">
-                    <label style="display:block;font-size:0.75rem;color:#98989D;margin-bottom:4px;font-weight:600">Tu Nombre Completo *</label>
+                <div class="bk-field" style="margin-bottom:12px">
+                    <label>Tu Nombre Completo *</label>
                     <input type="text" id="bk-nombre" required placeholder="Ej. Ana María Gómez" style="width:100%;padding:10px 14px;border-radius:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#fff;font-size:0.9rem;box-sizing:border-box">
                 </div>
-                <div style="margin-bottom:12px">
-                    <label style="display:block;font-size:0.75rem;color:#98989D;margin-bottom:4px;font-weight:600">Correo Electrónico *</label>
+                <div class="bk-field" style="margin-bottom:12px">
+                    <label>Correo Electrónico *</label>
                     <input type="email" id="bk-email" required placeholder="tu@correo.com" style="width:100%;padding:10px 14px;border-radius:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#fff;font-size:0.9rem;box-sizing:border-box">
                 </div>
-                <div style="margin-bottom:12px">
-                    <label style="display:block;font-size:0.75rem;color:#98989D;margin-bottom:4px;font-weight:600">Teléfono WhatsApp</label>
+                <div class="bk-field" style="margin-bottom:12px">
+                    <label>Teléfono WhatsApp</label>
                     <input type="tel" id="bk-telefono" placeholder="+52 55 1234 5678" style="width:100%;padding:10px 14px;border-radius:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#fff;font-size:0.9rem;box-sizing:border-box">
                 </div>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
-                    <div>
-                        <label style="display:block;font-size:0.75rem;color:#98989D;margin-bottom:4px;font-weight:600">Fecha y Hora *</label>
+                    <div class="bk-field">
+                        <label>Fecha y Hora *</label>
                         <input type="datetime-local" id="bk-fecha" required style="width:100%;padding:10px 8px;border-radius:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#fff;font-size:0.85rem;box-sizing:border-box">
                     </div>
-                    <div>
-                        <label style="display:block;font-size:0.75rem;color:#98989D;margin-bottom:4px;font-weight:600">Servicio</label>
+                    <div class="bk-field">
+                        <label>Servicio</label>
                         <select id="bk-servicio" style="width:100%;padding:10px 8px;border-radius:12px;background:#151517;border:1px solid rgba(255,255,255,0.12);color:#fff;font-size:0.85rem;box-sizing:border-box">
                             <option value="Consulta / Atención General">Consulta General</option>
                             <option value="Corte de Cabello / Barbería">Corte / Estética</option>
@@ -633,8 +212,8 @@
                         </select>
                     </div>
                 </div>
-                <div style="margin-bottom:18px">
-                    <label style="display:block;font-size:0.75rem;color:#98989D;margin-bottom:4px;font-weight:600">Notas / Detalles Especiales</label>
+                <div class="bk-field" style="margin-bottom:18px">
+                    <label>Notas / Detalles Especiales</label>
                     <textarea id="bk-notas" rows="2" placeholder="Especificaciones adicionales..." style="width:100%;padding:10px 14px;border-radius:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#fff;font-size:0.85rem;box-sizing:border-box"></textarea>
                 </div>
 
@@ -658,7 +237,7 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ perfil_id: PERFIL_ID, evento: evento }),
                         keepalive: true
-                    }).catch(() => {});
+                    }).catch(function () {});
                 } catch (e) {}
             }
 
@@ -679,7 +258,28 @@
                 }
             });
 
-            // 3. Countdown blocks
+            // 3. QR: estados GENERANDO → LISTO / ERROR
+            const qrBox = document.querySelector('.share-qr[data-qr]');
+            const qrImg = qrBox ? qrBox.querySelector('.share-qr-img') : null;
+            if (qrImg) {
+                if (qrImg.complete && qrImg.naturalWidth > 0) {
+                    qrBox.setAttribute('data-qr', 'ready');
+                } else {
+                    qrImg.addEventListener('load', function () {
+                        if (qrImg.naturalWidth > 0) { qrBox.setAttribute('data-qr', 'ready'); track('qr_listo'); }
+                        else { qrBox.setAttribute('data-qr', 'error'); }
+                    });
+                    qrImg.addEventListener('error', function () {
+                        qrBox.setAttribute('data-qr', 'error');
+                    });
+                }
+                // Timeout de seguridad: si tarda >6s, mostrar error recuperable
+                setTimeout(function () {
+                    if (qrBox.getAttribute('data-qr') === 'loading') qrBox.setAttribute('data-qr', 'error');
+                }, 6000);
+            }
+
+            // 4. Countdown blocks
             document.querySelectorAll('.block-countdown[data-countdown]').forEach(function (box) {
                 const target = Number(box.getAttribute('data-countdown')) || 0;
                 function tick() {
@@ -698,7 +298,7 @@
                 setInterval(tick, 1000);
             });
 
-            // 4. Captura de email (bloques email_capture)
+            // 5. Captura de email (bloques email_capture)
             document.querySelectorAll('form[data-perfil]').forEach(function (form) {
                 form.addEventListener('submit', function (e) {
                     e.preventDefault();
@@ -723,19 +323,19 @@
                 });
             });
 
-            // 5. Acordeones inteligentes (mapa)
+            // 6. Acordeones inteligentes (mapa)
             document.querySelectorAll('.smart-accordion a[href*="maps"]').forEach(function (a) {
                 a.addEventListener('click', function () { track('click_mapa'); });
             });
 
-            // 6. Spotify Voice Bio Speech / Audio promocional
+            // 7. Spotify Voice Bio Speech / Audio promocional
             window.playVoiceGreeting = function() {
                 var customAudio = '{{audio_saludo_url}}';
                 if (customAudio && customAudio.trim() !== '' && customAudio !== '{{audio_saludo_url}}') {
                     try {
                         var audio = new Audio(customAudio);
                         audio.play().catch(function() {
-                            alert('No se pudo reproducir el archivo de audio promocional.');
+                            showToast('No se pudo reproducir el audio promocional.');
                         });
                         return;
                     } catch (e) {}
@@ -748,11 +348,11 @@
                     utterance.rate = 0.95;
                     window.speechSynthesis.speak(utterance);
                 } else {
-                    alert(text);
+                    showToast(text);
                 }
             };
 
-            // 7. Modal Agendar cita
+            // 8. Modal Agendar cita
             window.openBookingModal = function() {
                 var m = document.getElementById('booking-modal');
                 if (m) m.style.display = 'flex';
@@ -800,7 +400,7 @@
     </script>
 
     <script>
-        // E-card: Compartir · Copiar · NFC Web (real, con fallback honesto)
+        // E-card: Compartir · Copiar · Wallet · NFC (real, con fallback honesto)
         (function () {
             const PROFILE_URL = '{{base_url}}/u/{{slug}}';
             const VCARD_URL = '{{base_url}}/api/perfiles/{{slug}}/vcard';
@@ -812,8 +412,9 @@
                 el.textContent = msg;
                 el.classList.add('is-visible');
                 clearTimeout(toastTimer);
-                toastTimer = setTimeout(function () { el.classList.remove('is-visible'); }, 2400);
+                toastTimer = setTimeout(function () { el.classList.remove('is-visible'); }, 2600);
             }
+            window.showToast = showToast;
 
             window.copyProfileLink = function () {
                 if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -852,32 +453,40 @@
                 }
             };
 
-            // NFC Web: solo actúa si el navegador la expone; si no, guarda como contacto.
-            window.handleNfc = function () {
-                const btn = event && event.target && event.target.closest ? event.target.closest('.share-btn') : null;
-                const original = btn ? btn.innerHTML : null;
-                function busy(msg) { if (btn) btn.innerHTML = msg; }
-                function restore() { if (btn && original) { btn.innerHTML = original; } }
+            // Añadir a Wallet: vía Web Share del .vcf (Apple/Google Contactos) o descarga directa.
+            window.addToWallet = function () {
+                if (navigator.canShare && navigator.canShare({ files: [] })) {
+                    fetch(VCARD_URL)
+                        .then(function (r) { return r.blob(); })
+                        .then(function (blob) {
+                            const file = new File([blob], 'contacto.vcf', { type: 'text/vcard' });
+                            return navigator.share({ title: 'Guardar contacto', files: [file] });
+                        })
+                        .then(function () { showToast('Contacto compartido'); })
+                        .catch(function () { window.location.href = VCARD_URL; });
+                } else {
+                    window.location.href = VCARD_URL;
+                }
+            };
 
+            // NFC Web: solo actúa si el navegador la expone; si no, descarga el contacto.
+            window.handleNfc = function () {
                 if ('NDEFReader' in window) {
-                    busy('Acércate a otro teléfono…');
                     try {
                         const reader = new NDEFReader();
                         reader.write({
                             records: [{ type: 'url', data: PROFILE_URL }]
                         }).then(function () {
                             showToast('NFC actualizado: tu tarjeta se comparte al tocar');
-                            restore();
                         }).catch(function (err) {
-                            restore();
-                            showToast(err && err.name === 'SecurityError' ? 'NFC requiere una página segura (HTTPS) e interacción previa.' : 'No se encontró otro dispositivo NFC.');
+                            showToast(err && err.name === 'SecurityError'
+                                ? 'NFC requiere HTTPS e interacción previa.'
+                                : 'No se encontró otro dispositivo NFC.');
                         });
                     } catch (e) {
-                        restore();
                         showToast('Web NFC no disponible en este navegador.');
                     }
                 } else {
-                    // Fallback honesto: el .vcf ES la vía hacia Apple/Google Contactos.
                     window.location.href = VCARD_URL;
                 }
             };

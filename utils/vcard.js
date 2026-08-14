@@ -8,31 +8,39 @@
  */
 function generateVCard(perfil, campos, baseUrl) {
   const lines = [];
+  const fullName = String(perfil.nombre_perfil || '').trim() || 'Contacto';
+
+  // Dividir nombre en apellido(nombres) — vCard 3.0 N:familiar;dado;...
+  const parts = fullName.split(/\s+/);
+  const given = parts.shift() || '';
+  const family = parts.join(' ') || '';
 
   lines.push('BEGIN:VCARD');
   lines.push('VERSION:3.0');
-  lines.push(`FN:${escapeVCard(perfil.nombre_perfil)}`);
-  lines.push('N:;;;');
+  lines.push(`FN:${escapeVCard(fullName)}`);
+  lines.push(`N:${escapeVCard(family)};${escapeVCard(given)};;;`);
 
   // Procesar campos de contacto
   if (campos && Array.isArray(campos)) {
     for (const campo of campos) {
+      if (!campo || typeof campo.valor !== 'string' || !campo.valor.trim()) continue;
+      const valor = campo.valor.trim();
       switch (campo.tipo) {
         case 'telefono':
         case 'whatsapp':
-          lines.push(`TEL;TYPE=CELL:${campo.valor}`);
+          lines.push(`TEL;TYPE=CELL:${escapeVCard(valor)}`);
           break;
         case 'email':
-          lines.push(`EMAIL:${campo.valor}`);
+          lines.push(`EMAIL:${escapeVCard(valor)}`);
           break;
         case 'direccion':
-          lines.push(`ADR:;;${escapeVCard(campo.valor)}`);
+          lines.push(`ADR;TYPE=WORK:;;${escapeVCard(valor)}`);
           break;
         case 'web':
-          lines.push(`URL:${campo.valor}`);
+          lines.push(`URL:${escapeVCard(valor)}`);
           break;
         default:
-          lines.push(`NOTE:${escapeVCard(campo.tipo)}: ${escapeVCard(campo.valor)}`);
+          lines.push(`NOTE:${escapeVCard(campo.tipo)}: ${escapeVCard(valor)}`);
           break;
       }
     }
@@ -43,7 +51,15 @@ function generateVCard(perfil, campos, baseUrl) {
 
   // Foto de perfil
   if (perfil.foto_url) {
-    lines.push(`PHOTO;VALUE=URI:${baseUrl}${perfil.foto_url}`);
+    const foto = String(perfil.foto_url).startsWith('http')
+      ? perfil.foto_url
+      : baseUrl + perfil.foto_url;
+    lines.push(`PHOTO;VALUE=URI:${foto}`);
+  }
+
+  // Cargo / tipo de perfil
+  if (perfil.tipo) {
+    lines.push(`TITLE:${escapeVCard(perfil.tipo)}`);
   }
 
   lines.push('END:VCARD');

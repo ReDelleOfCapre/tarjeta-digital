@@ -14,12 +14,12 @@ async function generateQR(url, options = {}) {
 
   const buffer = await QRCode.toBuffer(url, {
     type: 'png',
-    margin: 2,
+    margin: options.margin !== undefined ? options.margin : 3,
     width: options.width || 600,
     errorCorrectionLevel: 'H',
     color: {
-      dark: darkColor,
-      light: lightColor
+      dark: options.darkColor || '#000000',
+      light: options.lightColor || '#FFFFFF'
     }
   });
 

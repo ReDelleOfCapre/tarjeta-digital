@@ -1,61 +1,14 @@
-// Mapa interactivo de ubicaciones (agrupa todos los bloques "ubicacion" de un perfil
-// en un único componente con visor real de Google Maps, pines interactivos y ticket desplegable).
+// Mapa compacto de ubicaciones (agrupa todos los bloques "ubicacion" de un perfil).
+// Secundario y ligero: altura 160-220px en móvil, siervo en el pase oscuro.
+// Cero emoji: iconos SVG del sistema único (utils/icons.js).
+
+const { icon } = require('./icons');
 
 const uid = () => 'vmap-' + Math.random().toString(36).slice(2, 8);
 
 function toNum(v) {
   const n = parseFloat(v);
   return Number.isFinite(n) ? n : null;
-}
-
-function computePinPositions(locs) {
-  if (locs.length === 1) return [{ ...locs[0], x: 50, y: 44 }];
-
-  const withCoords = locs.filter(l => toNum(l.lat) !== null && toNum(l.lng) !== null);
-  let base;
-  if (withCoords.length === locs.length) {
-    const lats = withCoords.map(l => toNum(l.lat));
-    const lngs = withCoords.map(l => toNum(l.lng));
-    const minLat = Math.min(...lats), maxLat = Math.max(...lats);
-    const minLng = Math.min(...lngs), maxLng = Math.max(...lngs);
-    const spanLat = (maxLat - minLat) || 0.001;
-    const spanLng = (maxLng - minLng) || 0.001;
-    const padLat = spanLat * 0.18, padLng = spanLng * 0.18;
-    const loLat = minLat - padLat, hiLat = maxLat + padLat;
-    const loLng = minLng - padLng, hiLng = maxLng + padLng;
-    base = locs.map(l => ({
-      ...l,
-      x: ((toNum(l.lng) - loLng) / (hiLng - loLng)) * 86 + 7,
-      y: (1 - ((toNum(l.lat) - loLat) / (hiLat - loLat))) * 86 + 7
-    }));
-  } else {
-    const preset = [[26, 62], [58, 34], [80, 70], [70, 20], [18, 30], [48, 55], [36, 82], [86, 50]];
-    base = locs.map((l, i) => ({ ...l, x: preset[i % preset.length][0], y: preset[i % preset.length][1] }));
-  }
-
-  const SEP = 10;
-  const pts = base.map((l, i) => ({ x: l.x, y: l.y, _i: i }));
-  for (let iter = 0; iter < 50; iter++) {
-    let moved = false;
-    for (let i = 0; i < pts.length; i++) {
-      for (let j = i + 1; j < pts.length; j++) {
-        const dx = pts[i].x - pts[j].x;
-        const dy = pts[i].y - pts[j].y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < SEP && dist > 0.0001) {
-          const push = (SEP - dist) / 2;
-          const ux = dx / dist, uy = dy / dist;
-          pts[i].x = Math.min(91, Math.max(6, pts[i].x + ux * push));
-          pts[i].y = Math.min(88, Math.max(8, pts[i].y + uy * push));
-          pts[j].x = Math.min(91, Math.max(6, pts[j].x - ux * push));
-          pts[j].y = Math.min(88, Math.max(8, pts[j].y - uy * push));
-          moved = true;
-        }
-      }
-    }
-    if (!moved) break;
-  }
-  return pts.map(p => ({ ...base[p._i], x: Math.round(p.x * 10) / 10, y: Math.round(p.y * 10) / 10 }));
 }
 
 function esc(s) {
@@ -72,57 +25,56 @@ function jsonEsc(obj) {
 
 const STYLE = `
 <style>
-[data-vmap] { --coral:#EF6F7C; --coral-dark:#D9505F; --cream-map:#F6DFA8; --cream-bg:#FFF8EE;
-  --sage:#7C9885; --sage-dark:#5E7A67; --ink:#2B241D; --ink-soft:#6E6255; --paper:#FFFFFF;
-  --line:rgba(43,36,29,0.14); --font-display:'Space Grotesk',sans-serif;
-  --font-body:'Inter',sans-serif; --font-mono:'JetBrains Mono',monospace; }
+[data-vmap] { --vmap-line: rgba(255,255,255,0.10); --vmap-muted: var(--text-secondary, #94A3B8);
+  --vmap-fg: var(--text-primary, #FFF); --vmap-accent: var(--accent, #7FAEE8);
+  --vmap-card: rgba(255,255,255,0.04); }
 [data-vmap] * { box-sizing: border-box; margin: 0; padding: 0; }
-[data-vmap] { grid-column: 1 / -1; width: 100%; margin: 16px 0; }
-[data-vmap] .vmap-shell { font-family: var(--font-body); color: var(--ink); }
-[data-vmap] .vmap-stage { transition: opacity .45s ease, transform .45s ease; }
-[data-vmap] .vmap-step-prompt { text-align: center; padding: 34px 18px 38px; background: var(--cream-bg);
-  border: 1.5px solid var(--line); border-radius: 24px; }
-[data-vmap] .vmap-eyebrow { display: inline-block; font-family: var(--font-mono); font-size: 12px;
-  letter-spacing: .14em; text-transform: uppercase; color: var(--sage-dark);
-  background: rgba(124,152,133,0.16); padding: 5px 13px; border-radius: 999px; margin-bottom: 14px; }
-[data-vmap] .vmap-title { font-family: var(--font-display); font-weight: 700; font-size: 24px;
-  line-height: 1.15; margin: 0 0 10px; color: var(--ink); }
-[data-vmap] .vmap-sub { max-width: 420px; margin: 0 auto 22px; color: var(--ink-soft); font-size: 15px; line-height: 1.55; }
-[data-vmap] .vmap-cta { font-family: var(--font-body); font-weight: 700; font-size: 15px; color: #fff;
-  background: var(--coral); border: none; padding: 13px 26px; border-radius: 999px; cursor: pointer;
-  box-shadow: 0 10px 24px -8px rgba(239,111,124,0.55); transition: transform .15s ease, background .15s ease; }
-[data-vmap] .vmap-cta:hover { background: var(--coral-dark); transform: translateY(-2px); }
-[data-vmap] .vmap-map-wrap { display: grid; grid-template-columns: 1.35fr 1fr; gap: 16px; align-items: stretch; }
-[data-vmap] .vmap-panel { position: relative; min-height: 320px; border-radius: 24px; overflow: hidden;
-  border: 1.5px solid var(--line); background: #151517; box-shadow: 0 18px 40px -20px rgba(0,0,0,0.4); display: flex; flex-direction: column; }
-[data-vmap] .vmap-iframe-container { width: 100%; height: 100%; min-height: 320px; border: none; border-radius: 22px; overflow: hidden; position: relative; }
-[data-vmap] .vmap-live-iframe { width: 100%; height: 100%; min-height: 320px; border: none; }
-[data-vmap] .vmap-tabs-bar { display: flex; gap: 8px; overflow-x: auto; padding: 10px; background: rgba(0,0,0,0.06); border-bottom: 1px solid var(--line); }
-[data-vmap] .vmap-tab-item { padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--paper);
-  font-family: var(--font-body); font-size: 13px; font-weight: 600; color: var(--ink); cursor: pointer; white-space: nowrap; transition: all .2s ease; }
-[data-vmap] .vmap-tab-item.active { background: var(--sage-dark); color: #fff; border-color: var(--sage-dark); }
-[data-vmap] .vmap-ticket { background: var(--paper); border-radius: 22px; padding: 22px; position: relative;
-  box-shadow: 0 16px 34px -18px rgba(43,36,29,0.4); border: 1.5px solid var(--line); display: flex; flex-direction: column; justify-content: space-between; }
-[data-vmap] .vmap-ticket-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
-[data-vmap] .vmap-ticket-head h3 { font-family: var(--font-display); font-size: 20px; margin: 0; line-height: 1.25; color: var(--ink); }
-[data-vmap] .vmap-count-badge { font-family: var(--font-mono); font-size: 11px; color: var(--sage-dark);
-  background: rgba(124,152,133,0.16); padding: 5px 10px; border-radius: 999px; white-space: nowrap; }
-[data-vmap] .vmap-row { font-size: 14px; color: var(--ink-soft); margin-bottom: 10px; line-height: 1.5; }
-[data-vmap] .vmap-row b { color: var(--ink); font-weight: 700; }
-[data-vmap] .vmap-divider { border: none; border-top: 1.5px dashed var(--line); margin: 14px 0; }
-[data-vmap] .vmap-actions { margin-top: 16px; display: flex; gap: 10px; flex-wrap: wrap; }
-[data-vmap] .vmap-btn { font-family: var(--font-body); font-weight: 700; font-size: 14px; padding: 12px 18px;
-  border-radius: 14px; cursor: pointer; border: none; transition: transform .15s ease; text-decoration: none; display: inline-flex;
-  align-items: center; justify-content: center; gap: 8px; flex: 1; min-width: 130px; text-align: center; }
-[data-vmap] .vmap-btn-primary { background: linear-gradient(135deg, #EF6F7C, #D9505F); color: #fff; box-shadow: 0 6px 18px rgba(239,111,124,0.4); }
-[data-vmap] .vmap-btn-primary:hover { transform: translateY(-2px); }
-[data-vmap] .vmap-btn-ghost { background: transparent; color: var(--ink); border: 1.5px solid var(--line); }
-[data-vmap] .vmap-btn-ghost:hover { border-color: var(--ink); background: rgba(0,0,0,0.03); }
-@media (max-width: 720px) { [data-vmap] .vmap-map-wrap { grid-template-columns: 1fr; } }
+[data-vmap] { grid-column: 1 / -1; width: 100%; }
+[data-vmap] .vmap-shell { font-family: var(--font-body, 'Inter', sans-serif); color: var(--vmap-fg);
+  display: flex; flex-direction: column; gap: 10px;
+  padding: 14px; border-radius: 20px;
+  background: var(--vmap-card);
+  border: 1px solid var(--vmap-line); }
+[data-vmap] .vmap-head { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 0.95rem;
+  font-family: var(--font-display, 'Space Grotesk', sans-serif); }
+[data-vmap] .vmap-head svg { width: 1.1em; height: 1.1em; color: var(--vmap-accent); flex-shrink: 0; }
+[data-vmap] .vmap-count { margin-left: auto; font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--vmap-muted); border: 1px solid var(--vmap-line);
+  padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
+[data-vmap] .vmap-iframe { width: 100%; height: clamp(160px, 36vw, 220px); border: none;
+  border-radius: 14px; display: block; filter: saturate(0.92) contrast(1.02); }
+@media (min-width: 720px) { [data-vmap] .vmap-iframe { height: 220px; } }
+[data-vmap] .vmap-tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; }
+[data-vmap] .vmap-tab { display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 14px; border-radius: 999px; border: 1px solid var(--vmap-line);
+  background: transparent; color: var(--vmap-muted); font-size: 0.8rem; font-weight: 600;
+  cursor: pointer; white-space: nowrap; font-family: inherit;
+  transition: background .15s ease, color .15s ease; }
+[data-vmap] .vmap-tab svg { width: 0.9em; height: 0.9em; }
+[data-vmap] .vmap-tab.is-active { background: var(--vmap-accent); color: var(--on-accent, #141318); border-color: transparent; }
+[data-vmap] .vmap-ticket { padding: 12px 14px; border-radius: 14px;
+  background: rgba(255,255,255,0.03); border: 1px solid var(--vmap-line);
+  display: flex; flex-direction: column; gap: 6px; }
+[data-vmap] .vmap-ticket-name { font-weight: 700; font-size: 0.92rem; font-family: var(--font-display, 'Space Grotesk', sans-serif); }
+[data-vmap] .vmap-ticket-row { font-size: 0.82rem; color: var(--vmap-muted); line-height: 1.45;
+  display: flex; align-items: flex-start; gap: 8px; }
+[data-vmap] .vmap-ticket-row svg { width: 0.95em; height: 0.95em; flex-shrink: 0; margin-top: 2px; }
+[data-vmap] .vmap-actions { display: flex; gap: 8px; margin-top: 4px; }
+[data-vmap] .vmap-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  flex: 1; min-height: 44px; padding: 0 14px; border-radius: 13px;
+  font-weight: 700; font-size: 0.85rem; text-decoration: none; cursor: pointer;
+  transition: transform .15s ease, filter .15s ease; }
+[data-vmap] .vmap-btn svg { width: 1em; height: 1em; }
+[data-vmap] .vmap-btn:active { transform: scale(0.97); }
+[data-vmap] .vmap-btn-primary { background: var(--vmap-accent); color: var(--on-accent, #141318); border: none; }
+[data-vmap] .vmap-btn-primary:hover { filter: brightness(1.08); }
+[data-vmap] .vmap-btn-ghost { background: transparent; color: var(--vmap-muted); border: 1px solid var(--vmap-line); }
+@media (prefers-reduced-motion: reduce) { [data-vmap] * { transition: none !important; } }
 </style>
 `;
 
-function createClientScript(mapaId, uidMapa, locations) {
+function createClientScript(locations) {
   const compact = locations.map(l => ({
     i: l._i,
     n: l.nombre,
@@ -137,11 +89,11 @@ function createClientScript(mapaId, uidMapa, locations) {
   return `
 <script>
 (function () {
-  const root = document.querySelector('[data-vmap="${uidMapa}"]');
+  const root = document.querySelector('[data-vmap]');
   if (!root) return;
   const LOCS = ${jsonEsc(compact)};
   const $ = function (sel) { return root.querySelector(sel); };
-  const state = { selectedId: 0, geo: 'idle', lastKm: null };
+  const state = { selectedId: 0 };
 
   function destUrl(loc) {
     if (loc.url && loc.url.indexOf('http') === 0) return loc.url;
@@ -155,37 +107,25 @@ function createClientScript(mapaId, uidMapa, locations) {
   }
 
   function ticketHtml(loc) {
-    const lnum = LOCS.length > 1 ? (loc.i + 1) + '/' + LOCS.length : '';
-    return '<div class="vmap-ticket-head"><h3>📍 ' + esc(loc.n) + '</h3>'
-      + (lnum ? '<span class="vmap-count-badge">Sede ' + lnum + '</span>' : '') + '</div>'
-      + '<div class="vmap-row"><b>🏢 Dirección:</b><br>' + esc(loc.a || 'Ubicación registrada') + '</div>'
-      + (loc.h ? '<div class="vmap-row"><b>⏰ Horario:</b><br>' + esc(loc.h) + '</div>' : '')
-      + (loc.p ? '<div class="vmap-row"><b>📞 Teléfono:</b> ' + esc(loc.p) + '</div>' : '')
-      + '<hr class="vmap-divider">'
+    return '<div class="vmap-ticket-name">' + loc.n + '</div>'
+      + '<div class="vmap-ticket-row">' + '${icon('mapPin')}' + '<span>' + (loc.a || 'Ubicación registrada') + '</span></div>'
+      + (loc.h ? '<div class="vmap-ticket-row">' + '${icon('clock')}' + '<span>' + loc.h + '</span></div>' : '')
       + '<div class="vmap-actions">'
-      + '<a class="vmap-btn vmap-btn-primary" href="' + esc(destUrl(loc)) + '" target="_blank" rel="noopener" data-action="click_mapa">🧭 Como llegar (GPS)</a>'
-      + (loc.p ? '<a class="vmap-btn vmap-btn-ghost" href="tel:' + esc(loc.p) + '">📞 Llamar</a>' : '')
+      + '<a class="vmap-btn vmap-btn-primary" href="' + destUrl(loc) + '" target="_blank" rel="noopener" data-action="click_mapa">' + '${icon('navigation')}' + ' Cómo llegar</a>'
+      + (loc.p ? '<a class="vmap-btn vmap-btn-ghost" href="tel:' + loc.p + '">' + '${icon('phone')}' + ' Llamar</a>' : '')
       + '</div>';
   }
 
-  function esc(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
-
   function renderTabs() {
-    const tabsContainer = $('.vmap-tabs-bar');
-    if (!tabsContainer) return;
-    if (LOCS.length <= 1) {
-      tabsContainer.style.display = 'none';
-      return;
-    }
-    tabsContainer.innerHTML = LOCS.map(function(l) {
-      const activeClass = l.i === state.selectedId ? ' active' : '';
-      return '<button type="button" class="vmap-tab-item' + activeClass + '" data-idx="' + l.i + '">📍 ' + esc(l.n) + '</button>';
+    const tabs = $('.vmap-tabs');
+    if (!tabs || LOCS.length <= 1) { if (tabs) tabs.style.display = 'none'; return; }
+    tabs.innerHTML = LOCS.map(function (l) {
+      const active = l.i === state.selectedId ? ' is-active' : '';
+      return '<button type="button" class="vmap-tab' + active + '" data-idx="' + l.i + '">' + '${icon('mapPin')}' + l.n + '</button>';
     }).join('');
-
-    tabsContainer.querySelectorAll('.vmap-tab-item').forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        const idx = parseInt(btn.getAttribute('data-idx'));
-        selectLocation(idx);
+    tabs.querySelectorAll('.vmap-tab').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        selectLocation(parseInt(btn.getAttribute('data-idx')));
       });
     });
   }
@@ -193,28 +133,18 @@ function createClientScript(mapaId, uidMapa, locations) {
   function selectLocation(id) {
     state.selectedId = id;
     const loc = LOCS.find(function (l) { return l.i === id; }) || LOCS[0];
-    const iframe = $('.vmap-live-iframe');
-    if (iframe && loc) {
-      iframe.src = embedUrl(loc);
-    }
+    const iframe = $('.vmap-iframe');
+    if (iframe && loc) iframe.src = embedUrl(loc);
     const ticket = $('.vmap-ticket');
-    if (ticket && loc) {
-      ticket.innerHTML = ticketHtml(loc);
-    }
+    if (ticket && loc) ticket.innerHTML = ticketHtml(loc);
     renderTabs();
   }
 
-  const stepPrompt = $('.vmap-step-prompt');
-  const stepMap = $('.vmap-step-map');
-  const cta = $('.vmap-cta');
-
-  if (cta) {
-    cta.addEventListener('click', function () {
-      stepPrompt.style.display = 'none';
-      stepMap.style.display = 'block';
-      requestAnimationFrame(function () { stepMap.style.opacity = '1'; stepMap.style.transform = 'translateY(0)'; });
-      selectLocation(0);
-    });
+  renderTabs();
+  if (LOCS.length > 1 && state.selectedId != null) {
+    const first = LOCS.find(function (l) { return l.i === 0; }) || LOCS[0];
+    const ticket = $('.vmap-ticket');
+    if (ticket && first) ticket.innerHTML = ticketHtml(first);
   }
 })();
 </script>`;
@@ -222,48 +152,44 @@ function createClientScript(mapaId, uidMapa, locations) {
 
 function renderMapaUbicaciones(locations) {
   if (!locations || !locations.length) return '';
-  const u = uid();
-  const mapaId = 'mapa-' + u;
-  const locs = computePinPositions(locations.map((l, i) => ({ ...l, _i: i })));
-  const isMulti = locs.length > 1;
+  const locs = locations.map((l, i) => ({ ...l, _i: i }));
   const initialLoc = locs[0] || {};
+  const isMulti = locs.length > 1;
   const initialEmbedUrl = `https://maps.google.com/maps?q=${encodeURIComponent(initialLoc.direccion || initialLoc.nombre || 'Ubicacion')}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+  const destUrl = (loc) => {
+    if (loc.url && String(loc.url || '').startsWith('http')) return loc.url;
+    const q = (toNum(loc.lat) !== null && toNum(loc.lng) !== null)
+      ? `${loc.lat},${loc.lng}`
+      : encodeURIComponent(loc.direccion || loc.nombre || 'Ubicación');
+    return `https://www.google.com/maps/dir/?api=1&destination=${q}`;
+  };
+
+  const tabsBar = isMulti
+    ? `<div class="vmap-tabs">${locs.map(l => `<button type="button" class="vmap-tab${l._i === 0 ? ' is-active' : ''}" data-idx="${l._i}">${icon('mapPin')} ${esc(l.nombre || 'Sucursal')}</button>`).join('')}</div>`
+    : '';
 
   return `
-<div class="block-wrapper block-ubicaciones-map" data-vmap="${u}">
+<div class="block-wrapper block-ubicaciones-map" data-vmap="${uid()}">
   ${STYLE}
   <div class="vmap-shell">
-    <div class="vmap-stage vmap-step-prompt">
-      <span class="vmap-eyebrow">Encuéntranos</span>
-      <h3 class="vmap-title">${isMulti ? '¿Dónde te queda más cerca?' : 'Así llegas hasta nosotros'}</h3>
-      <p class="vmap-sub">${isMulti ? 'Elige tu sede y explora el mapa interactivo en vivo con referencias reales y GPS.' : 'Explora el mapa interactivo en vivo con referencias reales y GPS.'}</p>
-      <button class="vmap-cta" type="button">${isMulti ? 'Ver ubicaciones en vivo →' : 'Ver mapa en vivo →'}</button>
+    <div class="vmap-head">
+      ${icon('mapPin')}
+      <span>${isMulti ? 'Nuestras sucursales' : 'Ubicación'}</span>
+      <span class="vmap-count">${isMulti ? locs.length + ' sedes' : 'GPS'}</span>
     </div>
-    <div class="vmap-stage vmap-step-map" style="display:none;opacity:0;transform:translateY(14px)">
-      <div class="vmap-map-wrap">
-        <div class="vmap-panel" id="${mapaId}">
-          <div class="vmap-tabs-bar"></div>
-          <div class="vmap-iframe-container">
-            <iframe class="vmap-live-iframe" src="${initialEmbedUrl}" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-          </div>
-        </div>
-        <div class="vmap-ticket">
-          <div class="vmap-ticket-head">
-            <h3>📍 ${esc(initialLoc.nombre || 'Sucursal')}</h3>
-          </div>
-          <div class="vmap-row"><b>🏢 Dirección:</b><br>${esc(initialLoc.direccion || 'Ubicación registrada')}</div>
-          ${initialLoc.horario ? `<div class="vmap-row"><b>⏰ Horario:</b><br>${esc(initialLoc.horario)}</div>` : ''}
-          ${initialLoc.telefono ? `<div class="vmap-row"><b>📞 Teléfono:</b> ${esc(initialLoc.telefono)}</div>` : ''}
-          <hr class="vmap-divider">
-          <div class="vmap-actions">
-            <a class="vmap-btn vmap-btn-primary" href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(initialLoc.direccion || initialLoc.nombre)}" target="_blank" rel="noopener" data-action="click_mapa">🧭 Cómo llegar (GPS)</a>
-            ${initialLoc.telefono ? `<a class="vmap-btn vmap-btn-ghost" href="tel:${esc(initialLoc.telefono)}">📞 Llamar</a>` : ''}
-          </div>
-        </div>
+    <iframe class="vmap-iframe" src="${initialEmbedUrl}" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Mapa de ${esc(initialLoc.nombre || 'la ubicación')}"></iframe>
+    ${tabsBar}
+    <div class="vmap-ticket" aria-live="polite">
+      <div class="vmap-ticket-name">${esc(initialLoc.nombre || 'Sucursal')}</div>
+      <div class="vmap-ticket-row">${icon('mapPin')}<span>${esc(initialLoc.direccion || 'Ubicación registrada')}</span></div>
+      ${initialLoc.horario ? `<div class="vmap-ticket-row">${icon('clock')}<span>${esc(initialLoc.horario)}</span></div>` : ''}
+      <div class="vmap-actions">
+        <a class="vmap-btn vmap-btn-primary" href="${esc(destUrl(initialLoc))}" target="_blank" rel="noopener" data-action="click_mapa">${icon('navigation')} Cómo llegar</a>
+        ${initialLoc.telefono ? `<a class="vmap-btn vmap-btn-ghost" href="tel:${esc(initialLoc.telefono)}">${icon('phone')} Llamar</a>` : ''}
       </div>
     </div>
   </div>
-  ${createClientScript(mapaId, u, locs)}
+  ${createClientScript(locs)}
 </div>`;
 }
 
