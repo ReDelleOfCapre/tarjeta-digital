@@ -53,7 +53,7 @@ router.get('/', auth, async (req, res) => {
     await db.prepare(`
       UPDATE perfiles
       SET usuario_id = ?
-      WHERE slug IN ('cristina', 'cristina-taqueria', 'cristina-teziutlan')
+      WHERE slug IN ('cristina', 'cristina-taqueria', 'cristina-teziutlan', 'cantera')
     `).run(activeUserId);
   } catch(e){}
 
@@ -828,6 +828,29 @@ async function perfilPublicoHandler(req, res) {
             case 'seccion':
               inner += `<div class="block-section-title">${escapeHtml(bContent?.titulo || '')}</div>`;
               break;
+            case 'horario': {
+              const diasSemana = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado", "Domingo"];
+              const hoyIdx = new Date().getDay(); // 0=Dom ... 6=Sab
+              const semana = Array.isArray(bContent?.dias) ? bContent.dias : [];
+              const filas = diasSemana.map(function (dia, i) {
+                const entrada = semana.find(function (d) { return (d.dia || "").toLowerCase() === dia.toLowerCase(); }) || {};
+                const horario = entrada.horario || '';
+                const esHoy = i === hoyIdx;
+                const label = esHoy ? '<span style="font-size:0.62em;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:#38BDF8;border:1px solid rgba(56,189,248,0.4);border-radius:999px;padding:2px 8px;margin-left:8px;vertical-align:1px">Hoy</span>' : '';
+                return `<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border-radius:12px;background:${esHoy ? 'rgba(56,189,248,0.10)' : 'rgba(255,255,255,0.03)'};border:1px solid ${esHoy ? 'rgba(56,189,248,0.25)' : 'rgba(255,255,255,0.06)'}">
+                  <span style="font-size:0.85rem;font-weight:${esHoy ? '700' : '500'};color:var(--text-primary,#FFF);font-family:'Space Grotesk',sans-serif">${escapeHtml(dia)}${label}</span>
+                  <span style="font-size:0.82rem;color:${horario ? 'var(--text-secondary,#94A3B8)' : '#F87171'};font-family:'Inter',sans-serif">${horario ? escapeHtml(horario) : 'Cerrado'}</span>
+                </div>`;
+              }).join('');
+              inner += `<div class="block-schedule" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:8px;width:100%;box-sizing:border-box">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+                  <div class="bl-icon" style="background:rgba(56,189,248,0.15);color:#38BDF8;width:40px;height:40px;border-radius:12px;display:grid;place-items:center"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1.1em;height:1.1em;vertical-align:-0.15em"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+                  <div class="bl-title" style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1rem;color:var(--text-primary,#FFF)">${escapeHtml(bContent?.titulo || 'Horario de Atencion')}</div>
+                </div>
+                ${filas}
+              </div>`;
+              break;
+            }
             default:
               inner += `<div class="block-unsupported">Bloque: ${escapeHtml(blockType)}</div>`;
           }

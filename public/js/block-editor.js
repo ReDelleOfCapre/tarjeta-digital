@@ -4,6 +4,7 @@
   var BLOCK_TYPES = [
     { tipo: "link", label: "Link destacado", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7\"/><path d=\"M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7\"/></svg>", color: "#4C6FFF" },
     { tipo: "ubicacion", label: "Ubicacion", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M12 21s7-7.5 7-12a7 7 0 1 0-14 0c0 4.5 7 12 7 12z\"/><circle cx=\"12\" cy=\"9\" r=\"2.4\"/></svg>", color: "#EF6F7C" },
+    { tipo: "horario", label: "Horario", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 6v6l4 2\"/></svg>", color: "#38BDF8" },
     { tipo: "whatsapp", label: "WhatsApp", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M21 12a8 8 0 0 1-8 8H4l3-3a8 8 0 1 1 14-5z\"/></svg>", color: "#25D366" },
     { tipo: "social_icons", label: "Redes", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M12 3l1.7 5.3L19 10l-5.3 1.7L12 17l-1.7-5.3L5 10l5.3-1.7L12 3z\"/></svg>", color: "#B86AF6" },
     { tipo: "galeria", label: "Galeria", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><rect x=\"3\" y=\"6\" width=\"18\" height=\"14\" rx=\"2\"/><circle cx=\"12\" cy=\"13\" r=\"4\"/><path d=\"M8.5 6l1-2h5l1 2\"/></svg>", color: "#EC4899" },
@@ -35,6 +36,7 @@
   var BLOCK_DESCRIPTIONS = {
     link: "Enlace destacado con vista previa",
     ubicacion: "Mapa con dirección y GPS disponible",
+    horario: "Horarios de atención por día",
     whatsapp: "Chat directo con mensaje inicial",
     social_icons: "Iconos de tus redes oficiales",
     galeria: "Carrusel de imágenes y captions",
@@ -768,6 +770,18 @@
       html += formField("Titulo", "bf-titulo", existing.titulo || "", "Proximo lanzamiento");
       html += '<div class="field"><label for="bf-fecha">Fecha</label><input id="bf-fecha" class="form-input" type="datetime-local" value="' +
         escapeHtml(existing.fecha_fin || "") + '"></div>';
+    } else if (tipo === "horario") {
+      html += formField("Titulo", "bf-titulo", existing.titulo || "", "Ej. Horario de Atencion");
+      html += '<div class="mono-note" style="color:var(--editor-muted);margin-bottom:12px">Deja vacio un dia para marcarlo como cerrado.</div>';
+      var diasSemana = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado", "Domingo"];
+      diasSemana.forEach(function (dia) {
+        var valor = "";
+        if (Array.isArray(existing.dias)) {
+          var found = existing.dias.find(function (item) { return (item.dia || "").toLowerCase() === dia.toLowerCase(); });
+          valor = found ? found.horario : "";
+        }
+        html += formField(dia, "bf-dia-" + dia.toLowerCase(), valor, "Ej. 8:00 - 23:00");
+      });
     } else if (tipo === "pago") {
       html += formField("Banco", "bf-banco", existing.banco || "", "Banco principal");
       html += formField("Beneficiario", "bf-beneficiario", existing.beneficiario || "", "Nombre completo");
@@ -929,6 +943,25 @@
       return {
         titulo: gv("bf-titulo") || "Proximo lanzamiento",
         fecha_fin: fecha
+      };
+    }
+
+    if (tipo === "horario") {
+      var dias = [];
+      var diasSemana = ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado", "Domingo"];
+      var filled = 0;
+      diasSemana.forEach(function (dia) {
+        var horario = gv("bf-dia-" + dia.toLowerCase());
+        dias.push({ dia: dia, horario: horario });
+        if (horario) filled++;
+      });
+      if (filled === 0) {
+        showToast("Agrega al menos un horario", "error");
+        return null;
+      }
+      return {
+        titulo: gv("bf-titulo") || "Horario de Atencion",
+        dias: dias
       };
     }
 
@@ -1256,6 +1289,7 @@
   function previewMeta(block) {
     var content = block.contenido || {};
     if (block.tipo === "ubicacion") return content.horario || content.direccion || "Mapa y sede";
+    if (block.tipo === "horario") return (content.dias ? content.dias.filter(function (d) { return d.horario; }).length : 0) + " dias con horario";
     if (block.tipo === "whatsapp") return content.numero || "Contacto directo";
     if (block.tipo === "social_icons") return (content.redes ? content.redes.length : 0) + " redes conectadas";
     if (block.tipo === "countdown") return content.fecha_fin || "Cuenta regresiva";

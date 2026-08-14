@@ -387,6 +387,73 @@ class PgDatabaseWrapper {
         );
       }
 
+      // 🍽️ Cantera — Cocina & Cantina (Teziutlán, datos reales)
+      const canteraRes = await this.pool.query("SELECT id FROM perfiles WHERE slug = 'cantera' ORDER BY id ASC");
+      let canteraId;
+
+      if (canteraRes.rows.length > 0) {
+        canteraId = canteraRes.rows[0].id;
+        if (canteraRes.rows.length > 1) {
+          const extraIds = canteraRes.rows.slice(1).map(r => r.id);
+          for (const extraId of extraIds) {
+            await this.pool.query("DELETE FROM bloques WHERE perfil_id = $1", [extraId]);
+            await this.pool.query("DELETE FROM perfiles WHERE id = $1", [extraId]);
+          }
+        }
+        await this.pool.query(
+          "UPDATE perfiles SET usuario_id = $1, nombre_perfil = 'Cantera Cocina & Cantina', tipo = 'negocio', color = '#B45309', tema = 'editorial', bio = $2 WHERE id = $3",
+          [userId, 'Cocina de autor y cantina en el corazón de Teziutlán. Ambiente único, familiar y celebraciones que se disfrutan desde que entras.', canteraId]
+        );
+      } else {
+        const insC = await this.pool.query(
+          `INSERT INTO perfiles (usuario_id, slug, nombre_perfil, tipo, color, tema, bio, foto_url, banner_url)
+           VALUES ($1, 'cantera', 'Cantera Cocina & Cantina', 'negocio', '#B45309', 'editorial', $2, 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=300', 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1000')
+           RETURNING id`,
+          [userId, 'Cocina de autor y cantina en el corazón de Teziutlán. Ambiente único, familiar y celebraciones que se disfrutan desde que entras.']
+        );
+        canteraId = insC.rows[0].id;
+      }
+
+      if (canteraId) {
+        await this.pool.query("DELETE FROM bloques WHERE perfil_id = $1", [canteraId]);
+
+        await this.pool.query(
+          "INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES ($1, 'whatsapp', $2, 0)",
+          [canteraId, JSON.stringify({ titulo: 'Reservaciones por WhatsApp', url: 'https://wa.me/522311291263', numero: '522311291263', texto: 'Reservaciones por WhatsApp' })]
+        );
+        await this.pool.query(
+          "INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES ($1, 'horario', $2, 1)",
+          [canteraId, JSON.stringify({
+            titulo: 'Horario de Atención',
+            dias: [
+              { dia: 'Lunes', horario: 'Cerrado' },
+              { dia: 'Martes', horario: '8:00 - 23:00' },
+              { dia: 'Miercoles', horario: '8:00 - 23:00' },
+              { dia: 'Jueves', horario: '8:00 - 23:00' },
+              { dia: 'Viernes', horario: '8:00 - 00:00' },
+              { dia: 'Sabado', horario: '8:00 - 00:00' },
+              { dia: 'Domingo', horario: '8:00 - 00:00' }
+            ]
+          })]
+        );
+        await this.pool.query(
+          "INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES ($1, 'link', $2, 2)",
+          [canteraId, JSON.stringify({ titulo: '📍 Calle Zaragoza #37, Centro', subtitulo: 'Teziutlán, Puebla · Ver ruta GPS', url: 'https://maps.google.com/?q=Zaragoza+37+Centro+Teziutlán+Puebla', icono: '📍', color: '#B45309' })]
+        );
+        await this.pool.query(
+          "INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES ($1, 'link', $2, 3)",
+          [canteraId, JSON.stringify({ titulo: '🌐 Sitio web oficial', subtitulo: 'canteratez.com · Menú y promociones', url: 'https://canteratez.com', icono: '🌐', color: '#B45309' })]
+        );
+        await this.pool.query(
+          "INSERT INTO bloques (perfil_id, tipo, contenido, orden) VALUES ($1, 'social_icons', $2, 4)",
+          [canteraId, JSON.stringify({ redes: [
+            { tipo: 'instagram', url: 'https://instagram.com/cantera.cocina.cantina' },
+            { tipo: 'facebook', url: 'https://www.facebook.com/people/Cantera-Cocina-Cantina/61574852067969/' },
+            { tipo: 'tiktok', url: 'https://www.tiktok.com/@cantera.teziutlan' }
+          ] })]
+        );
+      }
+
       console.log('✅ Tarjetas premium garantizadas en Neon PostgreSQL (cuenta demo)');
     } catch (e) {
       console.error('Error en _ensurePremiumProfiles PG:', e);
