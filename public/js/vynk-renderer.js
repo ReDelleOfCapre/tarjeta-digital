@@ -338,6 +338,37 @@
       const html = renderBlock(b);
       if (html) container.appendChild(renderElement(html));
     });
+    initCountdowns(container);
+  }
+
+  /**
+   * Arranca el ticker de los bloques countdown dentro de un contenedor.
+   * Auto-limpiable: si el nodo sale del DOM se detiene su intervalo (evita
+   * fugas en el preview del editor, que se re-renderiza constantemente).
+   */
+  function initCountdowns(scope) {
+    scope.querySelectorAll('.block-countdown[data-countdown]').forEach(function (box) {
+      const target = Number(box.getAttribute('data-countdown')) || 0;
+      function tick() {
+        if (!box.isConnected) { clearInterval(box.__cdTimer); return; }
+        const diff = Math.max(0, target - Date.now());
+        const d = Math.floor(diff / 86400000);
+        const h = Math.floor((diff % 86400000) / 3600000);
+        const m = Math.floor((diff % 3600000) / 60000);
+        const s = Math.floor((diff % 60000) / 1000);
+        const pad = function (n) { return String(n).padStart(2, '0'); };
+        const days = box.querySelector('.days');
+        const hours = box.querySelector('.hours');
+        const minutes = box.querySelector('.minutes');
+        const seconds = box.querySelector('.seconds');
+        if (days) days.textContent = pad(d);
+        if (hours) hours.textContent = pad(h);
+        if (minutes) minutes.textContent = pad(m);
+        if (seconds) seconds.textContent = pad(s);
+      }
+      tick();
+      box.__cdTimer = setInterval(tick, 1000);
+    });
   }
 
   function renderElement(html) {
@@ -347,5 +378,9 @@
   }
 
   window.renderVynkProfile = renderVynkProfile;
-  window.VYNK_ICONS = ICONS;
+  try {
+    if (!window.VYNK_ICONS || Object.keys(window.VYNK_ICONS).length < Object.keys(ICONS).length) {
+      window.VYNK_ICONS = ICONS;
+    }
+  } catch (e) { /* noop */ }
 })();

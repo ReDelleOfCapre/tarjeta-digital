@@ -282,10 +282,10 @@ html[data-theme="dark"] {
   --accent-mint: #C9F2E4;
   --accent-lilac: #E4D9F7;
 
-  --primary: #7FAEE8;
-  --accent: #7FAEE8;
-  --accent-deep: #4C86C8;
-  --tint: rgba(88, 145, 211, 0.16);
+  --primary: var(--vynk-wine);
+  --accent: var(--vynk-wine);
+  --accent-deep: #722F43;
+  --tint: rgba(154, 65, 89, 0.16);
   --canvas: var(--bg-base);
   --paper: var(--bg-elevated);
   --line: var(--border-hairline);
@@ -372,4 +372,92 @@ body {
   -webkit-backdrop-filter: var(--glass-blur);
   border: var(--glass-border);
   box-shadow: var(--glass-shadow);
+}
+
+/* ============================================================
+   § CANONICAL VYNK SEMANTIC TOKENS (Design System §4)
+   Nombres oficiales del sistema. Toda nueva UI usa SOLO estos.
+   Son aliases aditivos -> igual valor que los tokens base.
+   Migración: consumidores pasan de *-background/surface-2 a estos.
+   ============================================================ */
+:root {
+  /* Superficies */
+  --vynk-bg: var(--bg-base);
+  --vynk-surface: var(--bg-elevated);
+  --vynk-surface-elevated: var(--surface-elevated);
+  --vynk-surface-glass: var(--glass-bg);
+
+  /* Texto */
+  --vynk-text: var(--text-primary);
+  --vynk-text-secondary: var(--text-secondary);
+  --vynk-text-tertiary: var(--text-tertiary);
+
+  /* Borde */
+  --vynk-border: var(--border-hairline);
+  --vynk-border-subtle: var(--border-subtle);
+
+  /* Acento */
+  --vynk-accent: var(--primary);
+  --vynk-accent-soft: var(--tint);
+  --vynk-accent-glow: var(--accent-glow);
+  --vynk-accent-deep: var(--accent-deep);
+  --vynk-accent-hi: var(--accent-deep);
+  --vynk-hairline: var(--border-hairline);
+
+  /* Estado (éxito, aviso, error, info) */
+  --vynk-success: var(--success);
+  --vynk-success-bg: var(--success-bg);
+  --vynk-warning: var(--warning);
+  --vynk-warning-bg: var(--warning-bg);
+  --vynk-error: var(--error);
+  --vynk-error-bg: var(--error-bg);
+  --vynk-info: var(--info);
+  --vynk-info-bg: var(--info-bg);
+
+  /* Radio — escala canónica */
+  --vynk-radius-sm: var(--radius-1);
+  --vynk-radius-md: var(--radius-2);
+  --vynk-radius-lg: var(--radius-3);
+  --vynk-radius-xl: var(--radius-4);
+  --vynk-radius-pill: var(--radius-full);
+
+  /* Espaciado — escala 4pt compacta */
+  --vynk-spacing-1: var(--space-1);
+  --vynk-spacing-2: var(--space-2);
+  --vynk-spacing-3: var(--space-3);
+  --vynk-spacing-4: var(--space-4);
+  --vynk-spacing-6: var(--space-6);
+  --vynk-spacing-8: var(--space-8);
+  --vynk-spacing-xs: var(--space-2);
+  --vynk-spacing-sm: var(--space-4);
+  --vynk-spacing-md: var(--space-6);
+  --vynk-spacing-lg: var(--space-8);
+
+  /* Sombra */
+  --vynk-shadow-sm: var(--shadow-sm);
+  --vynk-shadow-md: var(--shadow-md);
+  --vynk-shadow-lg: var(--shadow-lg);
+
+  /* Iconos */
+  --vynk-icon-size: 22px;
+  --vynk-icon-size-sm: 18px;
+  --vynk-icon-size-lg: 28px;
+  --vynk-icon-stroke: 1.8;
+
+  /* Motion — 4 duraciones + eases */
+  --vynk-motion-1: 120ms;
+  --vynk-motion-2: 180ms;
+  --vynk-motion-3: 300ms;
+  --vynk-motion-4: 450ms;
+  --vynk-motion-fast: var(--vynk-motion-2) var(--ease-apple);
+  --vynk-motion-base: var(--vynk-motion-3) var(--ease-apple);
+  --vynk-motion-slow: var(--vynk-motion-4) var(--ease-magnetic);
+  --vynk-ease: var(--ease-apple);
+}
+
+/* === FOCUS-ADJECTIVE (accesibilidad) — cascade global === */
+:focus-visible {
+  outline: 2px solid var(--vynk-accent);
+  outline-offset: 2px;
+  border-radius: 2px;
 }

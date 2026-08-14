@@ -168,7 +168,9 @@
       "cumpleanos",
       "lugar_estudio",
       "pronombres",
-      "marco_estilo"
+      "marco_estilo",
+      "hora_apertura",
+      "hora_cierre"
     ].forEach(function (id) {
       var el = document.getElementById(id);
       if (!el) return;
@@ -240,6 +242,24 @@
     container.querySelectorAll("[data-block-type]").forEach(function (node) {
       node.addEventListener("click", function () {
         showBlockForm(node.getAttribute("data-block-type"));
+      });
+      node.addEventListener("keydown", function (e) {
+        if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+          e.preventDefault();
+          var next = node.nextElementSibling;
+          if (next && next.matches("[data-block-type]")) next.focus();
+        } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+          e.preventDefault();
+          var prev = node.previousElementSibling;
+          if (prev && prev.matches("[data-block-type]")) prev.focus();
+        } else if (e.key === "Home") {
+          e.preventDefault();
+          container.querySelector("[data-block-type]").focus();
+        } else if (e.key === "End") {
+          e.preventDefault();
+          var all = container.querySelectorAll("[data-block-type]");
+          all[all.length - 1].focus();
+        }
       });
     });
   }

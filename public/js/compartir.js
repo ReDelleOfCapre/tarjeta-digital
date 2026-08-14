@@ -101,7 +101,18 @@
 
   // --- QR code ---
   qrImg.src = '/api/perfiles/' + slug + '/qr';
+  qrImg.onload = () => {
+    const skeleton = document.getElementById('qr-skeleton');
+    if (skeleton) skeleton.style.display = 'none';
+    qrImg.style.display = '';
+  };
   qrImg.onerror = () => {
+    const skeleton = document.getElementById('qr-skeleton');
+    if (skeleton) {
+      skeleton.textContent = 'No se pudo cargar el QR';
+      skeleton.style.display = 'grid';
+      skeleton.style.placeItems = 'center';
+    }
     qrImg.alt = 'No se pudo cargar el QR';
   };
 

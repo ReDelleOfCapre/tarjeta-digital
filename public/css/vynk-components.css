@@ -1,0 +1,472 @@
+/* ==========================================================================
+   VYNK — Component Primitives (vynk-components.css)
+   Capa de componentes compartidos. Namespaced `.vynk-*` => aditivo, sin colisiones.
+   Única fuente de átomos UI: botones, chips, toggles, campos, dialogs, skeletons.
+   Método: marcado + estados (default/hover/active/focus/disabled/loading).
+   NO repite valores: usa los tokens canónicos de `--vynk-*` (tokens.css).
+   ========================================================================== */
+
+/* ============================================================
+   BUTTONS
+   .vynk-btn            base
+   .vynk-btn--primary   acción principal
+   .vynk-btn--secondary superficie realzada
+   .vynk-btn--ghost     transparente / hairline
+   .vynk-btn--danger    destructivo
+   .vynk-btn--sm / --md / --lg
+   .vynk-btn--icon      cuadrado icon-only
+   .vynk-btn[disabled] / .is-loading
+   ============================================================ */
+.vynk-btn {
+  --btn-bg: var(--vynk-accent);
+  --btn-bg-hover: var(--vynk-accent-glow);
+  --btn-fg: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 20px;
+  border: 1px solid transparent;
+  border-radius: var(--vynk-radius-l);
+}
+
+.vynk-btn,
+.vynk-btn:active {
+  font-family: var(--font-body);
+  font-size: var(--text-body-sm, 15px);
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    transform var(--vynk-motion-1) var(--vynk-ease),
+    background-color var(--vynk-motion-2) var(--vynk-ease),
+    border-color var(--vynk-motion-2) var(--vynk-ease),
+    color var(--vynk-motion-2) var(--vynk-ease),
+    box-shadow var(--vynk-motion-2) var(--vynk-ease);
+}
+
+.vynk-btn:hover {
+  transform: translateY(-1px);
+}
+.vynk-btn:active {
+  transform: translateY(0) scale(0.985);
+}
+
+/* Primary */
+.vynk-btn--primary {
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+}
+.vynk-btn--primary:hover {
+  background: var(--btn-bg-hover, var(--vynk-accent-deep));
+  box-shadow: 0 6px 16px -6px var(--vynk-accent-glow);
+}
+
+/* Secondary */
+.vynk-btn--secondary {
+  background: var(--vynk-surface);
+  border-color: var(--vynk-border);
+  color: var(--vynk-text);
+}
+.vynk-btn--secondary:hover {
+  background: var(--vynk-surface-elevated);
+  border-color: var(--vynk-border-subtle);
+}
+
+/* Ghost */
+.vynk-btn--ghost {
+  background: transparent;
+  color: var(--vynk-accent);
+}
+.vynk-btn--ghost:hover {
+  background: var(--vynk-accent-soft);
+  color: var(--vynk-accent-deep);
+}
+
+/* Danger */
+.vynk-btn--danger {
+  background: var(--vynk-error-bg);
+  border-color: transparent;
+  color: var(--vynk-error);
+}
+.vynk-btn--danger:hover {
+  background: var(--vynk-error-bg);
+  background: rgba(var(--vynk-error-rgb, 179 38 30), 0.18);
+  color: var(--vynk-error);
+}
+
+/* Sizes */
+.vynk-btn--sm {
+  min-height: 34px;
+  padding: 0 14px;
+  font-size: 0.85rem;
+  border-radius: var(--vynk-radius-md);
+}
+.vynk-btn--lg {
+  min-height: 52px;
+  padding: 0 28px;
+  font-size: var(--text-body);
+  border-radius: var(--vynk-radius-l);
+}
+
+/* Icon-only */
+.vynk-btn--icon {
+  width: 44px;
+  padding: 0;
+  border-radius: 50%;
+}
+.vynk-btn--icon.vynk-btn--sm {
+  width: 34px;
+  min-height: 34px;
+}
+.vynk-btn--icon svg {
+  width: 1.25em;
+  height: 1.25em;
+}
+
+/* Disabled + loading */
+.vynk-btn[disabled],
+.vynk-btn.is-loading {
+  opacity: 0.5;
+  pointer-events: none;
+}
+.vynk-btn.is-loading::before {
+  content: "";
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: vynk-spin 0.8s linear infinite;
+}
+
+@keyframes vynk-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ============================================================
+   CHIPS
+   .vynk-chip          base
+   .vynk-chip--accent  relleno acento
+   .vynk-chip--ghost   hairline
+   [data-vynk-chip-active]
+   ============================================================ */
+.vynk-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border: 1px solid var(--vynk-border);
+  border-radius: var(--vynk-radius-pill);
+  background: var(--vynk-surface);
+  color: var(--vynk-text-secondary);
+  font-size: var(--text-caption);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition:
+    background var(--vynk-motion-2) var(--vynk-ease),
+    color var(--vynk-motion-2) var(--vynk-ease),
+    border-color var(--vynk-motion-2) var(--vynk-ease),
+    transform var(--vynk-motion-1) var(--vynk-ease);
+}
+.vynk-chip:hover {
+  border-color: var(--vynk-border-subtle);
+  color: var(--vynk-text);
+  transform: translateY(-1px);
+}
+.vynk-chip--accent,
+.vynk-chip[data-vynk-chip-active] {
+  background: var(--vynk-accent);
+  border-color: transparent;
+  color: #fff;
+}
+.vynk-chip--ghost {
+  background: transparent;
+}
+
+/* ============================================================
+   TOGGLE
+   .vynk-toggle  (input.checkbox role=switch)
+   ============================================================ */
+.vynk-toggle {
+  appearance: none;
+  -webkit-appearance: none;
+  position: relative;
+  width: 46px;
+  height: 28px;
+  border-radius: var(--vynk-radius-pill);
+  background: var(--vynk-border-subtle);
+  border: 1px solid var(--vynk-border);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background var(--vynk-motion-2) var(--vynk-ease);
+}
+.vynk-toggle::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.22);
+  transition: transform var(--vynk-motion-2) var(--ease-apple);
+}
+.vynk-toggle:checked {
+  background: var(--vynk-accent);
+  border-color: transparent;
+}
+.vynk-toggle:checked::after {
+  transform: translateX(18px);
+}
+
+/* ============================================================
+   SEGMENTED CONTROL
+   .vynk-segmented > .vynk-segmented__item[data-active]
+   ============================================================ */
+.vynk-segmented {
+  display: inline-flex;
+  padding: 4px;
+  background: var(--vynk-surface-elevated);
+  border: 1px solid var(--vynk-border);
+  border-radius: var(--vynk-radius-xl);
+}
+.vynk-segmented__item {
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  border-radius: var(--vynk-radius-lg);
+  color: var(--vynk-text-secondary);
+  font-family: var(--font-body);
+  font-size: var(--text-body-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background var(--vynk-motion-2) var(--vynk-ease),
+    color var(--vynk-motion-2) var(--vynk-ease);
+}
+.vynk-segmented__item[data-active],
+.vynk-segmented__item[data-vynk-active] {
+  background: var(--vynk-surface);
+  color: var(--vynk-text);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.10);
+}
+
+/* ============================================================
+   INPUTS
+   .vynk-input .vynk-input__field
+   .vynk-input__label / __hint / __error
+   estados: [data-invalid], :focus
+   ============================================================ */
+.vynk-input {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.vynk-input__label {
+  font-size: var(--text-label);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--vynk-text-secondary);
+}
+.vynk-input__field {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 14px;
+  border: 1px solid var(--vynk-border);
+  border-radius: var(--vynk-radius-md);
+  background: var(--vynk-surface);
+  color: var(--vynk-text);
+  font-family: var(--font-body);
+  font-size: var(--text-body-sm);
+  transition:
+    border-color var(--vynk-motion-2) var(--vynk-ease),
+    box-shadow var(--vynk-motion-2) var(--vynk-ease),
+    background var(--vynk-motion-2) var(--vynk-ease);
+}
+.vynk-input__field::placeholder {
+  color: var(--vynk-text-tertiary);
+}
+.vynk-input__field:focus {
+  outline: none;
+  border-color: var(--vynk-accent);
+  box-shadow: 0 0 0 3px var(--vynk-accent-soft);
+}
+.vynk-input__field[data-invalid],
+.vynk-input__field.is-invalid {
+  border-color: var(--vynk-error);
+}
+.vynk-input__field[data-invalid]:focus {
+  box-shadow: 0 0 0 3px var(--vynk-error-bg);
+}
+.vynk-input__hint {
+  font-size: var(--text-caption);
+  color: var(--vynk-text-tertiary);
+}
+.vynk-input__error {
+  font-size: var(--text-caption);
+  color: var(--vynk-error);
+  font-weight: 600;
+}
+
+/* ============================================================
+   DIALOG / SHEET
+   .vynk-dialog  (overlay) > .vynk-dialog__sheet
+   sheet: centrada en desktop, bottom-sheet en móvil
+   ============================================================ */
+.vynk-dialog {
+  position: fixed;
+  inset: 0;
+  z-index: var(--zz-modal, 400);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: vynk-fade var(--vynk-motion-2) var(--vynk-ease);
+}
+.vynk-dialog__sheet {
+  width: min(100% - 32px, 420px);
+  max-height: calc(100% - 48px);
+  overflow: auto;
+  padding: 24px;
+  border-radius: var(--vynk-radius-xl);
+  background: var(--vynk-surface-elevated);
+  border: 1px solid var(--vynk-border);
+  box-shadow: var(--vynk-shadow-lg);
+  animation: vynk-sheet var(--vynk-motion-3) var(--ease-magnetic);
+}
+.vynk-dialog__title {
+  font-family: var(--font-heading);
+  font-size: var(--text-h3);
+  font-weight: 700;
+  color: var(--vynk-text);
+  margin: 0 0 8px;
+}
+.vynk-dialog__body {
+  color: var(--vynk-text-secondary);
+  font-size: var(--text-body-sm);
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+.vynk-dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+@media (max-width: 480px) {
+  .vynk-dialog {
+    align-items: flex-end;
+  }
+  .vynk-dialog__sheet {
+    width: 100%;
+    max-height: 86vh;
+    border-radius: var(--vynk-radius-xl) var(--vynk-radius-xl) 0 0;
+    border-bottom: none;
+    animation-name: vynk-sheet-up;
+  }
+}
+
+@keyframes vynk-fade {
+  from { opacity: 0; }
+}
+@keyframes vynk-sheet {
+  from { opacity: 0; transform: scale(0.94) translateY(10px); }
+}
+@keyframes vynk-sheet-up {
+  from { transform: translateY(100%); }
+}
+
+/* ============================================================
+   SKELETON
+   .vynk-skeleton
+   ============================================================ */
+.vynk-skeleton {
+  position: relative;
+  overflow: hidden;
+  background: var(--vynk-border-subtle);
+  border-radius: var(--vynk-radius-md);
+}
+.vynk-skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, var(--vynk-surface-elevated), transparent);
+  animation: vynk-shimmer 1.4s var(--vynk-ease) infinite;
+}
+@keyframes vynk-shimmer {
+  to { transform: translateX(100%); }
+}
+
+/* ============================================================
+   EMPTY / ERROR STATE
+   .vynk-empty  (reusable con texto e icono opcional)
+   ============================================================ */
+.vynk-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 40px 24px;
+  text-align: center;
+  color: var(--vynk-text-tertiary);
+}
+.vynk-empty__icon {
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--vynk-radius-lg);
+  background: var(--vynk-accent-soft);
+  color: var(--vynk-accent);
+}
+.vynk-empty__title {
+  font-family: var(--font-heading);
+  font-size: var(--text-body);
+  font-weight: 600;
+  color: var(--vynk-text);
+  margin: 0;
+}
+.vynk-empty__desc {
+  font-size: var(--text-body-sm);
+  color: var(--vynk-text-secondary);
+  max-width: 280px;
+  line-height: 1.45;
+  margin: 0;
+}
+
+/* ============================================================
+   TOOLTIP (aria-describedby)
+   [data-vynk-tip="texto"]
+   ============================================================ */
+[data-vynk-tip] {
+  position: relative;
+}
+[data-vynk-tip]:hover::after,
+[data-vynk-tip]:focus-visible::after {
+  content: attr(data-vynk-tip);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  transform: translateX(-50%);
+  padding: 6px 10px;
+  border-radius: var(--vynk-radius-md);
+  background: var(--vynk-text);
+  color: var(--vynk-surface);
+  font-size: var(--text-caption);
+  font-weight: 500;
+  white-space: nowrap;
+  box-shadow: var(--vynk-shadow-md);
+  z-index: var(--z-toast, 500);
+}

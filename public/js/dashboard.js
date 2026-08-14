@@ -6,20 +6,7 @@ var currentCheckoutItemTitle = 'Tarjeta NFC Personalizada';
 var currentCheckoutItemPrice = 19.99;
 var editPerfilId = null;
 
-var VYNK_ICONS = {
-  edit: '<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/>',
-  eye: '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>',
-  chart: '<path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M22 20H2"/>',
-  share: '<circle cx="6" cy="12" r="2.1"/><circle cx="18" cy="6" r="2.1"/><circle cx="18" cy="18" r="2.1"/><path d="M8 10.8l8-4.6M8 13.2l8 4.6"/>',
-  bolt: '<path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/>',
-  close: '<path d="M6 6l12 12M18 6L6 18"/>',
-  check: '<path d="M5 13l4 4L19 7"/>'
-};
-
-function vynkIcon(name) {
-  var paths = VYNK_ICONS[name] || '';
-  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1.1em;height:1.1em;vertical-align:-0.15em">' + paths + '</svg>';
-}
+// Iconos: sistema único compartido (js/vynk-icons.js) -> vynkIcon(name, size)
 
 function switchDashboardTab(tabId) {
   var allViews = document.querySelectorAll('.tab-view-content');
@@ -857,15 +844,15 @@ window.executeCreatePerfil = async function(e) {
     if (!phone) return;
 
     const ICONS = {
-      mapPin:  '<path d="M12 21s7-7.5 7-12a7 7 0 1 0-14 0c0 4.5 7 12 7 12z"/><circle cx="12" cy="9" r="2.4"/>',
-      clock:   '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.3 2"/>',
-      book:    '<path d="M2 5c2-1 5-1 7 0v14c-2-1-5-1-7 0V5z"/><path d="M22 5c-2-1-5-1-7 0v14c2-1 5-1 7 0V5z"/>',
-      truck:   '<rect x="1" y="7" width="13" height="9" rx="1"/><path d="M14 10h4l3 3v3h-7z"/><circle cx="5" cy="18" r="1.6"/><circle cx="17" cy="18" r="1.6"/>',
-      star:    '<path d="M12 2l2.9 6.3 6.9.7-5.2 4.6 1.6 6.8L12 16.9 5.8 20.4l1.6-6.8L2.2 9l6.9-.7L12 2z"/>',
-      user:    '<circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4.5 5-6.5 8-6.5s6.5 2 8 6.5"/>',
-      share:   '<circle cx="6" cy="12" r="2.1"/><circle cx="18" cy="6" r="2.1"/><circle cx="18" cy="18" r="2.1"/><path d="M8 10.8l8-4.6M8 13.2l8 4.6"/>',
-      briefcase:'<rect x="2" y="7" width="20" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>',
-      chev:    '<path d="M9 5l7 7-7 7"/>'
+      mapPin:   window.VYNK.path('mapPin'),
+      clock:    window.VYNK.path('clock'),
+      book:     window.VYNK.path('book'),
+      truck:    window.VYNK.path('truck'),
+      star:     window.VYNK.path('star'),
+      user:     window.VYNK.path('user'),
+      share:    window.VYNK.path('share'),
+      briefcase: window.VYNK.path('briefcase'),
+      chev:     window.VYNK.path('chev')
     };
 
     function svg(name) {
