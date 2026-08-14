@@ -85,6 +85,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // SSO real: consulta qué providers están configurados y activa los botones honestos
+  initSsoButtons();
+
   // Auth Forms
   const loginForm = document.getElementById('loginForm');
   if (loginForm) {
@@ -176,43 +179,138 @@ function switchTab(tab) {
   }
 }
 
+function handleAuthSuccess(res, provider) {
+  if (res && res.token) {
+    localStorage.setItem('token', res.token);
+    localStorage.setItem('user', JSON.stringify(res.usuario));
+    localStorage.setItem('usuario', JSON.stringify(res.usuario));
+    showToast('¡Sesión iniciada con ' + provider.toUpperCase() + '!', 'success');
+    setTimeout(function () { window.location.href = '/dashboard.html'; }, 300);
+  }
+}
+
+// --- Google Identity Services (SDK real, solo si hay client_id configurado) ---
+function loadScript(src) {
+  return new Promise(function (resolve, reject) {
+    var s = document.createElement('script');
+    s.src = src;
+    s.async = true;
+    s.onload = resolve;
+    s.onerror = function () { reject(new Error('No se pudo cargar ' + src)); };
+    document.head.appendChild(s);
+  });
+}
+
+var googleReady = null;
+async function initGoogle(providers) {
+  var btn = document.querySelector('[data-provider="google"]');
+  if (!btn || !providers.google || !providers.google.configured) {
+    if (btn) { btn.classList.add('sso-unavailable'); btn.disabled = true; }
+    return;
+  }
+  btn.classList.remove('sso-unavailable');
+  btn.disabled = false;
+  try {
+    await loadScript('https://accounts.google.com/gsi/client');
+    if (window.google && window.google.accounts && window.google.accounts.id) {
+      window.google.accounts.id.initialize({
+        client_id: providers.google.clientId,
+        callback: function (response) {
+          if (!response || !response.credential) { showToast('No se pudo obtener la credencial de Google', 'error'); return; }
+          api('/auth/sso/google', {
+            method: 'POST',
+            body: JSON.stringify({ credential: response.credential })
+          }).then(function (res) {
+            handleAuthSuccess(res, 'Google');
+          }).catch(function (err) {
+            showToast(err.error || 'No se pudo iniciar sesión con Google', 'error');
+          });
+        }
+      });
+      googleReady = function () {
+        window.google.accounts.id.prompt();
+      };
+    }
+  } catch (e) {
+    console.error('Error inicializando Google SSO:', e);
+  }
+}
+
+// --- Sign in with Apple (SDK real, solo si hay client_id configurado) ---
+var appleReady = null;
+async function initApple(providers) {
+  var btn = document.querySelector('[data-provider="apple"]');
+  if (!btn || !providers.apple || !providers.apple.configured) {
+    if (btn) { btn.classList.add('sso-unavailable'); btn.disabled = true; }
+    return;
+  }
+  btn.classList.remove('sso-unavailable');
+  btn.disabled = false;
+  try {
+    await loadScript('https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js');
+    if (window.AppleID) {
+      var redirectUri = window.location.origin + '/#auth';
+      window.AppleID.auth.init({
+        clientId: providers.apple.clientId,
+        scope: 'name email',
+        redirectURI: redirectUri,
+        usePopup: true
+      });
+      appleReady = function () {
+        window.AppleID.auth.signIn().then(function (data) {
+          var idToken = data && data.authorization && data.authorization.id_token;
+          if (!idToken) { showToast('No se pudo obtener el identity token de Apple', 'error'); return; }
+          api('/auth/sso/apple', {
+            method: 'POST',
+            body: JSON.stringify({ identityToken: idToken, user: data.user || null })
+          }).then(function (res) {
+            handleAuthSuccess(res, 'Apple');
+          }).catch(function (err) {
+            showToast(err.error || 'No se pudo iniciar sesión con Apple', 'error');
+          });
+        }).catch(function (err) {
+          showToast(err.error || 'Se canceló el inicio de sesión con Apple', 'error');
+        });
+      };
+    }
+  } catch (e) {
+    console.error('Error inicializando Apple SSO:', e);
+  }
+}
+
+function initSsoButtons() {
+  var anyBtn = document.querySelector('[data-action="sso"]');
+  if (!anyBtn) return;
+  api('/auth/providers').then(function (providers) {
+    if (!providers) return;
+    initGoogle(providers);
+    initApple(providers);
+  }).catch(function () {
+    // Si el endpoint falla, mostrar los botones como no disponibles (honestos, no simulados)
+    document.querySelectorAll('[data-action="sso"]').forEach(function (b) {
+      b.classList.add('sso-unavailable');
+      b.disabled = true;
+    });
+  });
+}
+
 async function ssoLogin(provider) {
   showToast('Conectando con ' + provider.toUpperCase() + '...', 'info');
-  try {
-    const dummyEmail = provider + '_user_' + Math.floor(Math.random() * 1000) + '@vynk.app';
-    const res = await api('/auth/sso-login', {
-      method: 'POST',
-      body: JSON.stringify({
-        provider: provider,
-        email: dummyEmail,
-        nombre: 'Usuario ' + provider.toUpperCase(),
-        providerId: 'sso_id_' + Date.now()
-      })
-    });
-
-    if (res.token) {
-      localStorage.setItem('token', res.token);
-      localStorage.setItem('user', JSON.stringify(res.usuario));
-      localStorage.setItem('usuario', JSON.stringify(res.usuario));
-      showToast('¡Sesión iniciada con ' + provider.toUpperCase() + '!', 'success');
-
-      // Despachar correo de onboarding asíncronamente
-      api('/onboarding', {
-        method: 'POST',
-        body: JSON.stringify({ email: res.usuario?.email || dummyEmail, nombre: res.usuario?.nombre || 'Usuario' })
-      }).catch(err => console.error('Onboarding SSO async email error:', err));
-
-      window.location.href = '/dashboard.html';
-    }
-  } catch (err) {
-    showToast(err.error || 'Error de autenticación SSO', 'error');
+  if (provider === 'google' && googleReady) {
+    googleReady();
+    return;
   }
+  if (provider === 'apple' && appleReady) {
+    appleReady();
+    return;
+  }
+  showToast('Inicio de sesión con ' + provider.toUpperCase() + ' aún no disponible', 'error');
 }
 
 function openHelpModal() {
   const helpModal = document.getElementById('helpModal');
   if (helpModal) {
-    helpModal.style.display = 'flex';
+    helpModal.classList.add('open');
   } else {
     alert('Instrucciones de recuperación enviadas a tu correo.');
   }
@@ -220,5 +318,5 @@ function openHelpModal() {
 
 function closeHelpModal() {
   const helpModal = document.getElementById('helpModal');
-  if (helpModal) helpModal.style.display = 'none';
+  if (helpModal) helpModal.classList.remove('open');
 }

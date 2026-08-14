@@ -225,9 +225,9 @@
     var container = document.getElementById("block-palette");
     if (!container) return;
 
-    container.innerHTML = BLOCK_TYPES.map(function (block) {
+    container.innerHTML = BLOCK_TYPES.map(function (block, index) {
       return (
-        '<button type="button" class="block-chip" data-block-type="' + escapeHtml(block.tipo) + '">' +
+        '<button type="button" class="block-chip" data-block-type="' + escapeHtml(block.tipo) + '" style="animation-delay:' + (index * 30) + 'ms">' +
           '<span class="chip-icon" style="--chip-color:' + escapeHtml(block.color || "#4C6FFF") + '">' + block.icon + "</span>" +
           "<strong>" + escapeHtml(block.label) + "</strong>" +
           '<span class="chip-desc">' + escapeHtml(blockDescription(block.tipo)) + "</span>" +

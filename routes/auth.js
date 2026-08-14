@@ -5,6 +5,7 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const passport = require('passport');
 const { body, validationResult } = require('express-validator');
 const { dbReady } = require('../database/db');
@@ -13,6 +14,21 @@ const auth = require('../middleware/auth');
 const { sendWelcomeEmail } = require('../utils/email');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'vynk-default-secret';
+
+function isRealCredential(value) {
+  return !!value && !/placeholder/i.test(value);
+}
+
+function ssoProviderConfig() {
+  const googleConfigured = isRealCredential(process.env.GOOGLE_CLIENT_ID) && isRealCredential(process.env.GOOGLE_CLIENT_SECRET);
+  const appleConfigured = isRealCredential(process.env.APPLE_CLIENT_ID);
+  const microsoftConfigured = isRealCredential(process.env.MICROSOFT_CLIENT_ID) && isRealCredential(process.env.MICROSOFT_CLIENT_SECRET);
+  return {
+    google: { configured: googleConfigured, clientId: googleConfigured ? process.env.GOOGLE_CLIENT_ID : null },
+    apple: { configured: appleConfigured, clientId: appleConfigured ? process.env.APPLE_CLIENT_ID : null },
+    microsoft: { configured: microsoftConfigured, clientId: microsoftConfigured ? process.env.MICROSOFT_CLIENT_ID : null }
+  };
+}
 
 function normalizePhone(phone) {
   return (phone || '').replace(/[^0-9]/g, '');
@@ -41,6 +57,142 @@ function signToken(user) {
     JWT_SECRET,
     { expiresIn: '7d' }
   );
+}
+
+// --- Verificación de identidad SSO (lado servidor, nunca confiar en el cliente) ---
+
+// Google: valida el ID token vía tokeninfo y comprueba audience + email verificado.
+async function verifyGoogleCredential(credential) {
+  if (!isRealCredential(process.env.GOOGLE_CLIENT_ID)) {
+    throw new Error('Google SSO no está configurado');
+  }
+  const resp = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(credential)}`, {
+    method: 'POST'
+  });
+  if (!resp.ok) {
+    const body = await resp.text().catch(() => '');
+    throw new Error('Token de Google inválido o expirado');
+  }
+  const payload = await resp.json();
+  if (payload.aud !== process.env.GOOGLE_CLIENT_ID) {
+    throw new Error('El token de Google no pertenece a esta aplicación');
+  }
+  if (!payload.email || payload.email_verified !== 'true') {
+    throw new Error('Cuenta de Google sin email verificado');
+  }
+  if (!payload.sub) throw new Error('Token de Google sin subject');
+  return {
+    sub: payload.sub,
+    email: payload.email,
+    nombre: payload.name || null,
+    verified: true
+  };
+}
+
+// Apple: verifica la firma RS256 del identity token contra el JWKS de Apple y comprueba audience/iss.
+let appleKeysCache = { ts: 0, keys: null };
+async function getAppleSigningKey(kid) {
+  if (!appleKeysCache.keys || Date.now() - appleKeysCache.ts > 3600 * 1000) {
+    const resp = await fetch('https://appleid.apple.com/auth/keys');
+    if (!resp.ok) throw new Error('No se pudo obtener las claves de firmado de Apple');
+    appleKeysCache = { ts: Date.now(), keys: await resp.json() };
+  }
+  const keys = (appleKeysCache.keys && appleKeysCache.keys.keys) || [];
+  const key = keys.find(k => k.kid === kid);
+  if (!key) throw new Error('Clave de firmado de Apple no encontrada');
+  const publicKey = crypto.createPublicKey({ key: { kty: 'RSA', n: key.n, e: key.e }, format: 'jwk' });
+  return publicKey;
+}
+
+async function verifyAppleIdentityToken(identityToken) {
+  if (!isRealCredential(process.env.APPLE_CLIENT_ID)) {
+    throw new Error('Sign in with Apple no está configurado');
+  }
+  let decoded;
+  try {
+    decoded = jwt.decode(identityToken, { complete: true });
+  } catch (e) {
+    throw new Error('Identity token de Apple inválido');
+  }
+  const kid = decoded && decoded.header && decoded.header.kid;
+  if (!kid) throw new Error('Identity token de Apple sin kid');
+  const publicKey = await getAppleSigningKey(kid);
+  let payload;
+  try {
+    payload = jwt.verify(identityToken, publicKey, {
+      algorithms: ['RS256'],
+      issuer: 'https://appleid.apple.com',
+      audience: process.env.APPLE_CLIENT_ID
+    });
+  } catch (e) {
+    throw new Error('Firma de identity token de Apple no válida');
+  }
+  if (!payload.sub) throw new Error('Identity token de Apple sin subject');
+  return {
+    sub: payload.sub,
+    email: payload.email || null,
+    nombre: payload.name || null,
+    verified: true
+  };
+}
+
+// Upsert: busca por provider id, luego por email; si existe sin proveedor, vincula.
+async function upsertSsoUser(provider, identity, extraNombre) {
+  const db = await dbReady;
+  const colId = provider === 'google' ? 'google_id' : provider === 'apple' ? 'apple_id' : 'microsoft_id';
+  const nombre = (extraNombre || identity.nombre || 'Usuario ' + provider.toUpperCase()).trim();
+  const email = identity.email || null;
+
+  let colVal = identity.sub;
+  let row;
+  if (email && provider !== 'microsoft') {
+    row = await db.prepare(`SELECT * FROM usuarios WHERE ${colId} = ? OR email = ?`).get(colVal, email);
+  } else {
+    row = await db.prepare(`SELECT * FROM usuarios WHERE ${colId} = ?`).get(colVal);
+  }
+  if (!row) {
+    const randomTel = '559' + Math.floor(1000000 + Math.random() * 9000000);
+    const randomPass = await bcrypt.hash('sso_' + Date.now() + '_' + Math.random(), 10);
+    const plan_expira = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+    const ins = await db.prepare(
+      `INSERT INTO usuarios (telefono, nombre, password_hash, email, plan, plan_expira, role, ${colId}, terms_accepted)
+       VALUES (?, ?, ?, ?, 'paid', ?, 'user', ?, TRUE)`
+    ).run(randomTel, nombre, randomPass, email, plan_expira, colVal);
+    row = { id: ins.lastInsertRowid, telefono: randomTel, nombre, email, plan: 'paid', plan_expira, role: 'user', terms_accepted: true };
+    if (email) sendWelcomeEmail(email, nombre);
+  } else if (!row[colId]) {
+    await db.prepare(`UPDATE usuarios SET ${colId} = ? WHERE id = ?`).run(colVal, row.id);
+  }
+  return row;
+}
+
+function ssoSessionPayload(user) {
+  const isPro = !!(user.is_pro || user.plan === 'paid');
+  return {
+    ok: true,
+    token: signToken({
+      id: user.id,
+      telefono: user.telefono,
+      plan: user.plan,
+      plan_expira: user.plan_expira,
+      nombre: user.nombre,
+      role: user.role,
+      terms_accepted: !!user.terms_accepted
+    }),
+    usuario: {
+      id: user.id,
+      nombre: user.nombre,
+      email: user.email,
+      plan: user.plan,
+      role: user.role,
+      isPro: isPro,
+      is_pro: isPro,
+      stripeCustomerId: user.stripe_customer_id || null,
+      hardwareOrders: typeof user.hardware_orders === 'string' ? JSON.parse(user.hardware_orders) : (user.hardware_orders || []),
+      terms_accepted: !!user.terms_accepted,
+      is_first_login: user.is_first_login !== false
+    }
+  };
 }
 
 async function verifyCaptcha(captchaToken) {
@@ -206,64 +358,41 @@ router.post('/accept-terms', auth, async (req, res) => {
   }
 });
 
-// POST /api/auth/sso-login — Autenticación SSO 1-Click (Google, Apple, Microsoft)
-router.post('/sso-login', async (req, res) => {
+// GET /api/auth/providers — Qué SSO están realmente configurados (para botones honestos en el front)
+router.get('/providers', (req, res) => {
+  res.json(ssoProviderConfig());
+});
+
+// POST /api/auth/sso/google — ID token de Google Identity Services, verificado server-side
+router.post('/sso/google', rateLimit(10, 15 * 60 * 1000), async (req, res) => {
   try {
-    const { provider, email, nombre, providerId } = req.body;
-    if (!email || !provider) {
-      return res.status(400).json({ error: 'Datos de SSO incompletos' });
-    }
+    const { credential } = req.body || {};
+    if (!credential) return res.status(400).json({ error: 'Credencial de Google requerida' });
 
-    const db = await dbReady;
-    let user = await db.prepare('SELECT * FROM usuarios WHERE email = ? OR google_id = ? OR apple_id = ? OR microsoft_id = ?').get(email, providerId || '', providerId || '', providerId || '');
-
-    if (!user) {
-      // Crear cuenta automática para SSO con 30 días Pro
-      const randomTel = '559' + Math.floor(1000000 + Math.random() * 9000000);
-      const randomPass = await bcrypt.hash('sso_' + Date.now(), 10);
-      const plan_expira = new Date(Date.now() + 30*24*60*60*1000).toISOString();
-      const colId = provider === 'google' ? 'google_id' : provider === 'apple' ? 'apple_id' : 'microsoft_id';
-
-      const ins = await db.prepare(`
-        INSERT INTO usuarios (telefono, nombre, password_hash, email, plan, plan_expira, role, ${colId}, terms_accepted)
-        VALUES (?, ?, ?, ?, 'paid', ?, 'user', ?, TRUE)
-      `).run(randomTel, nombre || 'Usuario ' + provider.toUpperCase(), randomPass, email, plan_expira, providerId || email);
-
-      user = { id: ins.lastInsertRowid, telefono: randomTel, nombre: nombre || 'Usuario ' + provider.toUpperCase(), plan: 'paid', plan_expira, role: 'user', terms_accepted: true };
-      sendWelcomeEmail(email, user.nombre);
-    }
-
-    const token = signToken({
-      id: user.id,
-      telefono: user.telefono,
-      plan: user.plan,
-      plan_expira: user.plan_expira,
-      nombre: user.nombre,
-      role: user.role,
-      terms_accepted: true
-    });
-
-    const isPro = !!(user.is_pro || user.plan === 'paid');
-    res.json({
-      ok: true,
-      token,
-      usuario: {
-        id: user.id,
-        nombre: user.nombre,
-        email: user.email,
-        plan: user.plan,
-        role: user.role,
-        isPro: isPro,
-        is_pro: isPro,
-        stripeCustomerId: user.stripe_customer_id || null,
-        hardwareOrders: typeof user.hardware_orders === 'string' ? JSON.parse(user.hardware_orders) : (user.hardware_orders || []),
-        terms_accepted: true,
-        is_first_login: user.is_first_login !== false
-      }
-    });
+    const identity = await verifyGoogleCredential(credential);
+    const user = await upsertSsoUser('google', identity);
+    res.json(ssoSessionPayload(user));
   } catch (err) {
-    console.error('Error en SSO Login:', err);
-    res.status(500).json({ error: 'Error procesando inicio de sesión SSO' });
+    console.error('Error en SSO Google:', err.message);
+    res.status(401).json({ error: 'No se pudo verificar tu cuenta de Google' });
+  }
+});
+
+// POST /api/auth/sso/apple — Identity token de Sign in with Apple, verificado contra el JWKS de Apple
+router.post('/sso/apple', rateLimit(10, 15 * 60 * 1000), async (req, res) => {
+  try {
+    const { identityToken, user: appleUser } = req.body || {};
+    if (!identityToken) return res.status(400).json({ error: 'Identity token de Apple requerido' });
+
+    const identity = await verifyAppleIdentityToken(identityToken);
+    const extraNombre = appleUser && appleUser.name
+      ? [appleUser.name.firstName, appleUser.name.lastName].filter(Boolean).join(' ')
+      : null;
+    const user = await upsertSsoUser('apple', identity, extraNombre || undefined);
+    res.json(ssoSessionPayload(user));
+  } catch (err) {
+    console.error('Error en SSO Apple:', err.message);
+    res.status(401).json({ error: 'No se pudo verificar tu cuenta de Apple' });
   }
 });
 

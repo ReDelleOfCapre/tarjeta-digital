@@ -99,11 +99,13 @@ function showToast(message, type = 'info') {
   toast.className = 'toast ' + type;
   toast.textContent = message;
   container.appendChild(toast);
+  requestAnimationFrame(function () {
+    requestAnimationFrame(function () { toast.classList.add('show'); });
+  });
 
   setTimeout(function () {
-    toast.style.opacity = '0';
-    toast.style.transform = 'translateY(-10px)';
-    setTimeout(function () { toast.remove(); }, 300);
+    toast.classList.remove('show');
+    setTimeout(function () { toast.remove(); }, 250);
   }, 4000);
 }
 
