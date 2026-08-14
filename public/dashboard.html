@@ -597,18 +597,169 @@
       color: var(--vynk-text-tertiary) !important;
     }
 
-    /* ---------- Responsive ---------- */
+    /* ---------- Mobile Drawer & Backdrop Styling ---------- */
+    .mobile-only-btn { display: none !important; }
+    
+    .mobile-nav-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.72);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      z-index: 998;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.25s var(--vynk-ease);
+    }
+    .mobile-nav-backdrop.active {
+      display: block !important;
+      opacity: 1;
+    }
+    .mobile-nav-drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      transform: translateX(100%);
+      width: 290px;
+      max-width: 85vw;
+      height: 100vh;
+      background: var(--vynk-surface-elevated);
+      border-left: 1px solid var(--vynk-border);
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: -10px 0 40px rgba(0, 0, 0, 0.8);
+    }
+    .mobile-nav-drawer.active {
+      transform: translateX(0) !important;
+    }
+    .mobile-nav-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--vynk-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .mobile-nav-body {
+      padding: 16px;
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .mobile-nav-footer {
+      padding: 16px;
+      border-top: 1px solid var(--vynk-border);
+    }
+    .nav-drawer-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      color: var(--vynk-text-secondary);
+      text-decoration: none;
+      font-weight: 600;
+      border-radius: 14px;
+      font-size: 0.92rem;
+      transition: background 0.2s var(--vynk-ease), color 0.2s var(--vynk-ease);
+    }
+    .nav-drawer-item:hover, .nav-drawer-item:active {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--vynk-text);
+    }
+
+    /* ---------- Responsive (Mobile Adaptation) ---------- */
     @media (max-width: 860px) {
-      .dashboard-page .navbar { padding: 10px 16px; }
-      .dashboard-page .navbar .desktop-nav-item { display: none; }
+      .dashboard-page .navbar { padding: 10px 16px; flex-wrap: wrap; row-gap: 10px; }
+      .dashboard-page .navbar .desktop-nav-item { display: none !important; }
       .dashboard-page .navbar .mobile-only-btn { display: inline-flex !important; }
-      .vynk-hero { padding-top: 40px; }
-      .vynk-hero h1 { font-size: 2.3rem; }
+      .vynk-hero { padding: 32px 12px 12px; }
+      .vynk-hero h1 { font-size: clamp(1.8rem, 6vw, 2.5rem); letter-spacing: -0.03em; }
+      .vynk-hero p.vynk-hero-sub { font-size: 0.95rem; margin-bottom: 20px; }
       .dashboard-page .profile-card { min-width: 270px; max-width: 280px; }
     }
-    @media (max-width: 560px) {
+
+    @media (max-width: 640px) {
+      .dashboard-page .navbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 10px 14px;
+      }
       .dashboard-page .navbar #user-name { display: none; }
-      .dashboard-page .nav-side-item { padding: 7px 14px; font-size: 0.82rem; }
+      .vynk-nav-tabs {
+        order: 3;
+        width: 100%;
+        overflow-x: auto;
+        white-space: nowrap;
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        padding: 4px 0 2px;
+        margin-top: 4px;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+      }
+      .vynk-nav-tabs::-webkit-scrollbar { display: none; }
+      .dashboard-page .nav-side-item { padding: 6px 14px; font-size: 0.8rem; }
+      
+      .vynk-hero-actions {
+        flex-direction: column;
+        width: 100%;
+        gap: 10px;
+      }
+      .vynk-hero-actions > * {
+        width: 100% !important;
+        text-align: center;
+        justify-content: center;
+      }
+      
+      .vynk-duo {
+        flex-direction: column;
+        width: 100%;
+      }
+      .vynk-metric-card, .vynk-insight-card {
+        width: 100% !important;
+        min-width: 100% !important;
+        padding: 18px 20px !important;
+      }
+      .vynk-metric-card .vynk-metric-value {
+        font-size: 2.1rem;
+      }
+
+      .vynk-section-head {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+      }
+
+      .dashboard-page #profile-grid .profile-card,
+      .dashboard-page .profile-card {
+        min-width: 82vw !important;
+        max-width: 88vw !important;
+        flex-shrink: 0 !important;
+        padding: 18px !important;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .dashboard-page .navbar .brand span { font-size: 0.95rem; }
+      .vynk-hero h1 { font-size: 1.7rem; }
+      #chat-window {
+        right: 12px;
+        left: 12px;
+        bottom: 80px;
+        width: auto;
+        max-width: 100%;
+      }
+      #chat-bubble {
+        bottom: 16px;
+        right: 16px;
+        width: 48px;
+        height: 48px;
+      }
     }
   </style>
 </head>

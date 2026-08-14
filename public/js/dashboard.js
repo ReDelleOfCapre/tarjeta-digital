@@ -36,6 +36,23 @@ function switchDashboardTab(tabId) {
 }
 window.switchDashboardTab = switchDashboardTab;
 
+window.toggleMobileNavDrawer = function() {
+  var drawer = document.getElementById('mobile-nav-drawer');
+  var backdrop = document.getElementById('mobile-nav-backdrop');
+  if (drawer && backdrop) {
+    var isActive = drawer.classList.contains('active');
+    if (isActive) {
+      drawer.classList.remove('active');
+      backdrop.classList.remove('active');
+      document.body.style.overflow = '';
+    } else {
+      drawer.classList.add('active');
+      backdrop.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+};
+
 document.addEventListener('click', function(e) {
   var target = e.target ? e.target.closest('[data-tab]') : null;
   if (target) {
