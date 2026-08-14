@@ -234,7 +234,7 @@ router.post('/registro', rateLimit(10, 15 * 60 * 1000), [
     const { telefono, nombre, password, email, legal_aceptado } = req.body;
     const telefonoNorm = normalizePhone(telefono);
 
-    const existing = await db.prepare('SELECT id FROM usuarios WHERE telefono = ?').get(telefonoNorm);
+    const existing = await db.prepare("SELECT id FROM usuarios WHERE REPLACE(telefono, '+', '') = ?").get(telefonoNorm);
     if (existing) {
       return res.status(409).json({ error: 'Este teléfono ya está registrado' });
     }
@@ -276,13 +276,19 @@ router.post('/login', rateLimit(10, 15 * 60 * 1000), [
       return res.status(400).json({ error: errors.array()[0].msg });
     }
 
-    const db = await dbReady;
     const { telefono, password } = req.body;
-    const telefonoNorm = normalizePhone(telefono);
+    const input = (telefono || '').trim();
 
-    const user = await db.prepare('SELECT * FROM usuarios WHERE telefono = ?').get(telefonoNorm);
+    let user;
+    if (input.includes('@')) {
+      user = await db.prepare('SELECT * FROM usuarios WHERE LOWER(email) = LOWER(?)').get(input);
+    } else {
+      const telefonoNorm = normalizePhone(input);
+      user = await db.prepare("SELECT * FROM usuarios WHERE REPLACE(telefono, '+', '') = ? OR telefono = ?").get(telefonoNorm, input);
+    }
+
     if (!user) {
-      return res.status(401).json({ error: 'Teléfono o contraseña incorrectos' });
+      return res.status(401).json({ error: 'Teléfono/email o contraseña incorrectos' });
     }
 
     const valid = await bcrypt.compare(password, user.password_hash);
