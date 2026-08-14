@@ -423,8 +423,9 @@
       return;
     }
 
-    var locationBlocks = blocks.filter(function (block) { return block.tipo === "ubicacion"; });
-    var otherBlocks = blocks.filter(function (block) { return block.tipo !== "ubicacion"; });
+    var visibleBlocks = blocks.filter(function (block) { return block.visible !== false; });
+    var locationBlocks = visibleBlocks.filter(function (block) { return block.tipo === "ubicacion"; });
+    var otherBlocks = visibleBlocks.filter(function (block) { return block.tipo !== "ubicacion"; });
     var parts = [];
 
     if (otherBlocks.length) {
@@ -1006,16 +1007,20 @@
     }
 
     container.innerHTML = blocks.map(function (block, index) {
+      var isHidden = block.visible === false;
+      var hiddenTag = isHidden ? '<span style="font-size:0.7rem;color:var(--editor-faint);text-transform:uppercase;letter-spacing:0.08em;margin-left:6px">oculto</span>' : "";
       return (
-        '<div class="block-item-row" style="display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid rgba(255,255,255,0.08);border-radius:18px;margin-bottom:10px">' +
+        '<div class="block-item-row" style="display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid rgba(255,255,255,0.08);border-radius:18px;margin-bottom:10px' + (isHidden ? ";opacity:0.45" : "") + '">' +
           '<div class="drag-handle" style="cursor:grab;color:var(--editor-faint)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:1.15rem;height:1.15rem"><circle cx="9" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="18" r="1"/></svg></div>' +
-          '<div style="width:38px;height:38px;border-radius:14px;display:grid;place-items:center;background:' + escapeHtml(blockColor(block.tipo)) + ';color:#fff">' + blockIcon(block.tipo) + "</div>" +
+          '<div style="width:38px;height:38px;border-radius:14px;display:grid;place-items:center;background:' + escapeHtml(blockColor(block.tipo)) + ';color:#fff;opacity:' + (isHidden ? "0.55" : "1") + '">' + blockIcon(block.tipo) + "</div>" +
           '<div style="flex:1;min-width:0">' +
             '<div style="font-size:0.74rem;color:var(--editor-faint);text-transform:uppercase;letter-spacing:0.08em">' + escapeHtml(getBlockLabel(block.tipo)) + "</div>" +
-            '<div style="font-size:0.95rem;color:var(--editor-text);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + escapeHtml(previewTitle(block)) + "</div>" +
+            '<div style="font-size:0.95rem;color:var(--editor-text);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + escapeHtml(previewTitle(block)) + hiddenTag + "</div>" +
             '<div style="font-size:0.78rem;color:var(--editor-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + escapeHtml(previewMeta(block)) + "</div>" +
           "</div>" +
           '<div style="display:flex;gap:6px">' +
+            '<button type="button" class="editor-btn" style="padding:8px 10px" title="Mostrar u ocultar en tu tarjeta" onclick="toggleBlockVisibility(' + index + ')">' + (isHidden ? "Mostrar" : "Ocultar") + "</button>" +
+            '<button type="button" class="editor-btn" style="padding:8px 10px" title="Duplicar bloque" onclick="duplicateBlock(' + index + ')">Duplicar</button>' +
             '<button type="button" class="editor-btn" style="padding:8px 10px" onclick="moveBlock(' + index + ', -1)" ' + (index === 0 ? "disabled" : "") + '>↑</button>' +
             '<button type="button" class="editor-btn" style="padding:8px 10px" onclick="moveBlock(' + index + ', 1)" ' + (index === blocks.length - 1 ? "disabled" : "") + '>↓</button>' +
             '<button type="button" class="editor-btn" style="padding:8px 10px" onclick="editBlock(' + index + ')">Editar</button>' +
@@ -1052,6 +1057,29 @@
     blocks.splice(target, 0, moved);
     normalizeOrder();
     renderBlockList();
+  };
+
+  window.duplicateBlock = function (index) {
+    var block = blocks[index];
+    if (!block) return;
+    var clone = {
+      _tempId: "tmp_" + Date.now(),
+      tipo: block.tipo,
+      contenido: JSON.parse(JSON.stringify(block.contenido || {})),
+      visible: block.visible !== false
+    };
+    blocks.splice(index + 1, 0, clone);
+    normalizeOrder();
+    renderBlockList();
+    showToast("Bloque duplicado", "success");
+  };
+
+  window.toggleBlockVisibility = function (index) {
+    var block = blocks[index];
+    if (!block) return;
+    block.visible = block.visible === false;
+    renderBlockList();
+    scheduleAutosave();
   };
 
   window.goStep = function (step) {

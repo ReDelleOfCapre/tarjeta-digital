@@ -279,6 +279,8 @@ router.post('/login', rateLimit(10, 15 * 60 * 1000), [
     const { telefono, password } = req.body;
     const input = (telefono || '').trim();
 
+    const db = await dbReady;
+
     let user;
     if (input.includes('@')) {
       user = await db.prepare('SELECT * FROM usuarios WHERE LOWER(email) = LOWER(?)').get(input);

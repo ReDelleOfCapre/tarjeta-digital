@@ -9,26 +9,17 @@
 <meta name="apple-mobile-web-app-title" content="VYNK">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#09090B">
+<meta name="theme-color" content="#F5F5F7">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/tokens.css">
 <style>
   :root{
-    --ink:#1D1830;
-    --ink-soft:#645C7A;
-    --accent:#7A6AF0;
-    --accent-deep:#5C48E6;
-    --tint:#EEEAFC;
-    --canvas:#FBF9FF;
-    --peach:#FFD9BE;
-    --paper:#FFFFFF;
-    --line: rgba(29,24,48,0.10);
-    --font-display:'Space Grotesk', sans-serif;
-    --font-body:'Inter', sans-serif;
-    --font-mono:'JetBrains Mono', monospace;
     --container: 1120px;
+    --mesh-1: var(--tint);
+    --mesh-2: var(--peach);
+    --body-copy: 1.0625rem;
   }
   *{box-sizing:border-box;}
   html{scroll-behavior:smooth;}
@@ -60,9 +51,9 @@
   /* ---------- nav ---------- */
   header{
     position:sticky; top:0; z-index:40;
-    background:rgba(251,249,255,0.7);
-    backdrop-filter:blur(14px) saturate(160%);
-    -webkit-backdrop-filter:blur(14px) saturate(160%);
+    background:rgba(245,245,247,0.72);
+    backdrop-filter:blur(20px) saturate(180%);
+    -webkit-backdrop-filter:blur(20px) saturate(180%);
     border-bottom:1px solid transparent;
     transition:border-color .3s ease, background .3s ease;
   }
@@ -82,9 +73,9 @@
     border:none; cursor:pointer; border-radius:999px; padding:12px 22px; display:inline-flex; align-items:center; gap:8px;
     transition: transform 160ms cubic-bezier(0.23,1,0.32,1), box-shadow 160ms ease, background 160ms ease;
   }
-  .btn-primary{ background:var(--accent-deep); color:#fff; box-shadow:0 10px 24px -10px rgba(92,72,230,0.55); }
-  .btn-primary:hover{ transform:translateY(-2px); box-shadow:0 14px 28px -8px rgba(92,72,230,0.6); }
-  .btn-primary:active{ transform:translateY(0) scale(0.97); box-shadow:0 8px 18px -8px rgba(92,72,230,0.55); }
+  .btn-primary{ background:var(--accent-deep); color:#fff; box-shadow:0 10px 24px -10px rgba(23,59,99,0.45); }
+  .btn-primary:hover{ transform:translateY(-2px); box-shadow:0 14px 28px -8px rgba(23,59,99,0.5); }
+  .btn-primary:active{ transform:translateY(0) scale(0.97); box-shadow:0 8px 18px -8px rgba(23,59,99,0.45); }
   .btn-ghost{ background:transparent; color:var(--ink); }
   .btn-ghost:hover{ color:var(--accent-deep); }
   .btn-ghost:active{ transform:scale(0.97); }
@@ -104,9 +95,9 @@
   .mesh{
     position:absolute; inset:-10% -10% auto -10%; height:130%;
     background:
-      radial-gradient(38% 42% at 22% 24%, var(--tint) 0%, transparent 70%),
-      radial-gradient(34% 40% at 82% 18%, var(--peach) 0%, transparent 72%),
-      radial-gradient(45% 50% at 50% 90%, #E7E2FB 0%, transparent 70%);
+      radial-gradient(38% 42% at 22% 24%, var(--mesh-1) 0%, transparent 70%),
+      radial-gradient(34% 40% at 82% 18%, var(--mesh-2) 0%, transparent 72%),
+      radial-gradient(45% 50% at 50% 90%, #E4E9F4 0%, transparent 70%);
     filter:blur(6px);
     animation: drift 22s ease-in-out infinite alternate;
     z-index:0;
@@ -120,9 +111,9 @@
 
   .card-mock{
     position:relative; z-index:1; max-width:300px; margin:0 auto;
-    background:linear-gradient(160deg, #241C3D, #100B24);
+    background:linear-gradient(160deg, #1B1B1F, #0D0D10);
     border-radius:26px; padding:26px; color:#fff;
-    box-shadow:0 30px 60px -24px rgba(29,24,48,0.45);
+    box-shadow:0 30px 60px -24px rgba(0,0,0,0.45);
     transform:rotate(-2deg);
     transition: transform .4s ease;
   }
@@ -161,7 +152,7 @@
     background:var(--paper); border:1px solid var(--line); border-radius:20px; padding:26px;
     transition: transform .3s cubic-bezier(.2,.8,.3,1), box-shadow .3s ease, border-color .3s ease;
   }
-  .feature:hover{ transform:translateY(-5px); box-shadow:0 22px 40px -22px rgba(92,72,230,0.35); border-color:transparent; }
+  .feature:hover{ transform:translateY(-5px); box-shadow:0 22px 40px -22px rgba(23,59,99,0.18); border-color:transparent; }
   .feature .icon{
     width:42px; height:42px; border-radius:12px; background:var(--tint);
     display:flex; align-items:center; justify-content:center; margin-bottom:16px;
@@ -185,8 +176,8 @@
   @media (max-width:680px){ .pricing-grid{ grid-template-columns:1fr; } }
   .plan{ background:var(--paper); border:1px solid var(--line); border-radius:24px; padding:32px; display:flex; flex-direction:column; }
   .plan.pro{
-    background:linear-gradient(165deg, #241C3D, #14102A); color:#fff; border:none;
-    box-shadow:0 30px 60px -26px rgba(29,24,48,0.5); position:relative;
+    background:linear-gradient(165deg, #1B1B1F, #0D0D10); color:#fff; border:none;
+    box-shadow:0 30px 60px -26px rgba(0,0,0,0.5); position:relative;
   }
   .plan.pro .tag{
     position:absolute; top:-13px; right:28px; background:var(--peach); color:var(--ink);
@@ -218,7 +209,7 @@
   .testi .role{ font-size:12px; color:var(--ink-soft); }
 
   /* ---------- final cta ---------- */
-  .final{ position:relative; overflow:hidden; text-align:center; border-radius:32px; margin:0 28px; background:linear-gradient(160deg,#241C3D,#100B24); padding:80px 30px; color:#fff; }
+  .final{ position:relative; overflow:hidden; text-align:center; border-radius:32px; margin:0 28px; background:linear-gradient(160deg,#1B1B1F,#0D0D10); padding:80px 30px; color:#fff; }
   .final .mesh{ opacity:.5; }
   .final h2{ font-size:clamp(28px,4.5vw,42px); font-weight:600; position:relative; z-index:1; }
   .final p{ color:rgba(255,255,255,.6); margin:14px 0 30px; position:relative; z-index:1; }
@@ -233,7 +224,7 @@
   .auth-card{ background:#fff; color:var(--ink); border-radius:24px; padding:30px; text-align:left; box-shadow:0 40px 80px -30px rgba(0,0,0,.55); }
   .auth-tabs{ display:flex; gap:4px; background:var(--tint); border-radius:14px; padding:5px; margin-bottom:24px; }
   .auth-tab{ flex:1; font-family:var(--font-body); font-weight:600; font-size:13.5px; color:var(--ink-soft); background:transparent; border:none; border-radius:11px; padding:10px 6px; cursor:pointer; transition:background 160ms cubic-bezier(0.23,1,0.32,1), color 160ms ease, box-shadow 160ms ease, transform 160ms cubic-bezier(0.23,1,0.32,1); }
-  .auth-tab.active{ background:#fff; color:var(--accent-deep); box-shadow:0 6px 14px -8px rgba(92,72,230,.5); }
+  .auth-tab.active{ background:#fff; color:var(--accent-deep); box-shadow:0 6px 14px -8px rgba(23,59,99,.45); }
   .auth-tab:active{ transform:scale(0.97); }
   .auth-form{ display:none; }
   .auth-form.active{ display:block; animation:authFormIn 220ms cubic-bezier(0.23,1,0.32,1); }
@@ -293,9 +284,9 @@
   <div class="wrap nav">
     <a class="brand" href="#top">
       <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
-        <rect width="30" height="30" rx="9" fill="#EEEAFC"/>
-        <path d="M9 8L15 20L21 8" stroke="#5C48E6" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
-        <circle cx="15" cy="22.5" r="1.6" fill="#5C48E6"/>
+        <rect width="30" height="30" rx="9" fill="var(--tint)"/>
+        <path d="M9 8L15 20L21 8" stroke="var(--accent-deep)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="15" cy="22.5" r="1.6" fill="var(--accent-deep)"/>
       </svg>
       <span>VYNK</span>
     </a>
@@ -410,7 +401,7 @@
           <p>Bloques arrastrables, temas premium y personalización total. Tu marca, tus reglas.</p>
         </div>
         <div class="feature">
-          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><path d="M6 12a6 6 0 0 1 12 0"/><path d="M9 12a3 3 0 0 1 6 0"/><circle cx="12" cy="12" r="1.4" fill="#5C48E6" stroke="none"/></svg></div>
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><path d="M6 12a6 6 0 0 1 12 0"/><path d="M9 12a3 3 0 0 1 6 0"/><circle cx="12" cy="12" r="1.4" fill="var(--accent-deep)" stroke="none"/></svg></div>
           <h3>NFC &amp; Wallet</h3>
           <p>Comparte con un tap. Integración nativa con Google Wallet y Samsung Wallet.</p>
         </div>
@@ -593,9 +584,9 @@
       <div>
         <a class="brand" href="#top" style="margin-bottom:10px; display:inline-flex;">
           <svg width="26" height="26" viewBox="0 0 30 30" fill="none">
-            <rect width="30" height="30" rx="9" fill="#EEEAFC"/>
-            <path d="M9 8L15 20L21 8" stroke="#5C48E6" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
-            <circle cx="15" cy="22.5" r="1.6" fill="#5C48E6"/>
+            <rect width="30" height="30" rx="9" fill="var(--tint)"/>
+            <path d="M9 8L15 20L21 8" stroke="var(--accent-deep)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="15" cy="22.5" r="1.6" fill="var(--accent-deep)"/>
           </svg>
           <span>VYNK</span>
         </a>

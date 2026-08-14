@@ -26,6 +26,15 @@ const PORT = process.env.PORT || 3000;
 const UPLOAD_DIR = process.env.UPLOAD_DIR || './uploads';
 const STARTED_AT = Date.now();
 
+// Garantizar existencia de directorios de carga en arranque (Acción Preventiva)
+try {
+  if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+  const publicUploads = path.join(__dirname, 'public', 'uploads');
+  if (!fs.existsSync(publicUploads)) fs.mkdirSync(publicUploads, { recursive: true });
+} catch (e) {
+  console.error('Error al inicializar directorios de cargas:', e);
+}
+
 // =============================================
 // Guards de proceso — estabilidad preventiva
 // =============================================
@@ -177,6 +186,12 @@ app.use(express.static(path.join(process.cwd(), 'public')));
 
 // Servir archivos subidos
 app.use('/uploads', express.static(path.resolve(UPLOAD_DIR)));
+
+// Servir fallback SVG de avatar si el archivo subido no existe en disco (Acción Preventiva)
+app.use('/uploads', (req, res) => {
+  res.setHeader('Content-Type', 'image/svg+xml');
+  res.send(`<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`);
+});
 
 // =============================================
 // Rutas de la API
