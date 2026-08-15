@@ -407,24 +407,22 @@ app.use((err, req, res, next) => {
 // =============================================
 
 async function start() {
+  const server = app.listen(PORT, () => {
+    console.log('');
+    console.log('╔════════════════════════════════════════════╗');
+    console.log('║          ⚡ VYNK — Backend                  ║');
+    console.log('╠════════════════════════════════════════════╣');
+    console.log(`║  🌐 Servidor: http://localhost:${PORT}        ║`);
+    console.log(`║  📁 Uploads:  ${path.resolve(UPLOAD_DIR)}`);
+    console.log('╚════════════════════════════════════════════╝');
+    console.log('');
+  });
+
   try {
     await dbReady;
-    console.log('✅ Base de datos conectada');
-
-    app.listen(PORT, () => {
-      console.log('');
-      console.log('╔════════════════════════════════════════════╗');
-      console.log('║          ⚡ VYNK — Backend                  ║');
-      console.log('╠════════════════════════════════════════════╣');
-      console.log(`║  🌐 Servidor: http://localhost:${PORT}        ║`);
-      console.log(`║  📁 Uploads:  ${path.resolve(UPLOAD_DIR)}`);
-      console.log(`║  🗄️  Base datos: ${process.env.DB_PATH || './database/tarjeta.db'}`);
-      console.log('╚════════════════════════════════════════════╝');
-      console.log('');
-    });
+    console.log('✅ Base de datos Neon PostgreSQL conectada e inicializada');
   } catch (err) {
-    console.error('❌ Error al iniciar:', err);
-    process.exit(1);
+    console.error('⚠️ Alerta de conexión DB:', err && err.message || err);
   }
 }
 

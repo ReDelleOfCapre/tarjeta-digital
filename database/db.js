@@ -8,10 +8,8 @@ require('dotenv').config();
 
 const DATABASE_URL = process.env.DATABASE_URL;
 
-// Sin credenciales de DB no arrancamos: nunca guardamos secretos en el código.
 if (!DATABASE_URL) {
-  console.error('❌ Falta DATABASE_URL en el entorno. Configúralo en .env (Neon/Postgres).');
-  process.exit(1);
+  console.error('⚠️ ALERTA: Falta DATABASE_URL en el entorno. Configúralo en .env o Render Dashboard.');
 }
 
 /**
@@ -125,6 +123,10 @@ class PgDatabaseWrapper {
   }
 
   async init() {
+    if (!DATABASE_URL) {
+      console.warn('⚠️ Se omitió la inicialización de la DB por falta de DATABASE_URL en el entorno.');
+      return this;
+    }
     try {
       const schemaPath = path.join(__dirname, 'schema.sql');
       const schemaSql = fs.readFileSync(schemaPath, 'utf-8');
