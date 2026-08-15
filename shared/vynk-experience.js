@@ -410,7 +410,12 @@
     if (comp) {
       if (comp.hero) {
         const id = comp.hero.id != null ? String(comp.hero.id) : null;
-        if (id) patterns[id] = 'hero';
+        if (id) {
+          // El override manual del usuario (contenido.variante) vence al motor.
+          const heroBlock = (blocks || []).find(function (x) { return x.id != null && String(x.id) === id; });
+          const forced = (heroBlock && heroBlock.contenido && heroBlock.contenido.variante) || null;
+          patterns[id] = forced || 'hero';
+        }
       }
       const emitter = function (it, zoneLevel) {
         const b = it.block || it;
@@ -474,11 +479,19 @@
     const profile = input.profile || {};
     const suggestions = [];
     const can = function (title, message, action) {
-      return { id: 'design_' + suggestions.length + 1, level: 'info', title: title, message: message, action: action };
+      return { id: 'design_' + (suggestions.length + 1), level: 'info', title: title, message: message, action: action };
     };
 
-    // Contraste.
-    exp.contrast.reports.forEach(function (r) {
+    // Contraste: respeta paletas explícitas (onPrimary/text) si el usuario las
+    // definió; si no, el guard ya las corrigió y no hay nada que arreglar.
+    const paletteInput = {
+      primary: profile.color || input.color || exp.contrast.primary
+    };
+    if (profile.onPrimary) paletteInput.onPrimary = profile.onPrimary;
+    if (profile.text) paletteInput.text = profile.text;
+    if (profile.background) paletteInput.background = profile.background;
+    const raw = guardPalette(paletteInput);
+    raw.reports.forEach(function (r) {
       if (!r.pass) {
         suggestions.push(can(
           'Contraste AA en ' + r.pair,
@@ -500,6 +513,49 @@
     const hasPrimary = (exp.zones || []).some(function (z) { return z.level === 'PRIMARY'; });
     if (!hasPrimary && Array.isArray(input.blocks) && input.blocks.some(function (b) { return (b.tipo === 'whatsapp' || b.tipo === 'agendar' || b.tipo === 'link'); })) {
       suggestions.push(can('CTA principal', 'Tu arquetipo ' + exp.archetype.label + ' prioriza una acción primaria. La convertiremos en hero glass.', { type: 'promote_cta', archetype: exp.archetype.id }));
+    }
+
+    // Densidad: con mucho contenido el patrón por defecto se compacta (anti-scroll).
+    if (input.blocks && input.blocks.length >= 4 && exp.density === 'immersive') {
+      suggestions.push(can('Compactar bloque de más alto nivel', 'Tu tarjeta tiene densidad alta; fundimos el CTA primario en hero compacto para subir conversión.', { type: 'compact_cta', target: 'PRIMARY' }));
+    }
+
+    // Patrones recomendados distintos a lo que ya hay (mejora tangible del motor).
+    if (Array.isArray(input.blocks)) {
+      const comp = (input.comp) ||
+        (typeof window !== 'undefined' && typeof window.VynkComposition !== 'undefined' && window.VynkComposition.buildComposition
+          ? window.VynkComposition.buildComposition({ tipo: input.tipo, blocks: input.blocks, density: input.density || 'auto' })
+          : null);
+      if (comp) {
+        const upgradeable = [];
+        comp.sections.forEach(function (sec) {
+          (sec.items || []).forEach(function (it) {
+            const b = (input.blocks || []).find(function (x) { return x.id != null && String(x.id) === String(it.id); });
+            if (!b) return;
+            const level = (exp.spine || []).find(function (s) { return s.kind === sec.kind; });
+            const zoneLevel = (level && level.level) || 'CONTENT';
+            const rev = recommendedVariant(b.tipo, zoneLevel, exp.archetype.id);
+            if (rev && rev !== 'recommended') {
+              const forced = (b.contenido || {}).variante;
+              if (forced !== rev && exp.patterns[String(b.id)] !== rev) {
+                upgradeable.push({ id: b.id, variant: rev });
+              }
+            }
+          });
+        });
+        if (upgradeable.length) {
+          suggestions.push(can('Upgrade de patrón', upgradeable.length + ' bloque(s) irían mejor con otra variante de diseño.', { type: 'apply_patterns', patterns: upgradeable }));
+        }
+      }
+    }
+
+    // Siempre hay al menos una sugerencia accionable; nunca vacío con contenido.
+    if (!suggestions.length && Array.isArray(input.blocks) && input.blocks.length) {
+      suggestions.push(can(
+        'Diseño balanceado',
+        'El arquetipo ' + exp.archetype.label + ' está aplicado con ' + exp.background.mode + ' y densidad ' + exp.density + '. Si quieres reiniciar la composición, reconstruye el blueprint.',
+        { type: 'rebuild_blueprint', archetype: exp.archetype.id }
+      ));
     }
 
     // Patrones recomendados distintos a lo que ya hay.

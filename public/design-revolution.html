@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>Revolución de Diseño · VYNK</title>
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/vynk-cards.css">
+  <link rel="stylesheet" href="css/vynk-experience.css">
+  <style>
+    body { background: var(--bg-primary, #0A0A0B); color: var(--text-primary, #EDEDED); font-family: "Inter", system-ui, sans-serif; padding: 48px 20px; }
+    .dr-wrap { max-width: 1180px; margin: 0 auto; }
+    .dr-head { text-align: center; margin-bottom: 48px; }
+    .dr-head h1 { font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: clamp(28px, 5vw, 44px); margin: 0 0 12px; }
+    .dr-head p { color: rgba(237,237,237,.6); max-width: 640px; margin: 0 auto; }
+    .dr-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 32px; }
+    .dr-card { border: 1px solid rgba(255,255,255,.08); border-radius: 20px; overflow: hidden; background: rgba(255,255,255,.02); }
+    .dr-card-head { padding: 18px 20px; border-bottom: 1px solid rgba(255,255,255,.08); }
+    .dr-card-head .dr-archetype { font-family: "Space Grotesk", sans-serif; font-weight: 600; font-size: 18px; }
+    .dr-card-head .dr-desc { color: rgba(237,237,237,.55); font-size: 12px; margin-top: 4px; }
+    .dr-card-head .dr-badge { display: inline-block; margin-top: 8px; font-family: "JetBrains Mono", monospace; font-size: 11px; color: rgba(237,237,237,.7); background: rgba(255,255,255,.06); border-radius: 999px; padding: 3px 10px; }
+    .dr-preview { max-width: 400px; margin: 0 auto; min-height: 480px; }
+    .dr-note { text-align: center; color: rgba(237,237,237,.45); font-size: 13px; margin-top: 40px; line-height: 1.7; }
+    .dr-note code { font-family: "JetBrains Mono", monospace; font-size: 12px; background: rgba(255,255,255,.07); padding: 2px 6px; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <div class="dr-wrap">
+    <header class="dr-head">
+      <h1>Revolución de Diseño VYNK</h1>
+      <p>Cada tarjeta se compone con un arquetipo, una jerarquía y un patrón visual deterministas. El mismo motor renderiza en el editor, en la página pública y aquí abajo: editor · público · showcase son el mismo resultado.</p>
+    </header>
+
+    <div class="dr-grid" id="dr-grid">
+      <div class="dr-card"><div class="dr-card-head"><div class="dr-archetype">Restaurante</div><div class="dr-desc">Glass + gradientes · CTAs de pedido protagonistas</div><div class="dr-badge" id="dr-badge-0">…</div></div><div class="dr-preview" id="dr-demo-0"></div></div>
+      <div class="dr-card"><div class="dr-card-head"><div class="dr-archetype">Creador</div><div class="dr-desc">Redes arriba, contenido en grilla expansiva</div><div class="dr-badge" id="dr-badge-1">…</div></div><div class="dr-preview" id="dr-demo-1"></div></div>
+      <div class="dr-card"><div class="dr-card-head"><div class="dr-archetype">Profesional</div><div class="dr-desc">Señal minimal con escala tipográfica fuerte</div><div class="dr-badge" id="dr-badge-2">…</div></div><div class="dr-preview" id="dr-demo-2"></div></div>
+      <div class="dr-card"><div class="dr-card-head"><div class="dr-archetype">Corporativo</div><div class="dr-desc">Restringido, componentes estándar, patrones</div><div class="dr-badge" id="dr-badge-3">…</div></div><div class="dr-preview" id="dr-demo-3"></div></div>
+    </div>
+
+    <p class="dr-note">
+      Motor <code>shared/vynk-experience.js</code> → blueprint serializable → atributos <code>data-exp-*</code> en el mismo HTML del editor y del SSR público. Sin LLM, sin llamadas externas.
+    </p>
+  </div>
+
+  <script>
+    window.VYNK_DEMOS = [
+      {
+        tipo: "restaurant",
+        nombre: "La Brasa Oaxaca",
+        bio: "Asado, mezcal y cocina de humo en el Centro Histórico.",
+        color: "#E8A33D",
+        blocks: [
+          { tipo: "whatsapp", contenido: { titulo: "Pedidos por WhatsApp", numero: "522311556138", mensaje_default: "Hola quiero hacer un pedido" } },
+          { tipo: "link", contenido: { titulo: "Ver menú", url: "#", subtitulo: "Platillos y precios" } },
+          { tipo: "ubicaciones", contenido: { titulo: "La Brasa Centro", direccion: "Andador Turístico 12", url: "#", subtitulo: "Calle 5 de Mayo 12" } },
+          { tipo: "horario", contenido: { titulo: "Horario de atención" } },
+          { tipo: "social_icons", contenido: { redes: [{ tipo: "instagram", url: "#" }, { tipo: "facebook", url: "#" }] } }
+        ]
+      },
+      {
+        tipo: "creator",
+        nombre: "Mara Villegas",
+        bio: "Ilustradora y voz en off. Cuento historias dibujadas.",
+        color: "#8B5CF6",
+        blocks: [
+          { tipo: "social_icons", contenido: { redes: [{ tipo: "instagram", url: "#" }, { tipo: "youtube", url: "#" }, { tipo: "tiktok", url: "#" }] } },
+          { tipo: "link", contenido: { titulo: "Portafolio", url: "#", subtitulo: "Selección de trabajos" } },
+          { tipo: "link", contenido: { titulo: "Prints", subtitulo: "Tienda de arte", url: "#" } },
+          { tipo: "link", contenido: { titulo: "Podcast", subtitulo: "Nuevo episodio cada jueves", url: "#" } }
+        ]
+      },
+      {
+        tipo: "professional",
+        nombre: "Ing. Roberto Sánchez",
+        bio: "Arquitecto de software · 12 años en sistemas distribuidos.",
+        color: "#3B82F6",
+        blocks: [
+          { tipo: "link", contenido: { titulo: "LinkedIn", url: "#" } },
+          { tipo: "link", contenido: { titulo: "GitHub", url: "#" } },
+          { tipo: "link", contenido: { titulo: "Currículum", url: "#", subtitulo: "PDF actualizado 2026" } },
+          { tipo: "email_capture", contenido: { titulo: "Contacto directo", boton_texto: "Escribirme" } }
+        ]
+      },
+      {
+        tipo: "corporate",
+        nombre: "Nexus Group",
+        bio: "Infraestructura digital para PyMEs.",
+        color: "#F59E0B",
+        blocks: [
+          { tipo: "link", contenido: { titulo: "Sitio corporativo", url: "#" } },
+          { tipo: "link", contenido: { titulo: "Portal de clientes", url: "#" } },
+          { tipo: "link", contenido: { titulo: "Soporte", url: "#", subtitulo: "Lun-Vie 9:00-18:00" } },
+          { tipo: "pdf", contenido: { titulo: "Reporte anual", url: "#" } },
+          { tipo: "social_icons", contenido: { redes: [{ tipo: "linkedin", url: "#" }] } }
+        ]
+      }
+    ];
+  </script>
+  <script src="js/vynk-composition.js"></script>
+  <script src="js/vynk-experience.js"></script>
+  <script src="js/vynk-renderer.js"></script>
+  <script>
+    (function () {
+      function renderDemos() {
+        var demos = window.VYNK_DEMOS || [];
+        demos.forEach(function (data, i) {
+          var el = document.getElementById("dr-demo-" + i);
+          var badge = document.getElementById("dr-badge-" + i);
+          if (!el) return;
+          if (window.VynkExperience && window.VynkExperience.buildExperience) {
+            try {
+              var exp = window.VynkExperience.buildExperience({
+                tipo: data.tipo,
+                blocks: data.blocks,
+                density: "auto",
+                profile: data,
+                color: data.color
+              });
+              if (badge) badge.textContent = exp.archetype.id + " · " + exp.background.mode + " · " + exp.motion.semantics;
+            } catch (e) { if (badge) badge.textContent = "arquetipo no detectable"; }
+          }
+          if (window.renderVynkProfile) {
+            window.renderVynkProfile(data, el, { accent: data.color });
+          }
+        });
+      }
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", renderDemos);
+      } else {
+        renderDemos();
+      }
+    })();
+  </script>
+</body>
+</html>
