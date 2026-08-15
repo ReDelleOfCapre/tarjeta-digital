@@ -147,6 +147,11 @@
   var liveProfileId = editId ? editId : null;
   var autosaveTimer = null;
   var lastSnapshotJson = "";
+  // Persistencia unificada (§: editor == DB == público).
+  // deletedBlockIds: bloques que el usuario borró y que el backend aún no confirma.
+  var deletedBlockIds = [];
+  // Generación de guardado: ignora respuestas viejas si un nuevo persist ya corrió.
+  var persistGeneration = 0;
 
   renderThemePicker();
   renderPalette();
@@ -249,6 +254,7 @@
         }
         renderThemePicker();
         updateLivePreview();
+        scheduleAutosave();
       });
     });
   }
@@ -303,6 +309,7 @@
         selectedColor = option.getAttribute("data-color") || "#E8A33D";
         manualColorChosen = true;
         updateLivePreview();
+        scheduleAutosave();
       });
     });
 
@@ -351,6 +358,7 @@
         blocks.splice(evt.newIndex, 0, moved);
         normalizeOrder();
         renderBlockList();
+        scheduleAutosave();
       }
     });
   }
@@ -816,6 +824,7 @@
     editingBlockIdx = null;
     hideBlockForm();
     renderBlockList();
+    scheduleAutosave();
 
     if ((tipo === "link" || tipo === "spotify" || tipo === "youtube" || tipo === "tiktok") && content.url && content.url.indexOf("http") === 0) {
       enrichLinkMetadata(content);
@@ -973,6 +982,7 @@
       if (!content.titulo || content.titulo === content.url) content.titulo = meta.title || content.titulo;
       if (!content.subtitulo) content.subtitulo = meta.description || "";
       renderBlockList();
+      scheduleAutosave();
     }).catch(function () {
       showToast("No se pudo leer metadata del enlace", "info");
     });
@@ -1024,12 +1034,13 @@
 
   window.removeBlock = function (index) {
     var block = blocks[index];
-    if (block && block.id && editId) {
-      api("/bloques/" + block.id, { method: "DELETE" }).catch(function () {});
-    }
+    if (!block) return;
+    // El bloque con id real se marca para borrado y se confirma via syncBlocks.
+    if (block.id) deletedBlockIds.push(block.id);
     blocks.splice(index, 1);
     normalizeOrder();
     renderBlockList();
+    scheduleAutosave();
   };
 
   window.moveBlock = function (index, direction) {
@@ -1039,6 +1050,7 @@
     blocks.splice(target, 0, moved);
     normalizeOrder();
     renderBlockList();
+    scheduleAutosave();
   };
 
   window.duplicateBlock = function (index) {
@@ -1053,6 +1065,7 @@
     blocks.splice(index + 1, 0, clone);
     normalizeOrder();
     renderBlockList();
+    scheduleAutosave();
     showToast("Bloque duplicado", "success");
   };
 
@@ -1120,72 +1133,16 @@
 
     lockSaveButtons(true);
 
-    var formData = new FormData();
-    formData.append("nombre_perfil", nombre);
-    formData.append("tipo", gv("tipo_perfil") || "personal");
-    formData.append("color", selectedTheme === "auto" && autoExtractedColor && !manualColorChosen ? autoExtractedColor : selectedColor);
-    formData.append("tema", selectedTheme);
-    formData.append("marco_estilo", gv("marco_estilo") || "gradient");
-    formData.append("bio", gv("bio_perfil"));
-    formData.append("cumpleanos", gv("cumpleanos"));
-    formData.append("lugar_estudio", gv("lugar_estudio"));
-    formData.append("pronombres", gv("pronombres"));
-    formData.append("hora_apertura", gv("hora_apertura") || "09:00");
-    formData.append("hora_cierre", gv("hora_cierre") || "20:00");
-    formData.append("mostrar_agendar_cita", document.getElementById("mostrar_agendar_cita") && document.getElementById("mostrar_agendar_cita").checked ? "1" : "0");
-    formData.append("mostrar_saludo_voz", document.getElementById("mostrar_saludo_voz") && document.getElementById("mostrar_saludo_voz").checked ? "1" : "0");
-    formData.append("audio_saludo_url", gv("audio_saludo_url") || "");
-    formData.append("densidad", selectedDensity || "auto");
-
-    var fotoInput = document.getElementById("input-foto");
-    if (fotoInput && fotoInput.files && fotoInput.files[0]) {
-      formData.append("foto", fotoInput.files[0]);
-    }
-
-    var method = editId ? "PUT" : "POST";
-    var endpoint = editId ? "/perfiles/" + editId : "/perfiles";
-
-    api(endpoint, { method: method, body: formData, headers: {} })
-      .then(function (profile) {
-        if (!profile) throw new Error("No se pudo guardar el perfil");
-        var perfilId = profile.id || editId;
-        profileSlug = profile.slug || profileSlug;
-        updatePreviewButton();
-
-        var requests = blocks.map(function (block, index) {
-          var body = JSON.stringify({
-            tipo: block.tipo,
-            contenido: block.contenido,
-            orden: index,
-            visible: block.visible === false ? 0 : 1
-          });
-
-          if (block.id) {
-            return api("/bloques/" + block.id, { method: "PUT", body: body });
-          }
-
-          return api("/perfiles/" + perfilId + "/bloques", {
-            method: "POST",
-            body: body
-          }).then(function (created) {
-            if (created && created.id) block.id = created.id;
-          });
-        });
-
-        return Promise.all(requests);
-      })
-      .then(function () {
-        showToast("Tarjeta guardada con exito", "success");
-        lockSaveButtons(false, true);
-        setTimeout(function () {
-          window.location.replace("/dashboard.html");
-        }, 420);
-      })
-      .catch(function (error) {
-        console.error("Error guardando tarjeta:", error);
-        showToast(error && (error.error || error.message) ? (error.error || error.message) : "No se pudo guardar", "error");
-        lockSaveButtons(false, false);
-      });
+    // Usa la MISMA capa de persistencia que el autosave: al crear un perfil
+    // nuevo (editId nulo) se hace POST /perfiles y luego se sincronizan bloques.
+    guardarAhora().then(function (ok) {
+      lockSaveButtons(false, !!ok);
+      if (!ok) return;
+      showToast("Tarjeta guardada con exito", "success");
+      setTimeout(function () {
+        window.location.replace("/dashboard.html");
+      }, 420);
+    });
   }
 
   function loadExisting(id) {
@@ -1260,6 +1217,10 @@
         });
         normalizeOrder();
         renderBlockList();
+        // La hidratación inicial NO cuenta como cambios del usuario.
+        clearTimeout(autosaveTimer);
+        lastSnapshotJson = buildEditorSnapshot();
+        updateSaveStatus("saved", "Guardado");
       })
       .catch(function (error) {
         console.error("Error cargando perfil:", error);
@@ -1473,49 +1434,11 @@
     if (label) label.textContent = text || "";
   }
 
-  function profileSnapshotJson() {
-    var accent = selectedTheme === "auto" && autoExtractedColor && !manualColorChosen
-      ? autoExtractedColor : selectedColor;
-    return JSON.stringify({
-      nombre: gv("nombre_perfil"),
-      tipo: gv("tipo_perfil"),
-      bio: gv("bio_perfil"),
-      cumpleanos: gv("cumpleanos"),
-      lugar_estudio: gv("lugar_estudio"),
-      pronombres: gv("pronombres"),
-      marco: gv("marco_estilo"),
-      tema: selectedTheme,
-      color: accent,
-      hora_apertura: gv("hora_apertura"),
-      hora_cierre: gv("hora_cierre"),
-      mostrar_agendar_cita: !!(document.getElementById("mostrar_agendar_cita") && document.getElementById("mostrar_agendar_cita").checked),
-      mostrar_saludo_voz: !!(document.getElementById("mostrar_saludo_voz") && document.getElementById("mostrar_saludo_voz").checked),
-      audio_saludo_url: gv("audio_saludo_url")
-    });
-  }
-
-  function scheduleAutosave() {
-    updateSaveStatus("dirty", "Cambios sin guardar");
-    clearTimeout(autosaveTimer);
-    autosaveTimer = setTimeout(runAutosave, 900);
-  }
-
-  function runAutosave() {
-    if (!gv("nombre_perfil")) {
-      updateSaveStatus("dirty", "Falta el nombre");
-      return;
-    }
-
-    var snapshot = profileSnapshotJson();
-    if (snapshot === lastSnapshotJson) {
-      updateSaveStatus("saved", "Guardado");
-      return;
-    }
-
+  function profileFormData() {
     var payload = new FormData();
     payload.append("nombre_perfil", gv("nombre_perfil"));
     payload.append("tipo", gv("tipo_perfil") || "personal");
-    payload.append("color", selectedTheme === "auto" && autoExtractedColor && !manualColorChosen ? autoExtractedColor : selectedColor);
+    payload.append("color", accentValue());
     payload.append("tema", selectedTheme);
     payload.append("marco_estilo", gv("marco_estilo") || "gradient");
     payload.append("bio", gv("bio_perfil"));
@@ -1533,24 +1456,172 @@
     if (fotoInput && fotoInput.files && fotoInput.files[0]) {
       payload.append("foto", fotoInput.files[0]);
     }
+    return payload;
+  }
 
+  function photoFingerprint() {
+    var preview = document.getElementById("photo-preview");
+    var img = preview && preview.querySelector && preview.querySelector("img");
+    if (img && img.getAttribute("src")) {
+      var src = img.getAttribute("src");
+      return src.indexOf("data:") === 0 ? "local:" + src.length + ":" + src.slice(-32) : src;
+    }
+    return "";
+  }
+
+  // Snapshot COMPLETO del estado del editor: perfil + apariencia + settings + bloques
+  // (orden, visibilidad y contenido). Se usa tanto para detectar "dirty" como para
+  // confirmar que editor == DB == público tras guardar.
+  function buildEditorSnapshot() {
+    return JSON.stringify({
+      profile: {
+        nombre: gv("nombre_perfil"),
+        tipo: gv("tipo_perfil"),
+        bio: gv("bio_perfil"),
+        cumpleanos: gv("cumpleanos"),
+        lugar_estudio: gv("lugar_estudio"),
+        pronombres: gv("pronombres"),
+        marco: gv("marco_estilo"),
+        tema: selectedTheme,
+        color: accentValue(),
+        densidad: selectedDensity || "auto",
+        hora_apertura: gv("hora_apertura"),
+        hora_cierre: gv("hora_cierre"),
+        mostrar_agendar_cita: !!(document.getElementById("mostrar_agendar_cita") && document.getElementById("mostrar_agendar_cita").checked),
+        mostrar_saludo_voz: !!(document.getElementById("mostrar_saludo_voz") && document.getElementById("mostrar_saludo_voz").checked),
+        audio_saludo_url: gv("audio_saludo_url"),
+        foto: photoFingerprint()
+      },
+      blocks: blocks.map(function (b) {
+        return {
+          k: b.id || b._tempId,
+          tipo: b.tipo,
+          contenido: b.contenido || {},
+          visible: b.visible !== false,
+          orden: b.orden
+        };
+      }),
+      deleted: deletedBlockIds.slice().sort()
+    });
+  }
+
+  function syncBlocks(perfilId) {
+    // 1) Confirmar borrados pendientes. Si DELETE falla, se retiene en
+    //    deletedBlockIds y el siguiente persist lo reintentará.
+    var deletes = deletedBlockIds.map(function (id) {
+      return api("/bloques/" + id, { method: "DELETE" }).then(function () {
+        var idx = deletedBlockIds.indexOf(id);
+        if (idx !== -1) deletedBlockIds.splice(idx, 1);
+      }).catch(function () {
+        throw new Error("No pudimos eliminar este bloque.");
+      });
+    });
+    return Promise.all(deletes).then(function () {
+      // 2) Bloques serialmente (nunca PUTs simultáneos): actualizar existentes,
+      //    crear nuevos y capturar su id real.
+      var chain = Promise.resolve();
+      blocks.forEach(function (block) {
+        chain = chain.then(function () {
+          var body = JSON.stringify({
+            tipo: block.tipo,
+            contenido: block.contenido || {},
+            visible: block.visible === false ? 0 : 1,
+            orden: block.orden
+          });
+          if (block.id) {
+            return api("/bloques/" + block.id, { method: "PUT", body: body });
+          }
+          return api("/perfiles/" + perfilId + "/bloques", {
+            method: "POST",
+            body: body
+          }).then(function (created) {
+            if (created && created.id) {
+              block.id = created.id;
+              delete block._tempId;
+            }
+          });
+        });
+      });
+      return chain;
+    });
+  }
+
+  // Capa única de persistencia: guarda perfil (creando si hace falta) y luego
+  // sincroniza bloques. Devuelve Promise<boolean>.
+  function persistEditorState() {
+    if (!gv("nombre_perfil")) {
+      updateSaveStatus("dirty", "Falta el nombre");
+      return Promise.resolve(false);
+    }
+
+    var snapshot = buildEditorSnapshot();
+    if (snapshot === lastSnapshotJson && deletedBlockIds.length === 0) {
+      updateSaveStatus("saved", "Guardado");
+      return Promise.resolve(true);
+    }
+
+    var myGeneration = ++persistGeneration;
     updateSaveStatus("saving", "Guardando…");
+
     var method = liveProfileId ? "PUT" : "POST";
     var endpoint = liveProfileId ? "/perfiles/" + liveProfileId : "/perfiles";
 
-    api(endpoint, { method: method, body: payload, headers: {} })
+    return api(endpoint, { method: method, body: profileFormData(), headers: {} })
       .then(function (profile) {
-        if (!profile) throw new Error("No se pudo autoguardar el perfil");
-        if (!liveProfileId) liveProfileId = profile.id;
+        if (!profile) throw new Error("No se pudo guardar el perfil");
+        if (!liveProfileId) {
+          liveProfileId = profile.id;
+          // Perfil nuevo recién creado: actualiza la URL para que una recarga
+          // siga editando el MISMO perfil en lugar de crear otro.
+          try {
+            var url = new URL(location.href);
+            url.searchParams.set("id", String(liveProfileId));
+            history.replaceState({}, "", url.toString());
+          } catch (e) {}
+        }
         profileSlug = profile.slug || profileSlug;
         updatePreviewButton();
-        lastSnapshotJson = snapshot;
-        updateSaveStatus("saved", "Guardado automáticamente");
+        return syncBlocks(liveProfileId);
+      })
+      .then(function () {
+        if (myGeneration !== persistGeneration) return;
+        lastSnapshotJson = buildEditorSnapshot();
+        updateSaveStatus("saved", "Guardado");
+        return true;
       })
       .catch(function (error) {
         updateSaveStatus("error", "No se pudo guardar");
         if (error && error.error) showToast(error.error, "error");
+        else if (error && error.message) showToast(error.message, "error");
+        return false;
       });
+  }
+
+  function scheduleAutosave() {
+    updateSaveStatus("dirty", "Cambios sin guardar");
+    clearTimeout(autosaveTimer);
+    autosaveTimer = setTimeout(flushPersist, 900);
+  }
+
+  // Cola de persistencia: un solo guardado a la vez. Cada persist se encola tras
+  // el anterior como cadena de promesas -> nunca hay PUTs simultáneos, y los
+  // cambios que llegan durante un guardado simplemente esperan su turno.
+  var persistChain = Promise.resolve();
+
+  function flushPersist() {
+    persistChain = persistChain.then(function () {
+      return persistEditorState();
+    }).catch(function (error) {
+      console.error("Error en autosave:", error);
+    });
+  }
+
+  // guardarAhora() permite que "Guardar ahora" // "Guardar y publicar" también
+  // pasen por la MISMA cola (nunca 2 guardados a la vez) y espera el resultado.
+  function guardarAhora() {
+    return persistChain.then(function () {
+      return persistEditorState();
+    });
   }
 
   function setupAutosave() {

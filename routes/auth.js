@@ -286,11 +286,18 @@ router.post('/login', rateLimit(10, 15 * 60 * 1000), [
     if (input.includes('@')) {
       user = await db.prepare('SELECT * FROM usuarios WHERE LOWER(email) = LOWER(?)').get(input);
     } else {
-      user = await db.prepare("SELECT * FROM usuarios WHERE REPLACE(telefono, '+', '') = ? OR telefono = ?").get(telefonoNorm, input);
+      const norm10 = telefonoNorm.length >= 10 ? telefonoNorm.slice(-10) : telefonoNorm;
+      user = await db.prepare(
+        "SELECT * FROM usuarios WHERE REPLACE(telefono, '+', '') = ? OR telefono = ? OR RIGHT(REPLACE(telefono, '+', ''), 10) = ?"
+      ).get(telefonoNorm, input, norm10);
     }
 
     if (!user) {
       return res.status(401).json({ error: 'Teléfono/email o contraseña incorrectos' });
+    }
+
+    if (!user.password_hash) {
+      return res.status(401).json({ error: 'Esta cuenta se creó con Google, Apple o Código Mágico. Inicia sesión con esas opciones o recupera tu contraseña.' });
     }
 
     const valid = await bcrypt.compare(password, user.password_hash);
@@ -327,7 +334,7 @@ router.post('/login', rateLimit(10, 15 * 60 * 1000), [
       }
     });
   } catch (err) {
-    console.error('Error en login:', err);
+    console.error('❌ Error en login:', err && err.stack ? err.stack : err);
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 });

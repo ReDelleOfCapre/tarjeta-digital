@@ -502,7 +502,10 @@ class PgDatabaseWrapper {
 }
 
 const wrapper = new PgDatabaseWrapper();
-const dbReady = wrapper.init();
+const dbReady = wrapper.init().catch(err => {
+  console.error('⚠️ Advertencia en dbReady (inicialización DB):', err && err.message || err);
+  return wrapper;
+});
 
 module.exports = wrapper;
 module.exports.dbReady = dbReady;
