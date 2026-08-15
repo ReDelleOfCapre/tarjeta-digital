@@ -431,7 +431,9 @@
       var keep = [];
       sec.items.forEach(function (item) {
         var low = item.priority <= threshold && (item.morph === 'action' || item.morph === 'document' || item.morph === 'text' || item.morph === 'note' || item.morph === 'section');
-        if (density !== 'immersive' && low && more.length < 8) {
+        // El primer ítem de cada sección jamás va a "Más": vaciar una sección
+        // haría desaparecer contenido visible (editor != público).
+        if (density !== 'immersive' && low && more.length < 8 && keep.length > 0 && item !== sec.items[0]) {
           more.push(item);
         } else {
           keep.push(item);

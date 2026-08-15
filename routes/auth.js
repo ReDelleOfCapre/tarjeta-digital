@@ -12,7 +12,14 @@ const rateLimit = require('../middleware/rateLimit');
 const auth = require('../middleware/auth');
 const { sendWelcomeEmail } = require('../utils/email');
 
-// Secreto único por arranque: nunca un valor predecible por defecto (§36).
+// Secreto JWT: en producción es OBLIGATORIO (fail-fast) para que las sesiones no
+// se invaliden en cada reinicio. En desarrollo se permite un fallback aleatorio.
+if (!process.env.JWT_SECRET && process.env.NODE_ENV === 'production') {
+  throw new Error('JWT_SECRET no está definido. Configúralo en el entorno antes de arrancar.');
+}
+if (!process.env.JWT_SECRET) {
+  console.warn('⚠️  JWT_SECRET no definido: usando secreto aleatorio de un solo arranque (solo desarrollo).');
+}
 const JWT_SECRET = process.env.JWT_SECRET || crypto.randomBytes(32).toString('hex');
 
 function isRealCredential(value) {
@@ -221,6 +228,10 @@ router.post('/registro', rateLimit(10, 15 * 60 * 1000), [
   body('email').optional().isEmail().withMessage('Email inválido')
 ], async (req, res) => {
   try {
+    if (!req.body || typeof req.body !== 'object' || Array.isArray(req.body)) {
+      req.body = {};
+    }
+
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ error: errors.array()[0].msg });
@@ -271,6 +282,12 @@ router.post('/login', rateLimit(10, 15 * 60 * 1000), [
   body('password').notEmpty().withMessage('Contraseña requerida')
 ], async (req, res) => {
   try {
+    // Cuerpo no-objeto (null, array, string) no debe tumbar el handler:
+    // se normaliza a {} para que los validadores devuelvan 400, no 500.
+    if (!req.body || typeof req.body !== 'object' || Array.isArray(req.body)) {
+      req.body = {};
+    }
+
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ error: errors.array()[0].msg });
@@ -524,8 +541,15 @@ router.post('/complete-tour', auth, async (req, res) => {
 // Rutas Passport OAuth Google — eliminadas: no hay estrategia registrada y el
 // flujo real es el intercambio de token por POST /api/auth/sso/google (§33, §36).
 
+// Modo demo: solo se habilita explícitamente con DEMO_MODE=true o fuera de producción.
+// En producción el endpoint /demo y los tokens vynk_demo_* quedan deshabilitados.
+const DEMO_MODE = process.env.DEMO_MODE === 'true' || process.env.NODE_ENV !== 'production';
+
 // POST /api/auth/demo — Login automático en cuenta demo / visitante
 router.post('/demo', async (req, res) => {
+  if (!DEMO_MODE) {
+    return res.status(403).json({ error: 'Acceso demo deshabilitado en producción.' });
+  }
   try {
     const db = await dbReady;
     let user = await db.prepare('SELECT * FROM usuarios WHERE email = ?').get('demo@VYNK.app');

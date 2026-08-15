@@ -1494,14 +1494,13 @@
       },
       blocks: blocks.map(function (b) {
         return {
-          k: b.id || b._tempId,
+          k: b._tempId || b.id,
           tipo: b.tipo,
           contenido: b.contenido || {},
           visible: b.visible !== false,
           orden: b.orden
         };
-      }),
-      deleted: deletedBlockIds.slice().sort()
+      })
     });
   }
 
@@ -1537,7 +1536,8 @@
           }).then(function (created) {
             if (created && created.id) {
               block.id = created.id;
-              delete block._tempId;
+              // Conserva _tempId: es la identidad estable del snapshot mientras
+              // el editor está abierto (no cambia al convertir a id real).
             }
           });
         });
@@ -1585,8 +1585,18 @@
       })
       .then(function () {
         if (myGeneration !== persistGeneration) return;
-        lastSnapshotJson = buildEditorSnapshot();
-        updateSaveStatus("saved", "Guardado");
+        // Registramos el snapshot que SÍ fue enviado al servidor (el capturado
+        // al inicio). NO usamos buildEditorSnapshot() aquí para no "absorber"
+        // cambios ocurridos durante la llamada en vuelo.
+        lastSnapshotJson = snapshot;
+        // Si el estado actual ya no coincide con lo que acabamos de persistir,
+        // hay un persist siguiente ya encolado: no marcamos "saved" aún o
+        // waitSaved podría leer la BD antes de que termine.
+        if (buildEditorSnapshot() === snapshot) {
+          updateSaveStatus("saved", "Guardado");
+        } else {
+          updateSaveStatus("dirty", "Cambios sin guardar");
+        }
         return true;
       })
       .catch(function (error) {

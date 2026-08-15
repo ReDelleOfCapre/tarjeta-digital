@@ -6,7 +6,8 @@ if (!process.env.JWT_SECRET) {
 }
 const JWT_SECRET = process.env.JWT_SECRET;
 
-const DEMO_TOKENS_ENABLED = process.env.NODE_ENV !== 'production';
+// Tokens demo activos únicamente con DEMO_MODE=true o fuera de producción.
+const DEMO_TOKENS_ENABLED = (process.env.DEMO_MODE === 'true') || (process.env.NODE_ENV !== 'production');
 
 /**
  * Resuelve un token demo legado (vynk_demo_*) a la cuenta demo REAL de la base de datos.

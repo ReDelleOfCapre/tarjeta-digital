@@ -22,28 +22,26 @@ async function api(endpoint, options = {}) {
     const data = await res.json();
 
     if (res.status === 401) {
-      // Auto-recuperación de sesión demo para evitar rebotes 401 en Render
-      try {
-        const demoRes = await fetch('/api/auth/demo', { method: 'POST' });
-        if (demoRes.ok) {
-          const demoData = await demoRes.json();
-          if (demoData && demoData.token) {
-            localStorage.setItem('token', demoData.token);
-            localStorage.setItem('usuario', JSON.stringify(demoData.usuario));
-            // Re-intentar la petición original con el nuevo token
-            config.headers['Authorization'] = 'Bearer ' + demoData.token;
-            const retryRes = await fetch(url, config);
-            return await retryRes.json();
+      // Auto-recuperación de sesión demo SOLO si el modo demo está activo.
+      // En producción (VYNK_DEMO_MODE=false) el 401 se propaga sin enmascarar
+      // credenciales incorrectas ni crear sesiones demo fantasma.
+      if (window.VYNK_DEMO_MODE && location.pathname !== '/' && !location.pathname.endsWith('index.html')) {
+        try {
+          const demoRes = await fetch('/api/auth/demo', { method: 'POST' });
+          if (demoRes.ok) {
+            const demoData = await demoRes.json();
+            if (demoData && demoData.token) {
+              localStorage.setItem('token', demoData.token);
+              localStorage.setItem('usuario', JSON.stringify(demoData.usuario));
+              // Re-intentar la petición original con el nuevo token
+              config.headers['Authorization'] = 'Bearer ' + demoData.token;
+              const retryRes = await fetch(url, config);
+              return await retryRes.json();
+            }
           }
-        }
-      } catch(e){}
-
-      // Si falla la recuperación y no estamos ya en index, ir a inicio
-      if (location.pathname !== '/' && !location.pathname.endsWith('index.html')) {
-        localStorage.setItem('token', 'vynk_demo_active_token');
-        var demoUser = { id: null, nombre: 'Cuenta Demo VYNK', role: 'user', isPro: true };
-        localStorage.setItem('usuario', JSON.stringify(demoUser));
+        } catch(e){}
       }
+
       return data;
     }
 
@@ -76,7 +74,7 @@ async function apiFetch(url, options = {}) {
   const data = await res.json();
 
   if (res.status === 401) {
-    if (location.pathname !== '/' && !location.pathname.endsWith('index.html')) {
+    if (window.VYNK_DEMO_MODE && location.pathname !== '/' && !location.pathname.endsWith('index.html')) {
       localStorage.setItem('token', 'vynk_demo_active_token');
       var demoUser = { id: null, nombre: 'Cuenta Demo VYNK', role: 'user', isPro: true };
       localStorage.setItem('usuario', JSON.stringify(demoUser));
@@ -163,8 +161,8 @@ function showUpgradeToast(message) {
 }
 
 function checkAuth() {
-  if (!localStorage.getItem('token')) {
-    // Prevenir rebotes al acceder a /dashboard.html creando un token demo de acceso inmediato
+  if (!localStorage.getItem('token') && window.VYNK_DEMO_MODE) {
+    // Prevenir rebotes al acceder a /dashboard.html (SOLO en modo demo).
     var demoUser = { id: null, nombre: 'Cuenta Demo VYNK', role: 'user', isPro: true };
     localStorage.setItem('token', 'vynk_demo_active_token');
     localStorage.setItem('usuario', JSON.stringify(demoUser));

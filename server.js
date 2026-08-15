@@ -203,6 +203,15 @@ app.get('/js/vynk-experience.js', (req, res) => {
   res.sendFile(path.join(process.cwd(), 'shared', 'vynk-experience.js'));
 });
 
+// Config de autenticación expuesta al frontend (sin secretos): el navegador
+// necesita saber si el modo demo está activo para no crear tokens demo ni
+// auto-recuperar sesiones en producción.
+app.get('/js/config.js', (req, res) => {
+  const demoMode = (process.env.DEMO_MODE === 'true') || (process.env.NODE_ENV !== 'production');
+  res.type('application/javascript');
+  res.send(`window.VYNK_DEMO_MODE = ${demoMode ? 'true' : 'false'};`);
+});
+
 // Servir archivos subidos
 app.use('/uploads', express.static(path.resolve(UPLOAD_DIR)));
 
@@ -384,11 +393,36 @@ app.get('/api/health', async (req, res) => {
 });
 
 // =============================================
+// Ruta no encontrada → 404 JSON (consistente para API y prefijos residuales
+// como /v1/ o /api/v1/). Evita respuestas HTML de Express en endpoints.
+// =============================================
+app.use((req, res) => {
+  res.status(404).json({ error: `Ruta no encontrada: ${req.method} ${req.path}` });
+});
+
+// =============================================
 // Manejador de errores global
 // =============================================
 
 app.use((err, req, res, next) => {
-  console.error('❌ Error no manejado:', err);
+  const status = err.status || err.statusCode || (err.type === 'entity.parse.failed' ? 400 : err.type === 'entity.too.large' ? 413 : null);
+
+  if (status && status >= 400 && status < 500) {
+    // Errores del cliente (body JSON inválido, muy grande, etc.): responder con su
+    // propio código en vez de enmascararlos como un 500 genérico.
+    if (process.env.NODE_ENV !== 'production') {
+      console.error('⚠️ Error de solicitud:', err.type || err.status, err.message);
+    }
+    let message;
+    if (err.type === 'entity.parse.failed') {
+      message = 'El cuerpo de la petición no es JSON válido.';
+    } else if (err.type === 'entity.too.large') {
+      message = 'La petición excede el tamaño máximo permitido.';
+    } else {
+      message = err.message || 'Solicitud inválida.';
+    }
+    return res.status(status).json({ error: message });
+  }
 
   // Errores de Multer
   if (err.code === 'LIMIT_FILE_SIZE') {
@@ -396,6 +430,8 @@ app.use((err, req, res, next) => {
       error: 'El archivo excede el tamaño máximo permitido.'
     });
   }
+
+  console.error('❌ Error no manejado:', err);
 
   res.status(500).json({
     error: 'Error interno del servidor. Intenta de nuevo más tarde.'
