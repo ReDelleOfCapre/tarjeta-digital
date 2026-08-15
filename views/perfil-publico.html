@@ -24,6 +24,7 @@
     <link rel="stylesheet" href="/css/styles.css">
     <link rel="stylesheet" href="/css/vynk-cards.css">
     <link rel="stylesheet" href="/css/vynk-components.css">
+    <link rel="stylesheet" href="/css/vynk-experience.css">
     <style>{{tema_css}}</style>
     <style>
         html, body { margin: 0; padding: 0; width: 100%; min-height: 100vh; }
@@ -74,7 +75,7 @@
 </head>
 <body>
     <div class="vynk-canvas">
-        <main class="vynk-public" data-perfil-id="{{perfil_id}}">
+        <main class="vynk-public{{exp_class}}" data-perfil-id="{{perfil_id}}" data-comp-density="{{densidad}}" {{exp_attrs}}>
 
             <!-- ===== HEADER · Identidad del pase ===== -->
             <div class="pass-brand">

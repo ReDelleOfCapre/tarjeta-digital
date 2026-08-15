@@ -40,8 +40,28 @@ Everything behind the scenes.
 | Data access | `database/` + lowdb/JSON store |
 | Auth | middleware/services (SSO currently stubbed) |
 | Intelligence | `services/ai/` (provider interface + DeterministicProvider activo) y `services/intelligence/` (motor VynkIntelligence: rules, palette, branding, layout, profile, insights, recommendations) |
+| **Composition Engine** | `shared/vynk-composition.js` (isomórfico UMD: lo usa Node y el navegador vía `GET /js/vynk-composition.js`) — jerarquía §61-81 |
 | Email | mailer service |
 | Uploads | `uploads/` for photos/QR |
+
+## Composition Engine (§61-82 — ventaja competitiva estructural)
+
+Un solo módulo isomórfico (`shared/vynk-composition.js`) es la **fuente única de verdad** de la composición. Consumido por: motor de inteligencia (Node), renderer del editor (navegador) y página pública (SSR).
+
+- **§61 jerarquía por contexto**: la tarjeta se compone como `IDENTIDAD → CTA → DOCK → CONTENIDO → INFORMACIÓN → CONTACTO → CONVERSIÓN → MÁS`, no como lista de botones.
+- **§62 no todos los bloques son iguales**: clasificación semántica (`CONVERSION/SOCIAL/MEDIA/INFORMATION/CONTENT/UTILITY`) que cambia tamaño, posición y representación.
+- **§63/§78 smart content types + card morphing**: `cta / dock / feature / media / location / schedule / payment / document / capture / text / note / action`.
+- **§64-67 arquetipos**: creador / restaurante / profesional / empresa → layouts estructuralmente distintos (verificado por test §81).
+- **§68 adaptive engine**: `buildComposition({tipo, blocks, density}) → {hero, dock, sections, more, density}`.
+- **§69 density**: `minimal / balanced / rich / immersive` (auto-recomendada; override de usuario persistido en `perfiles.densidad`).
+- **§70 smart priority 1-5**: inferida por bloque + refuerzos por tipo (el usuario no la ve).
+- **§71 CTA contextual**: `Reservar mesa`, `Agendar consulta`, `Registrarme`, etc. según tipo.
+- **§72 social dock**: redes → barra de iconos, nunca cards sueltas.
+- **§73 content cards**: links ricos (og_image / título+subtítulo) → feature cards.
+- **§69 overflow "Más"**: baja prioridad se oculta y es recuperable. La página pública renderiza `comp.more` igual que el editor (`<details class="comp-more">Más</details>`).
+- La página pública (SSR vía `assemblePublicComposition`) emite `data-comp-density` en `<main class="vynk-public">` = densidad efectiva (override persistido en `perfiles.densidad` o auto-recomendada).
+- Los bloques de ubicación se sustituyen por el mapa (`block-ubicaciones-map`) y se agrupan en la sección `information` junto al horario.
+- `rules.js` re-exporta desde `shared/` (una sola fuente de verdad).
 
 ## Current state (post-audit)
 
@@ -49,7 +69,7 @@ Everything behind the scenes.
 - Renderer + editor shared the SAME card components (single story) — the main consistency win is in place.
 - `public/css/tokens.css` centralizes design tokens with scales (spacing, radius, typography, shadows) and a styleguide.
 - Server renders public pages server-side; renderer enhances/maintains experience.
-- 13 tests pass (create/edit/save/share + intelligence determinística).
+- 21 tests pass (create/edit/save/share + intelligence determinística + composición §81 + SSR composición + densidad persistida).
 
 ### Problems
 1. **Competing token declarations**: `dashboard.html`, `editor.html`, `legal.html`, `mapa` each re-declare `:root` tokens (some as `--vynk-bg`, others `--vynk-background`, `--vynk-facebook` / `--vynk-fb`). Multiple sources of truth.

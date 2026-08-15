@@ -12,8 +12,105 @@ const { generateVCard } = require('../utils/vcard');
 const { renderMapaUbicaciones } = require('../utils/mapaUbicaciones');
 const iconUtil = require('../utils/icons');
 const { buildThemeCss } = require('../utils/temas');
+const composition = require('../shared/vynk-composition');
+const experience = require('../shared/vynk-experience');
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
+
+// Ensambla los bloques ya renderizados según la composición (§68):
+// hero CTA → dock social → secciones etiquetadas → overflow. Los bloques
+// que el motor no clasificó se conservan intactos al final (nunca se pierden).
+// exp (opcional) = blueprint del Experience Engine (Revolución de Diseño):
+// añade clase .exp-block--{variante} por bloque y data-exp-grid por zona.
+function assemblePublicComposition(entries, comp, exp) {
+  if (!Array.isArray(entries) || !entries.length) return '';
+  const byId = {};
+  const variantById = {};
+  const imgById = {};
+  if (exp) {
+    if (exp.patterns) Object.keys(exp.patterns).forEach(function (k) { variantById[k] = exp.patterns[k]; });
+    if (exp.imageTreatment) Object.keys(exp.imageTreatment).forEach(function (k) { imgById[k] = exp.imageTreatment[k]; });
+  }
+  const zoneMeta = {};
+  if (exp && Array.isArray(exp.zones)) {
+    exp.zones.forEach(function (z) { zoneMeta[z.kind] = z; });
+  }
+  entries.forEach(function (e) { if (e.id != null) byId[String(e.id)] = e; });
+  const sectionByBlock = {};
+  (comp.sections || []).forEach(function (sec) {
+    (sec.items || []).forEach(function (it) {
+      if (it.id != null) sectionByBlock[String(it.id)] = sec;
+    });
+  });
+  const used = {};
+  let html = '';
+
+  // Envoltorio exp-block con variante e imagen (aditivo: nunca reemplaza el HTML).
+  const wrapExp = function (e, zoneLevel) {
+    const id = String(e.id);
+    let variant = variantById[id];
+    if (variant && variant !== 'recommended' && variant !== 'hero' && zoneLevel === 'PRIMARY') variant = 'hero';
+    const img = imgById[id];
+    return '<div class="exp-block' + (variant ? ' exp-block--' + escapeHtml(variant) : '') + '"' + (img ? ' data-exp-img="' + escapeHtml(img) + '"' : '') + '>' + e.html + '</div>';
+  };
+
+  // 1. Hero CTA contextual (§71).
+  if (comp.hero && comp.hero.id != null) {
+    const heroEntry = byId[String(comp.hero.id)];
+    if (heroEntry) { html += wrapExp(heroEntry, 'PRIMARY'); used[String(heroEntry.id)] = true; }
+  }
+
+  // 2. Dock social (§72): redes e íconos, nunca cards perdidas entre botones.
+  const socialEntries = entries.filter(function (e) {
+    return e.type === 'social_icons' || (e.type === 'link' && composition.detectSocial(e.url));
+  });
+  if (socialEntries.length) {
+    html += '<div class="comp-section comp-section-social exp-zone-utility" data-exp-grid="list">'
+      + '<div class="comp-section-label">Síguenos</div>'
+      + '<div class="comp-section-body">'
+      + socialEntries.map(function (e) { used[String(e.id)] = true; return wrapExp(e, 'SOCIAL'); }).join('')
+      + '</div></div>';
+  }
+
+  // 3. Secciones en orden de composición (§61).
+  (comp.sections || []).forEach(function (sec) {
+    const secEntries = [];
+    (sec.items || []).forEach(function (it) {
+      const e = byId[String(it.id)];
+      if (e && !used[String(e.id)]) { secEntries.push(e); used[String(e.id)] = true; }
+    });
+    if (!secEntries.length) return;
+    const meta = zoneMeta[sec.kind] || {};
+    html += '<div class="comp-section comp-section-' + escapeHtml(sec.kind) +
+      (meta.level ? ' exp-zone-' + escapeHtml(meta.level.toLowerCase()) : '') +
+      '" data-comp-kind="' + escapeHtml(sec.kind) + '"' +
+      (meta.grid ? ' data-exp-grid="' + escapeHtml(meta.grid) + '"' : '') + '>'
+      + (sec.label ? '<div class="comp-section-label">' + escapeHtml(sec.label) + '</div>' : '')
+      + '<div class="comp-section-body">'
+      + secEntries.map(function (e) { return wrapExp(e, meta.level); }).join('')
+      + '</div></div>';
+  });
+
+  // 4. Overflow "Más" (§69): recuperable — mismo patrón que el editor.
+  if (comp.more && comp.more.length) {
+    const moreEntries = comp.more.map(function (m) { return byId[String(m.id)]; }).filter(Boolean);
+    if (moreEntries.length) {
+      html += '<div class="comp-section comp-section-more exp-zone-utility" data-exp-grid="list">'
+        + '<div class="comp-section-body"><details class="comp-more"><summary>Más</summary><div class="comp-more-body">'
+        + moreEntries.map(function (e) { used[String(e.id)] = true; return wrapExp(e, 'UTILITY'); }).join('')
+        + '</div></details></div></div>';
+    }
+  }
+
+  // 5. Huérfanos (mapa inyectado, bloques sin clasificar): se conservan.
+  entries.forEach(function (e) {
+    if (e.id != null && used[String(e.id)]) return;
+    if (e.id == null) return;
+    html += wrapExp(e, 'CONTENT');
+  });
+
+  return html;
+}
 
 /**
  * POST /api/perfiles/inicializar
@@ -161,8 +258,8 @@ router.post('/', auth, requireQuota, checkPlanLimit('perfil'), (req, res) => {
     try {
       const user = await db.prepare('SELECT email, nombre FROM usuarios WHERE id = ?').get(req.user.id);
       if (user && user.email) {
-        const { sendFirstCardNotification } = require('../utils/email');
-        sendFirstCardNotification(user.email, user.nombre, slug);
+        const { sendWelcomeEmail } = require('../utils/email');
+        sendWelcomeEmail(user.email, user.nombre);
       }
     } catch (e) {
       console.error('Error disparando correo de tarjeta:', e);
@@ -193,7 +290,7 @@ router.put('/:id', auth, requireQuota, (req, res) => {
       return res.status(403).json({ error: 'No tienes permiso para editar este perfil.' });
     }
 
-    const { nombre_perfil, tipo, color, bio, cumpleanos, lugar_estudio, pronombres, tema, foto_base64, marco_estilo, hora_apertura, hora_cierre, mostrar_agendar_cita, mostrar_saludo_voz, audio_saludo_url } = req.body;
+    const { nombre_perfil, tipo, color, bio, cumpleanos, lugar_estudio, pronombres, tema, foto_base64, marco_estilo, hora_apertura, hora_cierre, mostrar_agendar_cita, mostrar_saludo_voz, audio_saludo_url, densidad } = req.body;
     let foto_url = perfil.foto_url;
 
     if (foto_base64) {
@@ -226,7 +323,8 @@ router.put('/:id', auth, requireQuota, (req, res) => {
            hora_cierre = COALESCE(?, hora_cierre),
            mostrar_agendar_cita = COALESCE(?, mostrar_agendar_cita),
            mostrar_saludo_voz = COALESCE(?, mostrar_saludo_voz),
-           audio_saludo_url = COALESCE(?, audio_saludo_url)
+           audio_saludo_url = COALESCE(?, audio_saludo_url),
+           densidad = COALESCE(?, densidad)
        WHERE id = ?`
     ).run(
       nombre_perfil || null,
@@ -243,9 +341,12 @@ router.put('/:id', auth, requireQuota, (req, res) => {
       hora_cierre || null,
       mostrar_agendar_cita !== undefined ? (mostrar_agendar_cita ? 1 : 0) : perfil.mostrar_agendar_cita,
       mostrar_saludo_voz !== undefined ? (mostrar_saludo_voz ? 1 : 0) : perfil.mostrar_saludo_voz,
-      audio_saludo_url !== undefined ? (audio_saludo_url || null) : perfil.audio_saludo_url,
-      perfilId
+audio_saludo_url !== undefined ? (audio_saludo_url || null) : perfil.audio_saludo_url,
+       densidad !== undefined ? (densidad || 'auto') : perfil.densidad,
+       perfilId
     );
+
+    await db.prepare('UPDATE perfiles SET updated_at = CURRENT_TIMESTAMP WHERE id = ?').run(perfilId);
 
     const updated = await db.prepare('SELECT * FROM perfiles WHERE id = ?').get(perfilId);
     res.json(updated);
@@ -287,6 +388,53 @@ router.delete('/:id', auth, requireQuota, async (req, res) => {
   await db.prepare('DELETE FROM perfiles WHERE id = ?').run(perfilId);
 
   res.json({ ok: true, mensaje: 'Perfil eliminado correctamente.' });
+});
+
+/**
+ * POST /api/perfiles/:id/duplicar
+ * Duplica un perfil y todos sus bloques (§53). El original nunca se toca.
+ */
+router.post('/:id/duplicar', auth, requireQuota, checkPlanLimit('perfil'), async (req, res) => {
+  try {
+    const perfilId = parseInt(req.params.id, 10);
+    const perfil = await db.prepare('SELECT * FROM perfiles WHERE id = ?').get(perfilId);
+
+    if (!perfil) {
+      return res.status(404).json({ error: 'Perfil no encontrado.' });
+    }
+    if (perfil.usuario_id !== req.user.id) {
+      return res.status(403).json({ error: 'No tienes permiso para duplicar este perfil.' });
+    }
+
+    const nuevoSlug = await generateUniqueSlug((perfil.nombre_perfil || 'Copia') + ' copia');
+    const result = await db.prepare(
+      `INSERT INTO perfiles (usuario_id, slug, nombre_perfil, tipo, foto_url, color, tema, bio,
+         cumpleanos, lugar_estudio, pronombres, marco_estilo, hora_apertura, hora_cierre,
+         mostrar_agendar_cita, mostrar_saludo_voz, audio_saludo_url, densidad)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    ).run(
+      req.user.id, nuevoSlug, (perfil.nombre_perfil || 'Copia') + ' (copia)', perfil.tipo,
+      perfil.foto_url, perfil.color, perfil.tema, perfil.bio, perfil.cumpleanos,
+      perfil.lugar_estudio, perfil.pronombres, perfil.marco_estilo,
+      perfil.hora_apertura, perfil.hora_cierre, perfil.mostrar_agendar_cita,
+      perfil.mostrar_saludo_voz, perfil.audio_saludo_url, perfil.densidad || 'auto'
+    );
+
+    const nuevoId = result.lastInsertRowid;
+
+    const bloques = await db.prepare('SELECT * FROM bloques WHERE perfil_id = ? ORDER BY orden ASC').all(perfilId);
+    for (const b of bloques) {
+      await db.prepare(
+        'INSERT INTO bloques (perfil_id, tipo, contenido, orden, visible) VALUES (?, ?, ?, ?, ?)'
+      ).run(nuevoId, b.tipo, b.contenido, b.orden, b.visible !== false ? 1 : 0);
+    }
+
+    const copia = await db.prepare('SELECT * FROM perfiles WHERE id = ?').get(nuevoId);
+    res.status(201).json(copia);
+  } catch (err) {
+    console.error('Error duplicando perfil:', err);
+    res.status(500).json({ error: 'Error al duplicar el perfil.' });
+  }
 });
 
 /**
@@ -555,6 +703,54 @@ async function perfilPublicoHandler(req, res) {
     const mapaHtml = renderMapaUbicaciones(locaciones);
     let mapaInyectado = false;
 
+    // ---- Composition Engine (§68): jerarquía automática para la página pública ----
+    const compProfile = composition.buildComposition({
+      tipo: perfil.tipo || 'personal',
+      blocks: bloques.map(function (b) {
+        let c = b.contenido || {};
+        if (typeof c === 'string') { try { c = JSON.parse(c); } catch (e) { c = {}; } }
+        return { id: b.id, tipo: b.block_type || b.tipo || 'link', contenido: c };
+      }),
+      density: perfil.densidad || 'auto'
+    });
+
+    // ---- Experience Engine (Revolución de Diseño): blueprint determinista ----
+    // El MISMO motor que usa el editor → editor == público (editor-live.spec).
+    const expProfile = (function () {
+      try {
+        return experience.buildExperience({
+          tipo: perfil.tipo || 'personal',
+          blocks: bloques.map(function (b) {
+            let c = b.contenido || {};
+            if (typeof c === 'string') { try { c = JSON.parse(c); } catch (e) { c = {}; } }
+            return { id: b.id, tipo: b.block_type || b.tipo || 'link', contenido: c };
+          }),
+          density: perfil.densidad || 'auto',
+          profile: {
+            tipo: perfil.tipo,
+            color: perfil.color || color,
+            tema: perfil.tema,
+            banner_url: perfil.banner_url
+          },
+          comp: compProfile
+        });
+      } catch (e) {
+        return null;
+      }
+    })();
+
+    // Atributos de experiencia del contenedor raíz (Revolución de Diseño).
+    const expAttrs = expProfile
+      ? 'data-exp-archetype="' + escapeHtml(expProfile.archetype.id) + '"' +
+        ' data-exp-scheme="' + escapeHtml(expProfile.scheme) + '"' +
+        ' data-exp-glass="' + escapeHtml(expProfile.background.glass) + '"' +
+        ' data-exp-motion="' + escapeHtml(expProfile.motion.semantics) + '"' +
+        ' data-exp-ornament="' + (expProfile.background.ornament ? 'on' : 'off') + '"' +
+        ' data-exp-scale="' + escapeHtml(compProfile.density === 'minimal' ? 'compact' : (compProfile.density === 'immersive' ? 'large' : 'standard')) + '"' +
+        ' data-exp-grid="' + escapeHtml(expProfile.density || 'balanced') + '"'
+      : 'data-exp-scale="standard"';
+    const expBgClass = expProfile ? ' exp-bg-' + escapeHtml(expProfile.background.mode) + ' vynk-experience' : '';
+
     let bloques_html = '';
     if (bloques.length > 0) {
       bloques_html = bloques.map(bloque => {
@@ -582,7 +778,7 @@ async function perfilPublicoHandler(req, res) {
           if (esBloqueUbicacion) {
             if (!mapaInyectado && mapaHtml) {
               mapaInyectado = true;
-              return mapaHtml;
+              return { id: bId, type: blockType, url: urlStr, html: mapaHtml };
             }
             return '';
           }
@@ -615,7 +811,7 @@ async function perfilPublicoHandler(req, res) {
                   <div class="smart-accordion-content" style="padding:0 18px 18px 18px;display:flex;flex-direction:column;gap:12px">
                     <a href="${escapeHtml(deepLinkUrl)}" target="_blank" rel="noopener" class="btn btn-secondary btn-block" style="margin-top:4px;padding:12px 18px;font-size:0.88rem;font-weight:600;display:flex;align-items:center;justify-content:center;gap:10px;border-radius:14px;background:rgba(239,111,124,0.15);border:1px solid rgba(239,111,124,0.3);color:#FFF">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:0.95em;height:0.95em;vertical-align:-0.15em"><path d="M3 11l19-8-8 19-2-8-9-3z"/></svg>
-                      <span>Calcula tu ruta en Mapas (GPS Nactivo)</span>
+                      <span>Calcula tu ruta en Mapas (GPS nativo)</span>
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:0.8em;height:0.8em;vertical-align:-0.1em"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6M10 14L21 3"/></svg>
                     </a>
                   </div>
@@ -704,7 +900,7 @@ async function perfilPublicoHandler(req, res) {
                   ${mapUrl ? `
                     <a href="${escapeHtml(mapUrl)}" target="_blank" rel="noopener" class="btn btn-secondary btn-block" style="margin-top:6px;padding:12px 18px;font-size:0.88rem;font-weight:600;display:flex;align-items:center;justify-content:center;gap:10px;border-radius:14px;background:rgba(239,111,124,0.15);border:1px solid rgba(239,111,124,0.3);color:#FFF">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:0.95em;height:0.95em;vertical-align:-0.15em"><path d="M3 11l19-8-8 19-2-8-9-3z"/></svg>
-                      <span>Calcula tu ruta en Mapas (GPS Nactivo)</span>
+                      <span>Calcula tu ruta en Mapas (GPS nativo)</span>
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:0.8em;height:0.8em;vertical-align:-0.1em"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6M10 14L21 3"/></svg>
                     </a>
                   ` : ''}
@@ -775,7 +971,7 @@ async function perfilPublicoHandler(req, res) {
               imagenes.forEach(img => {
                 if (img && img.url) {
                   inner += `<div class="gallery-item">
-                    <img src="${escapeHtml(img.url)}" alt="Galería">
+                    <img src="${escapeHtml(img.url)}" alt="Galería" loading="lazy" onerror="this.onerror=null;this.style.display='none'">
                     ${img.caption ? `<div class="gallery-caption">${escapeHtml(img.caption)}</div>` : ''}
                   </div>`;
                 }
@@ -872,12 +1068,13 @@ async function perfilPublicoHandler(req, res) {
           }
 
           if (!inner || !inner.trim()) return '';
-          return `<div class="block-wrapper block-${escapeHtml(blockType)}${hasRichImage}${bentoClass}" data-bloque-id="${bId}">${inner}</div>`;
+          return { id: bId, type: blockType, url: urlStr, html: `<div class="block-wrapper block-${escapeHtml(blockType)}${hasRichImage}${bentoClass}" data-bloque-id="${bId}">${inner}</div>` };
         } catch (e) {
           console.error('[CRITICAL] Error al renderizar bloque individual:', e);
-          return '';
+          return null;
         }
-      }).filter(Boolean).join('\n');
+      }).filter(e => e && e.html).map(function (entry) { return entry; });
+      bloques_html = assemblePublicComposition(bloques_html, compProfile, expProfile);
     } else {
       const campos_html = campos.map(campo => {
         const icon = getFieldIcon(campo.tipo);
@@ -910,6 +1107,8 @@ async function perfilPublicoHandler(req, res) {
            </div>`
         : '';
     }
+
+    const compDensity = (compProfile && compProfile.density) || 'auto';
 
     const archivos_html = archivos.map(archivo => {
       const icon = (archivo.tipo || '').includes('pdf') ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1.2em;height:1.2em;vertical-align:-0.15em"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-6-6z"/><path d="M14 3v6h6M9 13h6M9 17h4"/></svg>' : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1.2em;height:1.2em;vertical-align:-0.15em"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></svg>';
@@ -1011,6 +1210,9 @@ async function perfilPublicoHandler(req, res) {
       .replace(/\{\{archivos_section_html\}\}/g, archivos_section_html)
       .replace(/\{\{action_buttons_html\}\}/g, action_buttons_html)
       .replace(/\{\{perfil_id\}\}/g, String(perfil.id))
+      .replace(/\{\{densidad\}\}/g, escapeHtml(compDensity))
+      .replace(/\{\{exp_attrs\}\}/g, expAttrs)
+      .replace(/\{\{exp_class\}\}/g, expBgClass)
       .replace(/\{\{api_base\}\}/g, BASE_URL);
 
     res.set('Content-Type', 'text/html; charset=utf-8');

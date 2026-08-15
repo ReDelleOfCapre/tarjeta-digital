@@ -92,7 +92,13 @@ const paths = {
   shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
   sparkles: '<path d="m12 3 1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/><path d="M19 14l.8 2.2L22 17l-2.2.8L19 20l-.8-2.2L16 17l2.2-.8z"/>',
   camera: '<path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/>',
-  compass: '<circle cx="12" cy="12" r="10"/><path d="m16.2 7.8-2.2 6.2-6.2 2.2 2.2-6.2z"/>'
+  compass: '<circle cx="12" cy="12" r="10"/><path d="m16.2 7.8-2.2 6.2-6.2 2.2 2.2-6.2z"/>',
+  pinterest: '<circle cx="12" cy="12" r="10"/><path d="M12 6c-2.4 0-4.2 1.7-4.2 4.1 0 1.4.6 2.6 1.7 3.1"/><path d="M12.4 17.6 10 21"/>',
+  reddit: '<circle cx="12" cy="12" r="10"/><circle cx="9.5" cy="10.5" r="1.5"/><circle cx="14.5" cy="10.5" r="1.5"/><path d="M12 14.5c2 0 3 1.5 3 1.5s-1 1.5-3 1.5-3-1.5-3-1.5 1-1.5 3-1.5z"/><path d="M10.5 6.5 12 4"/>',
+  behance: '<path d="M3 6h7M3 12h8M3 18h5"/><circle cx="15" cy="9" r="2"/><path d="M13 9h6M16 9v7c2 0 4-1 4-3 0-1.5-1.5-2.5-3-2.5"/>',
+  dribbble: '<circle cx="12" cy="12" r="10"/><path d="M8 3.5a20 20 0 0 0 0 17"/><path d="M16 3a20 20 0 0 1 0 18"/><path d="M2.5 12h19"/>',
+  steam: '<circle cx="12" cy="12" r="9"/><path d="M5.5 15.5 3 18"/><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><circle cx="15.5" cy="9.5" r="1"/>',
+  gamepad: '<rect x="2" y="7" width="20" height="12" rx="5"/><path d="M8 11v4M6 13h4"/><path d="M15.5 12.5h.01M17.5 14.5h.01"/>'
 };
 
 // Aliases para nombres de campo/campo que aparecen en datos reales
@@ -116,7 +122,18 @@ const aliases = {
   menú: 'book',
   carta: 'book',
   whatsapp: 'whatsapp',
-  x: 'twitter'
+  x: 'twitter',
+  apple_music: 'appleMusic',
+  pinterest: 'pinterest',
+  reddit: 'reddit',
+  behance: 'behance',
+  dribbble: 'dribbble',
+  steam: 'steam',
+  xbox: 'gamepad',
+  psn: 'gamepad',
+  kick: 'gamepad',
+  bereal: 'camera',
+  amazon_wishlist: 'gift'
 };
 
 const icons = {};

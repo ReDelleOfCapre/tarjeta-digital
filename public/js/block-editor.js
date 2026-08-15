@@ -6,17 +6,17 @@
     { tipo: "ubicacion", label: "Ubicacion", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M12 21s7-7.5 7-12a7 7 0 1 0-14 0c0 4.5 7 12 7 12z\"/><circle cx=\"12\" cy=\"9\" r=\"2.4\"/></svg>", color: "#EF6F7C" },
     { tipo: "horario", label: "Horario", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 6v6l4 2\"/></svg>", color: "#38BDF8" },
     { tipo: "whatsapp", label: "WhatsApp", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M21 12a8 8 0 0 1-8 8H4l3-3a8 8 0 1 1 14-5z\"/></svg>", color: "#25D366" },
-    { tipo: "social_icons", label: "Redes", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M12 3l1.7 5.3L19 10l-5.3 1.7L12 17l-1.7-5.3L5 10l5.3-1.7L12 3z\"/></svg>", color: "#B86AF6" },
-    { tipo: "galeria", label: "Galeria", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><rect x=\"3\" y=\"6\" width=\"18\" height=\"14\" rx=\"2\"/><circle cx=\"12\" cy=\"13\" r=\"4\"/><path d=\"M8.5 6l1-2h5l1 2\"/></svg>", color: "#EC4899" },
+    { tipo: "social_icons", label: "Redes", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><circle cx=\"6\" cy=\"12\" r=\"2.1\"/><circle cx=\"18\" cy=\"6\" r=\"2.1\"/><circle cx=\"18\" cy=\"18\" r=\"2.1\"/><path d=\"M8 10.8l8-4.6M8 13.2l8 4.6\"/></svg>", color: "#B86AF6" },
+    { tipo: "galeria", label: "Galeria", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\"/><circle cx=\"9\" cy=\"9\" r=\"2\"/><path d=\"m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21\"/></svg>", color: "#EC4899" },
     { tipo: "wishlist", label: "Wishlist", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><rect x=\"3\" y=\"8\" width=\"18\" height=\"13\" rx=\"1\"/><path d=\"M12 8v13\"/><path d=\"M3 12h18\"/><path d=\"M12 8c-2.5 0-4-1.5-4-3.5S10 2 12 4s2 4.5 0 6z\"/></svg>", color: "#E8A33D" },
     { tipo: "pdf", label: "PDF", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-6-6z\"/><path d=\"M14 3v6h6M9 13h6M9 17h4\"/></svg>", color: "#F35B5B" },
     { tipo: "pago", label: "Pago", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><rect x=\"2\" y=\"5\" width=\"20\" height=\"14\" rx=\"2\"/><path d=\"M2 10h20\"/><path d=\"M6 15h4\"/></svg>", color: "#32B47E" },
-    { tipo: "nota", label: "Nota", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M12 20h9\"/><path d=\"M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z\"/></svg>", color: "#F59E0B" },
+    { tipo: "nota", label: "Nota", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M12 2v9l4.5 4.5a1 1 0 0 1-.7 1.7H8.2a1 1 0 0 1-.7-1.7L12 11V2\"/><path d=\"M8 21h8\"/></svg>", color: "#F59E0B" },
     { tipo: "seccion", label: "Seccion", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M20.6 13.4 12 22l-9-9V3h10l7.6 7.6a2 2 0 0 1 0 2.8z\"/><circle cx=\"7.5\" cy=\"7.5\" r=\"1.4\"/></svg>", color: "#7A68F8" },
-    { tipo: "spotify", label: "Spotify", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M9 18V5l12-2v13\"/><circle cx=\"6\" cy=\"18\" r=\"3\"/><circle cx=\"18\" cy=\"16\" r=\"3\"/></svg>", color: "#1DB954" },
+    { tipo: "spotify", label: "Spotify", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M7 9.5c3.6-1 7.3-.6 10 1.2M7.5 13.2c2.8-.8 5.7-.4 7.9 1M8.5 16.5c2-.5 4-.2 5.6 1\"/></svg>", color: "#1DB954" },
     { tipo: "youtube", label: "YouTube", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M6 4l14 8-14 8V4z\"/></svg>", color: "#FF3131" },
     { tipo: "tiktok", label: "TikTok", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M9 18V5l12-2v13\"/><circle cx=\"6\" cy=\"18\" r=\"3\"/><circle cx=\"18\" cy=\"16\" r=\"3\"/></svg>", color: "#111111" },
-    { tipo: "texto", label: "Texto libre", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M12 20h9\"/><path d=\"M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z\"/></svg>", color: "#8C8A95" },
+    { tipo: "texto", label: "Texto libre", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M4 7V5h16v2\"/><path d=\"M12 5v14\"/><path d=\"M9 19h6\"/></svg>", color: "#8C8A95" },
     { tipo: "email_capture", label: "Captura email", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><rect x=\"3\" y=\"5\" width=\"18\" height=\"14\" rx=\"2\"/><path d=\"m4 7 8 6 8-6\"/></svg>", color: "#F97316" },
     { tipo: "countdown", label: "Cuenta regresiva", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M7 3h10M7 21h10\"/><path d=\"M8 3v6l-4 9h16l-4-9V3\"/><path d=\"M12 12v3\"/></svg>", color: "#FF6B70" }
   ];
@@ -28,7 +28,7 @@
     { tipo: "youtube", label: "YouTube", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M6 4l14 8-14 8V4z\"/></svg>" },
     { tipo: "facebook", label: "Facebook", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z\"/></svg>" },
     { tipo: "linkedin", label: "LinkedIn", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4V9h4v1.5a6 6 0 0 1 2-1.5z\"/><rect x=\"2\" y=\"9\" width=\"4\" height=\"12\"/><circle cx=\"4\" cy=\"4\" r=\"2\"/></svg>" },
-    { tipo: "spotify", label: "Spotify", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M9 18V5l12-2v13\"/><circle cx=\"6\" cy=\"18\" r=\"3\"/><circle cx=\"18\" cy=\"16\" r=\"3\"/></svg>" },
+    { tipo: "spotify", label: "Spotify", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M7 9.5c3.6-1 7.3-.6 10 1.2M7.5 13.2c2.8-.8 5.7-.4 7.9 1M8.5 16.5c2-.5 4-.2 5.6 1\"/></svg>" },
     { tipo: "github", label: "GitHub", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><path d=\"M9 9V5a3 3 0 1 0-3 3h4z\"/><path d=\"M15 9V5a3 3 0 1 1 3 3h-4z\"/><path d=\"M15 15v4a3 3 0 1 1-3-3h3z\"/><path d=\"M9 15v4a3 3 0 1 0 3-3H9z\"/></svg>" },
     { tipo: "web", label: "Sitio", icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"width:1.2em;height:1.2em;vertical-align:-0.18em\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z\"/></svg>" }
   ];
@@ -137,6 +137,7 @@
   var selectedColor = "#E8A33D";
   var autoExtractedColor = null;
   var manualColorChosen = false;
+  var selectedDensity = "auto";
   var blocks = [];
   var profileSlug = null;
   var editingBlockIdx = null;
@@ -187,6 +188,33 @@
     setupPhotoUpload();
     setupSortableDragAndDrop();
     setupAutosave();
+
+    var densityControl = document.getElementById("density-control");
+    if (densityControl) {
+      densityControl.querySelectorAll(".vynk-density-opt").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          setDensityControl(btn.getAttribute("data-density"));
+          updateLivePreview();
+          scheduleAutosave();
+        });
+      });
+    }
+  }
+
+  // Densidad de composición (§69): VYNK recomienda, el usuario decide.
+  function setDensityControl(density) {
+    selectedDensity = density || "auto";
+    var control = document.getElementById("density-control");
+    if (!control) return;
+    control.querySelectorAll(".vynk-density-opt").forEach(function (btn) {
+      var val = btn.getAttribute("data-density");
+      btn.classList.toggle("is-active", val === selectedDensity);
+    });
+    var hint = document.getElementById("density-hint");
+    if (hint) {
+      var labels = { auto: "Auto · VYNK recomienda la intensidad según tu contenido.", minimal: "Minimal · Lo esencial primero, el resto bajo Más.", balanced: "Balanced · Jerarquía equilibrada.", rich: "Rich · Mucho contenido, bien organizado.", immersive: "Inmersivo · Mini-app: todo visible y protagonista." };
+      hint.textContent = labels[selectedDensity] || "";
+    }
   }
 
   function renderThemePicker() {
@@ -406,6 +434,7 @@
       marco: gv("marco_estilo") || "gradient",
       color: accent,
       foto_url: avatarSrc,
+      density: selectedDensity,
       blocks: blocks
         .filter(function (b) { return b.visible !== false; })
         .map(function (b) {
@@ -727,6 +756,15 @@
       html += formField("URL opcional", "bf-url", existing.url || "", "https://...");
     }
 
+    html += '<div class="field"><label for="bf-variante">Variante de diseno</label><select id="bf-variante" class="form-select">' +
+      '<option value="">Automatica (recomendada)</option>' +
+      '<option value="standard">Standard</option>' +
+      '<option value="compact">Compacta</option>' +
+      '<option value="hero">Hero</option>' +
+      '<option value="glass">Glass</option>' +
+    "</select>" +
+    '<div class="mono-note" style="color:var(--editor-muted);font-size:11px">Dejala en Automatica y el motor asignara la variante segun el arquetipo. Anula el motor solo si quieres forzarla.</div></div>';
+
     html += '<div style="display:flex;gap:10px;justify-content:flex-end;margin-top:18px">' +
       '<button type="button" class="editor-btn" onclick="hideBlockForm()">Cancelar</button>' +
       '<button type="button" class="editor-btn primary" onclick="addBlock(\'' + escapeHtml(tipo) + '\')">' +
@@ -737,6 +775,9 @@
 
     var styleSelect = document.getElementById("bf-estilo");
     if (styleSelect && existing.estilo) styleSelect.value = existing.estilo;
+
+    var variantSelect = document.getElementById("bf-variante");
+    if (variantSelect && existing.variante) variantSelect.value = existing.variante;
   }
 
   window.hideBlockForm = function () {
@@ -748,6 +789,13 @@
   window.addBlock = function (tipo) {
     var content = collectBlockContent(tipo);
     if (!content) return;
+
+    var variante = gv("bf-variante");
+    if (variante) {
+      content.variante = variante;
+    } else if (content.variante) {
+      delete content.variante;
+    }
 
     if (editingBlockIdx !== null && blocks[editingBlockIdx]) {
       blocks[editingBlockIdx].tipo = tipo;
@@ -1087,6 +1135,7 @@
     formData.append("mostrar_agendar_cita", document.getElementById("mostrar_agendar_cita") && document.getElementById("mostrar_agendar_cita").checked ? "1" : "0");
     formData.append("mostrar_saludo_voz", document.getElementById("mostrar_saludo_voz") && document.getElementById("mostrar_saludo_voz").checked ? "1" : "0");
     formData.append("audio_saludo_url", gv("audio_saludo_url") || "");
+    formData.append("densidad", selectedDensity || "auto");
 
     var fotoInput = document.getElementById("input-foto");
     if (fotoInput && fotoInput.files && fotoInput.files[0]) {
@@ -1173,6 +1222,8 @@
 
         if (profile.tema) selectedTheme = profile.tema;
         if (profile.color) selectedColor = profile.color;
+        if (profile.densidad) selectedDensity = profile.densidad;
+        setDensityControl(selectedDensity);
         profileSlug = profile.slug || null;
 
         var colorOption = document.querySelector('.color-option[data-color="' + selectedColor + '"]');
@@ -1385,7 +1436,7 @@
       bioField.value = (name ? name + " — " : "") + (bios[type] || bios.negocio);
       updateLivePreview();
       scheduleAutosave();
-      if (typeof showToast === 'function') showToast('✨ Narrativa de Lujo Silencioso generada por IA VYNK', 'success');
+      if (typeof showToast === 'function') showToast('Narrativa de Lujo Silencioso generada por IA VYNK', 'success');
     }
   };
 
@@ -1476,6 +1527,7 @@
     payload.append("mostrar_agendar_cita", document.getElementById("mostrar_agendar_cita") && document.getElementById("mostrar_agendar_cita").checked ? "1" : "0");
     payload.append("mostrar_saludo_voz", document.getElementById("mostrar_saludo_voz") && document.getElementById("mostrar_saludo_voz").checked ? "1" : "0");
     payload.append("audio_saludo_url", gv("audio_saludo_url") || "");
+    payload.append("densidad", selectedDensity || "auto");
 
     var fotoInput = document.getElementById("input-foto");
     if (fotoInput && fotoInput.files && fotoInput.files[0]) {

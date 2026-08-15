@@ -866,13 +866,13 @@
                   <div style="position:relative;width:56px;height:56px;border-radius:50%;display:grid;place-items:center">
                     <svg width="56" height="56" viewBox="0 0 36 36" style="transform:rotate(-90deg)">
                       <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="3"/>
-                      <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#9A4159" stroke-width="3" stroke-linecap="round" stroke-dasharray="85, 100"/>
+                      <path id="identity-ring" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#9A4159" stroke-width="3" stroke-linecap="round" stroke-dasharray="0, 100"/>
                     </svg>
-                    <span style="position:absolute;font-size:0.8rem;font-weight:800;color:var(--vynk-text)">85%</span>
+                    <span id="identity-level" style="position:absolute;font-size:0.8rem;font-weight:800;color:var(--vynk-text)">…</span>
                   </div>
                   <div>
-                    <div style="font-weight:700;color:var(--vynk-text);font-size:0.95rem">Identidad PRO</div>
-                    <div style="font-size:0.78rem;color:var(--vynk-text-tertiary);line-height:1.4">Agrega tu ubicación al mapa para llegar a 100%</div>
+                    <div style="font-weight:700;color:var(--vynk-text);font-size:0.95rem">Identidad</div>
+                    <div id="identity-sub" style="font-size:0.78rem;color:var(--vynk-text-tertiary);line-height:1.4">Calculado con los datos reales de tus tarjetas</div>
                   </div>
                 </div>
                 <button class="btn btn-secondary" onclick="window.location.href='/editor.html'" style="margin-top:12px;font-size:0.8rem;padding:7px 14px">Completar perfil</button>
@@ -955,7 +955,7 @@
                 </div>
                 <div>
                   <div style="font-size:1.4rem;font-weight:800;letter-spacing:-0.02em;color:var(--vynk-text);margin-bottom:12px">$19.99 USD</div>
-                  <button class="btn btn-primary btn-block" onclick="openCheckoutModal('card-nfc-single', 'Tarjeta NFC Individual VYNK', 19.99)">Pedir Tarjeta →</button>
+                  <button class="btn btn-primary btn-block" onclick="openCheckoutModal('card-nfc-single', 'Tarjeta NFC Individual VYNK', 19.99)">Pedir Tarjeta <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.12em"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button>
                 </div>
               </div>
 
@@ -969,7 +969,7 @@
                 </div>
                 <div>
                   <div style="font-size:1.4rem;font-weight:800;letter-spacing:-0.02em;color:var(--vynk-text);margin-bottom:12px">$149.00 USD</div>
-                  <button class="btn btn-primary btn-block" onclick="openCheckoutModal('pack-10-b2b', 'Pack 10 Tarjetas NFC Vírgenes B2B', 149.00)">Comprar Pack 10 →</button>
+                  <button class="btn btn-primary btn-block" onclick="openCheckoutModal('pack-10-b2b', 'Pack 10 Tarjetas NFC Vírgenes B2B', 149.00)">Comprar Pack 10 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.12em"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button>
                 </div>
               </div>
 
@@ -983,7 +983,7 @@
                 </div>
                 <div>
                   <div style="font-size:1.4rem;font-weight:800;letter-spacing:-0.02em;color:var(--vynk-text);margin-bottom:12px">$599.00 USD</div>
-                  <button class="btn btn-primary btn-block" onclick="openCheckoutModal('pack-50-b2b', 'Pack 50 Tarjetas NFC Vírgenes B2B', 599.00)">Comprar Pack 50 →</button>
+                  <button class="btn btn-primary btn-block" onclick="openCheckoutModal('pack-50-b2b', 'Pack 50 Tarjetas NFC Vírgenes B2B', 599.00)">Comprar Pack 50 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.12em"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button>
                 </div>
               </div>
             </div>
@@ -1003,12 +1003,12 @@
             <div class="vynk-duo" style="margin-bottom:20px">
               <div class="vynk-metric-card">
                 <div class="vynk-metric-label">Tarjetas vírgenes disponibles</div>
-                <div class="vynk-metric-value" id="reseller-stock-count" style="color:#34C759">10</div>
-                <div class="vynk-metric-sub">Stock de tu lote mayorista</div>
+                <div class="vynk-metric-value" id="reseller-stock-count" style="color:var(--vynk-text-tertiary)">—</div>
+                <div class="vynk-metric-sub">Stock de tu lote mayorista · no configurado</div>
               </div>
               <div class="vynk-metric-card">
                 <div class="vynk-metric-label">Tarjetas asignadas</div>
-                <div class="vynk-metric-value" id="reseller-assigned-count">2</div>
+                <div class="vynk-metric-value" id="reseller-assigned-count">—</div>
                 <div class="vynk-metric-sub">Perfiles activados para clientes</div>
               </div>
             </div>
@@ -1413,7 +1413,7 @@
   <aside class="quick-resume-bar" style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:99;background:rgba(18,22,27,0.88);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.14);padding:10px 20px;border-radius:100px;display:flex;align-items:center;gap:16px;box-shadow:0 12px 40px rgba(0,0,0,0.6)">
     <div style="display:flex;align-items:center;gap:8px;font-size:0.82rem;color:#fff;font-weight:600">
       <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#34C759;box-shadow:0 0 8px rgba(52,199,89,0.5)"></span>
-      <span>14 personas en vivo ahora</span>
+      <span>Autosave activado · tus cambios no se pierden</span>
     </div>
     <div style="width:1px;height:16px;background:rgba(255,255,255,0.15)"></div>
     <a href="/editor.html" style="display:inline-flex;align-items:center;gap:6px;color:var(--vynk-accent-hi);font-size:0.82rem;font-weight:700;text-decoration:none">

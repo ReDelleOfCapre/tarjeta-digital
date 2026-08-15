@@ -59,6 +59,7 @@ class VynkIntelligence {
       palette: this.analyzePalette(c),
       layout: this.recommendLayout(c),
       density: this.analyzeContentDensity(c),
+      composition: this.recommendComposition(c),
       score: this.scoreProfile(c),
       recommendations: this.suggestImprovements(c),
       insights: this.calculateInsights(c)
@@ -87,6 +88,16 @@ class VynkIntelligence {
   recommendBlocks(ctx) {
     const c = ctx && ctx.profile ? ctx : this._context(ctx);
     return layout.recommendOrder(c.blocks, rules.normalizeTipo(c.profile.tipo || 'personal')).map(function (b) { return b.tipo; });
+  }
+
+  // Composición adaptativa (§68): jerarquía, secciones, dock, CTA y densidad.
+  recommendComposition(ctx) {
+    const c = ctx && ctx.profile ? ctx : this._context(ctx);
+    return rules.buildComposition({
+      tipo: c.profile.tipo || 'personal',
+      blocks: c.blocks,
+      density: c.profile.densidad || c.profile.density || 'auto'
+    });
   }
 
   recommendLayout(ctx) {

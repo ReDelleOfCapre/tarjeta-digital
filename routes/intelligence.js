@@ -94,6 +94,60 @@ router.post('/analyze', auth, async (req, res) => {
   }
 });
 
+// "Mejorar diseño" (Revolución de Diseño): sugiere acciones concretas
+// sobre el blueprint del Experience Engine. Cliente en vivo o por DB.
+router.post('/design', auth, async (req, res) => {
+  try {
+    const experience = require('../shared/vynk-experience');
+    const perfilId = parseInt((req.body && req.body.perfil_id) || (req.query && req.body && req.query.perfil_id), 10) || null;
+    let profile = (req.body && req.body.profile) || {};
+    let blocks = (req.body && req.body.blocks) || [];
+
+    // Modo dashboard/DB: resuelve perfil + bloques reales del usuario.
+    if (!blocks.length && perfilId) {
+      const perfil = await db.prepare('SELECT * FROM perfiles WHERE id = ?').get(perfilId);
+      if (!perfil) return res.status(404).json({ error: 'Perfil no encontrado.' });
+      if (perfil.usuario_id !== req.user.id) {
+        return res.status(403).json({ error: 'No tienes permiso para analizar este perfil.' });
+      }
+      profile = perfil;
+      blocks = await db.prepare(
+        'SELECT id, block_type AS tipo, contenido, orden FROM bloques WHERE perfil_id = ? AND visible = 1 ORDER BY orden ASC'
+      ).all(perfilId) || [];
+    }
+
+    const normalized = (blocks || []).map(function (b) {
+      let c = b.contenido || b.content || {};
+      if (typeof c === 'string') { try { c = JSON.parse(c); } catch (e) { c = {}; } }
+      return { id: b.id, tipo: b.tipo || b.block_type || 'link', contenido: c };
+    });
+
+    const comp = (req.body && req.body.comp) || undefined;
+    const result = experience.suggestDesign({
+      tipo: profile.tipo || 'personal',
+      blocks: normalized,
+      density: profile.densidad || 'auto',
+      profile,
+      comp
+    });
+
+    res.json({
+      provider: 'deterministic',
+      providerKind: 'rules',
+      suggestions: result.recommendations,
+      design: result.blueprint ? {
+        archetype: result.blueprint.archetype.id,
+        label: result.blueprint.archetype.label,
+        patterns: result.blueprint.patterns,
+        background: result.blueprint.background.mode
+      } : null
+    });
+  } catch (err) {
+    console.error('Error en /api/intelligence/design:', err);
+    res.status(500).json({ error: 'Error al generar sugerencias de diseño' });
+  }
+});
+
 // Analiza una paleta de colores enviada desde el cliente (logo/cover/foto).
 router.post('/palette', auth, async (req, res) => {
   try {

@@ -24,4 +24,4 @@
 .legal-page .legal-panel ul { padding-left: 20px; }
 .legal-page .legal-date { margin: 0 0 30px; color: var(--ink-soft, #645C7A); font: 500 13px var(--font-mono, monospace); }
 .legal-page .legal-footer { padding: 28px 20px; color: var(--ink-soft, #645C7A); font-size: 13px; text-align: center; border-top: 1px solid var(--line, rgba(29,24,48,.1)); }
-@media (max-width: 560px) { .legal-page .legal-nav-inner, .legal-page .legal-shell { width: min(100% - 28px, 880px); } .legal-page .legal-shell { padding-top: 36px; } .legal-page .legal-back { font-size: 0; } .legal-page .legal-back::before { content: '←'; font-size: 22px; } }
+@media (max-width: 560px) { .legal-page .legal-nav-inner, .legal-page .legal-shell { width: min(100% - 28px, 880px); } .legal-page .legal-shell { padding-top: 36px; } .legal-page .legal-back { font-size: 0; } .legal-page .legal-back svg { width: 22px; height: 22px; } }

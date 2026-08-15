@@ -42,6 +42,7 @@
     heart: '<svg ' + A + ' ' + S + ' width="1em" height="1em"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>',
     bank: '<svg ' + A + ' ' + S + ' width="1em" height="1em"><path d="M3 21h18"/><path d="M3 10h18"/><path d="M5 10V7h14v3M7 7V4h10v3"/><path d="M3 17h18"/></svg>',
     send: '<svg ' + A + ' ' + S + ' width="1em" height="1em"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg>',
+    arrowRight: '<svg ' + A + ' ' + S + ' width="1em" height="1em"><path d="M5 12h14M13 5l7 7-7 7"/></svg>',
     eye: '<svg ' + A + ' ' + S + ' width="1em" height="1em"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>',
     shoppingBag: '<svg ' + A + ' ' + S + ' width="1em" height="1em"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>',
     // Redes sociales
@@ -54,6 +55,10 @@
     spotify: '<svg ' + A + ' ' + S + ' width="1em" height="1em"><circle cx="12" cy="12" r="10"/><path d="M7 9.5c3.6-1 7.3-.6 10 1.2M7.5 13.2c2.8-.8 5.7-.4 7.9 1M8.5 16.5c2-.5 4-.2 5.6 1"/></svg>',
     github: '<svg ' + A + ' ' + S + ' width="1em" height="1em"><path d="M9 9V5a3 3 0 1 0-3 3h4z"/><path d="M15 9V5a3 3 0 1 1 3 3h-4z"/><path d="M15 15v4a3 3 0 1 1-3-3h3z"/><path d="M9 15v4a3 3 0 1 0 3-3H9z"/></svg>',
     globe: '<svg ' + A + ' ' + S + ' width="1em" height="1em"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
+    web: '<svg ' + A + ' ' + S + ' width="1em" height="1em"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
+    qr: '<svg ' + A + ' ' + S + ' width="1em" height="1em"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3z"/><path d="M21 14v3M14 21h4M18 18v3"/></svg>',
+    nfc: '<svg ' + A + ' ' + S + ' width="1em" height="1em"><path d="M7 6a7 7 0 0 1 0 12"/><path d="M17 6a7 7 0 0 1 0 12"/><path d="M10.5 8.5a4.5 4.5 0 0 1 0 7"/><path d="M13.5 8.5a4.5 4.5 0 0 1 0 7"/></svg>',
+    wallet: '<svg ' + A + ' ' + S + ' width="1em" height="1em"><rect x="2" y="6" width="20" height="14" rx="3"/><path d="M16 12h6"/><path d="M17 12a1.5 1.5 0 0 1 0 3h-1"/></svg>',
     threads: '<svg ' + A + ' ' + S + ' width="1em" height="1em"><circle cx="12" cy="12" r="2.5"/><path d="M12 2c4 0 6.5 2 6.5 5.5 0 2-1.2 3.2-2 3.7.8.5 2 1.7 2 3.7C18.5 18.5 16 20.5 12 20.5S5.5 18.5 5.5 15c0-1.4.5-2.5 1.3-3.5"/></svg>',
     telegram: '<svg ' + A + ' ' + S + ' width="1em" height="1em"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg>',
     snapchat: '<svg ' + A + ' ' + S + ' width="1em" height="1em"><path d="M12 2c2 0 3.5 1.6 4 4 .2 1 .6 1.6 1.3 2.2.5.4 1.2.5 1.8.4.4-.1.8.2.9.6.1.3-.1.6-.3.8-.7.7-2 .9-2.9 1.4-.4.2-.5.5-.4.9 0 .4.4.7 1 .9.9.4 2 .7 2.4 1.1.3.3.3.7 0 1-.3.3-1 .4-2 .4-.5 0-1 .1-1.4.3-.5.3-.6 1.1-1.7 1.1s-1.2-.8-1.7-1.1c-.4-.2-.9-.3-1.4-.3-1 0-1.7-.1-2-.4-.3-.3-.3-.7 0-1 .4-.4 1.5-.7 2.4-1.1.6-.2 1-.5 1-.9-.1-.4 0-.7-.4-.9-.9-.5-2.2-.7-2.9-1.4-.2-.2-.4-.5-.3-.8.1-.4.5-.7.9-.6.6.1 1.3 0 1.8-.4.7-.6 1.1-1.2 1.3-2.2.5-2.4 2-4 4-4z"/></svg>',
@@ -100,6 +105,7 @@
     if (u.includes('linkedin') || t.includes('linkedin')) return 'linkedin';
     if (u.includes('x.com') || u.includes('twitter')) return 'twitter';
     if (u.includes('spotify')) return 'spotify';
+    if (t.includes('sitio') || t.includes('website') || t.includes('página web') || t.includes('pagina web')) return 'web';
     return 'link';
   }
 
@@ -110,7 +116,7 @@
       + (sub ? '<div class="row-sub">' + esc(stripEmoji(sub)) + '</div>' : '')
       + '</div>'
       + (badge ? '<span class="row-badge">' + esc(badge) + '</span>' : '')
-      + '<span class="row-arrow">' + ICONS.link + '</span>'
+      + '<span class="row-arrow">' + ICONS.arrowRight + '</span>'
       + '</a>';
   }
 
@@ -268,6 +274,110 @@
       : '<span class="horario-badge is-closed"><span class="dot" aria-hidden="true"></span><span>Fuera de horario &middot; Atendemos a partir de las ' + esc(a) + '</span></span>';
   }
 
+  // ============================================================
+  // COMPOSITION (§68): la tarjeta deja de ser una lista de botones.
+  // Hero CTA contextual → dock social → secciones con etiqueta
+  // → contenido inteligente → información → conversión → "Más".
+  // ============================================================
+
+  function actionHref(block) {
+    const c = block.contenido || {};
+    const tipo = block.tipo;
+    const url = c.url || '';
+    if (tipo === 'whatsapp') {
+      const waNum = String(c.numero || c.telefono || '').replace(/[^0-9]/g, '');
+      if (waNum) return 'https://wa.me/' + waNum + (c.mensaje_default ? '?text=' + encodeURIComponent(c.mensaje_default) : '');
+    }
+    if (tipo === 'agendar') return url || '#';
+    if (tipo === 'link') return url || '#';
+    return url || '#';
+  }
+
+  function heroCtaHtml(hero, accent) {
+    if (!hero || !hero.block) return '';
+    const label = hero.label || hero.block.contenido.titulo || 'Contactar';
+    const iconName = iconFor(hero.block.contenido.url || '', label);
+    return '<div class="block-wrapper"><a href="' + esc(actionHref(hero.block)) + '" target="_blank" rel="noopener" class="comp-hero-cta" style="--cta-accent:' + esc(accent) + '" data-action="' + esc(hero.tipo) + '">'
+      + '<span class="comp-hero-icon">' + (ICONS[iconName] || ICONS.link) + '</span>'
+      + '<span class="comp-hero-label">' + esc(stripEmoji(label)) + '</span>'
+      + '<span class="comp-hero-arrow">' + ICONS.arrowRight + '</span>'
+      + '</a></div>';
+  }
+
+  function dockHtml(dock) {
+    if (!Array.isArray(dock) || !dock.length) return '';
+    const items = dock.map(function (net) {
+      const iconName = net.tipo === 'x' ? 'twitter' : (ICONS[net.tipo] ? net.tipo : 'link');
+      return '<a href="' + esc(net.url) + '" target="_blank" rel="noopener" class="social-icon" title="' + esc(net.tipo) + '" aria-label="' + esc(net.tipo) + '">'
+        + (ICONS[iconName] || ICONS.link) + '</a>';
+    }).join('');
+    return '<div class="block-wrapper"><div class="block-socials-wrapper comp-dock"><div class="socials-label">Sígueme</div><div class="block-socials">' + items + '</div></div></div>';
+  }
+
+  function toRenderBlock(item) {
+    return { type: item.tipo, content: item.contenido || {} };
+  }
+
+  function composeHtml(comp, accent, exp) {
+    let html = '';
+
+    // Blueprint de experiencia (Revolución de Diseño): mapas zona→nivel/grid.
+    const zoneMeta = {};
+    if (exp && Array.isArray(exp.zones)) {
+      exp.zones.forEach(function (z) { zoneMeta[z.kind] = z; });
+    }
+    const variantOf = function (item) {
+      if (!exp) return '';
+      const id = item.block && item.block.id != null ? String(item.block.id) : null;
+      const v = id && exp.patterns ? exp.patterns[id] : null;
+      return v && v !== 'recommended' ? v : '';
+    };
+    const imgOf = function (item) {
+      if (!exp || !exp.imageTreatment) return '';
+      const id = item.block && item.block.id != null ? String(item.block.id) : null;
+      return id && exp.imageTreatment[id] ? exp.imageTreatment[id] : '';
+    };
+    const expBlockHtml = function (item, inner) {
+      if (!inner) return '';
+      const variant = variantOf(item);
+      const img = imgOf(item);
+      return '<div class="exp-block' + (variant ? ' exp-block--' + esc(variant) : '') + '"' + (img ? ' data-exp-img="' + esc(img) + '"' : '') + '>' + inner + '</div>';
+    };
+
+    // Hero CTA contextual (§71): siempre variante hero.
+    if (comp.hero) html += expBlockHtml(comp.hero, heroCtaHtml(comp.hero, accent));
+
+    // Social dock (§72): iconos, no cards.
+    if (comp.dock.length) html += dockHtml(comp.dock);
+
+    // Secciones (§61, §64-67): jerarquía automática con etiquetas.
+    comp.sections.forEach(function (sec) {
+      const meta = zoneMeta[sec.kind] || {};
+      const itemsHtml = sec.items.map(function (item) {
+        return expBlockHtml(item, renderBlock(toRenderBlock(item.block)));
+      }).join('');
+      if (!itemsHtml) return;
+      html += '<div class="comp-section comp-section-' + esc(sec.kind) +
+        (meta.level ? ' exp-zone-' + esc(meta.level.toLowerCase()) : '') +
+        '" data-comp-kind="' + esc(sec.kind) + '"' +
+        (meta.grid ? ' data-exp-grid="' + esc(meta.grid) + '"' : '') + '>'
+        + (sec.label ? '<div class="comp-section-label">' + esc(stripEmoji(sec.label)) + '</div>' : '')
+        + '<div class="comp-section-body">' + itemsHtml + '</div>'
+        + '</div>';
+    });
+
+    // Overflow "Más" (§69): contenido de baja prioridad oculto y recuperable.
+    if (comp.more.length) {
+      const moreItems = comp.more.map(function (item) {
+        return expBlockHtml(item, renderBlock(toRenderBlock(item.block)));
+      }).join('');
+      html += '<div class="comp-section comp-section-more exp-zone-utility">'
+        + '<div class="comp-more"><details><summary>Más</summary><div class="comp-more-body">' + moreItems + '</div></details></div>'
+        + '</div>';
+    }
+    return html;
+  }
+
   function renderHeader(data, accent) {
     const name = data.nombre || data.name || 'Tu nombre';
     const bio = data.bio || '';
@@ -334,6 +444,53 @@
       container.appendChild(renderElement('<div class="block-wrapper"><div class="block-text">Aún no hay contenido en esta tarjeta.</div></div>'));
       return;
     }
+
+    // Composition Engine (§68): jerarquía automática. Si el motor no está
+    // disponible (página servida sin el script), cae al render plano.
+    const hasComposition = typeof window !== 'undefined' && window.VynkComposition && typeof window.VynkComposition.buildComposition === 'function';
+    if (hasComposition) {
+      const comp = window.VynkComposition.buildComposition({
+        tipo: data.tipo || 'personal',
+        blocks: blocks,
+        density: data.density || 'auto'
+      });
+      container.setAttribute('data-comp-density', comp.density);
+
+      // Revolución de Diseño: blueprint de experiencia determinista.
+      let exp = null;
+      if (typeof window !== 'undefined' && window.VynkExperience && typeof window.VynkExperience.buildExperience === 'function') {
+        try {
+          exp = window.VynkExperience.buildExperience({
+            tipo: data.tipo || 'personal',
+            blocks: blocks,
+            density: data.density || 'auto',
+            profile: data,
+            color: accent,
+            comp: comp
+          });
+        } catch (e) { exp = null; }
+      }
+      if (exp) {
+        container.setAttribute('data-exp-archetype', exp.archetype.id);
+        container.setAttribute('data-exp-scheme', exp.scheme);
+        container.setAttribute('data-exp-glass', exp.background.glass);
+        container.setAttribute('data-exp-motion', exp.motion.semantics);
+        container.setAttribute('data-exp-ornament', exp.background.ornament ? 'on' : 'off');
+        container.classList.add('exp-bg-' + exp.background.mode, 'vynk-experience');
+        const scale = comp.density === 'minimal' ? 'compact' : (comp.density === 'immersive' ? 'large' : 'standard');
+        container.setAttribute('data-exp-scale', scale);
+      }
+
+      const composed = composeHtml(comp, accent, exp);
+      const frag = document.createElement('template');
+      frag.innerHTML = composed.trim();
+      Array.prototype.slice.call(frag.content.childNodes).forEach(function (node) {
+        if (node && node.nodeType === 1) container.appendChild(node);
+      });
+      initCountdowns(container);
+      return;
+    }
+
     blocks.forEach(function (b) {
       const html = renderBlock(b);
       if (html) container.appendChild(renderElement(html));
@@ -379,7 +536,9 @@
 
   window.renderVynkProfile = renderVynkProfile;
   try {
-    if (!window.VYNK_ICONS || Object.keys(window.VYNK_ICONS).length < Object.keys(ICONS).length) {
+    // NUNCA sobrescribir el registro canónico (vynk-icons.js): si no está
+    // presente, exponer este registro de respaldo como window.VYNK_ICONS.
+    if (!window.VYNK_ICONS) {
       window.VYNK_ICONS = ICONS;
     }
   } catch (e) { /* noop */ }

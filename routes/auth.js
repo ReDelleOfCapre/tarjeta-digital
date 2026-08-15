@@ -6,14 +6,14 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const passport = require('passport');
 const { body, validationResult } = require('express-validator');
 const { dbReady } = require('../database/db');
 const rateLimit = require('../middleware/rateLimit');
 const auth = require('../middleware/auth');
 const { sendWelcomeEmail } = require('../utils/email');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'vynk-default-secret';
+// Secreto único por arranque: nunca un valor predecible por defecto (§36).
+const JWT_SECRET = process.env.JWT_SECRET || crypto.randomBytes(32).toString('hex');
 
 function isRealCredential(value) {
   return !!value && !/placeholder/i.test(value);
@@ -514,13 +514,9 @@ router.post('/complete-tour', auth, async (req, res) => {
   }
 });
 
-// Rutas Passport OAuth Google con guarda segura en producción
-router.get('/google', (req, res, next) => {
-  if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
-    return passport.authenticate('google', { scope: ['profile', 'email'], prompt: 'select_account consent' })(req, res, next);
-  }
-  res.redirect('/#auth');
-});
+// Rutas Passport OAuth Google — eliminadas: no hay estrategia registrada y el
+// flujo real es el intercambio de token por POST /api/auth/sso/google (§33, §36).
+
 // POST /api/auth/demo — Login automático en cuenta demo / visitante
 router.post('/demo', async (req, res) => {
   try {

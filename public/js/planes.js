@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
       freeBtn.textContent = 'Plan Básico';
     }
     if (proBtn) {
-      proBtn.textContent = '★ Tu plan Pro Activo';
+      proBtn.textContent = 'Tu plan Pro Activo';
       proBtn.className = 'btn btn-outline';
       proBtn.style.background = 'rgba(16, 185, 129, 0.2)';
       proBtn.style.borderColor = '#10B981';

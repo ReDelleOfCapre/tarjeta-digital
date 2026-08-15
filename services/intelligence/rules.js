@@ -2,83 +2,24 @@
 // VYNK Intelligence — rules.js
 // Reglas de composición: tipos de perfil, clases
 // de bloques, prioridades y pesos. Determinístico.
+//
+// FUENTE ÚNICA DE VERDAD: shared/vynk-composition.js
+// (misma tabla que usa el renderer en el navegador).
+// Este módulo re-exporta para el motor del servidor
+// y añade los pesos del Profile Score (solo servidor).
 // ============================================
 
-// Tipos de perfil conocidos por el sistema (aliases se normalizan en normalizeTipo)
-const TIPO_ALIASES = {
-  negocio: 'business',
-  negocio_local: 'business',
-  restaurant: 'restaurant',
-  restaurante: 'restaurant',
-  creador: 'creator',
-  creativo: 'creator',
-  artista: 'artist',
-  profesional: 'professional',
-  portfolio: 'portfolio',
-  evento: 'event',
-  event: 'event',
-  corporativo: 'corporate',
-  corporate: 'corporate',
-  personal: 'personal',
-  otro: 'personal'
-};
+const composition = require('../../shared/vynk-composition');
 
-// Clasificación semántica de cada bloque.
-// PRIMARY/SECONDARY = conversión · CONTENT = texto · SOCIAL = redes ·
-// UTILITY = utilidades · INFORMATION = datos · MEDIA = multimedia · CONVERSION = CTA
-const BLOCK_CLASSES = {
-  whatsapp: 'CONVERSION',
-  link: 'CONVERSION',
-  pago: 'CONVERSION',
-  email_capture: 'CONVERSION',
-  countdown: 'CONVERSION',
-  agendar: 'CONVERSION',
-  seccion: 'INFORMATION',
-  ubicacion: 'INFORMATION',
-  horario: 'INFORMATION',
-  social_icons: 'SOCIAL',
-  spotify: 'MEDIA',
-  youtube: 'MEDIA',
-  tiktok: 'MEDIA',
-  galeria: 'MEDIA',
-  texto: 'CONTENT',
-  nota: 'CONTENT',
-  wishlist: 'CONTENT',
-  pdf: 'UTILITY'
-};
-
-// Prioridad de bloques por tipo de perfil (composición ideal, en orden).
-// Se usa para recomendar orden, CTA principal y agrupación.
-const TIPO_BLOCK_PRIORITY = {
-  business: ['whatsapp', 'link', 'pago', 'email_capture', 'horario', 'ubicacion', 'seccion', 'social_icons', 'galeria', 'texto', 'nota', 'wishlist', 'countdown', 'pdf'],
-  restaurant: ['whatsapp', 'link', 'ubicacion', 'horario', 'pago', 'galeria', 'pdf', 'seccion', 'texto', 'social_icons', 'countdown'],
-  creator: ['social_icons', 'link', 'galeria', 'youtube', 'tiktok', 'spotify', 'email_capture', 'seccion', 'texto', 'nota', 'wishlist', 'countdown'],
-  artist: ['social_icons', 'galeria', 'link', 'spotify', 'youtube', 'email_capture', 'seccion', 'texto', 'wishlist', 'countdown'],
-  professional: ['whatsapp', 'link', 'email_capture', 'horario', 'ubicacion', 'pdf', 'seccion', 'texto', 'social_icons'],
-  portfolio: ['galeria', 'social_icons', 'link', 'youtube', 'tiktok', 'spotify', 'email_capture', 'seccion', 'texto', 'nota'],
-  event: ['countdown', 'link', 'whatsapp', 'ubicacion', 'pago', 'email_capture', 'seccion', 'social_icons', 'galeria', 'texto'],
-  corporate: ['whatsapp', 'link', 'email_capture', 'horario', 'ubicacion', 'social_icons', 'pago', 'seccion', 'texto', 'galeria'],
-  personal: ['link', 'social_icons', 'whatsapp', 'email_capture', 'seccion', 'texto', 'galeria', 'nota', 'wishlist']
-};
-
-// CTA recomendado por tipo (el bloque de conversión principal).
-const TIPO_PRIMARY_CTA = {
-  business: 'whatsapp',
-  restaurant: 'whatsapp',
-  creator: 'link',
-  artist: 'link',
-  professional: 'link',
-  portfolio: 'link',
-  event: 'countdown',
-  corporate: 'link',
-  personal: 'link'
-};
-
-// Umbrales de densidad de contenido.
-const DENSITY_THRESHOLDS = {
-  minimal: 4,      // <= 4 bloques → minimal
-  balanced: 10     // <= 10 bloques → balanced ; > 10 → rich
-};
+const {
+  TIPO_ALIASES,
+  BLOCK_CLASSES,
+  TIPO_BLOCK_PRIORITY,
+  TIPO_PRIMARY_CTA,
+  DENSITY_THRESHOLDS,
+  SECTION_LABELS,
+  CTA_LABELS
+} = composition.TABLES;
 
 // Umbrales de contraste WCAG.
 const CONTRAST = {
@@ -115,40 +56,31 @@ const SCORE_LABELS = {
   contenido: 'Contenido'
 };
 
-function normalizeTipo(tipo) {
-  const t = String(tipo || '').toLowerCase().trim();
-  return TIPO_ALIASES[t] || t || 'personal';
-}
-
-function blockClass(tipo) {
-  return BLOCK_CLASSES[tipo] || 'CONTENT';
-}
-
-function priorityFor(tipo) {
-  const t = normalizeTipo(tipo);
-  return TIPO_BLOCK_PRIORITY[t] || TIPO_BLOCK_PRIORITY.personal;
-}
-
-function primaryCtaFor(tipo) {
-  const t = normalizeTipo(tipo);
-  return TIPO_PRIMARY_CTA[t] || 'link';
-}
-
-function scoreWeights() {
-  return Object.assign({}, SCORE_WEIGHTS);
-}
+function normalizeTipo(tipo) { return composition.normalizeTipo(tipo); }
+function blockClass(tipo) { return composition.blockClass(tipo); }
+function priorityFor(tipo) { return composition.priorityFor(tipo); }
+function primaryCtaFor(tipo) { return composition.primaryCtaFor(tipo); }
+function morphFor(block, tipo, opts) { return composition.morphFor(block, tipo, opts); }
+function smartPriority(block, tipo) { return composition.smartPriority(block, tipo); }
+function buildComposition(input) { return composition.buildComposition(input); }
+function scoreWeights() { return Object.assign({}, SCORE_WEIGHTS); }
 
 module.exports = {
   normalizeTipo,
   blockClass,
   priorityFor,
   primaryCtaFor,
+  morphFor,
+  smartPriority,
+  buildComposition,
   scoreWeights,
   SCORE_LABELS,
   BLOCK_CLASSES,
   TIPO_ALIASES,
   TIPO_BLOCK_PRIORITY,
   TIPO_PRIMARY_CTA,
+  SECTION_LABELS,
+  CTA_LABELS,
   DENSITY_THRESHOLDS,
   CONTRAST
 };

@@ -1,0 +1,222 @@
+/* ==========================================================================
+   VYNK — Experience Design Layer (vynk-experience.css)
+   Revolución de Diseño: capa ADITIVA sobre vynk-cards.css.
+   Consume el blueprint del Experience Engine (shared/vynk-experience.js) via
+   atributos data-exp-* en el contenedor raíz y clases exp-* por zona/bloque.
+
+   Cero emoji, iconos SVG, diseño determinista, contraste WCAG por defecto.
+   ========================================================================== */
+
+/* ------------------------------------------------------------------------
+   Contenedor raíz: se activa solo cuando el engine marcó data-exp-archetype.
+   ------------------------------------------------------------------------ */
+[data-exp-archetype] {
+  --exp-radius-hero: 22px;
+  --exp-radius-card: 18px;
+  --exp-gap-section: 22px;
+  --exp-gap-card: 12px;
+  --exp-glass-bg: rgba(255, 255, 255, 0.14);
+  --exp-glass-border: rgba(255, 255, 255, 0.18);
+  --exp-hero-glow: 0 12px 40px -12px var(--exp-accent-glow, rgba(0, 0, 0, 0.45));
+  --exp-motion-reduce: auto;
+}
+
+/* Modo claro explícito */
+[data-exp-archetype][data-exp-scheme="light"] {
+  --exp-glass-bg: rgba(255, 255, 255, 0.55);
+  --exp-glass-border: rgba(51, 51, 51, 0.10);
+}
+
+[data-exp-archetype] * { box-sizing: border-box; }
+
+/* ------------------------------------------------------------------------
+   Spines por arquetipo (orden visual). El orden HTML ya viene del motor;
+   aquí afinamos márgenes y separación entre zonas de distinta jerarquía.
+   ------------------------------------------------------------------------ */
+[data-exp-archetype] .comp-section + .comp-section { margin-top: var(--exp-gap-section); }
+
+/* Zonas con peso ↑ margen ↑ */
+[data-exp-archetype] .exp-zone-primary { margin-top: 14px; }
+[data-exp-archetype] .exp-zone-secondary { margin-top: var(--exp-gap-section); }
+[data-exp-archetype] .exp-zone-utility { margin-top: var(--exp-gap-section); }
+
+/* ------------------------------------------------------------------------
+   Patrones por bloque (§93): compact / standard / hero / glass
+   Clase raíz: .exp-block  +  variante .exp-block--compact|standard|hero|glass
+   ------------------------------------------------------------------------ */
+[data-exp-archetype] .exp-block { min-width: 0; }
+
+/* --- Standard: card clásica con separación sutil --- */
+[data-exp-archetype] .exp-block--standard { margin-bottom: var(--exp-gap-card); }
+
+/* --- Compact: fila ligera (icono + texto), sin superficie de card --- */
+[data-exp-archetype] .exp-block--compact .row-item,
+[data-exp-archetype] .exp-block--compact .block-link {
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  padding: 6px 4px;
+}
+[data-exp-archetype] .exp-block--compact .row-icon,
+[data-exp-archetype] .exp-block--compact .bl-icon {
+  width: 34px; height: 34px; border-radius: 10px;
+  font-size: 0.95rem;
+}
+
+/* --- Hero: protagonista de la tarjeta --- */
+[data-exp-archetype] .exp-block--hero .block-wrapper > a,
+[data-exp-archetype] .exp-block--hero .row-item,
+[data-exp-archetype] .exp-block--hero .bento-hero-card {
+  border-radius: var(--exp-radius-hero) !important;
+  padding: 18px 20px;
+  font-size: 1.02rem;
+}
+[data-exp-archetype] .exp-block--hero .bl-icon,
+[data-exp-archetype] .exp-block--hero .row-icon,
+[data-exp-archetype] .exp-block--hero .comp-hero-icon {
+  width: 44px; height: 44px; border-radius: 14px;
+  font-size: 1.4rem;
+}
+[data-exp-archetype] .exp-block--hero .comp-hero-cta {
+  border-radius: var(--exp-radius-hero);
+  padding: 18px 20px;
+  box-shadow: var(--exp-hero-glow);
+}
+
+/* --- Glass: liquid glass (blur + transparencia) --- */
+[data-exp-archetype][data-exp-glass="light"] .exp-block--glass .block-wrapper > *,
+[data-exp-archetype][data-exp-glass="light"] .exp-block--glass .row-item,
+[data-exp-archetype] .exp-block--glass .comp-hero-cta,
+[data-exp-archetype] .exp-block--glass .block-pago,
+[data-exp-archetype] .exp-block--glass .block-email {
+  background: var(--exp-glass-bg) !important;
+  border: 1px solid var(--exp-glass-border) !important;
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18) !important;
+}
+[data-exp-archetype][data-exp-glass="heavy"] .exp-block--glass .block-wrapper > *,
+[data-exp-archetype][data-exp-glass="heavy"] .exp-block--glass .row-item {
+  background: rgba(255, 255, 255, 0.20) !important;
+  border: 1px solid rgba(255, 255, 255, 0.28) !important;
+  backdrop-filter: blur(26px) saturate(180%);
+  -webkit-backdrop-filter: blur(26px) saturate(180%);
+}
+
+/* ------------------------------------------------------------------------
+   Image treatment (§95): relief / editorial / blur
+   ------------------------------------------------------------------------ */
+[data-exp-archetype] .exp-block[data-exp-img="relief"] .block-text,
+[data-exp-archetype] .exp-block[data-exp-img="relief"] .block-nota {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--primary, #E8A33D) 14%, transparent), transparent);
+}
+[data-exp-archetype] .exp-block[data-exp-img="editorial"] .block-gallery .gallery-item {
+  border-radius: var(--exp-radius-card);
+  overflow: hidden;
+}
+[data-exp-archetype].exp-bg-image .exp-block[data-exp-img="blur"] .bento-thumb,
+[data-exp-archetype].exp-bg-image .exp-block[data-exp-img="blur"] object {
+  filter: blur(2px) saturate(120%);
+}
+
+/* ------------------------------------------------------------------------
+   Fondo (§96): solid / gradient / image + mood.
+   Se aplica en el contenedor raíz (main o preview) para cubrir todo.
+   ------------------------------------------------------------------------ */
+[data-exp-archetype].exp-bg-gradient {
+  background-image:
+    radial-gradient(900px 380px at 20% -10%, color-mix(in srgb, var(--primary, #E8A33D) 26%, transparent), transparent 68%),
+    radial-gradient(700px 420px at 92% 8%, color-mix(in srgb, var(--secondary, #7C3AED) 16%, transparent), transparent 70%),
+    linear-gradient(160deg, var(--bg-primary, #26212B), var(--bg-tertiary, #17151B));
+  background-attachment: fixed;
+}
+[data-exp-archetype].exp-bg-solid {
+  background: var(--bg-primary, #26212B);
+}
+[data-exp-archetype].exp-bg-image {
+  background-size: cover;
+  background-position: center 18%;
+  background-image: var(--exp-banner, none);
+}
+[data-exp-archetype].exp-bg-image::before {
+  content: "";
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(10, 10, 14, 0.62), rgba(10, 10, 14, 0.82) 62%, var(--bg-primary, #17151B) 100%);
+  pointer-events: none;
+}
+
+/* Ornament (§97): tenue y controlado, solo cuando background.ornament === true */
+[data-exp-archetype][data-exp-ornament="on"]::after {
+  content: "";
+  position: absolute; right: -60px; bottom: 40px;
+  width: 240px; height: 240px; border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--primary, #E8A33D) 18%, transparent), transparent 70%);
+  filter: blur(10px);
+  pointer-events: none;
+}
+
+/* ------------------------------------------------------------------------
+   Motion semantics (§98): entradas suaves, escalonadas, reduced-motion safe.
+   data-exp-motion="minimal|standard|expressive"
+   ------------------------------------------------------------------------ */
+[data-exp-archetype] .block-wrapper,
+[data-exp-archetype] .comp-section {
+  animation: exp-rise 420ms cubic-bezier(0.25, 1, 0.5, 1) backwards;
+}
+[data-exp-archetype][data-exp-motion="minimal"] .block-wrapper,
+[data-exp-archetype][data-exp-motion="minimal"] .comp-section {
+  animation: exp-fade 240ms ease backwards;
+}
+[data-exp-archetype][data-exp-motion="expressive"] .block-wrapper,
+[data-exp-archetype][data-exp-motion="expressive"] .comp-section {
+  animation: exp-rise 520ms cubic-bezier(0.2, 0.9, 0.25, 1.2) backwards;
+}
+
+@keyframes exp-rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes exp-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Escalonado de revelado (stagger) por índice CSS --exp-i */
+[data-exp-archetype][data-exp-motion] .block-wrapper:nth-child(1) { animation-delay: 30ms; }
+[data-exp-archetype][data-exp-motion] .block-wrapper:nth-child(2) { animation-delay: 70ms; }
+[data-exp-archetype][data-exp-motion] .block-wrapper:nth-child(3) { animation-delay: 110ms; }
+[data-exp-archetype][data-exp-motion] .block-wrapper:nth-child(4) { animation-delay: 150ms; }
+[data-exp-archetype][data-exp-motion] .block-wrapper:nth-child(5) { animation-delay: 190ms; }
+[data-exp-archetype][data-exp-motion] .comp-section:nth-of-type(1) { animation-delay: 20ms; }
+[data-exp-archetype][data-exp-motion] .comp-section:nth-of-type(2) { animation-delay: 60ms; }
+[data-exp-archetype][data-exp-motion] .comp-section:nth-of-type(3) { animation-delay: 100ms; }
+[data-exp-archetype][data-exp-motion] .comp-section:nth-of-type(4) { animation-delay: 140ms; }
+
+/* Reduced motion: absolutamente estático (regla de accesibilidad innegociable). */
+@media (prefers-reduced-motion: reduce) {
+  [data-exp-archetype] .block-wrapper,
+  [data-exp-archetype] .comp-section {
+    animation: none !important;
+  }
+}
+
+/* ------------------------------------------------------------------------
+   Jerarquía de texto: el engine define --exp-scale. Ligero, no rompe nada.
+   ------------------------------------------------------------------------ */
+[data-exp-archetype][data-exp-scale="large"] .name { font-size: clamp(26px, 4vw, 40px); }
+[data-exp-archetype][data-exp-scale="large"] .bio { font-size: 1rem; }
+[data-exp-archetype][data-exp-scale="compact"] .comp-section-label { font-size: 0.68rem; }
+
+/* ------------------------------------------------------------------------
+   Grid layout (§94): lista / 2 cols / bento por zona (solo móvil-first >600)
+   ------------------------------------------------------------------------ */
+@media (min-width: 600px) {
+  [data-exp-archetype] .comp-section[data-exp-grid="grid-2"] .comp-section-body,
+  [data-exp-archetype] .exp-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  [data-exp-archetype] .comp-section[data-exp-grid="grid-2"] .exp-block,
+  [data-exp-archetype] .exp-grid-2 > .exp-block { width: 100%; }
+}

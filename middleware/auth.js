@@ -1,7 +1,12 @@
 const jwt = require('jsonwebtoken');
 const { dbReady } = require('../database/db');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'vynk-default-secret';
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET no está definido. Configúralo en el entorno antes de arrancar.');
+}
+const JWT_SECRET = process.env.JWT_SECRET;
+
+const DEMO_TOKENS_ENABLED = process.env.NODE_ENV !== 'production';
 
 /**
  * Resuelve un token demo legado (vynk_demo_*) a la cuenta demo REAL de la base de datos.
@@ -50,7 +55,7 @@ async function authMiddleware(req, res, next) {
   try {
     let decoded;
 
-    if (token === 'vynk_demo_active_token' || token.startsWith('vynk_demo_')) {
+    if (DEMO_TOKENS_ENABLED && (token === 'vynk_demo_active_token' || token.startsWith('vynk_demo_'))) {
       const demoUser = await resolveDemoUser();
       if (!demoUser) {
         return res.status(401).json({ error: 'Sesión de demostración no disponible. Inicia sesión.' });
@@ -82,7 +87,7 @@ async function authMiddleware(req, res, next) {
       const expiry = new Date(req.user.plan_expira);
       if (expiry < new Date()) {
         const db = await dbReady;
-        db.prepare('UPDATE usuarios SET plan = ? WHERE id = ?').run('free', req.user.id);
+        await db.prepare('UPDATE usuarios SET plan = ? WHERE id = ?').run('free', req.user.id);
         req.user.plan = 'free';
       }
     }

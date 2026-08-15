@@ -125,19 +125,10 @@ window.executeAssignClient = async function(e) {
     }
 
     closeAssignClientModal();
-    
-    var stockEl = document.getElementById('reseller-stock-count');
-    var assignedEl = document.getElementById('reseller-assigned-count');
-    if (stockEl) {
-      var currStock = parseInt(stockEl.textContent || '10', 10);
-      if (currStock > 0) stockEl.textContent = currStock - 1;
-    }
-    if (assignedEl) {
-      var currAssigned = parseInt(assignedEl.textContent || '0', 10);
-      assignedEl.textContent = currAssigned + 1;
-    }
 
-    if (typeof showToast === 'function') showToast('✅ Perfil creado. Inicie la grabación Web NFC acercando la tarjeta física.', 'success');
+    // Sin inventario de distribuidor: no fabricamos cifras de stock (§57).
+
+    if (typeof showToast === 'function') showToast('Perfil creado. Inicie la grabación Web NFC acercando la tarjeta física.', 'success');
     if (typeof writeNfcTag === 'function') writeNfcTag(window.location.origin + '/u/' + (created && created.slug ? created.slug : slug));
   } catch (err) {
     if (typeof showToast === 'function') showToast(err.error || 'Error asignando tarjeta a cliente', 'error');
@@ -233,7 +224,7 @@ window.executeCreatePerfil = async function(e) {
     }
 
     closeCreateModal();
-    if (typeof showToast === 'function') showToast(editPerfilId ? '✅ Tarjeta actualizada con éxito' : '✅ Tarjeta creada con éxito', 'success');
+    if (typeof showToast === 'function') showToast(editPerfilId ? 'Tarjeta actualizada con éxito' : 'Tarjeta creada con éxito', 'success');
 
     if (typeof window.loadProfilesGlobal === 'function') {
       window.loadProfilesGlobal();
@@ -273,13 +264,13 @@ window.executeCreatePerfil = async function(e) {
       animate: true,
       allowClose: true,
       doneBtnText: '¡Comprendido!',
-      nextBtnText: 'Siguiente →',
-      prevBtnText: '← Anterior',
+      nextBtnText: 'Siguiente',
+      prevBtnText: 'Anterior',
       steps: [
-        { element: '#profile-grid', popover: { title: '📇 Tu Galería de Identidades', description: 'Aquí residen todas tus tarjetas digitales VYNK. Toca cualquier tarjeta para editar sus bloques y colores.', side: 'bottom', align: 'start' } },
-        { element: '#fab-new', popover: { title: '✨ Crear Nueva Tarjeta', description: 'Genera identidades digitales para uso personal o para tu negocio en segundos.', side: 'left', align: 'center' } },
-        { element: '#nav-item-tienda', popover: { title: '📱 Tienda NFC & Tarjetas Físicas', description: 'Vincula tus tarjetas virtuales a llaveros y tarjetas físicas NFC en 1 clic.', side: 'bottom', align: 'center' } },
-        { element: '#btn-plan', popover: { title: '⚡ Centro de Control Pro', description: 'Accede a analíticas de métricas en tiempo real, descargas de vCard y características avanzadas.', side: 'bottom', align: 'end' } }
+        { element: '#profile-grid', popover: { title: 'Tu Galería de Identidades', description: 'Aquí residen todas tus tarjetas digitales VYNK. Toca cualquier tarjeta para editar sus bloques y colores.', side: 'bottom', align: 'start' } },
+        { element: '#fab-new', popover: { title: 'Crear Nueva Tarjeta', description: 'Genera identidades digitales para uso personal o para tu negocio en segundos.', side: 'left', align: 'center' } },
+        { element: '#nav-item-tienda', popover: { title: 'Tienda NFC & Tarjetas Físicas', description: 'Vincula tus tarjetas virtuales a llaveros y tarjetas físicas NFC en 1 clic.', side: 'bottom', align: 'center' } },
+        { element: '#btn-plan', popover: { title: 'Centro de Control Pro', description: 'Accede a analíticas de métricas en tiempo real, descargas de vCard y características avanzadas.', side: 'bottom', align: 'end' } }
       ]
     });
     driverObj.drive();
@@ -295,7 +286,9 @@ window.executeCreatePerfil = async function(e) {
   if (isPro) {
     var btnPlan = document.getElementById('btn-plan');
     if (btnPlan) {
-      btnPlan.textContent = '✓ Pro';
+      btnPlan.textContent = 'Pro';
+      btnPlan.classList.add('btn-pro-active');
+      btnPlan.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:1em;height:1em;vertical-align:-0.15em;margin-right:6px"><path d="M20 6 9 17l-5-5"/></svg> Pro';
       btnPlan.style.color = 'var(--green)';
     }
     var banner = document.getElementById('upgrade-banner');
@@ -306,7 +299,7 @@ window.executeCreatePerfil = async function(e) {
       el.style.background = 'rgba(16, 185, 129, 0.2)';
       el.style.borderColor = 'rgba(16, 185, 129, 0.4)';
       el.style.color = '#10B981';
-      if (el.textContent.includes('Pro')) el.textContent = '✓ Pro Activo';
+      if (el.textContent.includes('Pro')) el.textContent = 'Pro Activo';
     });
 
     // Desbloquear módulos Pro (Insights Inteligentes, Actividad Reciente, Vista Previa)
@@ -429,11 +422,11 @@ window.executeCreatePerfil = async function(e) {
     reply.className = 'chat-msg chat-bot';
 
     if (topic === 'nfc') {
-      reply.innerHTML = '📱 <strong>Para grabar tu tarjeta NFC física:</strong><br>1. Entra a tu tarjeta y presiona el ícono <strong>⚡</strong>.<br>2. Presiona <i>Grabar en Tarjeta NFC Física</i>.<br>3. Acerca tu tarjeta o llavero NFC al reverso de tu celular.';
+      reply.innerHTML = '<strong>Para grabar tu tarjeta NFC física:</strong><br>1. Entra a tu tarjeta y presiona el ícono de <strong>NFC</strong>.<br>2. Presiona <i>Grabar en Tarjeta NFC Física</i>.<br>3. Acerca tu tarjeta o llavero NFC al reverso de tu celular.';
     } else if (topic === 'pro') {
-      reply.innerHTML = '⚡ <strong>El plan VYNK Pro incluye:</strong><br>• Identidades digitales e-card ilimitadas.<br>• Programación NFC nativa en 1 clic.<br>• Analíticas de clics y descargas vCard.<br>• Dominios y marcas personalizadas.';
+      reply.innerHTML = '<strong>El plan VYNK Pro incluye:</strong><br>• Identidades digitales e-card ilimitadas.<br>• Programación NFC nativa en 1 clic.<br>• Analíticas de clics y descargas vCard.<br>• Dominios y marcas personalizadas.';
     } else if (topic === 'human') {
-      reply.innerHTML = '💬 <strong>Soporte Humano 24/7:</strong><br>Escríbenos directamente por WhatsApp: <br><a href="https://wa.me/522311556138?text=Hola,%20necesito%20asistencia%20humana%20con%20mi%20cuenta%20VYNK" target="_blank" style="color:var(--accent);font-weight:700">📱 Abrir WhatsApp de Soporte</a>';
+      reply.innerHTML = '<strong>Soporte Humano 24/7:</strong><br>Escríbenos directamente por WhatsApp: <br><a href="https://wa.me/522311556138?text=Hola,%20necesito%20asistencia%20humana%20con%20mi%20cuenta%20VYNK" target="_blank" style="color:var(--accent);font-weight:700">Abrir WhatsApp de Soporte</a>';
     }
 
     body.appendChild(reply);
@@ -600,6 +593,31 @@ window.executeCreatePerfil = async function(e) {
     var totalVisitas = perfiles.reduce(function(sum, p) { return sum + ((p && p.visitas) || 0); }, 0);
     if (totalV) totalV.textContent = totalVisitas;
 
+    // Nivel de identidad honesto, calculado con datos reales (§57).
+    (function identityLevel() {
+      var ring = document.getElementById('identity-ring');
+      var levelEl = document.getElementById('identity-level');
+      var subEl = document.getElementById('identity-sub');
+      if (!ring || !levelEl) return;
+      function levelOf(p) {
+        var s = 0;
+        if (p && p.foto_url) s += 25;
+        s += Math.min((p && p.total_campos) || 0, 6) * 10; // hasta 60
+        if (p && p.visitas > 0) s += 10;
+        if (p && p.tipo && p.tipo !== 'personal') s += 5;
+        return Math.min(100, s);
+      }
+      var avg = Math.round(perfiles.reduce(function(sum, p) { return sum + levelOf(p); }, 0) / perfiles.length);
+      var missing = [];
+      if (!perfiles.some(function(p){ return p && p.foto_url; })) missing.push('foto');
+      if (!perfiles.some(function(p){ return (p && p.total_campos) > 0; })) missing.push('bloques');
+      levelEl.textContent = avg + '%';
+      ring.setAttribute('stroke-dasharray', Math.round(avg) + ', 100');
+      subEl.textContent = missing.length
+        ? 'Agrega ' + missing.join(' y ') + ' a tus tarjetas para subirlo'
+        : 'Calculado con los datos reales de tus tarjetas';
+    })();
+
     if (empty) empty.classList.add('hidden');
     grid.innerHTML = perfiles.map(function(p) {
       if (!p) return '';
@@ -612,25 +630,43 @@ window.executeCreatePerfil = async function(e) {
         ? '<div class="avatar avatar-md" style="border:1px solid var(--border-hairline);border-radius:50%;flex-shrink:0;width:44px;height:44px;overflow:hidden"><img src="' + fotoUrl + '" alt="" style="width:100%;height:100%;object-fit:cover" onerror="this.onerror=null;this.src=\'/img/default-avatar.png\';"></div>'
         : '<div class="avatar avatar-md" style="background:rgba(255,255,255,0.08);border:1px solid var(--border-hairline);border-radius:50%;flex-shrink:0;width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--text-primary)">' + initials + '</div>';
 
+      // Miniatura de vista previa del perfil (§28) y swatch de color de tema (§30).
+      var swatch = (color && color !== 'var(--accent)')
+        ? '<span style="width:10px;height:10px;border-radius:50%;background:' + color + ';border:1px solid rgba(255,255,255,0.25);display:inline-block;margin-right:6px;vertical-align:-1px" title="Color de tema"></span>'
+        : '';
+      var updatedText = p.updated_at ? timeAgo(p.updated_at) : '';
+      var previewHtml =
+        '<div style="width:56px;flex-shrink:0;border-radius:10px;overflow:hidden;background:' + color + ';aspect-ratio:9/18;padding:7px 5px;box-shadow:0 6px 18px rgba(0,0,0,0.35)">' +
+          (fotoUrl
+            ? '<img src="' + fotoUrl + '" alt="" style="width:22px;height:22px;border-radius:50%;object-fit:cover;margin:0 auto;display:block;border:1.5px solid rgba(255,255,255,0.7)">'
+            : '<div style="width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,0.35);margin:0 auto;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff">' + initials + '</div>') +
+          '<div style="height:5px;background:rgba(255,255,255,0.85);border-radius:3px;margin-top:6px"></div>' +
+          '<div style="height:4px;width:70%;background:rgba(255,255,255,0.55);border-radius:3px;margin-top:4px"></div>' +
+          '<div style="height:14px;background:rgba(0,0,0,0.28);border-radius:6px;margin-top:8px"></div>' +
+        '</div>';
+
       return '<div class="profile-card glass-card" onclick="openEditModal(' + p.id + ')" style="background:var(--bg-elevated);border:1px solid var(--border-hairline);border-radius:20px;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;box-shadow:0 8px 30px rgba(0,0,0,0.35);transition:transform 200ms cubic-bezier(0.4, 0, 0.2, 1);cursor:pointer">' +
+        previewHtml +
         avatarHtml +
         '<div class="card-info" style="flex:1;min-width:0">' +
           '<div class="card-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;font-size:1.05rem;color:var(--text-primary)">' + escapeHtml(p.nombre_perfil || '') + '</div>' +
-          '<div class="card-meta" style="font-size:0.82rem;color:var(--text-secondary);margin-top:4px;display:flex;align-items:center;gap:8px">' +
-            '<span style="background:rgba(255,255,255,0.06);padding:2px 8px;border-radius:6px;font-size:0.75rem;text-transform:capitalize">' + escapeHtml(p.tipo || 'personal') + '</span>' +
+          '<div class="card-meta" style="font-size:0.82rem;color:var(--text-secondary);margin-top:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">' +
+            '<span style="background:rgba(255,255,255,0.06);padding:2px 8px;border-radius:6px;font-size:0.75rem;text-transform:capitalize">' + swatch + escapeHtml(p.tipo || 'personal') + '</span>' +
             '<span>·</span>' +
             '<span>' + (p.visitas || 0) + ' visitas</span>' +
             '<span>·</span>' +
             '<span>' + (p.total_campos || 0) + ' bloques</span>' +
+            (updatedText ? '<span>·</span><span title="Última modificación">mod. ' + updatedText + '</span>' : '') +
           '</div>' +
         '</div>' +
         '<div class="card-actions" style="display:flex;align-items:center;gap:6px;flex-shrink:0">' +
           '<button type="button" class="btn btn-icon btn-sm action-monochrome" onclick="event.stopPropagation(); openEditModal(' + p.id + ');" title="Abrir editor visual incrustado">' + vynkIcon('edit') + '</button>' +
+          '<button type="button" class="btn btn-icon btn-sm action-monochrome" onclick="event.stopPropagation(); duplicateProfile(' + p.id + ');" title="Duplicar tarjeta">' + vynkIcon('copy') + '</button>' +
           '<a href="/u/' + (p.slug || p.id) + '" class="btn btn-icon btn-sm action-monochrome" onclick="event.stopPropagation()" target="_blank" title="Ver perfil público">' + vynkIcon('eye') + '</a>' +
           '<a href="/analytics.html?id=' + p.id + '" class="btn btn-icon btn-sm action-monochrome" onclick="event.stopPropagation()" title="Analíticas">' + vynkIcon('chart') + '</a>' +
           '<a href="/compartir.html?id=' + p.id + '&slug=' + (p.slug || p.id) + '" class="btn btn-icon btn-sm action-monochrome" onclick="event.stopPropagation()" title="Compartir & QR">' + vynkIcon('share') + '</a>' +
-          '<a href="/compartir.html?id=' + p.id + '&slug=' + (p.slug || p.id) + '&nfc=true" class="btn btn-icon btn-sm action-monochrome" onclick="event.stopPropagation()" title="Grabar en NFC Física">' + vynkIcon('bolt') + '</a>' +
-          '<button class="btn btn-icon btn-sm action-monochrome action-delete" onclick="event.stopPropagation();confirmDelete(' + p.id + ')" title="Eliminar">' + vynkIcon('close') + '</button>' +
+          '<a href="/compartir.html?id=' + p.id + '&slug=' + (p.slug || p.id) + '&nfc=true" class="btn btn-icon btn-sm action-monochrome" onclick="event.stopPropagation()" title="Grabar en NFC Física">' + vynkIcon('nfc') + '</a>' +
+          '<button class="btn btn-icon btn-sm action-monochrome action-delete" onclick="event.stopPropagation();confirmDelete(' + p.id + ')" title="Eliminar">' + vynkIcon('trash') + '</button>' +
         '</div>' +
       '</div>';
     }).join('');
@@ -641,6 +677,34 @@ window.executeCreatePerfil = async function(e) {
     div.textContent = text;
     return div.innerHTML;
   }
+
+  // Formatea la última modificación en español (p. ej. "hace 5 min").
+  function timeAgo(iso) {
+    var t = new Date(iso);
+    if (isNaN(t.getTime())) return '';
+    var s = Math.max(0, Math.floor((Date.now() - t.getTime()) / 1000));
+    if (s < 60) return 'ahora';
+    var m = Math.floor(s / 60);
+    if (m < 60) return 'hace ' + m + ' min';
+    var h = Math.floor(m / 60);
+    if (h < 24) return 'hace ' + h + ' h';
+    var d = Math.floor(h / 24);
+    return 'hace ' + d + ' d';
+  }
+
+  // Duplica una tarjeta con todo su contenido y refresca el dashboard (§53).
+  window.duplicateProfile = function(profileId) {
+    api('/perfiles/' + profileId + '/duplicar', {
+      method: 'POST'
+    }).then(function(copy) {
+      if (!copy) throw new Error('No se pudo duplicar');
+      showToast('Tarjeta duplicada correctamente', 'success');
+      loadProfiles();
+    }).catch(function(err) {
+      console.error('Error duplicando perfil:', err);
+      showToast((err && err.error) || 'Error al duplicar la tarjeta', 'error');
+    });
+  };
 
   // Guided Tour Onboarding (FTUE) for First-Time Users
   var isFirstTime = user.is_first_login !== false && !localStorage.getItem('vynk_tour_completed');
@@ -658,21 +722,21 @@ window.executeCreatePerfil = async function(e) {
           {
             element: '.navbar',
             popover: {
-              title: '👋 ¡Bienvenido a tu Centro de Comando!',
+              title: '¡Bienvenido a tu Centro de Comando!',
               description: 'Este es tu ecosistema de identidad digital Enterprise. Diseña, gestiona y sincroniza tus e-cards con tecnología NFC y QR.'
             }
           },
           {
             element: '#btn-create-card',
             popover: {
-              title: '🪪 Crear Nueva Identidad Digital',
+              title: 'Crear Nueva Identidad Digital',
               description: 'Presiona aquí para desplegar tu primera e-card inteligente con tus redes, catálogo, menú y botón de cobro.'
             }
           },
           {
             element: '#stats-bar',
             popover: {
-              title: '📊 Métricas & Conexiones en Tiempo Real',
+              title: 'Métricas & Conexiones en Tiempo Real',
               description: 'Monitorea tus interacciones, escaneos NFC y descargas de vCard al instante.'
             }
           }
@@ -771,7 +835,7 @@ window.executeCreatePerfil = async function(e) {
             <div class="nfc-ripple-ring ring-1"></div>
             <div class="nfc-ripple-ring ring-2"></div>
             <div class="nfc-ripple-ring ring-3"></div>
-            <div class="nfc-center-icon" id="nfc-modal-icon">' + vynkIcon('bolt') + '</div>
+            <div class="nfc-center-icon" id="nfc-modal-icon">' + vynkIcon('nfc') + '</div>
           </div>
           <h3 id="nfc-modal-title" style="font-size:1.2rem;font-weight:800;color:#FFF;margin-bottom:8px">Sincronización NFC Activa</h3>
           <p id="nfc-modal-status" style="font-size:0.88rem;color:var(--text-secondary);line-height:1.5">Acerca tu VYNK Card o Sticker a la parte trasera de tu celular...</p>
@@ -787,7 +851,7 @@ window.executeCreatePerfil = async function(e) {
     if (card) {
       card.className = 'nfc-modal-card';
     }
-    document.getElementById('nfc-modal-icon').innerHTML = vynkIcon('bolt');
+    document.getElementById('nfc-modal-icon').innerHTML = vynkIcon('nfc');
     document.getElementById('nfc-modal-title').textContent = 'Sincronización NFC Activa';
     document.getElementById('nfc-modal-status').textContent = 'Acerca tu VYNK Card o Sticker a la parte trasera de tu celular...';
     document.getElementById('nfc-modal-actions').innerHTML = '<button class="btn btn-secondary btn-sm" onclick="cancelNfcWriting()">Cancelar</button>';
@@ -804,13 +868,13 @@ window.executeCreatePerfil = async function(e) {
 
     if (state === 'success') {
       if (card) card.className = 'nfc-modal-card success-state';
-      if (icon) icon.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.6em;height:1.6em"><path d="M5 13l4 4L19 7"/></svg>';
+      if (icon) icon.innerHTML = vynkIcon('check', 28);
       if (titleEl) titleEl.textContent = title;
       if (statusEl) statusEl.textContent = message;
-      if (actionsEl) actionsEl.innerHTML = '<span style="font-size:0.8rem;color:var(--green);font-weight:700">' + vynkIcon('check') + ' Guardado correctamente</span>';
+      if (actionsEl) actionsEl.innerHTML = '<span style="font-size:0.8rem;color:var(--green);font-weight:700;display:inline-flex;align-items:center;gap:6px">' + vynkIcon('check', 14) + ' Guardado correctamente</span>';
     } else if (state === 'error') {
       if (card) card.className = 'nfc-modal-card error-state';
-      if (icon) icon.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.6em;height:1.6em"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>';
+      if (icon) icon.innerHTML = vynkIcon('alert', 28);
       if (titleEl) titleEl.textContent = title;
       if (statusEl) statusEl.textContent = message;
       if (actionsEl) {
@@ -1061,7 +1125,7 @@ window.executeCreatePerfil = async function(e) {
           const query = locData.query || 'Teziutlan Puebla';
           row.innerHTML = `
             <div style="width:100%">
-              <div style="font-weight:700;font-size:0.85rem;margin-bottom:6px;display:flex;align-items:center;gap:6px">📍 ${locData.titulo || 'Nuestra Ubicación'}</div>
+              <div style="font-weight:700;font-size:0.85rem;margin-bottom:6px;display:flex;align-items:center;gap:6px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:0.9em;height:0.9em"><path d="M12 21s7-7.5 7-12a7 7 0 1 0-14 0c0 4.5 7 12 7 12z"/><circle cx="12" cy="9" r="2.4"/></svg> ${locData.titulo || 'Nuestra Ubicación'}</div>
               <iframe width="100%" height="90" style="border:0;border-radius:10px;margin-bottom:6px" loading="lazy" src="https://maps.google.com/maps?q=${encodeURIComponent(query)}&output=embed"></iframe>
             </div>`;
         } else {

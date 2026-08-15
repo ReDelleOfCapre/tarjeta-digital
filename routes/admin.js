@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const rateLimit = require('express-rate-limit');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const { dbReady } = require('../database/db');
 const db = require('../database/db');
@@ -19,9 +20,10 @@ const adminLoginLimiter = rateLimit({
 
 router.post('/login', adminLoginLimiter, (req, res) => {
   const { key } = req.body;
-  const masterKey = process.env.ADMIN_KEY || 'admin123';
+  const masterKey = process.env.ADMIN_KEY;
 
-  if (!key || key !== masterKey) {
+  // Sin llave maestra configurada, el acceso por llave se niega siempre (§36).
+  if (!masterKey || !key || key !== masterKey) {
     return res.status(401).json({ error: 'Llave maestra de administrador incorrecta.' });
   }
 
@@ -33,7 +35,7 @@ router.post('/login', adminLoginLimiter, (req, res) => {
     plan: 'paid'
   };
 
-  const secret = process.env.JWT_SECRET || 'vynk_secret_key';
+  const secret = process.env.JWT_SECRET || crypto.randomBytes(32).toString('hex');
   const token = jwt.sign(payload, secret, { expiresIn: '7d' });
 
   res.json({ ok: true, token, usuario: payload });

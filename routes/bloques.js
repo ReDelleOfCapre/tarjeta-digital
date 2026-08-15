@@ -5,6 +5,14 @@ const auth = require('../middleware/auth');
 const requireQuota = require('../middleware/quota');
 const { getEmbed } = require('../utils/embeds');
 
+// Marca el perfil como modificado (§28) para "última modificación" en el dashboard.
+const touchPerfil = async (perfilId) => {
+  if (!perfilId) return;
+  try {
+    await db.prepare('UPDATE perfiles SET updated_at = CURRENT_TIMESTAMP WHERE id = ?').run(perfilId);
+  } catch (e) {}
+};
+
 router.get('/perfiles/:perfilId/bloques', auth, async (req, res) => {
   try {
     const perfilId = parseInt(req.params.perfilId, 10);
@@ -55,6 +63,7 @@ router.post('/perfiles/:perfilId/bloques', auth, requireQuota, async (req, res) 
     ).run(perfilId, tipo, JSON.stringify(parsedContent), ordenFinal);
 
     const newBloque = await db.prepare('SELECT * FROM bloques WHERE id = ?').get(result.lastInsertRowid);
+    await touchPerfil(perfilId);
     res.status(201).json(newBloque);
   } catch (err) {
     console.error('Error creando bloque:', err);
@@ -99,6 +108,7 @@ router.put('/bloques/:id', auth, requireQuota, async (req, res) => {
     ).run(contentToSave, visibleToSave, ordenToSave, bloqueId);
 
     const updatedBloque = await db.prepare('SELECT * FROM bloques WHERE id = ?').get(bloqueId);
+    await touchPerfil(bloque.perfil_id);
     res.json(updatedBloque);
   } catch (err) {
     console.error('Error actualizando bloque:', err);
@@ -127,6 +137,7 @@ router.post('/bloques/:id/duplicar', auth, requireQuota, async (req, res) => {
     ).run(bloque.perfil_id, bloque.tipo, bloque.contenido, bloque.visible, maxOrden + 1);
 
     const newBloque = await db.prepare('SELECT * FROM bloques WHERE id = ?').get(result.lastInsertRowid);
+    await touchPerfil(bloque.perfil_id);
     res.status(201).json(newBloque);
   } catch (err) {
     console.error('Error duplicando bloque:', err);
@@ -147,6 +158,7 @@ router.delete('/bloques/:id', auth, requireQuota, async (req, res) => {  try {
     if (bloque.usuario_id !== req.user.id) return res.status(403).json({ error: 'Acceso denegado.' });
 
     await db.prepare('DELETE FROM bloques WHERE id = ?').run(bloqueId);
+    await touchPerfil(bloque.perfil_id);
     res.json({ ok: true, mensaje: 'Bloque eliminado correctamente' });
   } catch (err) {
     console.error('Error eliminando bloque:', err);
@@ -171,6 +183,7 @@ router.put('/perfiles/:perfilId/bloques/reorder', auth, requireQuota, async (req
       await db.prepare('UPDATE bloques SET orden = ? WHERE id = ? AND perfil_id = ?').run(i, orden[i], perfilId);
     }
 
+    await touchPerfil(perfilId);
     res.json({ ok: true, mensaje: 'Orden actualizado' });
   } catch (err) {
     console.error('Error reordenando bloques:', err);

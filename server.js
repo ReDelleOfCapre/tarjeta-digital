@@ -5,6 +5,7 @@ const helmet = require('helmet');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const crypto = require('crypto');
 
 // Importar promesa de inicialización de la base de datos
 const { initPromise: dbReady } = require('./database/db');
@@ -82,25 +83,23 @@ app.use(helmet({
 // Stripe Webhook (Requiere raw body con express.raw antes de express.json)
 // =============================================
 app.post('/api/webhook/stripe', express.raw({ type: 'application/json' }), async (req, res) => {
-  const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY || 'sk_test_mock');
   const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
-  let event = req.body;
+  // Sin secreto de webhook no confiamos en el cuerpo: rechazamos en vez de
+  // cumplir pedidos con eventos no verificados (§36, §57).
+  if (!endpointSecret) {
+    console.warn('⚠️ Webhook Stripe rechazado: falta STRIPE_WEBHOOK_SECRET en el entorno.');
+    return res.status(400).send('Webhook no configurado.');
+  }
+  const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
-  if (endpointSecret) {
-    const signature = req.headers['stripe-signature'];
-    try {
-      event = stripe.webhooks.constructEvent(req.body, signature, endpointSecret);
-    } catch (err) {
-      console.error('⚠️ Error de verificación de firma del Webhook de Stripe:', err.message);
-      return res.status(400).send(`Webhook Error: ${err.message}`);
-    }
-  } else {
-    try {
-      if (Buffer.isBuffer(req.body)) {
-        event = JSON.parse(req.body.toString('utf8'));
-      }
-    } catch(e){}
+  let event;
+  const signature = req.headers['stripe-signature'];
+  try {
+    event = stripe.webhooks.constructEvent(req.body, signature, endpointSecret);
+  } catch (err) {
+    console.error('⚠️ Error de verificación de firma del Webhook de Stripe:', err.message);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
   // Responder 200 OK rápidamente para evitar reintentos redundantes de Stripe
@@ -184,6 +183,20 @@ app.get('/editor', (req, res) => {
 
 // Servir frontend estático
 app.use(express.static(path.join(process.cwd(), 'public')));
+
+// Composition Engine isomórfico (una sola fuente de verdad en shared/):
+// el mismo módulo lo consume Node (motor de inteligencia) y el navegador.
+app.get('/js/vynk-composition.js', (req, res) => {
+  res.type('application/javascript');
+  res.sendFile(path.join(process.cwd(), 'shared', 'vynk-composition.js'));
+});
+
+// Experience Engine isomórfico (Revolución de Diseño): decisiones de diseño
+// deterministas (arquetipo, jerarquía, patrones, fondo, motion, contraste).
+app.get('/js/vynk-experience.js', (req, res) => {
+  res.type('application/javascript');
+  res.sendFile(path.join(process.cwd(), 'shared', 'vynk-experience.js'));
+});
 
 // Servir archivos subidos
 app.use('/uploads', express.static(path.resolve(UPLOAD_DIR)));
@@ -277,7 +290,7 @@ app.post('/api/invite', async (req, res) => {
     const { email, senderName } = req.body || {};
     if (!email) return res.status(400).json({ error: 'Ingresa un correo electrónico de destino' });
 
-    const inviteToken = 'vynk_' + Math.random().toString(36).substring(2, 10);
+    const inviteToken = 'vynk_' + crypto.randomBytes(24).toString('hex');
     await sendInviteEmail(email, senderName || 'Colega VYNK', inviteToken);
 
     res.json({
@@ -309,7 +322,11 @@ app.post('/api/create-checkout-session', async (req, res) => {
       origin
     });
 
-    res.json({ success: true, url: session.url, isMock: session.isMock });
+    if (!session.url) {
+      return res.status(503).json({ success: false, error: session.error || 'Pagos no configurados.' });
+    }
+
+    res.json({ success: true, url: session.url });
   } catch (err) {
     console.error('❌ Error en Stripe Checkout endpoint:', err);
     res.status(500).json({ error: 'Error procesando la sesión de pago' });

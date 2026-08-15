@@ -2,10 +2,17 @@ const { Pool } = require('pg');
 const path = require('path');
 const fs = require('fs');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 
 require('dotenv').config();
 
-const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://neondb_owner:npg_peRwZf4D5XsK@ep-crimson-tooth-axo8ifo4.c-4.us-east-2.aws.neon.tech/neondb?sslmode=require';
+const DATABASE_URL = process.env.DATABASE_URL;
+
+// Sin credenciales de DB no arrancamos: nunca guardamos secretos en el código.
+if (!DATABASE_URL) {
+  console.error('❌ Falta DATABASE_URL en el entorno. Configúralo en .env (Neon/Postgres).');
+  process.exit(1);
+}
 
 /**
  * Async/await wrapper around a single pg.Pool.
@@ -173,6 +180,11 @@ class PgDatabaseWrapper {
       await this.pool.query("ALTER TABLE perfiles ADD COLUMN IF NOT EXISTS mostrar_agendar_cita BOOLEAN DEFAULT TRUE");
       await this.pool.query("ALTER TABLE perfiles ADD COLUMN IF NOT EXISTS mostrar_saludo_voz BOOLEAN DEFAULT TRUE");
       await this.pool.query("ALTER TABLE perfiles ADD COLUMN IF NOT EXISTS audio_saludo_url TEXT");
+      // Densidad de composición (§69): minimal | balanced | rich | immersive | auto
+      await this.pool.query("ALTER TABLE perfiles ADD COLUMN IF NOT EXISTS densidad VARCHAR(20) DEFAULT 'auto'");
+      // Última modificación (§28): se actualiza en cada mutación de contenido.
+      await this.pool.query("ALTER TABLE perfiles ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP");
+      await this.pool.query("UPDATE perfiles SET updated_at = COALESCE(updated_at, CURRENT_TIMESTAMP)");
     } catch (e) {
       console.error('Error corriendo migraciones PG:', e);
     }
@@ -180,7 +192,11 @@ class PgDatabaseWrapper {
 
   async _seedDatabase() {
     try {
-      const defaultPassHash = bcrypt.hashSync('admin1234', 10);
+      // Contraseña admin: usar ADMIN_SEED_PASSWORD si está definido; sino
+      // se genera una aleatoria. El admin existente (UPDATE abajo) conserva
+      // su hash — nunca se le resetea la contraseña aquí.
+      const adminSeed = process.env.ADMIN_SEED_PASSWORD || crypto.randomBytes(24).toString('base64url');
+      const defaultPassHash = bcrypt.hashSync(adminSeed, 10);
 
       const adminRes = await this.pool.query(
         "SELECT id FROM usuarios WHERE telefono = $1 OR email = $2 LIMIT 1",
@@ -196,6 +212,9 @@ class PgDatabaseWrapper {
           ['2311556138', 'Giovanni Paolo', defaultPassHash, 'gpprzrom@gmail.com']
         );
         adminId = insAdmin.rows[0].id;
+        if (!process.env.ADMIN_SEED_PASSWORD) {
+          console.log(`🔑 Admin creado con password aleatorio: ${adminSeed}. Define ADMIN_SEED_PASSWORD para fijarlo.`);
+        }
       } else {
         await this.pool.query(
           "UPDATE usuarios SET role = 'admin', plan = 'paid', email = $1, nombre = 'Giovanni Paolo' WHERE id = $2",

@@ -1,15 +1,45 @@
 const nodemailer = require('nodemailer');
 
-// Configuración de transportador seguro con fallback de desarrollo
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: parseInt(process.env.SMTP_PORT || '587'),
-  secure: process.env.SMTP_SECURE === 'true',
-  auth: {
-    user: process.env.SMTP_USER || 'notificaciones@vynk.me',
-    pass: process.env.SMTP_PASS || 'mock_pass'
+// Transportador perezoso y robusto: SMTP real si hay configuración, sino
+// Ethereal (pruebas), sino logger mock. Nunca envía con credenciales falsas.
+let transporter = null;
+async function getTransporter() {
+  if (transporter) return transporter;
+
+  if (process.env.SMTP_HOST && process.env.SMTP_USER) {
+    transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: parseInt(process.env.SMTP_PORT || '587'),
+      secure: process.env.SMTP_SECURE === 'true',
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS
+      }
+    });
+  } else {
+    try {
+      const testAccount = await nodemailer.createTestAccount();
+      transporter = nodemailer.createTransport({
+        host: 'smtp.ethereal.email',
+        port: 587,
+        secure: false,
+        auth: {
+          user: testAccount.user,
+          pass: testAccount.pass
+        }
+      });
+    } catch (e) {
+      console.log('⚠️ Usando logger mock de email (sin SMTP configurado)');
+      transporter = {
+        sendMail: async (opts) => {
+          console.log(`[MOCK EMAIL SENT TO ${opts.to}]:`, opts.subject);
+          return { messageId: 'mock-' + Date.now() };
+        }
+      };
+    }
   }
-});
+  return transporter;
+}
 
 /**
   * Genera el envoltorio HTML universal de Lujo Silencioso VYNK
@@ -128,12 +158,14 @@ async function sendClientAppointmentConfirmation({ clientEmail, clientName, owne
  * Enviar mail silencioso con log o fallback
  */
 async function sendMailSilently({ to, subject, html }) {
-  if (!process.env.SMTP_USER || process.env.SMTP_USER === 'notificaciones@vynk.me') {
+  // Sin SMTP real configurado no simulamos envío: mock con log claro.
+  if (!process.env.SMTP_HOST || !process.env.SMTP_USER) {
     console.log(`✉️ [EMAIL MOCK SENT to ${to}]: ${subject}`);
     return { ok: true, mock: true };
   }
   try {
-    const info = await transporter.sendMail({
+    const mailer = await getTransporter();
+    const info = await mailer.sendMail({
       from: `"VYNK" <${process.env.SMTP_USER}>`,
       to,
       subject,
@@ -150,5 +182,6 @@ async function sendMailSilently({ to, subject, html }) {
 module.exports = {
   sendWelcomeEmail,
   sendOwnerAppointmentNotification,
-  sendClientAppointmentConfirmation
+  sendClientAppointmentConfirmation,
+  getTransporter
 };

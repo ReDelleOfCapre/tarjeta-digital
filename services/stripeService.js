@@ -55,9 +55,9 @@ async function createCheckoutSession({ productId, title, price, type, origin }) 
     }
   }
 
-  // Graceful Sandbox Mock URL when real keys are not present
-  const mockUrl = `${baseOrigin}/dashboard.html?checkout_mock=true&type=${encodeURIComponent(type || 'payment')}&item=${encodeURIComponent(itemTitle)}&price=${priceAmount}`;
-  return { url: mockUrl, isMock: true };
+  // Sin llave de Stripe configurada no simulamos un pago (§57, §37):
+  // el frontend mostrará el error exacto y las acciones seguirán disponibles.
+  return { url: null, error: 'Los pagos aún no están configurados en esta cuenta. Configura STRIPE_SECRET_KEY para activar la pasarela.' };
 }
 
 module.exports = {
