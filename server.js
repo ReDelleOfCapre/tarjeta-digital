@@ -177,6 +177,11 @@ app.get('/editor', (req, res) => {
   res.redirect(301, '/editor.html');
 });
 
+// Endpoint de monitoreo / Health Check para Render y Uptime Checks
+app.get(['/health', '/api/health'], (req, res) => {
+  res.status(200).json({ status: 'ok', uptime: process.uptime(), timestamp: Date.now() });
+});
+
 // =============================================
 // Archivos estáticos
 // =============================================
